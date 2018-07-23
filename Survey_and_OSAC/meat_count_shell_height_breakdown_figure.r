@@ -43,7 +43,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
                     mc=40,title=paste("Breakdown",yr),cx.axs=1.5,cx.lab=1.5,cx.mn=2,add.title=T)
 {
 	
-  	# Grab the biomass and numbers for each bin size from the survey, this is in kg per tow and number per tow.
+  # Grab the biomass and numbers for each bin size from the survey, this is in kg per tow and number per tow.
   	bm<-surv.obj$shf.dat$w.yst[which(surv.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
   	num<-surv.obj$shf.dat$n.yst[which(surv.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]
   	# Get the Commercial size if it hasn't been specified

@@ -40,7 +40,7 @@ sprSurv<-function(dat,years,towlist=NULL,print=F,chng=F,user.bins = NULL)
 {
   # load the spr package, note this is a locally developed package not available from R repositories
   require(spr)  || stop("spr package required please obtain a copy and install this locally developed package")
-  
+
   # Make the first element in the list a data.frame with appropriate headers.
   out.obj<-list(NULL)
   out.obj[[1]]<-data.frame(year=years,n=with(subset(dat,year%in%years),tapply(tow,year,length)),
@@ -128,20 +128,20 @@ sprSurv<-function(dat,years,towlist=NULL,print=F,chng=F,user.bins = NULL)
 		{
 		  # This pulls the mean for the all tows from the current year and convert to grams
 		  #DK Note:  Careful this *1000 doesn't have ramifications elsewhere!
-			out.obj[[1]]$I[1]<-spr.Sumstats(com.bm.spr.obj[[i]])[7,1] *1000
-			out.obj[[1]]$IR[1]<-spr.Sumstats(rec.bm.spr.obj[[i]])[7,1]*1000
-			out.obj[[1]]$IPR[1]<-spr.Sumstats(pre.bm.spr.obj[[i]])[7,1]*1000
-			out.obj[[1]]$N[1]<-spr.Sumstats(com.spr.obj[[i]])[7,1]
-			out.obj[[1]]$NR[1]<-spr.Sumstats(rec.spr.obj[[i]])[7,1]
-			out.obj[[1]]$NPR[1]<-spr.Sumstats(pre.spr.obj[[i]])[7,1]
+			out.obj[[1]]$I[1]<-spr:::spr.Sumstats(com.bm.spr.obj[[i]])[7,1] *1000
+			out.obj[[1]]$IR[1]<-spr:::spr.Sumstats(rec.bm.spr.obj[[i]])[7,1]*1000
+			out.obj[[1]]$IPR[1]<-spr:::spr.Sumstats(pre.bm.spr.obj[[i]])[7,1]*1000
+			out.obj[[1]]$N[1]<-spr:::spr.Sumstats(com.spr.obj[[i]])[7,1]
+			out.obj[[1]]$NR[1]<-spr:::spr.Sumstats(rec.spr.obj[[i]])[7,1]
+			out.obj[[1]]$NPR[1]<-spr:::spr.Sumstats(pre.spr.obj[[i]])[7,1]
 			
 			# This gets the coefficent of variation for that same data, note this uses sd not se
-			out.obj[[1]]$I.cv[1]<-sqrt(spr.Sumstats(com.bm.spr.obj[[i]])[9,1])   / spr.Sumstats(com.bm.spr.obj[[i]])[7,1]  
-			out.obj[[1]]$IR.cv[1]<-sqrt(spr.Sumstats(rec.bm.spr.obj[[i]])[9,1])  / spr.Sumstats(rec.bm.spr.obj[[i]])[7,1] 
-			out.obj[[1]]$IPR.cv[1]<-sqrt(spr.Sumstats(pre.bm.spr.obj[[i]])[9,1]) / spr.Sumstats(pre.bm.spr.obj[[i]])[7,1]
-			out.obj[[1]]$N.cv[1]<-sqrt(spr.Sumstats(com.spr.obj[[i]])[9,1])      / spr.Sumstats(com.spr.obj[[i]])[7,1]     
-			out.obj[[1]]$NR.cv[1]<-sqrt(spr.Sumstats(rec.spr.obj[[i]])[9,1])     / spr.Sumstats(rec.spr.obj[[i]])[7,1]    
-			out.obj[[1]]$NPR.cv[1]<-sqrt(spr.Sumstats(pre.spr.obj[[i]])[9,1])    / spr.Sumstats(pre.spr.obj[[i]])[7,1]   
+			out.obj[[1]]$I.cv[1]<-sqrt(spr:::spr.Sumstats(com.bm.spr.obj[[i]])[9,1])   / spr:::spr.Sumstats(com.bm.spr.obj[[i]])[7,1]  
+			out.obj[[1]]$IR.cv[1]<-sqrt(spr:::spr.Sumstats(rec.bm.spr.obj[[i]])[9,1])  / spr:::spr.Sumstats(rec.bm.spr.obj[[i]])[7,1] 
+			out.obj[[1]]$IPR.cv[1]<-sqrt(spr:::spr.Sumstats(pre.bm.spr.obj[[i]])[9,1]) / spr:::spr.Sumstats(pre.bm.spr.obj[[i]])[7,1]
+			out.obj[[1]]$N.cv[1]<-sqrt(spr:::spr.Sumstats(com.spr.obj[[i]])[9,1])      / spr:::spr.Sumstats(com.spr.obj[[i]])[7,1]     
+			out.obj[[1]]$NR.cv[1]<-sqrt(spr:::spr.Sumstats(rec.spr.obj[[i]])[9,1])     / spr:::spr.Sumstats(rec.spr.obj[[i]])[7,1]    
+			out.obj[[1]]$NPR.cv[1]<-sqrt(spr:::spr.Sumstats(pre.spr.obj[[i]])[9,1])    / spr:::spr.Sumstats(pre.spr.obj[[i]])[7,1]   
 		} #end if i == 1
 
 		# Now obtain the mean for the rest of the years.
@@ -215,8 +215,8 @@ sprSurv<-function(dat,years,towlist=NULL,print=F,chng=F,user.bins = NULL)
 		    user.bin.res[[bnames[k]]] <- spr(SurvY1$tow,SurvY1[,bnames[k]],SurvY2$tow,SurvY2[,bnames[k]],crossref=crossref)
 		    if(i==1) 
 		    {
-		      tmp[i,(k)] <- spr.Sumstats(user.bin.res[[bnames[k]]])[7,1]
-		      tmp[i,(k + length(bnames))] <- sqrt(spr.Sumstats(user.bin.res[[bnames[k]]])[9,1])   / spr.Sumstats(user.bin.res[[bnames[k]]])[7,1]  
+		      tmp[i,(k)] <- spr:::spr.Sumstats(user.bin.res[[bnames[k]]])[7,1]
+		      tmp[i,(k + length(bnames))] <- sqrt(spr:::spr.Sumstats(user.bin.res[[bnames[k]]])[9,1])   / spr:::spr.Sumstats(user.bin.res[[bnames[k]]])[7,1]  
 		    }
 		    # Now obtain the mean for the rest of the years, something screwy here...
 		    tmp[i+1,(k)] <- summary(user.bin.res[[bnames[k]]])$Yspr 

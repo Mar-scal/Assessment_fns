@@ -112,7 +112,9 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB"),
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F)
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offset=c(0.12, 0.12, 0.12, 
+                                                                                                   0.12, 0.10, 0.15,
+                                                                                                   0.15, 0.35))
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -254,14 +256,50 @@ for(i in 1:len)
 
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
-  bound.poly.surv <-as.PolySet(subset(survey.bound.polys,label==banks[i]),projection ="LL")
-  #Detailed survey polygones
-  if(banks[i] %in% c("GBa","GBb","BBn","BBs","Sab")) detail.poly.surv <- as.PolySet(subset(survey.detail.polys,label==banks[i]),projection = "LL")
-  # Get the strata areas.
-  strata.areas <- subset(survey.info,label==banks[i],select =c("PID","towable_area"))
-  #Get all the details of the survey strata
-  surv.info <- subset(survey.info,label== banks[i])
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs", "GB")) bound.poly.surv <-as.PolySet(subset(survey.bound.polys,
+                                                                                   label==banks[i], 
+                                                                                   select=c("PID", "SID", "POS", "X", "Y", "label")),
+                                                                            projection ="LL")
+  if(banks[i] %in% c("Sab")) {
+    if(yr < max(survey.bound.polys$startyear)) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==1900,],
+                                                                 label==banks[i], 
+                                                                 select=c("PID", "SID", "POS", "X", "Y", "label")), 
+                                                          projection ="LL")
+    if(!yr < max(survey.bound.polys$startyear)) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==2018,],
+                                                                                   label==banks[i], 
+                                                                                   select=c("PID", "SID", "POS", "X", "Y", "label")), 
+                                                                            projection ="LL")
+  }
   
+  #Detailed survey polygons
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs")) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
+                                                                                           label==banks[i], 
+                                                                                           select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
+                                                                                    projection = "LL")
+  if(banks[i] %in% c("Sab")) {
+    if(yr < max(survey.detail.polys$startyear)) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==1900,],
+                                                                                      label==banks[i], 
+                                                                                      select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
+                                                                               projection = "LL")
+    if(!yr < max(survey.detail.polys$startyear)) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==2018,],
+                                                                                      label==banks[i], 
+                                                                                      select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
+                                                                               projection = "LL")
+  }
+  # Get the strata areas.
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs")) strata.areas <- subset(survey.info,label==banks[i],select =c("PID","towable_area"))
+  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+    strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+    strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  if(banks[i] %in% c("GB", "Mid", "Ger")) strata.areas <- NULL
+  
+  #Get all the details of the survey strata
+  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label==banks[i]])) surv.info <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),],label== banks[i])
+  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label==banks[i]])) surv.info <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),],label== banks[i])
+  
+  if(!banks[i] %in% c("Sab")) surv.info <- subset(survey.info,label== banks[i])
+
   ### If we are missing years in the data I want to add those years in as NA's so the plots see those as NA's  ####
   check.year <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
   missing.year <- check.year[!is.element(check.year,survey.obj[[banks[i]]][[1]]$year)]
@@ -288,7 +326,7 @@ for(i in 1:len)
   } # if(length(missing.year > 0))
   
   ################################# START MAKING FIGURES################################# START MAKING FIGURES################################# 
-  
+
 ################  The non-survey spatial plots ###########################
 ################  Next up are the rest of the spatial plots ###########################
 ################  Next up are the rest of the spatial plots ###########################
@@ -332,11 +370,12 @@ for(i in 1:len)
       Y.range <- range(g.bnds$Y,na.rm=T)
       X.range <- range(g.bnds$X,na.rm=T)
       g.tmp <- newAreaPolys[newAreaPolys$label=="SFA26",]
+      g.tmp <- g.tmp[, c("PID", "POS", "X", "Y", "label", "bank")]
       g.tmp$X[g.tmp$X < X.range[1]] <- X.range[1]
       g.tmp$X[g.tmp$X > X.range[2]] <- X.range[2]
       g.tmp$Y[g.tmp$Y > Y.range[2]] <- Y.range[2]
       g.tmp$Y[g.tmp$Y < Y.range[1]] <- Y.range[1]
-      # Now I want to insert a segemnt into the boundary to run a diagonal line from around 43°9/-66.755 to 43/-66°24
+      # Now I want to insert a segemnt into the boundary to run a diagonal line from around 43?9/-66.755 to 43/-66?24
       g.tmp[2,] <- c(5,2,-66.4,Y.range[1],"SFA26","Ger")
       g.tmp <- as.data.frame(rbind(g.tmp[c(1,2),],c(5,2,X.range[1],43.15,"SFA26","Ger"),g.tmp[3:nrow(g.tmp),]))
       for(k in 1:4) g.tmp[,k] <- as.numeric(g.tmp[,k]) # Silly rbind making everything characters...
@@ -355,6 +394,7 @@ for(i in 1:len)
       # If we are just getting the spatial maps for the seedboxes then we want all of these plots
       # We also want them all if saving the INLA results.
       if(any(plots %in% "seedboxes")) seed.n.spatial.maps <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial")
+      
       # Next we get the survey locations
       if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB"))
       {   
@@ -382,8 +422,8 @@ for(i in 1:len)
       # This is how the mesh and A matrix are constructed
       # Build the mesh, for our purposes I'm hopeful this should do the trick, the offset makes the area a bit larger so the main predictions 
       #  should cover our entire survey area.
-      if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=0.15)
-      if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=0.35)
+      if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=offset[i])
+      if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=offset[i])
       #windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp,add=T,lwd=2)
      
       # Now make the A matrix
@@ -408,9 +448,9 @@ for(i in 1:len)
       # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
       # basically the random deviations for each piece of the mesh.
       formula3 <- y ~ 0 + a0 + f(s, model=spde)
-      
+
       # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
-      if(length(seed.n.spatial.maps > 0))
+      if(length(seed.n.spatial.maps) > 0)
       {
         # Get the data needed....
         if(banks[i] %in% c("GBb","GBa")) 
@@ -419,7 +459,7 @@ for(i in 1:len)
           tmp.cf <- rbind(CF.current[["GBa"]],CF.current[["GBb"]]) 
           tmp.clap <- rbind(surv.Clap[["GBa"]][surv.Clap[["GBa"]]$year == yr,],surv.Clap[["GBb"]][surv.Clap[["GBb"]]$year == yr,])
         }  # end if(banks[i] %in% c("GBb","GBa")) 
-        
+
         if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
         {  
           tmp.dat <- surv.Live[[banks[i]]][surv.Live[[banks[i]]]$year == yr,]
@@ -458,6 +498,7 @@ for(i in 1:len)
             stk <- inla.stack(tag="est",data=list(y = tmp.dat$com, link=1L),
                               effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                               A = list(1, A))
+            print(stk)
                         # This is the INLA model itself
             mod <- inla(formula3, family=family1, data = inla.stack.data(stk),#control.family= control.family1,
                         control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
@@ -477,6 +518,7 @@ for(i in 1:len)
           if(seed.n.spatial.maps[k] == "MC-spatial")      
           {
             # This is the stack for the INLA model
+            #browser()
             stk <- inla.stack(tag="est",data=list(y = tmp.cf$meat.count, link=1L),
                               effects=list(a0 = rep(1, nrow(tmp.cf)), s = 1:spde$n.spde),
                               A = list(1, A.cf))
@@ -499,6 +541,7 @@ for(i in 1:len)
           # Now that this is done we need to make a prediction grid for projection onto our mesh,
           proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
           # Then make a matrix of the correct dimension, first for the poisson models
+          
           if(seed.n.spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
                                                                           inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
           # Now for the Gaussian models.
@@ -542,6 +585,17 @@ for(i in 1:len)
         user.bins <- spr.survey.obj$user.bins
       } # end if(banks[i]  == "Ger")
       
+      # Get the data needed....
+      if(banks[i] %in% c("GBb","GBa")) 
+      {
+        tmp.dat <- rbind(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
+      }  # end if(banks[i] %in% c("GBb","GBa")) 
+      
+      if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
+      {  
+        tmp.dat <- surv.Live[[banks[i]]][surv.Live[[banks[i]]]$year == yr,]
+      } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
+      
       # Only run the models if not loading them....
       if(length(grep("run",INLA)) > 0)
       {
@@ -558,6 +612,13 @@ for(i in 1:len)
           # This is the INLA model itself
           mod <- inla(formula3, family=family1, data = inla.stack.data(stk),
                       control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+          # Now that this is done we need to make a prediction grid for projection onto our mesh,
+          proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
+          if(banks[i] %in% c("Sab","Mid"))
+          {
+            simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
+            pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+          } # end if(banks[i] == "Sab")
           # Then make a matrix of the correct dimension
           mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
           # Get rid of all data outside our plotting area...
@@ -565,7 +626,7 @@ for(i in 1:len)
         } # End for(k in 1:num.bins)
       } #end if(length(grep("run",INLA)) > 0)
     }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
-    
+
     # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
     # Results are only saved if the option 'run.full' is chosen
     if(INLA == 'run.full') 
@@ -735,7 +796,6 @@ for(i in 1:len)
           base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
           cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                     rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
-
           if(length(grep("bm",maps.to.make[m])) > 0) # if we are looking at biomass figures...
           {
             base.lvls= c(0,0.005,0.01,0.05,0.1,0.5,1,2,5,10,20,50,1000)
@@ -753,6 +813,7 @@ for(i in 1:len)
                                paste(lvls[length(lvls)-1],'-',lvls[max.lvl],sep='')))
           # Now set up the figure titles, different title depending on the spatial map here.
           count = count + 1
+          
           if(count > num.bins/2) count = 1 # This resets the counter to start over for the Biomass plots.
           # Now I can get a nice name for the figure
           if(count == 1) fig.title.start <- paste("Scallops 0-",user.bins[count]-1," mm (",sep="")
@@ -777,20 +838,23 @@ for(i in 1:len)
         ############  End prepartion of levels and figure annotations for spatial figures#######
         ############  End prepartion of levels and figure annotations for spatial figures###
         
-        
         ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
         ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
         # Do we want to save the figure to a file or just output to the screen?  
         if(fig == "png") png(paste(plot.dir,maps.to.make[m],".png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
         if(fig == "pdf") pdf(paste(plot.dir,maps.to.make[m],".pdf",sep=""),width = 11,height = 8.5,bg = "transparent")
         if(fig == "screen") windows(11,8.5)
+        
         par(mfrow=c(1,1))
         # This is one figure to rule all 
         ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy=T,plot.boundries=T,boundries="offshore",
                    direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-        image(list(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]]), axes=F,add=T,breaks = lvls,col=cols)
-        if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
+        if(!is.null(mod.res[[maps.to.make[m]]])) {
+          image(list(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]]), axes=F,add=T,breaks = lvls,col=cols)
+          if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
+        }
         plot(bound.poly.surv.sp,add=T,lwd=2)
+        
         ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
         ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
   
@@ -916,7 +980,6 @@ for(i in 1:len)
   #Do we want to plot the survey?
   if(any(plots %in% "Survey"))
   {
-    
     # For this figure we want full bank names, this is ugly hack but does the trick.
     full.names <- data.frame(abrv = c("SPB","Ban","Mid","Sab","Ger","BBs","BBn","GBa","GBb","GB"),
                              full = c("St. Pierre Bank","Banquereau","Middle Bank","Sable Bank","German Bank","Browns Bank South",
@@ -933,6 +996,7 @@ for(i in 1:len)
     
     par(mfrow=c(1,1))
     if(add.title == F) survey.title <- ""
+    
     # Make the plot, this one is for cases in which we have survey strata
     if(length(strata.areas[,1]) > 0)
     {
@@ -944,14 +1008,16 @@ for(i in 1:len)
       if(banks[i] %in% c("Sab","GBb")) 
       {
         ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                                                  plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-                                                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
+                   plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                   nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
+        
         # This will put the scale bottom left I think...
-        if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
-                                           min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
+        #if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
+        #                                   min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
       } # end if(banks[i] %in% c("Sab","GBb")) 
     } # end if(length(strata.areas[,1]) > 0)
     # For the banks without any strata
+    
     if(length(strata.areas[,1]) == 0)
     {
       ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
@@ -1044,9 +1110,23 @@ for(i in 1:len)
              pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
     } # end if(banks[i] == "Sab" || banks[i] == "Mid"|| banks[i] == "BBs" || banks[i] == "Ban"|| banks[i] == "GBb" || banks[i] == "GB") 
     
+    if(banks[i] == "Sab") 
+    {
+      legend("topleft",legend=surv.info$PName,fill=surv.info$col,bty='n',cex=1, title = "Strata")
+      legend("top",legend = round(surv.info$area_km2),
+             fill=c(surv.info$col),border=c(rep('black',length(surv.info$PName))),
+             pch=c(rep(NA,length(surv.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.1,
+             pt.bg = c(rep(NA,length(surv.info$PName))),col='black',bty='n')
+      
+      legend("topright",legend = as.numeric(with(subset(surv.Live[[banks[i]]],
+                                                        year== yr & random ==1),
+                                                 tapply(tow,Strata_ID_new,length))),
+             fill=c(surv.info$col),border=c(rep('black',length(surv.info$PName))),
+             pch=c(rep(NA,length(surv.info$PName))),title = "Number of tows",title.adj=0.1,
+             pt.bg = c(rep(NA,length(surv.info$PName))),col='black',bty='n')
+    } 
     
-    
-    if(banks[i] == "Sab" ||  banks[i] == "GBb") 
+    if(banks[i] == "GBb") 
     {
       legend("topleft",legend=surv.info$PName,fill=surv.info$col,bty='n',cex=1, title = "Strata")
       legend("top",legend = round(surv.info$area_km2),
@@ -1081,7 +1161,7 @@ for(i in 1:len)
              pt.bg = c(rep(NA,length(surv.info$PName))),col='black',bty='n')
     } # End if(banks[i] == "BBs")
     # Add the survey boxes if they exist.
-    if(length(sb[,1]) > 0) addPolys(sb,lty=2,lwd=2)
+    if(length(sb[,1]) > 0) addPolys(as.PolySet(sb, projection = "LL"),lty=2,lwd=2)
     
     if(fig != "screen") dev.off()
     
@@ -1202,7 +1282,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
                          width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
-    
+
     par(mfrow=c(1,1))
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB")
     {
@@ -1213,6 +1293,7 @@ for(i in 1:len)
     # For german bank
     if(banks[i] == "Ger")
     {
+      browser()
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,yl2=400,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
@@ -1386,7 +1467,7 @@ for(i in 1:len)
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
         shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-            recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+            recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
         if(fig != "screen") dev.off()
       } # end  if(banks[i] != "Ger")
     
@@ -1395,7 +1476,7 @@ for(i in 1:len)
         shf.years <-  lined.survey.obj[[1]]$year[(length(lined.survey.obj[[1]]$year)-6):length(lined.survey.obj[[1]]$year)]
         s.size <- lined.survey.obj[[1]]$n[lined.survey.obj[[1]]$year %in% shf.years]
         shf.plt(lined.survey.obj,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
         if(fig != "screen") dev.off()
         # We also want to grab the matched tows figure
         s.size <- matched.survey.obj[[1]]$n
@@ -1408,7 +1489,7 @@ for(i in 1:len)
         if(add.title == F) SHFm.title <- ""
         if(add.title == T) SHFm.title <- "SHF - Repeated Tows (Ger)"
         shf.plt(matched.survey.obj,from='surv',yr=(yr-1):yr,col1='grey80',col2=1,rel=F,rows=2,
-                recline=c(RS,CS),add.title = T,titl = SHFm.title,cex.mn=2, sample.size = s.size)	   
+                recline=c(RS,CS),add.title = T,titl = SHFm.title,cex.mn=2, sample.size = T)	   
         if(fig != "screen") dev.off()
       } # end if(banks[i]=="Ger")
     } # end if(any(plots=="SHF"))    
@@ -1441,7 +1522,7 @@ for(i in 1:len)
                                                       length(survey.obj[[banks[i]]][[1]]$year)]
       s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
       shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F, select=70,
-              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
       if(fig != "screen") dev.off()
     } # end  if(banks[i] != "Ger")
     
@@ -1450,7 +1531,7 @@ for(i in 1:len)
       shf.years <-  lined.survey.obj[[1]]$year[(length(lined.survey.obj[[1]]$year)-6):length(lined.survey.obj[[1]]$year)]
       s.size <- lined.survey.obj[[1]]$n[lined.survey.obj[[1]]$year %in% shf.years]
       shf.plt(lined.survey.obj,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,select=70,
-              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
       if(fig != "screen") dev.off()
     } # end if(banks[i]=="Ger")
   } # end if(any(plots=="SHF-large"))    
@@ -1480,7 +1561,7 @@ for(i in 1:len)
                                                       length(survey.obj[[banks[i]]][[1]]$year)]
       s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
       shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F, split=60,
-              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
       if(fig != "screen") dev.off()
     } # end  if(banks[i] != "Ger")
     
@@ -1489,7 +1570,7 @@ for(i in 1:len)
       shf.years <-  lined.survey.obj[[1]]$year[(length(lined.survey.obj[[1]]$year)-6):length(lined.survey.obj[[1]]$year)]
       s.size <- lined.survey.obj[[1]]$n[lined.survey.obj[[1]]$year %in% shf.years]
       shf.plt(lined.survey.obj,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F, split=60,
-              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = s.size)	
+              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
       if(fig != "screen") dev.off()
     } # end if(banks[i]=="Ger")
   } # end if(any(plots=="SHF-split"))    
@@ -1635,6 +1716,10 @@ for(i in 1:len)
     # I also want to remake the previsou year's breakdown plot, this will go in the current years folder but will
     # be the same y-scale (there is no guarantee that the plot made last year will be, likely it won't).  It's a bit
     # clunky but basically this is the same plot as last year but re-scaled for comparative purposes...
+    
+    # but only do it if the survey went to that bank the previous year! 
+    if(is.element((yr-1), unique(survey.obj[[banks[i]]]$bankpertow$year))=="TRUE"){ 
+    
     if(fig == "screen") windows(11,8.5)
     if(fig == "png") png(paste(plot.dir,"breakdown-",(yr-1),".png",sep=""),units="in",
                          width = 11,height = 8.5,res=420,bg = "transparent")
@@ -1643,6 +1728,7 @@ for(i in 1:len)
     {
       # To get the ymax the same between succesive years I want to do this...
       breakdown(survey.obj[[banks[i]]],yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+      
     } # end if(banks[i] != "Ger") 
     
     # Using the lined surevye object for German bank...
@@ -1653,7 +1739,7 @@ for(i in 1:len)
     
     if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",(yr-1),")",sep=""), cex.main=2,adj=0.35)
     if(fig != "screen") dev.off()   
-    
+    }
     #} # end if(banks[i] %in% c("BBn" , "GBb", "GBa"))
     
   }  # end iif(any(plots== "breakdown"))
@@ -1822,7 +1908,7 @@ for(i in 1:len)
         if(fig == "screen") windows(8.5,11)
         
         shf.plt(boxy,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = s.size)	
+                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)	
         if(fig != "screen") dev.off()
         
         
@@ -1833,7 +1919,7 @@ for(i in 1:len)
                              width = 8.5, height = 11) 
         if(fig == "screen") windows(8.5,11)
         shf.plt(boxy,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,select=60,
-                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = s.size)
+                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
         # Now do the SHF with the panels split classes...
@@ -1843,7 +1929,7 @@ for(i in 1:len)
                              width = 8.5, height = 11) 
         if(fig == "screen") windows(8.5,11)
         shf.plt(boxy,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,split=70,
-                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = s.size)
+                recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
         # A zoomed in view of the box in question with survey strata...
