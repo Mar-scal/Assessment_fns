@@ -7,6 +7,9 @@
 # Revised May 5, 2017, edited so that this script can work with only "1 strata", i.e. a non-stratatifed survey.
 # June 2017:  Revised to allow for user specified bin sizes.
 # October 2017:  Had to add in if statement for the model.dat <- bit as objects in teh global environment call "tmp" were causing issues.
+# May 2018: FK modified calculation of stratified estimates due to the removal of WEBCA from survey domain. THe code has been standardized 
+#           to handle future re-stratifications on any bank, but requires that new strata areas be appended to survey_information.csv.
+#           DO NOT DELETE OLD STRATA INFORMATION from survey_information.csv as this is used to restratify historical surveys appropriately.
 ################################################################################################################
 
 #####################################  Function Summary ########################################################
@@ -47,6 +50,11 @@
 survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw.par='annual',err='str',user.bins = NULL)
 {
   
+  # Sable gets special treatment due to restratification, so do NOT use survey.dat on it. Must use survey.dat.restrat
+  if(bk=="Sab"){
+    print("Something's wrong in SurveySummary_data.r because you should be running survey.dat.restrat for Sable, not survey.dat")
+  }	
+  
   # load the PEDstrata package, note this is a locally developed package not available from R repositories
 	require(PEDstrata)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
 	require(survey)     || stop("survey package required please install package and try again")
@@ -57,13 +65,20 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
   
   # If years is not supplied than obtain from the data
 	if(missing(years)==T) years<-sort(unique(shf$year))
-
-	# Create strata object for PEDstrata package, includes Strata and number of towable units in that strata.
-	HSIstrata.obj <- data.frame(Strata=areas[,1], NH=areas[,2])[order(areas[,1]),]
+  
+  # Sable was restratified prior to 2018 survey due to the creation of the Western Emerald Bank Conservation Area. 
+  # It was decided at February 2018 Survey Working Group meeting to remove WEBCA from Sable strata, therefore, a domain estimator
+  # is required to convert pre-2018 survey data to the new strata. For this reason, we must break this script into a pre and post 
+  # re-stratification sections.
+  # 1900 has been set as the start year for all offshore strata up to 2018, since these are the strata to be used for all data < 2018.
+  
+  # Create strata object for PEDstrata package, includes Strata and number of towable units in that strata.
+	HSIstrata.obj <- data.frame(Strata=areas[,1], NH=areas[,2], startyear=areas[,3])[order(areas[,1]),]
 	
 	# Output the object to screen and determine the number of towable units for this bank.
 	print(HSIstrata.obj)
 	N.tu <- HSIstrata.obj$NH
+	
 
 	# for easier indexing of shell height bins in shf
 	bin <- as.numeric(substr(names(shf),2,nchar(names(shf))))
@@ -105,16 +120,18 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	n.yst <- w.yst
 	n.stratmeans <-list(NULL)
 	w.stratmeans <-list(NULL)
+	avgsizepertow <- list(NULL)
 	strat.res <- data.frame(year=years)
 	Strata.obj <- NULL
 	mw <- NULL
+	bankpertow <- NULL
 	
 	
 	# If CS and RS are just one value turn them into a vector the same length as the number of years of data.
 	if(length(CS) == 1)	CS <- rep(CS, length(years))
 	if(length(RS) == 1)	RS <- rep(RS, length(years))
 		
-	# For loop to do the calculations of meat weight
+	# For loop to do the calculations of meat weight for non-restratified banks
 	for(i in 1:length(years))
 	{
 	  # Set the bins
@@ -123,6 +140,7 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  ann.dat<-subset(shf,year==years[i])
 	  # Use the MW-SH model fit to calculate the meat weight, assumes that year was a random effect in the model
 	  # Remember mw is in grams here.
+	  # FK had to specify htwt.fit <- SpatHtWt.fit[[bnk]]??
 	  if(mw.par=='annual') mw[[i]] <- matrix(exp(log(seq(2.5,200,5))*htwt.fit$b[i]+log(htwt.fit$a[i])),
 	                                         nrow(ann.dat),40,byrow=T,dimnames=list(ann.dat$tow,mw.bin))
 	  # Use the MW-SH model fit to calculate the meat weight, assumes that year was not included in the model
@@ -138,9 +156,9 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  if(mw.par !='annual' && mw.par !='fixed') mw[[i]]<-sweep(matrix((seq(2.5,200,5)/100)^3,nrow(ann.dat),
 	                                                                  40,byrow=T,dimnames=list(ann.dat$tow,mw.bin)),1,FUN='*',ann.dat[,mw.par])
 	  
-	  # Make a dataframe subseting the shf data, select the current year and all the bins, add a column with the strata ID's
 	  num <- data.frame(subset(shf, year==years[i], which(bin==5):which(bin==200)), 
 	                    STRATA.ID=shf$Strata_ID[shf$year==years[i]])
+	  
 	  # Remove rows with strata ID's which are NA's
 	  num<-na.omit(num)
 	  
@@ -177,7 +195,6 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- w.stratmeans[[i]]
 	  if(!is.null(nrow(w.stratmeans[[i]]))) w.yst[i,] <- apply(sapply(1:nrow(w.stratmeans[[i]]), function(x){w.stratmeans[[i]][x,] * pstrat[x]}),1,sum)
 	  w.Yst <- w.yst[i,] * sum(N.tu)
-	  
 	  
 	  # Strata calculations for biomass for commerical size Scallops
 	  Strata.obj$I[[i]] <- PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$com)
@@ -230,6 +247,10 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  strat.res$NPR[i] <- NPR.tmp$yst * sum(N.tu)/10^6			#in millions
 	  if(err=='str') strat.res$NPR.cv[i] <- NPR.tmp$se.yst / NPR.tmp$yst
 	  if(err=='ran') strat.res$NPR.cv[i] <- sqrt(NPR.tmp$var.ran) / NPR.tmp$yst
+	  
+	  # Save the bank-wide per tow estimates
+	  bankpertow <- rbind(bankpertow, data.frame(year=years[i], N = N.tmp$`yst`, NR = NR.tmp$`yst`, NPR = NPR.tmp$`yst`, 
+	                                             I=I.tmp$`yst`, IR=IR.tmp$`yst`, IPR=IPR.tmp$`yst`))
 	  
 	  # Average weight of fully recruited scallop by year
 	  strat.res$w.bar[i] <- sum(w.yst[i,which(mw.bin==CS[i]):which(mw.bin==200)]) /
@@ -296,10 +317,12 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	if(is.null(user.bins))  model.dat <-  strat.res
 	
 	# Data for shf plots used in the survey summary
-	shf.dat <- list(n.yst=n.yst,w.yst=w.yst,n.stratmeans=n.stratmeans,w.stratmeans=w.stratmeans)
+	shf.dat <- list(n.yst=n.yst,w.yst=w.yst,n.stratmeans=n.stratmeans,w.stratmeans=w.stratmeans, avgsizepertow=avgsizepertow)
 	# Return the data to function calling it.
 	
-	if(is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj))
-	if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj,bin.names = bnames,user.bins = user.bins))
+	model.dat$year <- as.numeric(as.character(model.dat$year))
+	
+	if(is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, bankpertow=bankpertow))
+	if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj,bin.names = bnames,user.bins = user.bins, bankpertow=bankpertow))
 } # end function
 
