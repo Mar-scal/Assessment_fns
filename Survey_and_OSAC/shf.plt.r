@@ -51,10 +51,10 @@ shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red
 {
    
   if(missing(yr)==T) yr<-sort(unique(survey.obj$model.dat$year))
-  
+
   # Are we using the sample size, if so extract it from survey.obj
   if(sample.size==T) sample.size<-survey.obj[[1]]$n[survey.obj[[1]]$year%in%yr]
-  if(sample.size==F) sample.size<-NULL
+  #if(sample.size==F) sample.size<-NULL
   
   # If we are looking at shell height data this is our plot to make
     # Get the bins

@@ -21,6 +21,8 @@
 # April 2018:  Noticed we had double loaded data for 2000 and 2001 as these are now in the database, fixed.  Also had to make some annoying changes to the
 #              script as something changed with how the simple survey code was struggling with the year data due to some rbinds making it a character vector
 #              instead of a numeric... Also started using lubridate for the dates on the seedboxes as the as.Date method broke for some reason...
+# May 2018: FK implemented restratification for Sable due to WEBCA using a new function: survey.dat.restrat(). 
+#                If you need to restratify a bank, check out the function file for instructions! FK also has a private github log of changes made. 
 ################################################################################################################
 ####
 ################################################################################################################
@@ -124,6 +126,7 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/condFac.r",sep=""))
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
+source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
@@ -153,10 +156,10 @@ seedboxes$Open <- dmy(seedboxes$Open)
 seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
 
 #Read4 Get the survey boundary polygons for all banks.
-survey.bound.polys<-read.csv(paste(direct,"data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),
+survey.bound.polys<-read.csv(paste0(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv"), 
                              header=T,stringsAsFactors = F)
 #Read5 Get the detailed survey polygons for all banks
-survey.detail.polys <- read.csv(paste(direct,"data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),
+survey.detail.polys <- read.csv(paste0(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv"), 
                                 header=T,stringsAsFactors = F)
 #Read6 Get the survey information for each bank
 survey.info <- read.csv(paste(direct,"data/Survey_data/survey_information.csv",sep=""),
@@ -362,12 +365,12 @@ years <- yr.start:yr
 # From 1996-current CS= 95, RS = 85
 # This is the Shell height for each shell height category. If it ever changes in the future this will need adjusted.
 # If we are still using this code in 2030 I'll be both old and worried...
-if(bnk %in% c("GB","GBa","GBb"))
-{
-  SH.dat <- data.frame(year = 1980:2030,CS = c(rep(75,6),rep(85,10),rep(95,2030-1995)),RS = c(rep(60,6),rep(75,10),rep(85,2030-1995)))
-  CS <- SH.dat$CS[SH.dat$year %in% years]
-  RS <- SH.dat$RS[SH.dat$year %in% years]
-}# End if(bnk == "GBa")
+  if(bnk %in% c("GB","GBa","GBb"))
+  {
+    SH.dat <- data.frame(year = 1980:2030,CS = c(rep(75,6),rep(85,10),rep(95,2030-1995)),RS = c(rep(60,6),rep(75,10),rep(85,2030-1995)))
+    CS <- SH.dat$CS[SH.dat$year %in% years]
+    RS <- SH.dat$RS[SH.dat$year %in% years]
+  } # End if(bnk == "GBa")
 
   # Now we can set up our more detailed SHF bins as well
   if(bins == "bank_default")
@@ -388,17 +391,16 @@ if(bnk %in% c("GB","GBa","GBb"))
   bank.dat[[bnk]] <- subset(bank.dat[[bnk]] , year %in% years)
 
     # Now run the survey boundary and seedboxes in here.
-    # Get the  bank survey boundary polygon this replaces #Read3
+    # Get the  bank survey boundary polygon this replaces #Read3 # this is the CURRENT boundary. Does it need to know the old boundary I wonder?
     bound.poly.surv <- subset(survey.bound.polys,label==bnk) 
     attr(bound.poly.surv,"projection")<-"LL"
     
-    # Sable Bank Polygons	
     #Read4 Read drooped #Detailed Survey polygons
     detail.poly.surv <- subset(survey.detail.polys,label==bnk)
     attr(detail.poly.surv,"projection")<-"LL"
     
     # Get the strata areas.
-    strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area"))
+    strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
     #Read25 read removed... Get all the details of the survey strata
     surv.info <- subset(survey.info,label== bnk)
     # Give each tow a unique identifier.
@@ -412,8 +414,25 @@ if(bnk %in% c("GB","GBa","GBb"))
     # Assign the strat based on location, the "new_strata" column is used for processing later on in the function so I've retained it.
     # We used to write to the screen what percentage of strata were reassigned. But the strata are now entered as NULL so it'll always be 100%
     # German and Middle bank have no stratifcation scheme and we don't do this for GB spring which is fixed stations.
-    if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB") bank.dat[[bnk]]<- assign.strata(bank.dat[[bnk]],detail.poly.surv)
-
+    # Sable has to be handled differently so that we assign the old and new strata (pre and post WEBCA). Note that since Sable has been restratified, some tows are now outside of the strata bounds and marked as NA.
+    if(bnk == "Sab") {
+      strata.years <- unique(detail.poly.surv[detail.poly.surv$label==bnk,]$startyear)
+      nrestrat <- length(strata.years)
+      
+      #this handles one restratification only...
+      oldscheme <- assign.strata(bank.dat[[bnk]], detail.poly.surv[!detail.poly.surv$startyear == strata.years[nrestrat],])
+      newscheme <- assign.strata(bank.dat[[bnk]], detail.poly.surv[detail.poly.surv$startyear == strata.years[nrestrat],])
+      
+      names(newscheme)[dim(newscheme)[2]] <- "Strata_ID_new"
+      names(oldscheme)[dim(oldscheme)[2]] <- "Strata_ID_old"
+      
+      # bank.dat[[bnk]] <- rbind(oldscheme[oldscheme$year < strata.years[nrestrat],], newscheme[newscheme$year == strata.years[nrestrat]|newscheme$year > strata.years[nrestrat],])
+      bank.dat[[bnk]] <- cbind(newscheme, data.frame(Strata_ID_old=oldscheme[,dim(oldscheme)[2]]))
+    }
+      
+    if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
+    # above assigns strata to each tow. 
+    
 		# MEAT WEIGHT DATA from 2011-current
 		# Get the mw data from 2011 to this year
     if(bnk != "GB" && bnk != "GBa" && bnk != "GBb") mw[[bnk]] <- subset(MW.dat.new,bank==bnk)
@@ -428,7 +447,7 @@ if(bnk %in% c("GB","GBa","GBb"))
 		
 		# MODEL - This is the meat weight Shell height realationship.  
 		#MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
-		#Source5 source("fn/shwt.lme.r") note thtat the exponent is set as a parameter here b=3
+		#Source5 source("fn/shwt.lme.r") note that the exponent is set as a parameter here b=3
 		SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
 		
 		# here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
@@ -478,7 +497,7 @@ if(bnk %in% c("GB","GBa","GBb"))
 		} # end if(bnk == "Ger")
 		# Fill the years without any data with NA's (this helps with plotting data.)
 		cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
-		
+
 		# Output the predictions for the bank
 		surv.dat[[bnk]] <- cf.data[[bnk]]$pred.dat
 		# Pull out the ID and condition factor
@@ -649,7 +668,7 @@ if(bnk %in% c("GB","GBa","GBb"))
   		      new.ger.tows$EID[k] <- last.ger.tows$tow[round(last.ger.tows$lat,digits=2) == round(new.ger.tows$lat[k],digits=2) & 
   		                                                 round(last.ger.tows$lon,digits=2) == round(new.ger.tows$lon[k],digits=2)]
   		  } # end for(k in 1:nrow(new.ger.tows))
-  		  
+browser()
   		  # Now this won't be perfect, should get most but not all of them so check the results over.
   		  # In 2013 we aren't seeing the match from 2012 for two tows so I've selected the matched tows by hand.
   		  if(ger.years[b] == 2013)
@@ -709,13 +728,28 @@ if(bnk %in% c("GB","GBa","GBb"))
 		  lined.survey.obj$model.dat$RS <- RS
 		}# end if(bnk == "Ger")
 		  
-		# Get the survey estimates for the banks for which we have strata.
+#     # average size per tow
+# 		surv.Live[[bnk]]$avgsizepertow <- rowSums(t(apply(surv.Live[[bnk]][,which(names(surv.Live[[bnk]]) %in% paste0("h",mw.bin))], 1, function(x) mw.bin*x)),na.rm=T)/surv.Live[[bnk]]$tot
+# 		surv.Clap[[bnk]]$avgsizepertow <- rowSums(t(apply(surv.Clap[[bnk]][,which(names(surv.Clap[[bnk]]) %in% paste0("h",mw.bin))], 1, function(x) mw.bin*x)),na.rm=T)/surv.Clap[[bnk]]$tot
+# 		
+		# Get the survey estimates for the banks for which we have strata. 
 		if(bnk != "Ger" && bnk != "Mid" && bnk != "GB") 
 		  {
+		  
+		  if(bnk=="Sab")  {
+		    require(BIOSurvey2)
+		    survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
+		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
+		    clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],htwt.fit=SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
+		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)		
+		    }
+		    
+		  if(bnk!="Sab"){  
 		    survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
 		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)	
 		    clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
-		                                  bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)		
+		                                  bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)
+		  }
 	
 		    survey.obj[[bnk]][[1]]$CF <- na.omit(sapply(1:length(years),
 		                                    function(x){with(subset(surv.Rand[[bnk]],year == years[x]),

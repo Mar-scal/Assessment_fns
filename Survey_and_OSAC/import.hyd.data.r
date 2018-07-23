@@ -1,4 +1,3 @@
-
 ####  Commented and checked by DK starting on July 27, 2015. This function is used to grab the hydration sample data
 ####  This is the meat weight shell height data from before 2010.  This is being loaded into the SQL database, 
 ####  currently (May 2016) the SQL database goes back to 2002 so this is just needed for MW-SH data before this.
