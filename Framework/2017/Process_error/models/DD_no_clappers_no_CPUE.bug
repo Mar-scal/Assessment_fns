@@ -1,0 +1,159 @@
+model
+{
+##############################################################################################################################
+##################### Priors ##################### Priors ##################### Priors##################### Priors
+##############################################################################################################################
+
+# K is the model "rescaling" constant, this is basically used to help with model convergence.
+# Normal on log scale, why aren't we just using a log-normal distribution for K??
+# Priors of logK.a = 7 and logK.b =7 results in a median of around 1100, and a narrow range of potential values
+# remember logK.b is the precision on the variance, this results in a rahter narrow prior for K
+# Ranging from around 500 - 2100.
+logK ~ dnorm(logK.a, logK.b) 
+# Exponentiate to get K back to correct scale.
+K <- exp(logK)
+
+
+# Here I define priors for the growth terms, going with a log-normal for these.
+for(t in 1:NY)
+{
+G[t] ~ dlnorm(G.a[t],G.b[t])
+GR[t] ~ dlnorm(GR.a[t],GR.b[t])
+}
+
+# priors for survey recruitment index, note we get get this estimate annually.
+# priors of r.a=0 and r.b=1  give a median of 1, mean of 1.6, 90% of distribution density is < 4 and the distribution does allow for extreme values 
+for(t in 1:NY)
+{
+	r[t] ~ dlnorm(r.a, r.b)
+}
+	
+# priors for natural mortality of both recruits and fully recruited, again we estimate these parameters annually.
+for(t in 1:NY)
+{
+	M[t] ~ dbeta(M.a[t], M.b[t])
+	m[t] <- -log(1-M[t]) # Convert from proportion to instantaneous rate
+	MR[t] ~ dbeta(MR.a[t], MR.b[t])
+	mR[t] <- -log(1-MR[t]) # Convert from proportion to instantaneous rate
+}
+
+# Survey catchability prior, q priors should be between 0.2 and 0.5 (based on US dredge studies), q.a = 20, q.b = 40 gets us this result.
+q ~ dbeta(q.a, q.b)
+
+# All the variance related Priors start here.
+# prior for process noise, uniform between 0 and 5.
+sigma ~ dunif(sigma.a, sigma.b)
+isigma2 <- pow(sigma, -2)
+
+for(t in 1:NY)
+{
+# Prior for the precision of the survey biomass index variance (that's a mouthful eh!)
+I.precision[t] ~ dgamma(I.precision.a[t],I.precision.b[t])
+# Variance of the survey biomass index variance!
+I.vsam[t]<-1/I.precision[t]
+
+# Prior for the precision of the survey recruit biomass index variance...
+IR.precision[t] ~ dgamma(IR.precision.a[t],IR.precision.b[t])
+# And it's variance
+IR.vsam[t]<-1/IR.precision[t]
+
+} 
+##############  END OF PRIORS ################################  END OF PRIORS ################################  END OF PRIORS ##################
+
+
+##############################################################################################################################
+##################### MODEL ##################### MODEL ##################### MODEL ##################### MODEL
+##############################################################################################################################
+
+#############Process Model#############Process Model#############Process Model#############Process Model
+# Give Pmed an initial value, note that Pmed is on log scale.  Remember P/Pmed is simply used as a scaling term to help convergence
+# and is B/K, where B is biomass and K is the scaling constant
+Pmed[1] ~ dnorm(0, 0.1)
+# Based on the initial value for Pmed, this gets an initial value for P
+P[1] ~ dlnorm(Pmed[1], isigma2)
+
+# Here is our process/state equation from year 2 to the final year (likelihood) for the biomass
+for(t in 2:NY)
+{	
+  # Our process model fit, natural mortality and catch remove individuals, growth terms increase size of individuals
+  # and recruit term bring in the new recruits to the population.
+	Pmed[t] <- log(max(exp(-m[t]) * g[t-1] * (P[t-1] - C[t] / K) + exp(-mR[t])*gR[t-1] * r[t-1], 0.001))
+	# Now incorporate the process noise for our estimates of P
+	P[t] ~ dlnorm(Pmed[t], isigma2)
+}
+
+############# Observation Models############# Observation Models############# Observation Models############# 
+
+# observation models for fully-recruited and recruit biomass indicies and the catch rate index.
+for(t in 1:NY)
+{
+	# Assumed relationship between observed survey biomass index and "true" biomass
+	Imed[t] <- log(q * K * P[t])
+  # the observation error for the survey biomass index
+	I[t] ~ dlnorm(Imed[t], I.precision[t])
+	
+	# Assumed relationship between observed survey recruit biomass index and "true" recruit biomass
+	IRmed[t] <- log(q * K * r[t])
+  # the observation error for the survey recruit biomass index
+	IR[t] ~ dlnorm(IRmed[t], IR.precision[t])	
+
+}
+
+	
+# Various derived quantities we're interested in.
+for(t in 1:NY)
+{
+	# Fully recruited biomass
+	B[t] <- P[t] * K
+	# Recruit biomass
+	R[t] <- r[t] * K
+	# Modelled fully recruited survey biomass estimate
+	Ipred[t] <- q * B[t]
+	# Modelled recruit survey biomass estimate
+	IRpred[t] <- q * R[t]
+
+	# This could be something to look at for Framework, hopefully my explaination makes sense.
+  # The exploitation rate calculation is confusing so pay attention here (and pretend P = B).  
+  # First notice in the main process equation above that P[t-1] - C[t] So we take the catch in the current year away from the Biomass last year;
+  # the difference is then subjected to natural mortality and growth. 
+  # Second note that the catch above is the catch in the fishery in period from September to August following the survey (i.e. the "survey year")
+  # So in the above P[t-1] comes from the survey "last year" and C[t] is the catch in the 12 months following the survey.
+  # **In the process equation we are taking the catch off before the growth and natural mortality impact the population.**
+  # An example may help, Using the GBa survey in August of 2016 we run our model and get a Biomass estiamte, we call it P[t-1]. After the survey occurs
+  # the fishery takes place, the 2017 catch C[t] runs from September 2016-August 2017. P[t] is the survey in August of 2017.
+  # Our exploitation rate mu[2017] is the catch from September 2016-August 2017 divided by P[2017]+C[2017]. So the exploitation rate
+  # is calculated on the Biomass next year, 
+  # ** this is different from the biomass we used in the process equation above, here we'v allowed it to grow/die and whatever is left over is the catch. **
+  # So in the end I think what I'm hung up on is that in the process equation we remove catch before we allow it to grow, but in our exploitation
+  # rate calculation we are allowing the population to grow then calculating the exploitation rate, they aren't the same things
+  # whether it is a big deal or not I'm not sure but it is bothering me, there are two solutions
+  # 1: change the exploiation calculation to mu[t] <- C[t]/(B[t-1])
+  # 2: change the process equation to (exp(-m[t]) * g[t-1] * (P[t-1] ) + exp(-mR[t])*gR[t-1] * r[t-1]) - C[t] / K
+  # I think I like solution #2 since most of the fishery happens in the late spring/summer in the year after the survey and
+  # it allows for some of the recruits to be caught in the fishery.  Not sure the result will be stable mind you.
+	mu[t] <- C[t]/(B[t]+C[t])
+	# Instantaneous fishing mortality
+	Fmort[t] <- -log(max(1 - mu[t], 0.0001))	
+}
+
+
+# Diagnostics
+for(t in 1:NY)
+{
+  # Standard residuals for fully recruited and recruit biomass along with the Process term
+	Iresid[t] <- log(I[t]) - Imed[t]
+	IRresid[t] <- log(IR[t]) - IRmed[t]
+	Presid[t] <- log(P[t]) - Pmed[t]
+
+  # Same residuals but standardized (remember these are precisions mostly so multiply by sqrt(precision) = divide by standard deviation)
+	sPresid[t] <- Presid[t] / sigma
+	sIresid[t] <- Iresid[t] * pow(I.precision[t],0.5)
+	sIRresid[t] <- IRresid[t] * pow(IR.precision[t],0.5)
+
+	# These give the posteriors for the observation error around survey biomass for fully recruited and the recruits.
+	# We already have these they are just given a different name for plotting the posteriors in a post-processing stage (this is I[t] and IR[t])
+	Irep[t] ~ dlnorm(Imed[t], I.precision[t])
+	IRrep[t] ~ dlnorm(IRmed[t], IR.precision[t])
+
+}
+}

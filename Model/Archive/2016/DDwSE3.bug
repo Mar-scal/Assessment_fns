@@ -1,0 +1,153 @@
+model delay-difference biomass dynamics;
+{
+# Priors
+#K ~ dunif(K.a, K.b)
+logK ~ dnorm(logK.a, logK.b)
+K <- exp(logK)
+
+
+# priors for survey recruitment index
+for(t in 1:NY){
+	r[t] ~ dlnorm(r.a, r.b)
+	}
+	
+# priors for natural mortality
+# prior for annual m
+for(t in 1:NY){
+	m[t] ~ dlnorm(m.a, m.b)
+	mR[t] ~ dlnorm(mR.a, mR.b)
+	}
+
+#S=dissolution rate in days/365
+S~dbeta(S.a,S.b)
+
+# priors for catchabilities
+# Assume survey q's are b/w 0.2 and 0.5 (based on US dredge studies)
+q ~ dbeta(q.a, q.b)
+qU ~ dunif(qU.a, qU.b)
+
+# prior for process noise
+sigma ~ dunif(sigma.a, sigma.b)
+isigma2 <- pow(sigma, -2)
+
+# prior for measurement errors
+# Survey biomass
+sigma.tau ~ dgamma(sigma.tau.a, sigma.tau.b)
+isigma.tau2 <- pow(sigma.tau, -2)
+
+# Survey recruitment
+sigma.rho ~ dgamma(sigma.rho.a, sigma.rho.b)
+isigma.rho2 <- pow(sigma.rho, -2)
+
+# Commercial catch rate
+sigma.upsilon ~ dgamma(sigma.upsilon.a, sigma.upsilon.b)
+isigma.upsilon2 <- pow(sigma.upsilon, -2)
+
+# clappers
+ikappa.tau2 ~ dgamma(ikappa.tau2.a, ikappa.tau2.b)
+kappa.tau <- pow(ikappa.tau2, -0.5)
+
+# recruitment clappers
+ikappa.rho2 ~ dgamma(ikappa.rho2.a, ikappa.rho2.b)
+kappa.rho <- pow(ikappa.rho2, -0.5)
+
+# State equation
+Pmed[1] ~ dnorm(0, 0.1)
+P[1] ~ dlnorm(Pmed[1], isigma2)
+
+for(t in 2:NY){	
+	Pmed[t] <- log(max(exp(-m[t]) * g[t-1] * (P[t-1] - C[t] / K) + exp(-mR[t])*gR[t-1] * r[t-1], 0.001))
+	P[t] ~ dlnorm(Pmed[t], isigma2)
+	}
+
+#Natural mortality from survey clapper index, revised for popcorn model
+
+Cmed[1]<-log(m[1]*S*N[1])
+CRmed[1]<-log(mR[1]*S*NR[1])
+
+for(t in 2:NY){
+		Cmed[t]<-log(m[t]*S*(S*N[t-1]+(2-S)*N[t])/2)
+		CRmed[t]<-log(mR[t]*S*(S*NR[t-1]+(2-S)*NR[t])/2)
+		}
+
+for(t in 1:NY){
+clappers[t]~dlnorm(Cmed[t],ikappa.tau2)
+clappersR[t]~dlnorm(CRmed[t],ikappa.rho2)
+}
+
+
+
+# Observation equations
+
+for(t in 1:NY){
+	# Survey biomass
+	Imed[t] <- log(q * K * P[t])
+	I.var[t]<-log(pow(I.cv[t],2)+1)
+	I.precision[t] ~ dgamma(I.precision.a[t],I.precision.b[t])
+	I.vsam[t]<-1/I.precision[t]
+#	I[t] ~ dlnorm(Imed[t], isigma.tau2)
+	I[t] ~ dlnorm(Imed[t], I.precision[t])
+	
+	# Survey recruitment
+	IRmed[t] <- log(q * K * r[t])
+	IR.var[t]<-log(pow(IR.cv[t],2)+1)
+	IR.precision[t] ~ dgamma(IR.precision.a[t],IR.precision.b[t])
+	IR.vsam[t]<-1/IR.precision[t]
+#	IR[t] ~ dlnorm(IRmed[t], isigma.rho2)	
+	IR[t] ~ dlnorm(IRmed[t], IR.precision[t])	
+
+	# Commercial catch rate
+	Umed[t] <- log(qU * K * P[t])
+	U.var[t]<-log(pow(U.cv[t],2)+1)
+	U.precision[t] ~ dgamma(U.precision.a[t],U.precision.b[t])
+	U.vsam[t]<-1/U.precision[t]
+#	U[t] ~ dlnorm(Umed[t], isigma.upsilon2)
+	U[t] ~ dlnorm(Umed[t],  U.precision[t])
+	
+	
+	# Output 1	
+	Ipred[t] <- q * B[t]
+	IRpred[t] <- q * R[t]
+	Upred[t] <- qU * B[t]
+	}
+
+	
+# Output
+for(t in 1:NY){
+	B[t] <- P[t] * K
+	R[t] <- r[t] * K
+	}
+for(t in 1:(NY)){
+	mu[t] <- C[t]/(B[t]+C[t])
+	Fmort[t] <- -log(max(1 - mu[t], 0.0001))
+	}
+	
+# Diagnostics
+for(t in 1:NY){
+	Iresid[t] <- log(I[t]) - Imed[t]
+	Presid[t] <- log(P[t]) - Pmed[t]
+	IRresid[t] <- log(IR[t]) - IRmed[t]
+
+	sPresid[t] <- Presid[t] * 1/sigma
+	sIresid[t] <- Iresid[t] * pow(I.precision[t],0.5)
+	sIRresid[t] <- IRresid[t] * pow(IR.precision[t],0.5)
+	
+	Irep[t] ~ dlnorm(Imed[t], I.precision[t])#I(0,Ireplim)
+	IRrep[t] ~ dlnorm(IRmed[t], IR.precision[t])#I(0,IRreplim)
+
+
+	
+	}
+
+#Projections
+#or(i in 1:NC){
+#	Pmed.p[i] <- log(max(exp(-m[NY]) * g[NY] * (P[NY] - C.p[i] / K) + exp(-mR[NY]) * r[NY], 0.001))
+#	P.p[i] ~ dlnorm(Pmed.p[i], isigma2)
+#	B.p[i] <- P.p[i] * K
+#	mu.p[i] <- C.p[i] / (B.p[i] + C.p[i])
+#	F.p[i] <- -log(max(1 - mu.p[i], 0.0001))
+#	B.diff[i] <- B.p[i] - B[NY]
+#	B.change[i] <- (B.p[i] - B[NY]) / B[NY] * 100
+#	pB0[i] <- step(0 - B.diff[i])
+	}	
+}
