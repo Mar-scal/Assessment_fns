@@ -668,7 +668,7 @@ years <- yr.start:yr
   		      new.ger.tows$EID[k] <- last.ger.tows$tow[round(last.ger.tows$lat,digits=2) == round(new.ger.tows$lat[k],digits=2) & 
   		                                                 round(last.ger.tows$lon,digits=2) == round(new.ger.tows$lon[k],digits=2)]
   		  } # end for(k in 1:nrow(new.ger.tows))
-browser()
+
   		  # Now this won't be perfect, should get most but not all of them so check the results over.
   		  # In 2013 we aren't seeing the match from 2012 for two tows so I've selected the matched tows by hand.
   		  if(ger.years[b] == 2013)
