@@ -68,13 +68,12 @@ mean(survey.obj$GBa$Strata.obj$N[[34]]$yhi$`7`)
 #          "MW-SH","abund-ts","biomass-ts","SHF","clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown),
 #banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
 str <- Sys.time()
-survey.figs(direct = direct,fig="png",yr=2018,banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab","GB"),s.res="low",add.scale=T,INLA="run.full",
-            contour=T,season="testing",offset = c(0.12, 0.12, 0.12, 0.12, 0.10, 0.35))
+survey.figs(direct = direct,fig="png",yr=2017,banks = c("BBn" , "Ger", "Mid", "Sab", "GBb", "GBa","GB"),s.res="high",add.scale=T,INLA="run.full",
+                                                                                                        contour=T,season="testing")
 Sys.time() -str
 
 str <- Sys.time()
-survey.figs(direct = direct,fig="png",yr=2018,banks = c("Mid" ),s.res="high",add.scale=T,INLA="run",contour=T,season="testing",offset = 0.12,
-            plots = c("breakdown"))
+survey.figs(direct = direct,fig="screen",yr=2017,banks = c("Sab" ),s.res="high",add.scale=T,INLA="run",contour=T,season="testing")
 Sys.time() -str
 
 survey.figs(direct = direct,fig="screen",yr=2017,banks = c("Sab"),season="both",s.res="high",add.scale=T,INLA="load",contour=T,plots = c("Survey"))

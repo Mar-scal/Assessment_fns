@@ -39,7 +39,7 @@ rsconnect/
 /archive/
 
 # ignore these script files which we will change regularly and don't need to deal with
-RUNME_Survey_OSAC_Model/OSAC_Summary_script.r
-RUNME_Survey_OSAC_Model/Survey_design_script.R
-RUNME_Survey_OSAC_Model/Survey_Summary_script.r
-RUNME_Survey_OSAC_Model/Update_script.r
+/RUNME_Survey_OSAC_Model/OSAC_Summary_script.r
+/RUNME_Survey_OSAC_Model/Survey_design_script.R
+/RUNME_Survey_OSAC_Model/Survey_Summary_script.r
+/RUNME_Survey_OSAC_Model/Update_script.r
