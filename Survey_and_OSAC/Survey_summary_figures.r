@@ -104,6 +104,9 @@
 #                               special monitoring boxes (i.e. the "Starbox on Sable).  Regular seeedbox results will typically be 
 #                               saved as subset of the bank.
 # 11: contour:  Add a contour line around the spatial plots to help delinate them.  T/F, default = F
+# 12: offset:  The offset for the INLA figures, there is apparently a bug within INLA which results in the mesh calculations "hanging" with some
+#              combinations for the mesh calculations, if the mesh for an area isn't calculating try changing this.  For 2018 the default offsets by bank were
+#               BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
