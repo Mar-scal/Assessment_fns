@@ -21,7 +21,7 @@
 # Load your directory and the survey year
 direct <- "d:/r/"
 # direct <- "Y:/Offshore scallop/Assessment/"
-yr <- 2017
+yr <- 2018
 
 # The two functions that get the data and produce the survey figures
 # This function only needs to be run once to compile all of the data
@@ -41,9 +41,9 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/Survey_summary_figures.r",se
 # Make sure surveys and season match if using spring or summer (both doesn't matter)
 # Leave preprocessed = F (it takes about 1 minute to run) unless you haven't changed any of the other options
 # 
-res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2017,
-                   surveys = c("BBnspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer"),
-                   db.con="ptran",survey.year = 2017,testing=F)
+res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=F,yr=2018,
+                   surveys = c("BBnspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"BBsspring"),
+                   db.con="ptran",survey.year = 2018,testing=T)
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
