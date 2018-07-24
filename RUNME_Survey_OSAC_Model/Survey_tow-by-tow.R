@@ -9,9 +9,10 @@
 # May 16, 2016:  Set up the ScallopMap function to select database you want to use by setting it at the start of the script.
 # enables calling the database using 64 bit R.
 # June-July 2017:  Added code so that the directory would be created automatically and various other changes so code works with updated results and new bins...
+# July 2018:  Minor updates to account for the possibility of having multiple strata for a bank, updated to use the most recent strata...
 yr = as.numeric(format(Sys.time(), "%Y"))  # 
 direct = "d:/r/"
-database = "ptran64" # Set this to your database, needed for a few called to get the bathymetry from ScallopMap. You'll also
+database = "ptran" # Set this to your database, needed for a few called to get the bathymetry from ScallopMap. You'll also
 # need to set your username/password to access the database, see the ScallopMap function calls.
 library(viridis) # for colors...
 
@@ -26,7 +27,7 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn","Ger","Sab","Mid","GB")
+bnk <- c("BBn","Ger","Sab","Mid","GB","BBs")
 #bnk <- "BBn"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
@@ -51,8 +52,10 @@ for(i in 1:length(bnk))
 # Grab the survey data if it exists
 survey.poly <- subset(survey.detail.polys, label == bnk[i])
 survey.inf <- subset(survey.info, label == bnk[i])
-bank.survey.poly <- survey.poly
-bank.survey.info <- survey.inf
+# In case we have restratified we'll need to grab the most recet restrat data.
+max.year <- max(survey.poly$startyear)
+bank.survey.poly <- survey.poly[survey.poly$startyear == max.year,]
+bank.survey.info <- survey.inf[survey.inf$startyear == max.year,]
 # If there isn't any data make it an NA
 if(nrow(survey.poly) == 0) bank.survey.poly <- NA
 if(nrow(survey.inf) == 0) bank.survey.info <- NA
@@ -62,9 +65,16 @@ if(nrow(survey.inf) == 0) bank.survey.info <- NA
 # This has the nice summary of all the tow data in it, subset into 2015 and let's look at what is happening in each tow.
 bank.live<- subset(surv.Live[[bnk[i]]],year==yr)
 bank.live <- bank.live[order(bank.live$tow),]
+# To minimize code changes I will make a new variable called Strata_ID for any bank which has been restratified (so far just Sable) given we'll only be
+# running this script for the most recent year this works fine.
+if(any(names(bank.live) == "Strata_ID_new")) bank.live$Strata_ID <- bank.live$Strata_ID_new
 
 bank.clap <- subset(surv.Clap[[bnk[i]]],year==yr)
 bank.clap <- bank.clap[order(bank.clap$tow),]
+# To minimize code changes I will make a new variable called Strata_ID for any bank which has been restratified (so far just Sable) given we'll only be
+# running this script for the most recent year this works fine.
+if(any(names(bank.clap) == "Strata_ID_new")) bank.clap$Strata_ID <- bank.clap$Strata_ID_new
+
 # Get the columns with the shell height frequencies.
 cols <- which(names(bank.clap)=="h5"):which(names(bank.clap)=="h200")
 # And the MW data for each shelf.
@@ -873,11 +883,12 @@ legend("bottomleft",legend=c(bank.survey.info$PName),
        pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
 # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-legend(-67.27,41.82,legend = round(bank.survey.info$area_km2),
+legend("topright",legend = round(bank.survey.info$area_km2),
        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
        pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-legend(-66,41.45,legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+
+legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
        pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
