@@ -275,7 +275,6 @@ for(i in 1:len)
   }
   
   #Detailed survey polygons
-  browser()
   if(banks[i] %in% c("GBa","GBb","BBn","BBs")) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
                                                                                            label==banks[i], 
                                                                                            select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
@@ -1721,7 +1720,8 @@ for(i in 1:len)
     # clunky but basically this is the same plot as last year but re-scaled for comparative purposes...
     
     # but only do it if the survey went to that bank the previous year! 
-    if(is.element((yr-1), unique(survey.obj[[banks[i]]]$bankpertow$year))=="TRUE"){ 
+    if(is.element((yr-1), unique(lined.survey.obj[[1]]$year))=="TRUE"|
+       is.element((yr-1), unique(survey.obj[[banks[i]]]$model.dat$year))=="TRUE"){ 
     
     if(fig == "screen") windows(11,8.5)
     if(fig == "png") png(paste(plot.dir,"breakdown-",(yr-1),".png",sep=""),units="in",
