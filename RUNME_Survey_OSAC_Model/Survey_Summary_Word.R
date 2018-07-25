@@ -53,7 +53,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       }
     }
     
-    if(banks[i] %in% c("Sab", "BBn", "BBs", "GBa", "GBb")){
+    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
       NR_current <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
@@ -65,6 +65,25 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
       
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==year-1,])[1]==0){
+        NPR_prev <- NA
+        NR_prev <- NA
+        N_prev <- NA
+      }
+    }
+    
+    # BBs is only surveyed every other year, so change years to year-2
+    if(banks[i] %in% c("BBs")){
+      NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      NR_current <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      NR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      N_current <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      N_prev <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      NPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NPR, na.rm=T)
+      NR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NR, na.rm=T)
+      N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
+      
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==year-2,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
@@ -122,18 +141,36 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       }
     }
     
-    if(banks[i] %in% c("Sab", "BBn", "BBs", "GBa", "GBb")){
-      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[[1]]$bankpertow$year==year]
-      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[[1]]$bankpertow$year==year-1]
-      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[[1]]$bankpertow$year==year]
-      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[[1]]$bankpertow$year==year-1]
-      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[[1]]$bankpertow$year==year]
-      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[[1]]$bankpertow$year==year-1]
+    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
+      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
       IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
       
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==year-1,])[1]==0){
+        IPR_prev <- NA
+        IR_prev <- NA
+        I_prev <- NA
+      }
+    }
+    
+    if(banks[i] %in% c("BBs")){
+      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
+      IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
+      I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
+      
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==year-2,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
@@ -239,19 +276,36 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                      LTM=NA)
     }
     
-    if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]==0){
+    if(banks[i] %in% "BBs"){
       
       cf <- data.frame(variable=c("CF",
                                   "spatialCF",
                                   "minCF", 
                                   "maxCF"), 
-                       lastyear=rep(NA, 4),
+                       lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year-2],
+                                  mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2]),
+                                  min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2]),
+                                  max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2])),
                        thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
                                   mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                        LTM=NA)
     }
+    
+    # if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]==0){
+    #   
+    #   cf <- data.frame(variable=c("CF",
+    #                               "spatialCF",
+    #                               "minCF", 
+    #                               "maxCF"), 
+    #                    lastyear=rep(NA, 4),
+    #                    thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
+    #                               mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
+    #                               min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
+    #                               max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
+    #                    LTM=NA)
+    # }
     
     # ifelse for the wording
     cf$word <- ifelse(cf$thisyear - cf$lastyear >  0.5,
@@ -290,6 +344,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     highlights <- rbind(highlights, mc)
     
     # clapper abundance
+    if(!banks[i] %in% "BBs"){
     clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
                                   "PRpercentclap", "Rpercentclap", "Cpercentclap"),
                        lastyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-1],
@@ -303,6 +358,24 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
                        LTM=NA)
+    }
+    
+    if(banks[i] %in% "BBs"){
+      clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
+                                    "PRpercentclap", "Rpercentclap", "Cpercentclap"),
+                         lastyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
+                                    clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
+                                    clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
+                                    NA, NA, NA),
+                         thisyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
+                                    clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
+                                    clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
+                         LTM=NA)
+    }
+    
     clap$thisyear <- as.numeric(as.character(clap$thisyear))
     clap$lastyear <- as.numeric(as.character(clap$lastyear))
     # ifelse for the wording

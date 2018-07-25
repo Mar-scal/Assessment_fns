@@ -275,6 +275,7 @@ for(i in 1:len)
   }
   
   #Detailed survey polygons
+  browser()
   if(banks[i] %in% c("GBa","GBb","BBn","BBs")) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
                                                                                            label==banks[i], 
                                                                                            select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
