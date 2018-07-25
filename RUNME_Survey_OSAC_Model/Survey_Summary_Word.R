@@ -89,7 +89,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                 "similar",
                                                 "other"))))
     abundPT$nearLTM <- ifelse(abundPT$thisyear - abundPT$LTM >  10,
-                              "greater",
+                              "greater than",
                               ifelse(abundPT$thisyear - abundPT$LTM < -10,
                                      "less than",
                                      ifelse(abs(abundPT$thisyear - abundPT$LTM) == 10 | 
@@ -160,7 +160,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                              "other"))))
     
     bmPT$nearLTM <- ifelse(bmPT$thisyear - bmPT$LTM >  15,
-                           "greater",
+                           "greater than",
                            ifelse(bmPT$thisyear - bmPT$LTM < -15,
                                   "less than",
                                   ifelse(abs(bmPT$thisyear - bmPT$LTM) == 15 | 
