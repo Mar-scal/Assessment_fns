@@ -1,7 +1,11 @@
+
+## use model.dat cf for all cf measurements!
 Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
   options(scipen=999)
   load(data)
   banks <- names(bank.dat)
+  
+  fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
   possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "GBa", "GBb"),
                                 season=c(rep("spring", 7), rep("summer", 2)))
@@ -21,7 +25,18 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   
   ntows <- NULL
   highlights <- NULL
+  sizes <- NULL
   for (i in 1:length(banks)){
+    size<-NULL
+    size$RS <- survey.obj[banks[i]][[1]]$model.dat$RS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
+    size$CS <- survey.obj[banks[i]][[1]]$model.dat$CS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
+    if(!banks[i] == "GB") size$mc <- unique(fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==year])
+    if(banks[i] == "GB") size$mc <- unique(fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$year==year])
+
+    size$bank <- banks[i]
+    
+    sizes <- rbind(sizes, size)
+    
     #print(i)
     # number of tows:
     ntowsy <- as.data.frame(table(unique(surv.dat[banks[i]][[1]][surv.dat[banks[i]][[1]]$year==year, c("tow", "random")])$random))
@@ -250,13 +265,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     # mwsh and cf
     fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
-    
-    if(dim(cf.data[banks[i]][[1]]$CFyrs)[2] > 5){
-      cfdat <- cf.data[banks[i]][[1]]$CFyrs[,c("year", "depth", "lon", "lat", "CF2")]
-      names(cfdat) <- c("year", "depth", "lon", "lat", "CF")
+
+    if(!banks[i] =="Ger"){
+      cfdat <- survey.obj[banks[i]][[1]]$model.dat[,c("year", "CF")]
     }
-    if(dim(cf.data[banks[i]][[1]]$CFyrs)[2] == 5){
-      cfdat <- cf.data[banks[i]][[1]]$CFyrs[,c("year", "depth", "lon", "lat", "CF")]
+    
+    if(banks[i] == "Ger"){
+      cfdat <- cf.data[banks[i]][[1]]$CFyrs[,c("year", "CF2")]
+      names(cfdat) <- c("year", "CF")
     }
     
     if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]>0){
@@ -451,7 +467,6 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       
       highlights <- rbind(highlights, seedPT)
       highlights <- rbind(highlights, bmseedPT)
-      
     }
     
   }
