@@ -1297,6 +1297,7 @@ for(i in 1:len)
     # For german bank
     if(banks[i] == "Ger")
     {
+
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,yl2=400,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
