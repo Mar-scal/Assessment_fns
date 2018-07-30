@@ -38,8 +38,18 @@ rsconnect/
 # ignore archive folder
 /archive/
 
+# data and docs
+*.csv
+*.xlsx
+*.xls
+*.docx
+*.doc
+
 # ignore these script files which we will change regularly and don't need to deal with
 RUNME_Survey_OSAC_Model/OSAC_Summary_script.r
 RUNME_Survey_OSAC_Model/Survey_design_script.R
 RUNME_Survey_OSAC_Model/Survey_Summary_script.r
 RUNME_Survey_OSAC_Model/Update_script.r
+RUNME_Survey_OSAC_Model/Survey Summary Word_Spring.Rmd
+RUNME_Survey_OSAC_Model/Survey Summary Word_Spring_2018.Rmd
+
