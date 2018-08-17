@@ -235,34 +235,48 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     maxbin <- gsub(x=maxbin, "h", "")
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
     
-    shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
-    maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
-    maxbin_LY <- gsub(x=maxbin_LY, "h", "")
-    maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
+    if(!banks[i] == "BBs"){
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
+      maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
+      maxbin_LY <- gsub(x=maxbin_LY, "h", "")
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+    if(banks[i] == "BBs"){
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-2, 14:53], 2, mean)
+      maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
+      maxbin_LY <- gsub(x=maxbin_LY, "h", "")
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
     
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
-    maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-2])
     PR3Q <- round(summary(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
-    ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
+    if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+    if(banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
+                                                                                           surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
 
     maxRtow <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])
-    maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-2])
     R3Q <- round(summary(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
-    ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
+    if(!banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
-    
+    if(banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
+                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
     maxCtow <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])
-    maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(!banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-2])
     C3Q <- round(summary(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
-    ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
+    if(!banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+    if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
+                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
     
     towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
                              lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
