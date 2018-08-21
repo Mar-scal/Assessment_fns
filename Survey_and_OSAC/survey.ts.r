@@ -69,6 +69,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   # Check if any years are missing, if so we'll need to fill them in with NA's so we aren't drawing lines
   # between years with no data... DK added on Nov 23, 2015, if getting a weird error it may be
   # due to this!!
+  # FK 2018: need to do this for the dat2 element as well.
   missing.years <-  years[!is.element(years,shf$year)]
   if(length(missing.years > 0))
   {
@@ -79,6 +80,18 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     shf<- rbind(shf,fill)
     # And now re-order the data and everything will be wonderful!
     shf <- shf[order(shf$year),]
+  } # end if(length(missing.years > 0))
+  
+  missing.years.dat2 <-  years[!is.element(years,dat2$year)]
+  if(length(missing.years.dat2 > 0))
+  {
+    fill.dat2 <- data.frame(matrix(NA,nrow=length(missing.years.dat2),ncol=ncol(dat2)))
+    fill.dat2[,1] <-missing.years.dat2
+    names(fill.dat2) <- names(dat2)
+    # I will give this a new name as this messing up the survey object for the SHF plot...
+    dat2<- rbind(dat2,fill.dat2)
+    # And now re-order the data and everything will be wonderful!
+    dat2 <- dat2[order(dat2$year),]
   } # end if(length(missing.years > 0))
   
   # If making user SH bin plots I need to get the correct names...
@@ -333,7 +346,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
                         outer = T, cex = 1.2,las=1)	
       if(Npt==F && type == "B")  mtext("Total Biomass (t)", 2, 3, outer = T, cex = 1.2)	
       # Add the year to the bottom of the final plot
-      mtext("Year", 1, 4, outer = T, cex = 1.2)	
+      #mtext("Year", 1, 4, outer = T, cex = 1.2)	
     } # end if(i == length(mn.tmp))  
   } # end for(i in 1:length(mn.tmp))
 # if pdf =T  then shut down the plotting device

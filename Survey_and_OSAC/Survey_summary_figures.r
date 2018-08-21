@@ -1317,7 +1317,7 @@ for(i in 1:len)
                 dat2=survey.obj.sab,
                 clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-      legend("topright",c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Sab")
     
     if(fig != "screen") dev.off()
@@ -1368,7 +1368,7 @@ for(i in 1:len)
                 dat2=survey.obj.sab,
                 clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-      legend("topright",c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Sab")
     
     if(banks[i] == "Mid"|| banks[i] == "GB")
