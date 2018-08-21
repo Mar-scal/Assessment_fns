@@ -333,7 +333,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
                         outer = T, cex = 1.2,las=1)	
       if(Npt==F && type == "B")  mtext("Total Biomass (t)", 2, 3, outer = T, cex = 1.2)	
       # Add the year to the bottom of the final plot
-      #mtext("Year", 1, 4, outer = T, cex = 1.2)	
+      mtext("Year", 1, 4, outer = T, cex = 1.2)	
     } # end if(i == length(mn.tmp))  
   } # end for(i in 1:length(mn.tmp))
 # if pdf =T  then shut down the plotting device
