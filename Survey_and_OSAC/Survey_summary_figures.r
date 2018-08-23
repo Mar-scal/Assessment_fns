@@ -299,8 +299,10 @@ for(i in 1:len)
   if(banks[i] %in% c("GB", "Mid", "Ger")) strata.areas <- NULL
   
   #Get all the details of the survey strata
-  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label==banks[i]])) surv.info <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),],label== banks[i])
-  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label==banks[i]])) surv.info <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),],label== banks[i])
+  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label==banks[i]])) {
+    surv.info <- survey.info[survey.info$startyear==2018 & survey.info$label=="Sab",]}
+  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label==banks[i]])) {
+    surv.info <- survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]}
   
   if(!banks[i] %in% c("Sab")) surv.info <- subset(survey.info,label== banks[i])
 
@@ -1311,11 +1313,16 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results.RData")
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+      source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
+      load(paste0(direct, "Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
+      survey.obj.sab$year <- as.numeric(as.character(survey.obj.sab$year))
+      survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,
+                areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                 dat2=survey.obj.sab,
-                clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
+                clr=c('blue',"red","blue"),
+                se=T,
+                pch=c(16, 17),
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
       legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Sab")
@@ -1362,12 +1369,17 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results.RData")
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
-                areas=surv.info$towable_area,
-                dat2=survey.obj.sab,
-                clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
-                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
+      load(paste0(direct, "Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
+      survey.obj.sab$year <- as.numeric(as.character(survey.obj.sab$year))
+      survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
+                        areas=surv.info$towable_area,
+                        areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
+                        dat2=survey.obj.sab,
+                        clr=c('blue',"red","blue"),
+                        se=T,
+                        pch=c(16, 17),
+                        add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
       legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Sab")
     

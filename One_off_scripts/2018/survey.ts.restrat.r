@@ -56,8 +56,8 @@
 #            this needs to be set to whatever the user.bins names are within the shf object.  Default = NULL which doesn't create these plots
 #            should work with user.bins = survey.obj[[banks[i]]][[1]]$user.bins if this exists.
 
-survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=c('pre','rec','com'),
-                      clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,
+survey.ts.restrat <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=c('pre','rec','com'),
+                      clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,areas2=NULL,
                       ypos=1, add.title = F, cx.mn = 1, titl = "", axis.cx=1,user.bins = NULL, ...)
 {
   # Subset the data into the years of interest
@@ -82,19 +82,17 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     shf <- shf[order(shf$year),]
   } # end if(length(missing.years > 0))
   
-  if(!is.null(dat2)){
-    missing.years.dat2 <-  years[!is.element(years,dat2$year)]
-    if(length(missing.years.dat2 > 0))
-    {
-      fill.dat2 <- data.frame(matrix(NA,nrow=length(missing.years.dat2),ncol=ncol(dat2)))
-      fill.dat2[,1] <-missing.years.dat2
-      names(fill.dat2) <- names(dat2)
-      # I will give this a new name as this messing up the survey object for the SHF plot...
-      dat2<- rbind(dat2,fill.dat2)
-      # And now re-order the data and everything will be wonderful!
-      dat2 <- dat2[order(dat2$year),]
-    } # end if(length(missing.years.dat2 > 0))
-  }
+  missing.years.dat2 <-  years[!is.element(min(dat2$year):max(dat2$year),dat2$year)]
+  if(length(missing.years.dat2 > 0))
+  {
+    fill.dat2 <- data.frame(matrix(NA,nrow=length(missing.years.dat2),ncol=ncol(dat2)))
+    fill.dat2[,1] <-missing.years.dat2
+    names(fill.dat2) <- names(dat2)
+    # I will give this a new name as this messing up the survey object for the SHF plot...
+    dat2<- rbind(dat2,fill.dat2)
+    # And now re-order the data and everything will be wonderful!
+    dat2 <- dat2[order(dat2$year),]
+  } # end if(length(missing.years > 0))
   
   # If making user SH bin plots I need to get the correct names...
   if(!is.null(user.bins))
@@ -147,14 +145,13 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     if(!is.null(user.bins)) shf[,mean.names] <- shf[,mean.names] / sum(areas) * 10^6 
   } # end if(!is.null(areas) == T && Npt == T)
   
-  # If there is a dat2 two object and areas is specified and Npt is true this is conversion from bank to tow numbers.
-  if(!is.null(dat2) && !is.null(areas) && Npt == T) 
+  # If there is a dat2 two object and areas2 is specified (i.e. dat2 has different areas than dat1, such as a restratification case!) and Npt is true this is conversion from bank to tow numbers.
+  if(!is.null(dat2) && !is.null(areas2) && Npt == T) 
   {
     # scale down from bank to tow
-    if(is.null(user.bins)) dat2[,mean.names] <- dat2[,mean.names] / sum(areas) * 10^6 
-    if(!is.null(user.bins)) dat2[,mean.names] <- dat2[,mean.names] / sum(areas) * 10^6 
+    if(is.null(user.bins)) dat2[,mean.names] <- dat2[,mean.names] / sum(areas2) * 10^6 
+    if(!is.null(user.bins)) dat2[,mean.names] <- dat2[,mean.names] / sum(areas2) * 10^6 
   } # if(!is.null(dat2)==T && !is.null(areas)==T && Npt == T) 
-  
   
   # Subset the data to what we will use...
   # If making the abudance plots without the user specified SH bins.
@@ -182,7 +179,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     } # end if(!is.null(dat2))
   }  # end if(type == "N" & is.null(user.bins)) 
   
-  # # If making the biomass plots  using the user specified SH bins.
+  ## If making the biomass plots using the user specified SH bins.
   if(type == "B" && !is.null(user.bins)) 
   {
     shf <-  shf[c(which(names(shf) %in% c("n","year")),grep("bm",names(shf)))]
@@ -220,7 +217,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   #Calculate standard errors based on mean and CV.
   if(se==T)
   {
-    se.names <- paste(mn.tmp,".se",sep="")
+    se.names <- paste(mn.tmp,".cv",sep="")
     # Calculate the Standard errors 
     for(i in 1:length(se.names)) shf[,se.names[i]] <-shf[,mn.tmp[i]]*shf[,CV.tmp[i]]
     # Do the same if there is dat2 around.
