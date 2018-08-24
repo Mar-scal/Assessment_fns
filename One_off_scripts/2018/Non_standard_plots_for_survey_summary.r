@@ -3,7 +3,7 @@
 
 # Load your directory and the survey year
 direct <- "d:/r/"
-# direct <- "Y:/Offshore scallop/Assessment/"
+# direct <- "F:/Offshore scallop/Assessment/"
 yr <- 2018
 
 # Load in the spring survey results from this year.
@@ -275,3 +275,37 @@ tmp <-lined.dat[-which(lined.dat$random %in% c(2,4,5)),]
 tmp <- tmp[-which(tmp$pre == max(tmp$pre)),]
 # Can see that reduces the abundance by about 33 % from 295 to 188
 tmp.spr.survey.obj <- sprSurv(tmp,2008:yr,ger.tows,chng=T)
+
+
+###################### FK's seedbox SHF summary for BBn
+# This makes a 3 panel shf plot for the 2 seedboxes that are closed on BBn this year.
+# First 
+
+par(mfrow=c(1,2))
+boxy <- NULL
+tmp <- NULL
+tmp2 <- NULL
+# Pick the box and pull out the data we want
+for(j in 1:2)
+{
+  tmp[[j]] <- seedbox.obj$BBn[[j]]$model.dat[seedbox.obj$BBn[[j]]$model.dat$year %in% yr,]
+  #
+  tmp2[[j]]<- seedbox.obj$BBn[[j]]$shf.dat$n.yst[nrow(seedbox.obj$BBn[[j]]$shf.dat$n.yst),]
+  #
+  #if(j > 1) boxy$shf.dat$n.yst <- rbind(boxy$shf.dat$n.yst,seedbox.obj$GB[[j]]$shf.dat$n.yst[nrow(seedbox.obj$GB[[j]]$shf.dat$n.yst),])
+}
+boxy$model.dat <- do.call("rbind",tmp)
+boxy$model.dat$year <- 2017:2018
+boxy$shf.dat$n.yst <- do.call("rbind",tmp2)
+# Get the number of survey tows.
+s.size <- boxy[[1]]$n
+SHF.title <- "C8 & C9 SHF 2018"
+# Make the plot.
+windows(8.5,11)
+png(filename=paste0(direct, "2018/Presentations/Survey_summary/test_figures/BBn/seedbox SHF summary.png"), units="in",width = 8.5,height = 11,res=420,bg = "transparent")
+shf.plt(boxy,from='surv',yr=2017:2018, col1='grey80',col2=1,rel=F,rows=2,adj = -5, ymax=160,
+        recline=c(85,95),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
+par(xpd=NA)
+text(x = c(165,165),y = c(330,150),labels = paste("N =", s.size,sep=" "),cex=2)
+text(x = c(25,25),y = c(330,150),labels = c("C8","C9"),cex=2)
+dev.off()

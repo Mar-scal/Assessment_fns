@@ -1801,7 +1801,6 @@ for(i in 1:len)
   
   if(any(plots == "seedboxes"))    
   {
-    browser()
     # I'm picking November 1st of current year b/c if they close a box at this point none of our presentations
     # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
     # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our

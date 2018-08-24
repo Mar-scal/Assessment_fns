@@ -49,7 +49,6 @@
 shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red',rows=7,rel=T,split=NA, bins = seq(5,200,by=5),
                   select = 5,adj=0.9,bx=F,ymax=NA,recline=NULL,ylab,sample.size=F, add.title = F, cex.mn = 1, titl = "",cx.axis=1.5, ...)
 {
-   
   if(missing(yr)==T) yr<-sort(unique(survey.obj$model.dat$year))
 
   # Are we using the sample size, if so extract it from survey.obj
