@@ -1313,9 +1313,8 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-      load(paste0(direct, "Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
-      survey.obj.sab$year <- as.numeric(as.character(survey.obj.sab$year))
+      source("E:/Offshore scallop/Assessment/Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r")
+      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
       survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,
                 areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
@@ -1369,17 +1368,12 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-      load(paste0(direct, "Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
-      survey.obj.sab$year <- as.numeric(as.character(survey.obj.sab$year))
-      survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
-                        areas=surv.info$towable_area,
-                        areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
-                        dat2=survey.obj.sab,
-                        clr=c('blue',"red","blue"),
-                        se=T,
-                        pch=c(16, 17),
-                        add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results.RData")
+      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
+                areas=surv.info$towable_area,
+                dat2=survey.obj.sab,
+                clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
+                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
       legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Sab")
     
@@ -1807,11 +1801,12 @@ for(i in 1:len)
   
   if(any(plots == "seedboxes"))    
   {
+    browser()
     # I'm picking November 1st of current year b/c if they close a box at this point none of our presentations
     # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
     # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
     # original presentations (maybe OSAC, but this isn't OSAC)....
-    sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+    sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
     if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
     if(nrow(sb) > 0) # only run the rest of this if we have data...
     {

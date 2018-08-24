@@ -818,8 +818,9 @@ years <- yr.start:yr
 		
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
-		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
-		if(bnk == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+		#browser()
+		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
+		if(bnk == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
 		
 		# If there were any seeboxes closed in this year get the results from the box(es)
 		if(length(sb[,1]) > 0)
