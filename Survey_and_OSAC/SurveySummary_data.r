@@ -187,8 +187,12 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-    survMay.dat<-import.survey.data(1984:1999,survey='May',explore=T,export=F,dirc=direct)
+    survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
+
+    # take out 2000 for all banks except browns and GB
+    survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
+
 		
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
     survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]

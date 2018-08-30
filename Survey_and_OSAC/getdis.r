@@ -40,7 +40,7 @@
 dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,smooth=T,plt=F,meh=0,
                     printtow=F,direct = "Y:/Offshore scallop/Assessment/")
 {
-	
+  #browser()
   require(PBSmapping)  || stop("Install PBSmapping Package")
   #Source1 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) 
@@ -55,7 +55,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
 	  if(printtow)print(tows[i])
 	  
 	  #Read1 Special call to read in oddly formated tow data flat files.
-	  if(meh>0)towtrack<-read.table(paste(path,substr(meh+tows[i],2,nchar(meh)),".log",sep=''),skip=5)
+	  if(meh>0) towtrack <- read.table(paste0(path,substr(meh+tows[i],2,nchar(meh)),".log"),skip=5)
 	  
 	  #Read2 When meh = 0 we just grab the flat files from here sequentially.
 	  if(meh==0)towtrack<-read.table(paste(path,tows[i],".log",sep=''),skip=5)
@@ -95,7 +95,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
 	  # Take all readings
 	  if(rule==4)towtracks[[i]]<-towtrack
 	  # Take every second reading
-	  if(rule==8)towtracks[[i]]<-towtrack[seq(1,nrow(towtrack),2),]
+	  if(rule==8) towtracks[[i]]<-towtrack[seq(1,nrow(towtrack),2),]
 	  # Take every 5th
 	  if(rule==20)towtracks[[i]]<-towtrack[seq(1,nrow(towtrack),5),]
 	  # Just take the first and last.
