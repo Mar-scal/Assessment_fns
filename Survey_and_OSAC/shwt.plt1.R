@@ -2,6 +2,7 @@
 ####  obtained from the function shwt.lme.r
 ## Update history
 ## 1: March 31 2016 by DK, tidying up structure and comments
+## 2: July 31, 2019 by DK, changed the size, and colors/size of the points and the random effects fits
 ################################################################################################################
 
 #####################################  Function Summary ########################################################
@@ -49,8 +50,8 @@ shwt.plt1 <- function(htwt.fit,graphic='R',ht=8,wd=11.5,cx=1.2,lw=2,xl,yl,titl="
 	if(missing(yl))yl<-c(0, max(htwt.fit$data$wmw) + 5)
 	
 	# Draw the plot of raw data
-	plot(wmw ~ sh, data = htwt.fit$data, xlim = xl, ylim = yl, col = rgb(0.1,0.1,0.1,0.3), 
-	     las = 1, mgp = c(0.5, 0.5, 0), xlab ="", ylab = "",xaxt="n",yaxt="n")
+	plot(wmw ~ sh, data = htwt.fit$data, xlim = xl, ylim = yl, col = rgb(1,0,0,0.3), 
+	     las = 1, mgp = c(0.5, 0.5, 0), xlab ="", ylab = "",xaxt="n",yaxt="n",pch=19,cex=0.5)
 	axis(1,at=seq(0,2,0.2),label=seq(0,200,20),cex.axis=axis.cx)
 	axis(1,at=seq(0,2,0.1),label=F,cex.axis=axis.cx,tcl=-0.3)
 	axis(2,at=seq(0,100,by=10),label=T,cex.axis=axis.cx)
@@ -66,7 +67,7 @@ shwt.plt1 <- function(htwt.fit,graphic='R',ht=8,wd=11.5,cx=1.2,lw=2,xl,yl,titl="
 	# Draw thin lines showing fit of each random effect (tow)
 	for(i in 1:nrow(htwt.fit$fit))
 	  {
-	  	lines(x, x^htwt.fit$B * htwt.fit$fit[i,2], col = rgb(1,0,0,0.2))
+	  	lines(x, x^htwt.fit$B * htwt.fit$fit[i,2], col = rgb(1,0,0,0.2),lwd=1.5)
 	  } # end for(i in 1:nrow(fit))
 	
 	# Draw a thick blue line with fixed effect estimate

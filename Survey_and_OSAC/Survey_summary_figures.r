@@ -451,6 +451,14 @@ for(i in 1:len)
       spde <- inla.spde2.pcmatern(mesh,    
                                   prior.sigma=c(1,0.5), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                                   prior.range=c(1,0.5)) # The Meidan range and the probability that the range is less than this..
+      # Because of the generally thin spacing on GB we need to decrease the spatial correlation distance and allow for more spatial variability in the 
+      # data, so I have changed the priors...  Revised by DK August 2018, not fully incorporated into the Spring Survey summary presentation
+      if(banks[i] == "GB") 
+      {
+        spde <- inla.spde2.pcmatern(mesh,    
+                                  prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
+                                  prior.range=c(0.2,0.9)) # The Meidan range and the probability that the range is less than this..
+      }
       ## All of our spatial plots are counts, so for our simple purposes a poisson is o.k.
       family1 = "poisson"
       family1.cf <- "gaussian" # For CF and MC they are more normal so go with a gaussian.
@@ -1195,6 +1203,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
 ####################################  MWSH and CF Time series plot ####################################       
 ####################################  MWSH and CF Time series plot #################################### 
+  #browser()
   if(any(plots == "MW-SH"))
   {
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
@@ -1252,6 +1261,11 @@ for(i in 1:len)
       } # end if(season="both")
       if(season=="summer")
       {
+        # Added in case R is treating year as a factor... 
+        if(is.factor(survey.obj.last[["GB"]][[1]]$year)) 
+        {  
+          survey.obj.last[["GB"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GB"]][[1]]$year))[survey.obj.last[["GB"]][[1]]$year]
+        }
         lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
         abline(h=mean(survey.obj.last[["GB"]][[1]]$CF,na.rm=T),col="red",lty=3)
       } # end if(season="both")
@@ -1267,11 +1281,17 @@ for(i in 1:len)
         points(survey.obj[["GBa"]][[1]]$year+0.25,survey.obj[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
         abline(h=mean(survey.obj[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
       }
+      
       if(season=="spring")
       {
+        # Added in case R is treating year as a factor... 
+        if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
+        {  
+          survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
+        } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
         points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
         abline(h=mean(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
-      }
+      } # end  if(season=="spring")
       legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))	
       
     } # end if(banks[i] == "GB")
