@@ -53,7 +53,7 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
   #if(graphic=="R") windows( width = width, height = height)
 	# Calculate the mean of the response variable (y's)
   meany<-colMeans(data[y],na.rm=T)
-	print(meany)
+	
   # Add in xlim/ylim in not specified.
 	if(missing(xlim))xlim=range(data[x],na.rm=T)
 	if(missing(ylim))ylim=range(data[y],na.rm=T)

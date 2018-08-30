@@ -3,18 +3,17 @@
 
 # Load your directory and the survey year
 direct <- "d:/r/"
-# direct <- "C:/Users/keyserf/Documents/Offshore scallop/Assessment/"
-yr <- 2017
+# direct <- "F:/Offshore scallop/Assessment/"
+yr <- 2018
 
 # Load in the spring survey results from this year.
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep="")) 
-direct <- "C:/Users/keyserf/Documents/Offshore scallop/Assessment/"
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
 library(PBSmapping)
 library(INLA)
 library(maptools)
 banks <- "GB"
-banks <- "BBn"
+
 # This makes a 3 panel shf plot for the 3 seedboxes that are closed on GB this year.
 # First 
 

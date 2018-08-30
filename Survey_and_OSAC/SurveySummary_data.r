@@ -191,8 +191,8 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 		
-    # take out 2000 for all banks except browns and GB
-    survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
+    # take out 2000 for all banks except browns
+    survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("GB", "Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
     
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
     survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
@@ -513,6 +513,7 @@ years <- yr.start:yr
 		# Replace any NA's in CFh with the original Condition Factor.
 		surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
 		
+		
 		# Calculate the biomass of the Pre-recruits, Recruits and the Commerical Scallops in each tow on the bank
 		# Here we have added the ability to calculate the biomass of specific bins of interest. Also for
 		# GBa note that b/c of changes in sizes over time the user specified bins won't 
@@ -814,10 +815,12 @@ years <- yr.start:yr
 		            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
 		                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
 		
+		
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
-		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
-		if(bnk == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+		#browser()
+		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
+		if(bnk == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
 		
 		# If there were any seeboxes closed in this year get the results from the box(es)
 		if(length(sb[,1]) > 0)

@@ -30,7 +30,7 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
 bnk <- c("BBn","Ger","Sab","Mid","GB"#,"BBs"
          )
-bnk <- "GB"
+bnk <- "BBs"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
 
@@ -97,7 +97,6 @@ cf.data <- cf.data[,-1]
 cf.dat <- merge(bank.clap,cf.data,by.x="tow")
 cf.dat <- subset(cf.dat,select = c("clap.prop","clap.propCom","clap.propRec","clap.propPre","tow","cf"))
 
-###boxes bring it over if it isnt already written
 
 ###  Now start making the figures.
 # pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/SHF.pdf",sep=""),onefile=T,width=11,height=8.5)
@@ -687,8 +686,7 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -728,8 +726,6 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -768,8 +764,6 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -810,9 +804,6 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -851,8 +842,6 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -891,10 +880,6 @@ if(is.na(bank.survey.info) ==T)
 
 with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
-if(!bnk[i]=="GB") addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.na(bank.survey.info) ==F)
 {
@@ -1448,8 +1433,8 @@ if(is.na(bank.survey.info) ==T)
 } # end if(is.na(bank.survey.info) ==T)
 
 with(bank.live,text(lon,lat,tow,cex=0.5))
-# addPolys(GBa.boxes,lty=2,lwd=2)
-# addPolys(BBboxes,lty=2,lwd=2)
+#addPolys(GBa.boxes,lty=2,lwd=2)
+#addPolys(BBboxes,lty=2,lwd=2)
 
 if(is.na(bank.survey.info) ==F)
 {
