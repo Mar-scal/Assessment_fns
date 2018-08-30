@@ -190,6 +190,10 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 
     survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
+
+    # take out 2000 for all banks except browns and GB
+    survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
+
 		
     # take out 2000 for all banks except browns and GB
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
@@ -671,7 +675,7 @@ years <- yr.start:yr
   		      new.ger.tows$EID[k] <- last.ger.tows$tow[round(last.ger.tows$lat,digits=2) == round(new.ger.tows$lat[k],digits=2) & 
   		                                                 round(last.ger.tows$lon,digits=2) == round(new.ger.tows$lon[k],digits=2)]
   		  } # end for(k in 1:nrow(new.ger.tows))
-  		  
+
   		  # Now this won't be perfect, should get most but not all of them so check the results over.
   		  # In 2013 we aren't seeing the match from 2012 for two tows so I've selected the matched tows by hand.
   		  if(ger.years[b] == 2013)

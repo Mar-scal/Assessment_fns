@@ -27,6 +27,7 @@
 # Sept 2017:    Tiny change to the legend for the survey figure on GBa (it was including non-random tows in the # of tows legend)
 # Oct 2017:     Minor change to the add.scale for seedboxes and added an if statement for add.scale with GBb and Sable.
 # Nov 2017:     Updated the INLA based on what we did with SPERA project, the models now run many times quicker than they did...
+# July 2018:    Numererous changes, see Github for full description/history of modifications
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -104,9 +105,11 @@
 #                               special monitoring boxes (i.e. the "Starbox on Sable).  Regular seeedbox results will typically be 
 #                               saved as subset of the bank.
 # 11: contour:  Add a contour line around the spatial plots to help delinate them.  T/F, default = F
-# 12: offset:  The offset for the INLA figures, there is apparently a bug within INLA which results in the mesh calculations "hanging" with some
-#              combinations for the mesh calculations, if the mesh for an area isn't calculating try changing this.  For 2018 the default offsets by bank were
-#               BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35
+# 12: offsets:  The offset for the INLA figures, there is apparently a bug within INLA which results in the mesh calculations "hanging" with some
+#              combinations for the mesh calculations, if the mesh for an area isn't calculating try changing this.  For 2018 the "default" offsets by bank 
+#              were BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35.  This should be set to "default", if these
+#              are added manually the there needs to be 1 entry for each bank you are plotting, e.g. if wanting to change from the default settings and plotting
+#              just a couple of banks, let's say BBn and Mid, you would need to have this be something like offsets = c(0.15,0.13)
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -115,9 +118,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB"),
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offset=c(0.12, 0.12, 0.12, 
-                                                                                                   0.12, 0.10, 0.15,
-                                                                                                   0.15, 0.35))
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default")
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -351,6 +352,18 @@ for(i in 1:len)
     if(any(s.res == "high")) s.res <- c(250,250)
     if(any(s.res == "low")) s.res <- c(25,25)
     
+    # The offset for the INLA mesh needs to be specified, these are tricky as some combinations of offsets can lead to the script hanging, the
+    # defaults worked nicely for the 2018 survey so hopefully will work in most other years, but no guarantees!
+    if(offsets == "default")
+    {
+      if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
+      if(banks[i] %in% c("Sab")) offset = 0.1
+      if(banks[i] %in% c("GBa","GBb")) offset = 0.15
+      if(banks[i] %in% c("GB")) offset = 0.35
+    }# end if(offsets == "default")
+    if(offsets != "default") offset <- offsets[i]
+    
+    
     # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
     if(banks[i] == "Mid")  
     {
@@ -428,8 +441,8 @@ for(i in 1:len)
       # This is how the mesh and A matrix are constructed
       # Build the mesh, for our purposes I'm hopeful this should do the trick, the offset makes the area a bit larger so the main predictions 
       #  should cover our entire survey area.
-      if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=offset[i])
-      if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=offset[i])
+      if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=offset)
+      if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=offset)
       #windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp,add=T,lwd=2)
      
       # Now make the A matrix
@@ -440,6 +453,14 @@ for(i in 1:len)
       spde <- inla.spde2.pcmatern(mesh,    
                                   prior.sigma=c(1,0.5), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                                   prior.range=c(1,0.5)) # The Meidan range and the probability that the range is less than this..
+      # Because of the generally thin spacing on GB we need to decrease the spatial correlation distance and allow for more spatial variability in the 
+      # data, so I have changed the priors...  Revised by DK August 2018, not fully incorporated into the Spring Survey summary presentation
+      if(banks[i] == "GB") 
+      {
+        spde <- inla.spde2.pcmatern(mesh,    
+                                  prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
+                                  prior.range=c(0.2,0.9)) # The Meidan range and the probability that the range is less than this..
+      }
       ## All of our spatial plots are counts, so for our simple purposes a poisson is o.k.
       family1 = "poisson"
       family1.cf <- "gaussian" # For CF and MC they are more normal so go with a gaussian.
@@ -1184,6 +1205,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
 ####################################  MWSH and CF Time series plot ####################################       
 ####################################  MWSH and CF Time series plot #################################### 
+  #browser()
   if(any(plots == "MW-SH"))
   {
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
@@ -1241,6 +1263,11 @@ for(i in 1:len)
       } # end if(season="both")
       if(season=="summer")
       {
+        # Added in case R is treating year as a factor... 
+        if(is.factor(survey.obj.last[["GB"]][[1]]$year)) 
+        {  
+          survey.obj.last[["GB"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GB"]][[1]]$year))[survey.obj.last[["GB"]][[1]]$year]
+        }
         lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
         abline(h=mean(survey.obj.last[["GB"]][[1]]$CF,na.rm=T),col="red",lty=3)
       } # end if(season="both")
@@ -1256,11 +1283,17 @@ for(i in 1:len)
         points(survey.obj[["GBa"]][[1]]$year+0.25,survey.obj[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
         abline(h=mean(survey.obj[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
       }
+      
       if(season=="spring")
       {
+        # Added in case R is treating year as a factor... 
+        if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
+        {  
+          survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
+        } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
         points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
         abline(h=mean(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
-      }
+      } # end  if(season=="spring")
       legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))	
       
     } # end if(banks[i] == "GB")
@@ -1725,12 +1758,17 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 11,height = 8.5)
     if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% banks[i])$MC_reg
     if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
-    
+    #browser()
     if(banks[i] != "Ger") 
     {
+      # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
+      # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
+      # but wanted to look at the 2015 data for example).
+      current.year <- which(na.omit(survey.obj[[banks[i]]]$model.dat)$year == yr)
+      last.surv.year <- na.omit(survey.obj[[banks[i]]]$model.dat)$year[current.year-1]
       # To get the ymax the same between succesive years I want to do this...
       bm<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
-      bm.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==(yr-1)),which(seq(5,200,5) >= 5)]/1000
+      bm.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
       ymax <- max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1)
       breakdown(survey.obj[[banks[i]]],yr=yr,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
     } # end if(banks[i] != "Ger") 
@@ -1738,8 +1776,14 @@ for(i in 1:len)
     # Using the lined surevye object for German bank...
     if(banks[i] == "Ger") 
     {
+      # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
+      # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
+      # but wanted to look at the 2015 data for example).
+      current.year <- which(na.omit(lined.survey.obj$model.dat)$year == yr)
+      last.surv.year <- na.omit(lined.survey.obj$model.dat)$year[current.year-1]
+      # Get the data...
       bm<-lined.survey.obj$shf.dat$w.yst[which(lined.survey.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
-      bm.last<-lined.survey.obj$shf.dat$w.yst[which(lined.survey.obj[[1]]$year==(yr-1)),which(seq(5,200,5) >= 5)]/1000
+      bm.last<-lined.survey.obj$shf.dat$w.yst[which(lined.survey.obj[[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
       ymax <- max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1)
       breakdown(lined.survey.obj,yr=yr,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
     }# end if(banks[i] == "Ger") 
@@ -1751,40 +1795,27 @@ for(i in 1:len)
     # be the same y-scale (there is no guarantee that the plot made last year will be, likely it won't).  It's a bit
     # clunky but basically this is the same plot as last year but re-scaled for comparative purposes...
 
-    # but only do it if the survey went to that bank the previous year! 
-    if(is.element((yr-1), unique(lined.survey.obj[[1]]$year))=="TRUE"|
-       is.element((yr-1), unique(survey.obj[[banks[i]]]$model.dat$year))=="TRUE"){ 
-      
       if(fig == "screen") windows(11,8.5)
-      if(fig == "png") png(paste(plot.dir,"breakdown-",(yr-1),".png",sep=""),units="in",
+      if(fig == "png") png(paste(plot.dir,"breakdown-",last.surv.year,".png",sep=""),units="in",
                            width = 11,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr-1),".pdf",sep=""),width = 11,height = 8.5)
+      if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",last.surv.year,".pdf",sep=""),width = 11,height = 8.5)
 
-      if(!banks[i] %in% c("Ger", "BBs")) 
+      if(banks[i] != "Ger")
       {
         # To get the ymax the same between succesive years I want to do this...
-        breakdown(survey.obj[[banks[i]]],yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        breakdown(survey.obj[[banks[i]]],yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep=""), cex.main=2,adj=0.35)
         
-      } # end if(banks[i] != "Ger") 
-      
-      if(banks[i] == "BBs") 
-      {
-        # To get the ymax the same between succesive years I want to do this...
-        breakdown(survey.obj[[banks[i]]],yr=(yr-2),mc=mc,cx.axs=1,y1max = ymax,add.title = F)
-        if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",(yr-2),")",sep=""), cex.main=2,adj=0.35)
       } # end if(banks[i] != "Ger") 
       
       # Using the lined surevye object for German bank...
       if(banks[i] == "Ger") 
       {
-        breakdown(lined.survey.obj,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax,add.title = F)
-        if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",(yr-1),")",sep=""), cex.main=2,adj=0.35)
+        breakdown(lined.survey.obj,yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep=""), cex.main=2,adj=0.35)
       }# end if(banks[i] == "Ger") 
       
       if(fig != "screen") dev.off()   
-    }
-    
-    #} # end if(banks[i] %in% c("BBn" , "GBb", "GBa"))
     
   }  # end iif(any(plots== "breakdown"))
   ############  End Breakdown figures for BBn and GBa############  End Breakdown figures for BBn and GBa############  
