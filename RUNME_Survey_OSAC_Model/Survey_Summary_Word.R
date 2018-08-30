@@ -235,29 +235,57 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     maxbin <- gsub(x=maxbin, "h", "")
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
     
+    if(!banks[i] == "BBs"){
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
+      maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
+      maxbin_LY <- gsub(x=maxbin_LY, "h", "")
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+    if(banks[i] == "BBs"){
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-2, 14:53], 2, mean)
+      maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
+      maxbin_LY <- gsub(x=maxbin_LY, "h", "")
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+    
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
+    if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-2])
     PR3Q <- round(summary(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
+    if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
+                                                                   surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+    if(banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
+                                                                                           surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
 
     maxRtow <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])
+    if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-2])
     R3Q <- round(summary(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
-
+    if(!banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
+                                                                  surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+    if(banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
+                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
     maxCtow <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])
+    if(!banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-1])
+    if(banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-2])
     C3Q <- round(summary(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
+    if(!banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
+                                                                  surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+    if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
+                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
     
     towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
-                             lastyear=NA,
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
                              thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q),
                              LTM=NA,
-                             word=c(maxbin, NA, NA, NA,
-                                    paste0(ntowsabovePR3Q, " tows"),
-                                    paste0(ntowsaboveR3Q, " tows"),
-                                    paste0(ntowsaboveC3Q, " tows")),
+                             word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
+                                    paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
+                                    paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
+                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)")),
                              nearLTM=NA,
                              bank=banks[i])
     
@@ -277,7 +305,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]>0){
     
-    cf <- data.frame(variable=c("CF",
+      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
+    
+      cf <- data.frame(variable=c("CF",
                                 "spatialCF",
                                 "minCF", 
                                 "maxCF"), 
@@ -289,10 +319,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                 mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                 min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                 max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
-                     LTM=NA)
+                     LTM=cf_ltm)
     }
     
     if(banks[i] %in% "BBs"){
+      
+      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)])
       
       cf <- data.frame(variable=c("CF",
                                   "spatialCF",
@@ -306,7 +338,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
-                       LTM=NA)
+                       LTM=cf_ltm)
     }
     
     # if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]==0){
@@ -332,14 +364,18 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                       abs(cf$thisyear - cf$lastyear) < 0.5,
                                     "was similar",
                                     "other")))
+    ltmtest <- ifelse(cf$thisyear > cf$LTM, "greater than",
+                      ifelse(cf$thisyear < cf$LTM, "less than", NA))
     
+    cf$nearLTM <- paste0(ltmtest, " (LTM=", round(cf$LTM,2), ")")
+      
     mwshcf <- rbind(data.frame(variable=c("fittedmw100mm"),
                                lastyear=NA,
                                thisyear=fittedmw100mm,
                                LTM=NA,
-                               word=NA),
+                               word=NA,
+                               nearLTM=NA),
                     cf)
-    mwshcf$nearLTM <- NA
     mwshcf$bank <- banks[i]
     
     highlights <- rbind(highlights, mwshcf)
@@ -366,7 +402,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                        lastyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-1],
                                   clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-1],
                                   clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-1],
-                                  NA, NA, NA),
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year-1]),
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year-1]),
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year-1])),
                        thisyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
                                   clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
                                   clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
@@ -382,7 +420,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                          lastyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
                                     clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
                                     clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year-2],
-                                    NA, NA, NA),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year-2]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year-2]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year-2])),
                          thisyear=c(clap.survey.obj[banks[i]][[1]]$model.dat$NPR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
                                     clap.survey.obj[banks[i]][[1]]$model.dat$NR[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
                                     clap.survey.obj[banks[i]][[1]]$model.dat$N[clap.survey.obj[banks[i]][[1]]$model.dat$year==year],
@@ -472,11 +512,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   }
   
   #print(bankcheck)
+  print(sizes)
   print(ntows)
   print(highlights)
 
   highlights[,c(2,3,4)] <- apply(highlights[,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
+  sizes <<- sizes
   ntows <<- ntows
   highlights <<- highlights
   
