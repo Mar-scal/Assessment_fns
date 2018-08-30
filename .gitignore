@@ -37,6 +37,8 @@ rsconnect/
 
 # ignore archive folder
 /archive/
+archive/
+Archive/
 
 # data and docs
 *.csv
