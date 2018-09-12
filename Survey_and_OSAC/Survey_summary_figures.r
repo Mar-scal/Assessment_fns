@@ -1486,7 +1486,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,ys=1.4,
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5,user.bins=user.bins)
-    } # end if(banks[i] != "Ger")
+    } # end if(banks[i] = "Sab")
     
     if(banks[i] == "Ger")
     {
@@ -1651,7 +1651,7 @@ for(i in 1:len)
       
   if(any(plots== "clapper-abund-ts"))
   {
-    
+
     clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,")",sep="")),
                                       list(bank=banks[i]))
     if(banks[i] == "GB")  clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,"-Spr)",sep="")),
@@ -1661,13 +1661,21 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_abund_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i])
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=strata.areas$towable_area,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # if(banks[i] != "Ger" && banks[i] != "Mid")
+    
+    if(banks[i] == "Sab")
+    {
+      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
+                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
+                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
+                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
+    } # end if(banks[i] = "Sab")
     
     if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
     {
