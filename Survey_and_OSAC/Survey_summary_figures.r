@@ -71,6 +71,10 @@
   # q:  breakdown         - Plot of biomass by shell height + meat count
   # r:  seedboxes         - Plot of the seedboxes, this includes several plots which will all be produced if there is currently an open seedbox
   # s:  user.SH.bins      - Make plots for the selected SH bins by the you (the user), Shell height bins that you set up
+  # t:  MW-spatial        - Make a plot of the average meat weight across the bank (includes all individuals)
+  # u:  SH-spatial        - Make a plot of the average shell height across the bank (includes all individuals)
+  # v:  MW.GP-spatial     - Make a plot of the meat weight growth potential across the bank (all individuals).
+  # w:  SH.GP-spatial     - Make a plot of the shell height growth potential across the bank (all individuals).
 #                           in the SurveySummary_data.r function call will be plotted.
 # 2:  banks:    The banks to create figures for.  Option are "BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB" 
 #               (note Banquereau is not supported yet and the GB is Georges Bank Spring
@@ -114,7 +118,8 @@
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
                                   "abund-ts","biomass-ts","SHF","SHF-large","SHF-split",
-                                  "clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown","seedboxes","user.SH.bins"),
+                                  "clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown","seedboxes","user.SH.bins",
+                                  "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"),
                        banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB"),
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
@@ -358,7 +363,7 @@ for(i in 1:len)
     {
       if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
       if(banks[i] %in% c("Sab")) offset = 0.1
-      if(banks[i] %in% c("GBa","GBb")) offset = 0.15
+      if(banks[i] %in% c("GBa","GBb")) offset = 0.1
       if(banks[i] %in% c("GB")) offset = 0.35
     }# end if(offsets == "default")
     if(offsets != "default") offset <- offsets[i]
@@ -407,6 +412,7 @@ for(i in 1:len)
     # This section only needs run if we are running the INLA models
     if(length(grep("run",INLA)) > 0)
     {
+      #browser()
       # If we are just getting the spatial maps for the seedboxes then we want all of these plots
       # We also want them all if saving the INLA results.
       seed.n.spatial.maps <- spatial.maps
@@ -422,6 +428,10 @@ for(i in 1:len)
         # These are the locations for the Condition and meat count data.
         loc.cf <- cbind(CF.current[[banks[i]]]$lon[CF.current[[banks[i]]]$year == yr],
                         CF.current[[banks[i]]]$lat[CF.current[[banks[i]]]$year == yr])
+        # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
+        # and these may screw up the INLA'ing
+        loc.gp <- cbind(pot.grow[[banks[i]]]$slon[pot.grow[[banks[i]]]$year == yr],
+                        pot.grow[[banks[i]]]$slat[pot.grow[[banks[i]]]$year == yr])
       }# end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB"))
       # I want 1 mesh for all of Georges bank summer survey.
       if(banks[i] %in% c("GBa","GBb")) 
@@ -431,6 +441,10 @@ for(i in 1:len)
          # The condition and meat count data.
          loc.cf <- cbind(c(CF.current[["GBa"]]$lon[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lon[CF.current[["GBb"]]$year == yr]),
                          c(CF.current[["GBa"]]$lat[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lat[CF.current[["GBb"]]$year == yr]))
+         # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
+         # and these may screw up the INLA'ing
+         loc.gp <- cbind(c(pot.grow[["GBa"]]$slon[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$slon[pot.grow[["GBb"]]$year == yr]),
+                         c(pot.grow[["GBa"]]$slat[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$slat[pot.grow[["GBb"]]$year == yr]))
          
       } # end if(banks[i] %in% c("GBa","GBb") 
       
@@ -441,13 +455,15 @@ for(i in 1:len)
       # This is how the mesh and A matrix are constructed
       # Build the mesh, for our purposes I'm hopeful this should do the trick, the offset makes the area a bit larger so the main predictions 
       #  should cover our entire survey area.
+      cat("ALERT!  I'm building the mesh for",banks[i], "if this hangs here please try using a different offset for this bank.. \n")
       if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=offset)
       if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=offset)
       #windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp,add=T,lwd=2)
-     
+      cat("Mesh successful, woot woot!!")
       # Now make the A matrix
       A <- inla.spde.make.A(mesh, loc)
       A.cf <- inla.spde.make.A(mesh,loc.cf)
+      
       
       # We can just make the one spde object for all of these as well.
       spde <- inla.spde2.pcmatern(mesh,    
@@ -461,11 +477,13 @@ for(i in 1:len)
                                   prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                                   prior.range=c(0.2,0.9)) # The Meidan range and the probability that the range is less than this..
       }
-      ## All of our spatial plots are counts, so for our simple purposes a poisson is o.k.
+      ## All of our abundance spatial plots are counts, so for our simple purposes a poisson is o.k.
       family1 = "poisson"
-      family1.cf <- "gaussian" # For CF and MC they are more normal so go with a gaussian.
+      family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
       family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
       # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
+      family.gp <- "lognormal" # This could use some more thought....
+      
       # but I need to truncate the predicted values that are > 100 to be 100 which is BS...
       # As soon as you make a spatial model make your own intercept.  Here is
       a0 <- 1 # intercept
@@ -485,6 +503,7 @@ for(i in 1:len)
           tmp.dat <- rbind(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
           tmp.cf <- rbind(CF.current[["GBa"]],CF.current[["GBb"]]) 
           tmp.clap <- rbind(surv.Clap[["GBa"]][surv.Clap[["GBa"]]$year == yr,],surv.Clap[["GBb"]][surv.Clap[["GBb"]]$year == yr,])
+          tmp.gp <- rbind(pot.grow[["GBa"]][pot.grow[["GBa"]]$year == yr,],pot.grow[["GBb"]][pot.grow[["GBb"]]$year == yr,])
         }  # end if(banks[i] %in% c("GBb","GBa")) 
 
         if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
@@ -492,6 +511,7 @@ for(i in 1:len)
           tmp.dat <- surv.Live[[banks[i]]][surv.Live[[banks[i]]]$year == yr,]
           tmp.cf <- CF.current[[banks[i]]]
           tmp.clap <- surv.Clap[[banks[i]]][surv.Clap[[banks[i]]]$year == yr,]
+          tmp.gp <- pot.grow[[banks[i]]][pot.grow[[banks[i]]]$year == yr,]
         } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
         # Now loop through each spatial map we want to make.
         for(k in 1:length(seed.n.spatial.maps))
@@ -565,11 +585,56 @@ for(i in 1:len)
                         control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
           } # end if(seed.n.spatial.maps[k] == "Clap-spatial")  
           
+          if(seed.n.spatial.maps[k] == "MW-spatial")    
+          {
+            # This is the stack for estimation from the INLA model
+            stk <- inla.stack(tag="est",data=list(y = tmp.gp$cur.mw, link=1L),
+                              effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
+                              A = list(1, A))
+            # This is the INLA model itself
+            mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
+                        control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+          } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
+          
+          if(seed.n.spatial.maps[k] == "SH-spatial")    
+          {
+            # This is the stack for estimation from the INLA model
+            stk <- inla.stack(tag="est",data=list(y = tmp.gp$cur.sh, link=1L),
+                              effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
+                              A = list(1, A))
+            # This is the INLA model itself
+            mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
+                        control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+          } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
+          
+          if(seed.n.spatial.maps[k] == "MW.GP-spatial")    
+          {
+            # This is the stack for estimation from the INLA model
+            stk <- inla.stack(tag="est",data=list(y = tmp.gp$gp.mw, link=1L),
+                              effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
+                              A = list(1, A))
+            # This is the INLA model itself
+            mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
+                        control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+          } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
+          #browser()
+          if(seed.n.spatial.maps[k] == "SH.GP-spatial")    
+          {
+            # This is the stack for estimation from the INLA model
+            stk <- inla.stack(tag="est",data=list(y = tmp.gp$gp.sh, link=1L),
+                              effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
+                              A = list(1, A))
+            # This is the INLA model itself
+            mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
+                        control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+          } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
+          
           # Now that this is done we need to make a prediction grid for projection onto our mesh,
           proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
           # Then make a matrix of the correct dimension, first for the poisson models
           
-          if(seed.n.spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
+          if(seed.n.spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial","SH-spatial","SH.GP-spatial",
+                                           "MW-spatial","MW.GP-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
                                                                           inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
           # Now for the Gaussian models.
           if(seed.n.spatial.maps[k] %in% c("CF-spatial","MC-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
@@ -632,7 +697,6 @@ for(i in 1:len)
           # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
           # This is the stack for the INLA model
           pick <- which(names(tmp.dat) == bin.names[k])
-          
           stk <- inla.stack(tag="est",data=list(y = tmp.dat[,pick], link=1L),
                             effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                             A = list(1, A))
@@ -817,6 +881,96 @@ for(i in 1:len)
           leg.title <- "% Dead"
         } # end if(maps.to.make[m]  %in% c("Clap-spatial")
         
+        
+        if(maps.to.make[m]  %in% c("MW-spatial"))   
+        {
+          base.lvls <- c(0,2,4,6,8,10,12,14,16,18,20,30,50,100)
+          cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
+          # Get the levels correct            
+          min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+          max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
+          lvls <- base.lvls[min.lvl:max.lvl]
+          cols <- cols[min.lvl:(max.lvl-1)]
+          ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                             paste(lvls[length(lvls)-1],'+',sep='')),
+                 leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                               paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+          
+          fig.title <- substitute(bold(paste("Meat Weight (", bank,"-",year,")",sep="")),
+                                  list(year=as.character(yr),bank=banks[i]))
+          if(banks[i] == "GB") fig.title <- substitute(bold(paste("Meat Weight (", bank,"-Spr-",year,")",sep="")),
+                                                       list(year=as.character(yr),bank=banks[i]))
+          leg.title <- "Meat Weight (g)"
+          
+        } # end if(maps.to.make[m]  %in% c("MW-spatial")  
+        
+        if(maps.to.make[m]  %in% c("SH-spatial"))   
+        {
+          base.lvls <- c(0,50,70,80,90,100,110,120,150,200)
+          cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
+          # Get the levels correct            
+          min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+          max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
+          lvls <- base.lvls[min.lvl:max.lvl]
+          cols <- cols[min.lvl:(max.lvl-1)]
+          ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                             paste(lvls[length(lvls)-1],'+',sep='')),
+                 leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                               paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+          
+          fig.title <- substitute(bold(paste("Shell Height (", bank,"-",year,")",sep="")),
+                                  list(year=as.character(yr),bank=banks[i]))
+          if(banks[i] == "GB") fig.title <- substitute(bold(paste("Shell Height (", bank,"-Spr-",year,")",sep="")),
+                                                       list(year=as.character(yr),bank=banks[i]))
+          leg.title <- "Shell Height (mm)"
+          
+        } # end if(maps.to.make[m]  %in% c("SH-spatial")  
+        
+        
+        if(maps.to.make[m]  %in% c("SH.GP-spatial"))   
+        {
+          base.lvls <- c(0,0.05,0.1,0.2,0.3,0.5,0.75,1,2,10)
+          cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
+          # Get the levels correct            
+          min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+          max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
+          lvls <- base.lvls[min.lvl:max.lvl]
+          cols <- cols[min.lvl:(max.lvl-1)]
+          ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                             paste(lvls[length(lvls)-1],'+',sep='')),
+                 leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                               paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+          
+          fig.title <- substitute(bold(paste("Growth Potential SH  (", bank,"-",year,")",sep="")),
+                                  list(year=as.character(yr),bank=banks[i]))
+          if(banks[i] == "GB") fig.title <- substitute(bold(paste("Growth Potential SH (", bank,"-Spr-",year,")",sep="")),
+                                                       list(year=as.character(yr),bank=banks[i]))
+          leg.title <- "Growth Potential (SH)"
+          
+        } # end if(maps.to.make[m]  %in% c("SH.GP-spatial")  
+        #browser()
+        if(maps.to.make[m]  %in% c("MW.GP-spatial"))   
+        {
+          base.lvls <- c(0,0.05,0.1,0.2,0.3,0.5,0.75,1,2,10)
+          cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
+          # Get the levels correct            
+          min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+          max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
+          lvls <- base.lvls[min.lvl:max.lvl]
+          cols <- cols[min.lvl:(max.lvl-1)]
+          ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                             paste(lvls[length(lvls)-1],'+',sep='')),
+                 leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                               paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+          
+          fig.title <- substitute(bold(paste("Growth Potential MW  (", bank,"-",year,")",sep="")),
+                                  list(year=as.character(yr),bank=banks[i]))
+          if(banks[i] == "GB") fig.title <- substitute(bold(paste("Growth Potential MW (", bank,"-Spr-",year,")",sep="")),
+                                                       list(year=as.character(yr),bank=banks[i]))
+          leg.title <- "Growth Potential (MW)"
+          
+        } # end if(maps.to.make[m]  %in% c("SH.GP-spatial")  
+        
         # Now for the user specified SH bins, if they exist...
         if(maps.to.make[m]  %in% bin.names) 
         {
@@ -855,6 +1009,9 @@ for(i in 1:len)
             if(length(grep("bm",maps.to.make[m])) >0) leg.title <- B.tow.lab # If it is biomass then the legend needs the biomass title.
         } #end if(maps.to.make[m]  %in% bin.names) 
         
+        
+        
+        
         # Don't add the titles?
         if(add.title == F) fig.title <- ""
         # Where to get the bathymetry data, note this overwrites any call in the function above
@@ -876,10 +1033,12 @@ for(i in 1:len)
         # This is one figure to rule all 
         ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy=T,plot.boundries=T,boundries="offshore",
                    direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-        if(!is.null(mod.res[[maps.to.make[m]]])) {
+        # If we have a layer to add add it...
+        if(!is.null(mod.res[[maps.to.make[m]]])) 
+        {
           image(list(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]]), axes=F,add=T,breaks = lvls,col=cols)
           if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
-        }
+        } # end if(!is.null(mod.res[[maps.to.make[m]]])) 
         plot(bound.poly.surv.sp,add=T,lwd=2)
         
         ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
@@ -889,8 +1048,8 @@ for(i in 1:len)
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
-        # Add the regular survey tows.
-        if(maps.to.make[m] != "MC-spatial" && maps.to.make[m] != "CF-spatial")
+        # Add the regular survey tows, run this bit if maps to make is anything other than these plots.
+        if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")==F)
         {
           points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
           # In case any of these banks has exploratory tows...
@@ -977,7 +1136,7 @@ for(i in 1:len)
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                    pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
           } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
-        } # end if(seed.n.spatial.maps[k] != "MC-spatial" && seed.n.spatial.maps[k] != "CF-spatial")
+        } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP.spatial","SH.GP.spatial")==F)
         # For condition and meat count we set things up a little bit differently.
         if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
         {
@@ -987,15 +1146,39 @@ for(i in 1:len)
           legend("bottomleft",leg.lvls,fill=cols,
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                  pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
-        } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
+        } # end if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
+        
+        if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
+        {
+          if(length(grep("SH",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.sh) & tmp.gp$bank == banks[i] ,],pch=21,bg='grey50',cex=0.8)
+          if(length(grep("MW",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.mw) & tmp.gp$bank == banks[i],],pch=21,bg='grey50',cex=0.8)
+          legend("bottomleft",leg.lvls,fill=cols,
+                 title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
+                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+        } # end if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
+        # For these plots the legend goes like this     
+        
+       # } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
+      #} # end if(seed.n.spatial.maps[k] != "MC-spatial" && seed.n.spatial.maps[k] != "CF-spatial")
+      # For condition and meat count we set things up a little bit differently.
+      if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
+      {
+        points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=0.8)
+        legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
+               legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA)	
+        legend("bottomleft",leg.lvls,fill=cols,
+               title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
+               pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+      } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
+        
         # Add the survey boxes if they exist.
         if(length(sb[,1]) > 0) addPolys(sb,lty=2,lwd=2)
         # If saving as a png turn off the plot device
         if(fig != "screen") dev.off()
-      } # end for(m in 1:length(spatial.maps))    
+      } # end for(m in 1:n.maps)  
     }# end if(length(spatial.maps) > 0) 
 
-  }   # end if(length(spatial.maps > 0) || any(plots %in% "seedboxes"))
+  }   # end if(length(spatial.maps > 0) || any(plots %in% "user.SH.bins"))
   ############  END THE INLA FIGURES ############  END THE INLA FIGURES  ############  END THE INLA FIGURES
   ############  END THE INLA FIGURES############  END THE INLA FIGURES############  END THE INLA FIGURES
   

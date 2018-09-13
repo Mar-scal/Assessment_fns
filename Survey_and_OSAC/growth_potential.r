@@ -86,6 +86,10 @@ grow.pot <- function(dat= NULL, mwsh.fit=NULL, von.b = NULL, year=NULL,bank = NU
 	dat$cur.sh[is.nan(dat$cur.sh)] <- NA # Tows with no scallop in them
 	# Now we can predict how much we expect the shell height to increase next year
 	dat$pred.sh <- Von.B$Linf*(1-exp(-Von.B$K)) + exp(-Von.B$K) * dat$cur.sh
+	# In case the average size is larger than the von B's L inf, allow the SH to grow but just a little bit...
+	# I went with positive growth rather than no growth as it makes the modeling much cleaner (I can use a Gamma or log-normal model..)
+	dat$pred.sh[which(dat$pred.sh < dat$cur.sh)] <- dat$cur.sh[which(dat$pred.sh < dat$cur.sh)] +0.5
+	# Basically saying that size and above has very slow growth, which should be find for the very few times we have scallop on average > 151 mm!
 	dat$gp.sh <- (dat$pred.sh - dat$cur.sh) / dat$cur.sh
 	
 	# For the tows we have the MW-SH relationship we could also calculate the MW growth potential which assumes the MW-SH relationship doesn't
