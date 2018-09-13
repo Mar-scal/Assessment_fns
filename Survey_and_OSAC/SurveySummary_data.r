@@ -23,6 +23,8 @@
 #              instead of a numeric... Also started using lubridate for the dates on the seedboxes as the as.Date method broke for some reason...
 # May 2018: FK implemented restratification for Sable due to WEBCA using a new function: survey.dat.restrat(). 
 #                If you need to restratify a bank, check out the function file for instructions! FK also has a private github log of changes made. 
+# Sept 2018: DK, attempting to add in the average size of scallop in a tow along with a growth potential for that tow, will then integrate
+#            into a spatial picture of the size and growth potential in the survey figures script.  Also moved the write.csv bits to section 3.
 ################################################################################################################
 ####
 ################################################################################################################
@@ -130,6 +132,7 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.restrat.r",sep=""
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
+source(paste(direct,"Assessment_fns/Survey_and_OSAC/growth_potential.r",sep="")) 
 ################################## End Load Functions   #######################################################
 
 ################################### START LOAD & PRE-PROCESS DATA ############################################
@@ -346,6 +349,7 @@ CF.current <- NULL
 seedbox.obj <- NULL
 lined.survey.obj <- NULL
 merged.survey.obj <- NULL
+pot.grow <- NULL
 
 # Now get the survey summary results for all the banks...
 for(i in 1:num.surveys)
@@ -495,8 +499,10 @@ years <- yr.start:yr
 		# Because of the lined survey on German we want to differentiate between the lined and unlined CF data
 		if(bnk == "Ger")
 		{
-		  cf.data[[bnk]]$CFyrs$year <- as.numeric(levels(cf.data[[bnk]]$CFyrs$year))[cf.data[[bnk]]$CFyrs$year]
-	  	cf.data[[bnk]]$CFyrs$CF2[cf.data[[bnk]]$CFyrs$year > 2007] <- cf.data[[bnk]]$CFyrs$CF[cf.data[[bnk]]$CFyrs$year>2007]
+		  # In case R decides to treat year as a factor....
+		  if(class(cf.data[[bnk]]$CFyrs$year) == 'factor') cf.data[[bnk]]$CFyrs$year <- as.numeric(levels(cf.data[[bnk]]$CFyrs$year))[cf.data[[bnk]]$CFyrs$year]
+		  if(class(cf.data[[bnk]]$CFyrs$year) != 'factor') cf.data[[bnk]]$CFyrs$year <- as.numeric(cf.data[[bnk]]$CFyrs$year)
+		  cf.data[[bnk]]$CFyrs$CF2[cf.data[[bnk]]$CFyrs$year > 2007] <- cf.data[[bnk]]$CFyrs$CF[cf.data[[bnk]]$CFyrs$year>2007]
 	  	cf.data[[bnk]]$CFyrs$CF[cf.data[[bnk]]$CFyrs$year > 2007] <- NA
 		} # end if(bnk == "Ger")
 		# Fill the years without any data with NA's (this helps with plotting data.)
@@ -731,10 +737,7 @@ years <- yr.start:yr
 		  lined.survey.obj$model.dat$RS <- RS
 		}# end if(bnk == "Ger")
 		  
-#     # average size per tow
-# 		surv.Live[[bnk]]$avgsizepertow <- rowSums(t(apply(surv.Live[[bnk]][,which(names(surv.Live[[bnk]]) %in% paste0("h",mw.bin))], 1, function(x) mw.bin*x)),na.rm=T)/surv.Live[[bnk]]$tot
-# 		surv.Clap[[bnk]]$avgsizepertow <- rowSums(t(apply(surv.Clap[[bnk]][,which(names(surv.Clap[[bnk]]) %in% paste0("h",mw.bin))], 1, function(x) mw.bin*x)),na.rm=T)/surv.Clap[[bnk]]$tot
-# 		
+	
 		# Get the survey estimates for the banks for which we have strata. 
 		if(bnk != "Ger" && bnk != "Mid" && bnk != "GB") 
 		  {
@@ -798,23 +801,6 @@ years <- yr.start:yr
 		# Meat count per 500g
 		CF.current[[bnk]]$meat.count<-0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
 	
-		#Write2 Output some of the summary data from the survey.
-		write.csv(SS.summary[[bnk]],
-		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_summary",
-		                       yr,".csv",sep=""),row.names = F)
-		#Write3
-		write.csv(SHF.summary[[bnk]],
-		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_SHF_summary",
-		                       yr,".csv",sep=""),row.names = F)
-		#Write4
-		write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
-		                                "/mw_Data.csv",sep=""),row.names=F)
-		#Write5 - Output the raw survey data in it's entirety
-		write.table(surv.dat[[bnk]],
-		            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
-		                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
-		
-		
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
 		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
@@ -822,25 +808,28 @@ years <- yr.start:yr
 		
 		# If there were any seeboxes closed in this year get the results from the box(es)
 		if(length(sb[,1]) > 0)
-        {
-          # Here we pull out the data from within the seedboxes, this could be used
-          # too look at results from any seedbox of interest as long as we have it's name (but if so use the seebox object
-          # as BBboxes is subset to just be currently closed boxes on BBn)
-          #Source15. #source("fn/simple.surv.r")
-          boxes <- as.PolySet(sb,projection = "LL")
-          # Note that we are grabbing all samples from within a box and not just the random tows.
-          box.dat <- data.frame(EID=1:nrow(surv.Live[[bnk]]),X=surv.Live[[bnk]]$lon,Y=surv.Live[[bnk]]$lat)
-          box.names <- unique(boxes$SCALLOP_Group_ID)
-          # In case we have multipe boxes closed...
-          for(m in 1:length(box.names))
-            {  
-              key <-findPolys(box.dat, subset(boxes,SCALLOP_Group_ID == box.names[m]))
-              seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
-              seedbox.obj[[bnk]][[m]]$model.dat$RS <- RS
-              seedbox.obj[[bnk]][[m]]$model.dat$CS <- CS
-            } # end for(m in 1:length(box.names))
-        } #end if(length(boxes[,1]) > 0))
-
+		{
+		  # Here we pull out the data from within the seedboxes, this could be used
+		  # too look at results from any seedbox of interest as long as we have it's name (but if so use the seebox object
+		  # as BBboxes is subset to just be currently closed boxes on BBn)
+		  #Source15. #source("fn/simple.surv.r")
+		  boxes <- as.PolySet(sb,projection = "LL")
+		  # Note that we are grabbing all samples from within a box and not just the random tows.
+		  box.dat <- data.frame(EID=1:nrow(surv.Live[[bnk]]),X=surv.Live[[bnk]]$lon,Y=surv.Live[[bnk]]$lat)
+		  box.names <- unique(boxes$SCALLOP_Group_ID)
+		  # In case we have multipe boxes closed...
+		  for(m in 1:length(box.names))
+		  {  
+		    key <-findPolys(box.dat, subset(boxes,SCALLOP_Group_ID == box.names[m]))
+		    seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
+		    seedbox.obj[[bnk]][[m]]$model.dat$RS <- RS
+		    seedbox.obj[[bnk]][[m]]$model.dat$CS <- CS
+		  } # end for(m in 1:length(box.names))
+		} #end if(length(boxes[,1]) > 0))
+		
+# Now let's calculate the average size and growth potential by bank, use surv.Live b/c we want to look at this for all tows.
+		
+		pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bnk)
 				
 } # end loop
 	
@@ -860,8 +849,26 @@ years <- yr.start:yr
 # where/what the data are saved as given what you've run.  For example "SurveySummary_figures" only works when you have run the
 # Spring/Summer/both for all the banks included in the survey (it loads Survey_all_results, Survey_spring_results, or Survey_summer_results).
 
+#Write2 Output some of the summary data from the survey.
+write.csv(SS.summary[[bnk]],
+          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_summary",
+                       yr,".csv",sep=""),row.names = F)
+#Write3
+write.csv(SHF.summary[[bnk]],
+          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_SHF_summary",
+                       yr,".csv",sep=""),row.names = F)
+#Write4
+write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+                                  "/mw_Data.csv",sep=""),row.names=F)
+#Write5 - Output the raw survey data in it's entirety
+write.table(surv.dat[[bnk]],
+            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
+
 # If we have included all the surveyed banks save it as this.  This assumes we get 5 banks done in the spring and 2 banks in the summer.
 # This may need adjusted if we had a weird survey year (such as 2015).
+
+
 
 # If I'm just testing
 if(testing == T) save(list = ls(all.names = TRUE), 
@@ -908,7 +915,8 @@ return(list(survey.obj = survey.obj,
             clap.survey.obj = clap.survey.obj,
             lined.survey.obj = lined.survey.obj,
             merged.survey.obj = merged.survey.obj,
-            seedbox.obj = seedbox.obj))
+            seedbox.obj = seedbox.obj,
+            pot.grow = pot.grow))
 
 ##################################################################################################################################
 ########## End Section 3 ########## End Section 3 ########## End Section 3 ########## End Section 3 ########## End Section 3 #####
