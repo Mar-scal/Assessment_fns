@@ -801,25 +801,6 @@ years <- yr.start:yr
 		# Meat count per 500g
 		CF.current[[bnk]]$meat.count<-0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
 	
-<<<<<<< HEAD
-=======
-		#Write2 Output some of the summary data from the survey.
-		write.csv(SS.summary[[bnk]],
-		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_summary",
-		                       yr,".csv",sep=""),row.names = F)
-		#Write3
-		write.csv(SHF.summary[[bnk]],
-		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_SHF_summary",
-		                       yr,".csv",sep=""),row.names = F)
-		#Write4
-		write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
-		                                "/mw_Data.csv",sep=""),row.names=F)
-		#Write5 - Output the raw survey data in it's entirety
-		write.table(surv.dat[[bnk]],
-		            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
-		                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
-		
->>>>>>> 9a31abf6949b7af2d85b79009c325e3c2ed968da
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
 		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
@@ -867,6 +848,21 @@ years <- yr.start:yr
 # Now that we've done everything we can save all the results.  Pay attention to how this is structured so you can understand 
 # where/what the data are saved as given what you've run.  For example "SurveySummary_figures" only works when you have run the
 # Spring/Summer/both for all the banks included in the survey (it loads Survey_all_results, Survey_spring_results, or Survey_summer_results).
+#Write2 Output some of the summary data from the survey.
+write.csv(SS.summary[[bnk]],
+          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_summary",
+                       yr,".csv",sep=""),row.names = F)
+#Write3
+write.csv(SHF.summary[[bnk]],
+          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_SHF_summary",
+                       yr,".csv",sep=""),row.names = F)
+#Write4
+write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+                                  "/mw_Data.csv",sep=""),row.names=F)
+#Write5 - Output the raw survey data in it's entirety
+write.table(surv.dat[[bnk]],
+            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
 
 #Write2 Output some of the summary data from the survey.
 write.csv(SS.summary[[bnk]],
