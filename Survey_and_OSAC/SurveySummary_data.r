@@ -190,13 +190,13 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
+
     survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 
     # take out 2000 for all banks except browns and GB
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
-
-		
+    
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
     survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
     survAug.dat<-survAug.dat[which(!names(survAug.dat)%in%c("dis","brg",'totwt','baskets'))]
@@ -519,7 +519,6 @@ years <- yr.start:yr
 		# Replace any NA's in CFh with the original Condition Factor.
 		surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
 		
-		
 		# Calculate the biomass of the Pre-recruits, Recruits and the Commerical Scallops in each tow on the bank
 		# Here we have added the ability to calculate the biomass of specific bins of interest. Also for
 		# GBa note that b/c of changes in sizes over time the user specified bins won't 
@@ -678,6 +677,7 @@ years <- yr.start:yr
   		      new.ger.tows$EID[k] <- last.ger.tows$tow[round(last.ger.tows$lat,digits=2) == round(new.ger.tows$lat[k],digits=2) & 
   		                                                 round(last.ger.tows$lon,digits=2) == round(new.ger.tows$lon[k],digits=2)]
   		  } # end for(k in 1:nrow(new.ger.tows))
+
   		  # Now this won't be perfect, should get most but not all of them so check the results over.
   		  # In 2013 we aren't seeing the match from 2012 for two tows so I've selected the matched tows by hand.
   		  if(ger.years[b] == 2013)
@@ -801,6 +801,25 @@ years <- yr.start:yr
 		# Meat count per 500g
 		CF.current[[bnk]]$meat.count<-0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
 	
+<<<<<<< HEAD
+=======
+		#Write2 Output some of the summary data from the survey.
+		write.csv(SS.summary[[bnk]],
+		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_summary",
+		                       yr,".csv",sep=""),row.names = F)
+		#Write3
+		write.csv(SHF.summary[[bnk]],
+		          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,"/Annual_SHF_summary",
+		                       yr,".csv",sep=""),row.names = F)
+		#Write4
+		write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+		                                "/mw_Data.csv",sep=""),row.names=F)
+		#Write5 - Output the raw survey data in it's entirety
+		write.table(surv.dat[[bnk]],
+		            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bnk,
+		                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
+		
+>>>>>>> 9a31abf6949b7af2d85b79009c325e3c2ed968da
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
 		sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
