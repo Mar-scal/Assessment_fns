@@ -418,7 +418,8 @@ for(i in 1:len)
       seed.n.spatial.maps <- spatial.maps
       # If we are just getting the spatial maps for the seedboxes then we want all of these plots
       # We also want them all if saving the INLA results.
-      if(any(plots %in% "seedboxes")) seed.n.spatial.maps <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial")
+      if(any(plots %in% "seedboxes")) seed.n.spatial.maps <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial",
+                                                               "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")
       
       # Next we get the survey locations
       if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB"))
@@ -468,14 +469,14 @@ for(i in 1:len)
       # We can just make the one spde object for all of these as well.
       spde <- inla.spde2.pcmatern(mesh,    
                                   prior.sigma=c(1,0.5), # The probabiliy that the marginal standard deviation (first number) is larger than second number
-                                  prior.range=c(1,0.5)) # The Meidan range and the probability that the range is less than this..
+                                  prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
       # Because of the generally thin spacing on GB we need to decrease the spatial correlation distance and allow for more spatial variability in the 
       # data, so I have changed the priors...  Revised by DK August 2018, not fully incorporated into the Spring Survey summary presentation
       if(banks[i] == "GB") 
       {
         spde <- inla.spde2.pcmatern(mesh,    
                                   prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
-                                  prior.range=c(0.2,0.9)) # The Meidan range and the probability that the range is less than this..
+                                  prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
       }
       ## All of our abundance spatial plots are counts, so for our simple purposes a poisson is o.k.
       family1 = "poisson"
@@ -744,7 +745,7 @@ for(i in 1:len)
       #spatial.maps <- s.maps
     } # end if(INLA == 'load') 
     
-    
+    #browser()
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     # This plots the spatial maps requested, need this m loop so we can plot only the figures requested for spatial plots (needed to avoid plotting
@@ -1844,22 +1845,31 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_abund_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB")
+    
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=strata.areas$towable_area,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
-    } # if(banks[i] != "Ger" && banks[i] != "Mid")
+    } # if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    
+    if(banks[i] == "Sab")
+    {
+      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
+                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
+                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
+                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
+    } # end if(banks[i] = "Sab")
+    
     
     if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
     {
-      
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]],Bank=bank[i],pdf=F,axis.cx = 1.5, 
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3, years=yrs,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
-    } # end if(banks[i] == "Ger" || banks[i] == "Mid")
+    } # end if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
     if(fig != "screen") dev.off()                 
   } # end  if(any(plots== "clapper-abund-ts"))  
   
