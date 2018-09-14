@@ -178,6 +178,10 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.
   }# if(season == "summer")
   
+  # We may need to load in the Sable pre-stratified data for the Sable figure, but only if it is 2018 as we won't plot this after that time.
+  # Load in the pre 2018 data for Sable
+  if(yr == 2018) load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
+  if(yr != 2018) survey.obj.sab <- NULL
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
   
   # These are the functions used to within the heart of the code to make stuff happen
@@ -1506,7 +1510,7 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
 
     par(mfrow=c(1,1))
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i]!="Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] !="Sab")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
@@ -1530,9 +1534,9 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      source("E:/Offshore scallop/Assessment/Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r")
-      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
-      survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+      if(yr == 2018)
+      {
+      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,
                 areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                 dat2=survey.obj.sab,
@@ -1541,6 +1545,14 @@ for(i in 1:len)
                 pch=c(16, 17),
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
       legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      } # end if(yr == 2018)
+      
+      if(yr != 2018)
+      {
+        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                  add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+      } # end if(yr != 2018)
     } # end if(banks[i] == "Sab")
     
     if(fig != "screen") dev.off()
@@ -1568,7 +1580,7 @@ for(i in 1:len)
                          units="in",width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
     
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i]!="Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] !="Sab")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
@@ -1585,13 +1597,21 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results.RData")
+      if(yr == 2018)
+      {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
                 areas=surv.info$towable_area,
                 dat2=survey.obj.sab,
                 clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
       legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      }
+      if(yr != 2018)
+      {
+        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
+                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                  add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      }
     } # end if(banks[i] == "Sab")
     
     if(banks[i] == "Mid"|| banks[i] == "GB")
