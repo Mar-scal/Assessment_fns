@@ -1845,10 +1845,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_abund_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
-<<<<<<< HEAD
-=======
-    
->>>>>>> master
+
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
