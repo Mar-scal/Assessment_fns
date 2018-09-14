@@ -1855,7 +1855,16 @@ for(i in 1:len)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=strata.areas$towable_area,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
-    } # if(banks[i] != "Ger" && banks[i] != "Mid")
+    } # if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    
+    if(banks[i] == "Sab")
+    {
+      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
+                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
+                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
+                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
+    } # end if(banks[i] = "Sab")
+    
     
     if(banks[i] == "Sab")
     {
