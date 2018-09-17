@@ -1599,7 +1599,7 @@ for(i in 1:len)
       }
       if(yr==2018){
         source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results.RData")
+        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
         survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
                   areas=surv.info$towable_area,
                   areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
