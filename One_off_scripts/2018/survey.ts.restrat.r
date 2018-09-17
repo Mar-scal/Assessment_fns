@@ -9,6 +9,9 @@
 #  June 2017:  Added option to plot the user bins as a stand alone figure.  I also did a pretty major overhaul to the
 #              script to cut down on repeative code...
 #  September 2017:  Minor change to user.SH.bins so that max category was >= not >
+#  July 2018: This is an edited version of survey.ts used for assessing restratified banks. It isn't good enough to just run survey.ts 
+#   with two variables, because the abundances and SE won't be calculated properly for the second dataset. That's why this function now exists.
+#   In 2018, it was used for Sable.
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
