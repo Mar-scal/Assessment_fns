@@ -182,15 +182,21 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   
   # We may need to load in the Sable pre-stratified data for the Sable figure, but only if it is 2018 as we won't plot this after that time.
   # Load in the pre 2018 data for Sable
-  if(yr == 2018) load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
-  if(yr != 2018) survey.obj.sab <- NULL
+  if(yr == 2018 && any(banks %in% "Sab")) 
+  {
+    cat("Hi, just wanted to let you know that in 2018 Sable was restratified so you'll be plotting the restratified \n
+         abundance and biomass time series.  Also, just an FYI that we noticed a slight mistake in how we did this in the Spring \n
+         survey summary so these figures won't match what was done in the presentation.  Thanks for your patience! \n")
+    # Load in the data from before 2018...
+    load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
+  }
+  
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
   
   # These are the functions used to within the heart of the code to make stuff happen
   source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/stdts.plt.R",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
-  #source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.plt1.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/Clap3.plt.R",sep="")) 
@@ -318,7 +324,7 @@ for(i in 1:len)
     surv.info <- survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]}
   
   if(!banks[i] %in% c("Sab")) surv.info <- subset(survey.info,label== banks[i])
-
+  
   ### If we are missing years in the data I want to add those years in as NA's so the plots see those as NA's  ####
   check.year <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
   missing.year <- check.year[!is.element(check.year,survey.obj[[banks[i]]][[1]]$year)]
@@ -419,7 +425,7 @@ for(i in 1:len)
     # This section only needs run if we are running the INLA models
     if(length(grep("run",INLA)) > 0)
     {
-      #browser()
+      
       # If we are just getting the spatial maps for the seedboxes then we want all of these plots
       # We also want them all if saving the INLA results.
       seed.n.spatial.maps <- spatial.maps
@@ -573,7 +579,6 @@ for(i in 1:len)
           if(seed.n.spatial.maps[k] == "MC-spatial")      
           {
             # This is the stack for the INLA model
-            #browser()
             stk <- inla.stack(tag="est",data=list(y = tmp.cf$meat.count, link=1L),
                               effects=list(a0 = rep(1, nrow(tmp.cf)), s = 1:spde$n.spde),
                               A = list(1, A.cf))
@@ -625,7 +630,7 @@ for(i in 1:len)
             mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                         control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
           } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
-          #browser()
+          
           if(seed.n.spatial.maps[k] == "SH.GP-spatial")    
           {
             # This is the stack for estimation from the INLA model
@@ -752,7 +757,7 @@ for(i in 1:len)
       #spatial.maps <- s.maps
     } # end if(INLA == 'load') 
     
-    #browser()
+    
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     # This plots the spatial maps requested, need this m loop so we can plot only the figures requested for spatial plots (needed to avoid plotting
@@ -956,7 +961,6 @@ for(i in 1:len)
           leg.title <- "Growth Potential (SH)"
           
         } # end if(maps.to.make[m]  %in% c("SH.GP-spatial")  
-        #browser()
         if(maps.to.make[m]  %in% c("MW.GP-spatial"))   
         {
           base.lvls <- c(0,0.05,0.1,0.2,0.3,0.5,0.75,1,2,10)
@@ -1387,7 +1391,6 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
 ####################################  MWSH and CF Time series plot ####################################       
 ####################################  MWSH and CF Time series plot #################################### 
-  #browser()
   if(any(plots == "MW-SH"))
   {
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
@@ -1529,15 +1532,13 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      if(yr!=2018){
+      if(yr!=2018)  survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+                              areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                              add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+      # In 2018 we restratified Sable so need to get fancy with our figure for 2018
+      if(yr==2018)
+      {
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                  add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-      }
-      if(yr==2018){
-        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
-        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                           areas=surv.info$towable_area,
                           areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                           dat2=survey.obj.sab,
@@ -1595,23 +1596,21 @@ for(i in 1:len)
     if(banks[i] == "Sab")
     {
 
-      if(yr!=2018) {
-
-        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                  add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-      }
-      if(yr==2018){
-        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
-        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
+      if(yr!=2018)  survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
+                              areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                              add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      # In 2018 we restratified Sable so need to get fancy with our figure for 2018
+      if(yr==2018)
+      {
+        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
                   areas=surv.info$towable_area,
                   areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                   dat2=survey.obj.sab,
                   clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                   add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
-      }
+                  legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),
+                         pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      } # end if(yr==2018)
 
     } # end if(banks[i] == "Sab")
     
@@ -1884,15 +1883,6 @@ for(i in 1:len)
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # end if(banks[i] = "Sab")
     
-    
-    if(banks[i] == "Sab")
-    {
-      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
-                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
-                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
-                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
-    } # end if(banks[i] = "Sab")
-    
     if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
     {
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
@@ -1981,7 +1971,6 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 11,height = 8.5)
     if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% banks[i])$MC_reg
     if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
-    #browser()
     if(banks[i] != "Ger") 
     {
       # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
@@ -2230,7 +2219,18 @@ for(i in 1:len)
                 recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
+        
         # A zoomed in view of the box in question with survey strata...
+        # If we are on GB we'll grab the GBa details, if a box was ever on GBb this would need tweaked, but these are pretty minor
+        # pics and there's never been a GBb box so this is fine for now....
+        if(banks[i] == "GB") 
+        {
+          surv.info <- surv.info <- subset(survey.info,label== "GBa")
+          detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
+                                                                    label=="GBa", select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
+                                                                    projection = "LL")
+        } # end if(banks[i] == "GB") 
+            
         if(fig == "screen") windows(11,8.5)
         if(fig == "png") png(paste(plot.dir,box.names[j],"-spatial-",(yr),".png",sep=""),units="in",
                              width = 11,height = 8.5,res=420,bg = "transparent")
@@ -2261,7 +2261,7 @@ for(i in 1:len)
         # INLA calls above...
         # If any of the Strata_ID's are outside of the survey stratification scheme we will run the spatial plots as
         # local fields using the box data only.
-        #browser()
+        
         if(any(is.na(surv.seed$Strata_ID))==T)
         {
           mod.res <- NULL
