@@ -114,6 +114,8 @@
 #              were BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35.  This should be set to "default", if these
 #              are added manually the there needs to be 1 entry for each bank you are plotting, e.g. if wanting to change from the default settings and plotting
 #              just a couple of banks, let's say BBn and Mid, you would need to have this be something like offsets = c(0.15,0.13)
+# 13: plt.bath If you want to plot the bathymetry on the plots, this can be slow for the USGS data so if just trying to take a quick look at the
+#              figures set this to false for quicker rendering...
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -123,7 +125,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB"),
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default")
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",plt.bath = T)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -187,7 +189,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   # These are the functions used to within the heart of the code to make stuff happen
   source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/stdts.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T) 
+  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
+  #source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.plt1.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/Clap3.plt.R",sep="")) 
@@ -1036,7 +1039,7 @@ for(i in 1:len)
         
         par(mfrow=c(1,1))
         # This is one figure to rule all 
-        ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy=T,plot.boundries=T,boundries="offshore",
+        ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy = plt.bath,plot.boundries=T,boundries="offshore",
                    direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
         # If we have a layer to add add it...
         if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1053,8 +1056,8 @@ for(i in 1:len)
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
-        # Add the regular survey tows, run this bit if maps to make is anything other than these plots.
-        if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")==F)
+        # Add the regular survey tows, note this if statement is used to NOT add the following code to these plots...
+        if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP-spatial")==F)
         {
           points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
           # In case any of these banks has exploratory tows...
@@ -1143,7 +1146,7 @@ for(i in 1:len)
           } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
         } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP.spatial","SH.GP.spatial")==F)
         # For condition and meat count we set things up a little bit differently.
-        if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
+        if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
         {
           points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=0.8)
           legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
@@ -1152,16 +1155,7 @@ for(i in 1:len)
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                  pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
         } # end if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
-        
-        if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
-        {
-          if(length(grep("SH",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.sh) & tmp.gp$bank == banks[i] ,],pch=21,bg='grey50',cex=0.8)
-          if(length(grep("MW",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.mw) & tmp.gp$bank == banks[i],],pch=21,bg='grey50',cex=0.8)
-          legend("bottomleft",leg.lvls,fill=cols,
-                 title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
-        } # end if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
-        # For these plots the legend goes like this     
+      
         
        # } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
       #} # end if(seed.n.spatial.maps[k] != "MC-spatial" && seed.n.spatial.maps[k] != "CF-spatial")
@@ -1217,13 +1211,13 @@ for(i in 1:len)
     {
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                 plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("Sab","GBb")) 
       {
         ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                   plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                   plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
         
         # This will put the scale bottom left I think...
@@ -1236,7 +1230,7 @@ for(i in 1:len)
     if(length(strata.areas[,1]) == 0)
     {
       ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                 plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
     }
     # Add the regular survey tows.
@@ -1876,6 +1870,7 @@ for(i in 1:len)
     
     if(banks[i] == "Sab")
     {
+      yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
                 Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
@@ -2232,7 +2227,7 @@ for(i in 1:len)
         y.range <- c(min(this.box$Y) - 2*diff.y, max(this.box$Y) + 2*diff.y)
         ScallopMap(xlim = x.range,ylim = y.range,
                             poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                   plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                   plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,dec.deg = F,add.scale = F)
         if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
                                            min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
