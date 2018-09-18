@@ -1510,7 +1510,8 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
 
     par(mfrow=c(1,1))
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] !="Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
@@ -1534,25 +1535,25 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      if(yr == 2018)
-      {
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
-                areas=surv.info$towable_area,
-                areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
-                dat2=survey.obj.sab,
-                clr=c('blue',"red","blue"),
-                se=T,
-                pch=c(16, 17),
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-      legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
-      } # end if(yr == 2018)
-      
-      if(yr != 2018)
-      {
+      if(yr!=2018){
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                   areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-      } # end if(yr != 2018)
+      }
+      if(yr==2018){
+        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
+        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
+        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+                          areas=surv.info$towable_area,
+                          areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
+                          dat2=survey.obj.sab,
+                          clr=c('blue',"red","blue"),
+                          se=T,
+                          pch=c(16, 17),
+                          add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      }
+
     } # end if(banks[i] == "Sab")
     
     if(fig != "screen") dev.off()
@@ -1580,7 +1581,9 @@ for(i in 1:len)
                          units="in",width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
     
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] !="Sab")
+
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
@@ -1597,21 +1600,25 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      if(yr == 2018)
-      {
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
-                areas=surv.info$towable_area,
-                dat2=survey.obj.sab,
-                clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
-                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-      legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
-      }
-      if(yr != 2018)
-      {
+
+      if(yr!=2018) {
+
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                   areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
                   add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
       }
+      if(yr==2018){
+        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
+        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
+        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
+                  areas=surv.info$towable_area,
+                  areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
+                  dat2=survey.obj.sab,
+                  clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
+                  add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      }
+
     } # end if(banks[i] == "Sab")
     
     if(banks[i] == "Mid"|| banks[i] == "GB")
@@ -1690,7 +1697,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,ys=1.4,
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5,user.bins=user.bins)
-    } # end if(banks[i] != "Ger")
+    } # end if(banks[i] = "Sab")
     
     if(banks[i] == "Ger")
     {
@@ -1855,7 +1862,7 @@ for(i in 1:len)
       
   if(any(plots== "clapper-abund-ts"))
   {
-    
+
     clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,")",sep="")),
                                       list(bank=banks[i]))
     if(banks[i] == "GB")  clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,"-Spr)",sep="")),
@@ -1865,7 +1872,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_abund_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
-    
+
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
@@ -1882,6 +1889,14 @@ for(i in 1:len)
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # end if(banks[i] = "Sab")
     
+    
+    if(banks[i] == "Sab")
+    {
+      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
+                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
+                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
+                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
+    } # end if(banks[i] = "Sab")
     
     if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
     {
