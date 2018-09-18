@@ -9,6 +9,9 @@
 #  June 2017:  Added option to plot the user bins as a stand alone figure.  I also did a pretty major overhaul to the
 #              script to cut down on repeative code...
 #  September 2017:  Minor change to user.SH.bins so that max category was >= not >
+#  July 2018: This is an edited version of survey.ts used for assessing restratified banks. It isn't good enough to just run survey.ts 
+#   with two variables, because the abundances and SE won't be calculated properly for the second dataset. That's why this function now exists.
+#   In 2018, it was used for Sable.
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -60,6 +63,7 @@ survey.ts.restrat <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F
                       clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,areas2=NULL,
                       ypos=1, add.title = F, cx.mn = 1, titl = "", axis.cx=1,user.bins = NULL, ...)
 {
+  
   # Subset the data into the years of interest
   shf<-subset(shf,year %in% years)
   # Get the current years RS and CS for the bank, this is slighly dis-engenious for GB since we actually calculate the biomass for the RS/CS
