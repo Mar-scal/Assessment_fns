@@ -100,6 +100,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
 require(PBSmapping)
 require(RColorBrewer)
 require(lubridate)
+require(BIOSurvey2)
 ############################# GENERAL DATA ########################################################
 ############################# GENERAL DATA ########################################################
 # Enter here standard data which is used throughout this script.
@@ -742,20 +743,21 @@ years <- yr.start:yr
 		if(bnk != "Ger" && bnk != "Mid" && bnk != "GB") 
 		  {
 		  
-		  if(bnk=="Sab")  {
-		    require(BIOSurvey2)
+		  if(bnk=="Sab")  
+		  {
 		    survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
 		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
 		    clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],htwt.fit=SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
 		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)		
-		    }
+	    } # end if(bnk=="Sab")
 		    
-		  if(bnk!="Sab"){  
+		  if(bnk!="Sab")
+		  {  
 		    survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
 		                                bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)	
 		    clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
 		                                  bk=bnk, areas=strata.areas, mw.par="CF",user.bins = bin)
-		  }
+		  } # end if(bnk!="Sab")
 	
 		    survey.obj[[bnk]][[1]]$CF <- na.omit(sapply(1:length(years),
 		                                    function(x){with(subset(surv.Rand[[bnk]],year == years[x]),

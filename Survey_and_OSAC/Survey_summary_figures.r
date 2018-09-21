@@ -114,6 +114,8 @@
 #              were BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35.  This should be set to "default", if these
 #              are added manually the there needs to be 1 entry for each bank you are plotting, e.g. if wanting to change from the default settings and plotting
 #              just a couple of banks, let's say BBn and Mid, you would need to have this be something like offsets = c(0.15,0.13)
+# 13: plt.bath If you want to plot the bathymetry on the plots, this can be slow for the USGS data so if just trying to take a quick look at the
+#              figures set this to false for quicker rendering...
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -123,7 +125,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB"),
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default")
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",plt.bath = T)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -180,14 +182,21 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   
   # We may need to load in the Sable pre-stratified data for the Sable figure, but only if it is 2018 as we won't plot this after that time.
   # Load in the pre 2018 data for Sable
-  if(yr == 2018) load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
-  if(yr != 2018) survey.obj.sab <- NULL
+  if(yr == 2018 && any(banks %in% "Sab")) 
+  {
+    cat("Hi, just wanted to let you know that in 2018 Sable was restratified so you'll be plotting the restratified \n
+         abundance and biomass time series.  Also, just an FYI that we noticed a slight mistake in how we did this in the Spring \n
+         survey summary so these figures won't match what was done in the presentation.  Thanks for your patience! \n")
+    # Load in the data from before 2018...
+    load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
+  }
+  
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
   
   # These are the functions used to within the heart of the code to make stuff happen
   source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/stdts.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T) 
+  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.plt1.r",sep="")) 
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/Clap3.plt.R",sep="")) 
@@ -315,7 +324,7 @@ for(i in 1:len)
     surv.info <- survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]}
   
   if(!banks[i] %in% c("Sab")) surv.info <- subset(survey.info,label== banks[i])
-
+  
   ### If we are missing years in the data I want to add those years in as NA's so the plots see those as NA's  ####
   check.year <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
   missing.year <- check.year[!is.element(check.year,survey.obj[[banks[i]]][[1]]$year)]
@@ -416,7 +425,7 @@ for(i in 1:len)
     # This section only needs run if we are running the INLA models
     if(length(grep("run",INLA)) > 0)
     {
-      #browser()
+      
       # If we are just getting the spatial maps for the seedboxes then we want all of these plots
       # We also want them all if saving the INLA results.
       seed.n.spatial.maps <- spatial.maps
@@ -570,7 +579,6 @@ for(i in 1:len)
           if(seed.n.spatial.maps[k] == "MC-spatial")      
           {
             # This is the stack for the INLA model
-            #browser()
             stk <- inla.stack(tag="est",data=list(y = tmp.cf$meat.count, link=1L),
                               effects=list(a0 = rep(1, nrow(tmp.cf)), s = 1:spde$n.spde),
                               A = list(1, A.cf))
@@ -622,7 +630,7 @@ for(i in 1:len)
             mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                         control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
           } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
-          #browser()
+          
           if(seed.n.spatial.maps[k] == "SH.GP-spatial")    
           {
             # This is the stack for estimation from the INLA model
@@ -749,7 +757,7 @@ for(i in 1:len)
       #spatial.maps <- s.maps
     } # end if(INLA == 'load') 
     
-    #browser()
+    
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
     # This plots the spatial maps requested, need this m loop so we can plot only the figures requested for spatial plots (needed to avoid plotting
@@ -953,7 +961,6 @@ for(i in 1:len)
           leg.title <- "Growth Potential (SH)"
           
         } # end if(maps.to.make[m]  %in% c("SH.GP-spatial")  
-        #browser()
         if(maps.to.make[m]  %in% c("MW.GP-spatial"))   
         {
           base.lvls <- c(0,0.05,0.1,0.2,0.3,0.5,0.75,1,2,10)
@@ -1036,7 +1043,7 @@ for(i in 1:len)
         
         par(mfrow=c(1,1))
         # This is one figure to rule all 
-        ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy=T,plot.boundries=T,boundries="offshore",
+        ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy = plt.bath,plot.boundries=T,boundries="offshore",
                    direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
         # If we have a layer to add add it...
         if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1053,8 +1060,8 @@ for(i in 1:len)
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
         ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
-        # Add the regular survey tows, run this bit if maps to make is anything other than these plots.
-        if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")==F)
+        # Add the regular survey tows, note this if statement is used to NOT add the following code to these plots...
+        if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP-spatial")==F)
         {
           points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
           # In case any of these banks has exploratory tows...
@@ -1143,7 +1150,7 @@ for(i in 1:len)
           } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
         } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP.spatial","SH.GP.spatial")==F)
         # For condition and meat count we set things up a little bit differently.
-        if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
+        if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
         {
           points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=0.8)
           legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
@@ -1152,16 +1159,7 @@ for(i in 1:len)
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                  pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
         } # end if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
-        
-        if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
-        {
-          if(length(grep("SH",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.sh) & tmp.gp$bank == banks[i] ,],pch=21,bg='grey50',cex=0.8)
-          if(length(grep("MW",maps.to.make[m])) >0) points(slat~slon,tmp.gp[!is.na(tmp.gp$cur.mw) & tmp.gp$bank == banks[i],],pch=21,bg='grey50',cex=0.8)
-          legend("bottomleft",leg.lvls,fill=cols,
-                 title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
-        } # end if(maps.to.make[m] %in% c("MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"))
-        # For these plots the legend goes like this     
+      
         
        # } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
       #} # end if(seed.n.spatial.maps[k] != "MC-spatial" && seed.n.spatial.maps[k] != "CF-spatial")
@@ -1217,13 +1215,13 @@ for(i in 1:len)
     {
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                 plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("Sab","GBb")) 
       {
         ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                   plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                   plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
         
         # This will put the scale bottom left I think...
@@ -1236,7 +1234,7 @@ for(i in 1:len)
     if(length(strata.areas[,1]) == 0)
     {
       ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                 plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
     }
     # Add the regular survey tows.
@@ -1393,7 +1391,6 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
 ####################################  MWSH and CF Time series plot ####################################       
 ####################################  MWSH and CF Time series plot #################################### 
-  #browser()
   if(any(plots == "MW-SH"))
   {
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
@@ -1535,15 +1532,13 @@ for(i in 1:len)
     # For sable bank (due to restratification)
     if(banks[i] == "Sab")
     {
-      if(yr!=2018){
+      if(yr!=2018)  survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+                              areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                              add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+      # In 2018 we restratified Sable so need to get fancy with our figure for 2018
+      if(yr==2018)
+      {
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                  add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-      }
-      if(yr==2018){
-        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
-        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                           areas=surv.info$towable_area,
                           areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                           dat2=survey.obj.sab,
@@ -1601,23 +1596,21 @@ for(i in 1:len)
     if(banks[i] == "Sab")
     {
 
-      if(yr!=2018) {
-
-        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                  add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-      }
-      if(yr==2018){
-        source(paste0(direct, "Assessment_fns/One_off_scripts/2018/survey.ts.restrat.r"))
-        load("Y:/Offshore scallop/Assessment/Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData")
-        survey.ts.restrat(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
+      if(yr!=2018)  survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
+                              areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                              add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      # In 2018 we restratified Sable so need to get fancy with our figure for 2018
+      if(yr==2018)
+      {
+        survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, type="B",
                   areas=surv.info$towable_area,
                   areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
                   dat2=survey.obj.sab,
                   clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                   add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
-        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
-      }
+                  legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),
+                         pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      } # end if(yr==2018)
 
     } # end if(banks[i] == "Sab")
     
@@ -1883,15 +1876,7 @@ for(i in 1:len)
     
     if(banks[i] == "Sab")
     {
-      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
-                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
-                titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
-                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
-    } # end if(banks[i] = "Sab")
-    
-    
-    if(banks[i] == "Sab")
-    {
+      yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
                 Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
@@ -1986,7 +1971,6 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 11,height = 8.5)
     if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% banks[i])$MC_reg
     if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
-    #browser()
     if(banks[i] != "Ger") 
     {
       # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
@@ -2235,7 +2219,18 @@ for(i in 1:len)
                 recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
+        
         # A zoomed in view of the box in question with survey strata...
+        # If we are on GB we'll grab the GBa details, if a box was ever on GBb this would need tweaked, but these are pretty minor
+        # pics and there's never been a GBb box so this is fine for now....
+        if(banks[i] == "GB") 
+        {
+          surv.info <- surv.info <- subset(survey.info,label== "GBa")
+          detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
+                                                                    label=="GBa", select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
+                                                                    projection = "LL")
+        } # end if(banks[i] == "GB") 
+            
         if(fig == "screen") windows(11,8.5)
         if(fig == "png") png(paste(plot.dir,box.names[j],"-spatial-",(yr),".png",sep=""),units="in",
                              width = 11,height = 8.5,res=420,bg = "transparent")
@@ -2247,7 +2242,7 @@ for(i in 1:len)
         y.range <- c(min(this.box$Y) - 2*diff.y, max(this.box$Y) + 2*diff.y)
         ScallopMap(xlim = x.range,ylim = y.range,
                             poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                   plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                   plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,dec.deg = F,add.scale = F)
         if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
                                            min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
@@ -2266,7 +2261,7 @@ for(i in 1:len)
         # INLA calls above...
         # If any of the Strata_ID's are outside of the survey stratification scheme we will run the spatial plots as
         # local fields using the box data only.
-        #browser()
+        
         if(any(is.na(surv.seed$Strata_ID))==T)
         {
           mod.res <- NULL
