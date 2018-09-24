@@ -518,7 +518,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
 
   highlights[,c(2,3,4)] <- apply(highlights[,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
-  sizes <<- sizes
+  sizes <<- as.data.frame(sizes)
   ntows <<- ntows
   highlights <<- highlights
   
