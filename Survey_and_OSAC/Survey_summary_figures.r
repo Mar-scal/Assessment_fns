@@ -916,7 +916,7 @@ for(i in 1:len)
           leg.title <- "Meat Weight (g)"
           
         } # end if(maps.to.make[m]  %in% c("MW-spatial")  
-        
+        browser()
         if(maps.to.make[m]  %in% c("SH-spatial"))   
         {
           base.lvls <- c(0,50,70,80,90,100,110,120,150,200)
