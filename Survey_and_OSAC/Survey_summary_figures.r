@@ -916,7 +916,7 @@ for(i in 1:len)
           leg.title <- "Meat Weight (g)"
           
         } # end if(maps.to.make[m]  %in% c("MW-spatial")  
-        browser()
+        
         if(maps.to.make[m]  %in% c("SH-spatial"))   
         {
           base.lvls <- c(0,50,70,80,90,100,110,120,150,200)
@@ -1134,7 +1134,7 @@ for(i in 1:len)
           
           
           # For these plots the legend goes like this     
-          if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names))
+          if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial"))
           {
             legend("bottomleft",leg.lvls,fill=cols,
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
@@ -1148,7 +1148,7 @@ for(i in 1:len)
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                    pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
           } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
-        } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","SH-spatial","MW.GP.spatial","SH.GP.spatial")==F)
+        } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP.spatial")==F)
         # For condition and meat count we set things up a little bit differently.
         if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
         {
