@@ -365,6 +365,32 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     highlights <- rbind(highlights, mwshcf)
     
+    # growth potential stuff
+    growpot <- data.frame(variable=c("minSH", "maxSH", "meanSH", 
+                                     "minSH.GP", "maxSH.GP", "meanSH.GP",
+                                     "minMW", "maxMW", "meanMW", 
+                                     "minMW.GP", "maxMW.GP", "meanMW.GP"),
+                          lastyear=NA,
+                          thisyear=c(min(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T)),
+                                     LTM=NA,
+                                     word=NA,
+                                     nearLTM=NA,
+                                     bank=banks[i])
+                                     
+                          
+    highlights <- rbind(highlights, growpot)
+    
     # meat count
     mc <- data.frame(variable=c("meanMC", "minMC", "maxMC", "lqMC", "uqMC"), 
                      lastyear=NA,
