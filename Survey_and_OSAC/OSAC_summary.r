@@ -67,8 +67,10 @@ fish.regs <- subset(fish.regs,year==yr)
 #                 and you have saved that output you can simply load that data, this is sufficient to run all the analyses
 #                 in this document, though the fishery data may not be the latest 
 # This trick is needed because we don't have the Survey_all_results.Rdata file before 2015 (though it contains everything we want!)
+direct1 <- direct
 if(yr <= 2015) load(paste(direct,"Data/Survey_data/2015/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
 if(yr > 2015) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+direct <- direct1
 bnk <- bank # Reset the bank and year info
 years <- years.t
 yr <- max(years)
