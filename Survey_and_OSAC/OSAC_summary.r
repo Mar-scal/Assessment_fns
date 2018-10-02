@@ -179,7 +179,6 @@ if(is.null(mid) == T) { sum.stat <- NULL ; fish.cells <- NULL ;extreme.catch <- 
 #as I already have these data and from the fishery figures function.  Only problem is I don't have number of trips correct in that function 
 #  (is provides number of watches I think) for the cpue ts info, I'll need to encorporate something like the below line which gets that info...
 #tmp <- aggregate(tripnum~bank+year+fleet,fish.dat,FUN=function(x) length(unique(x)))
-
 fishery.results <- NULL
 for(i in 1:length(bnk))
 {
@@ -214,7 +213,7 @@ fish.res <- as.data.frame((fish.res))
 colnames(fish.res) <- c("bank","year","effort","WF.effort","FT.effort","catch","WF.catch","FT.catch",
                         "cpue","WF.cpue","FT.cpue","WF.trips","FT.trips")
 # Turn the factors numbers... you'll need the cool function
-factor.2.number <- function(x) {as.numeric(levels(x))[x]}
+factor.2.number <- function(x) {as.numeric(as.character(x))}
 fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
 
 
