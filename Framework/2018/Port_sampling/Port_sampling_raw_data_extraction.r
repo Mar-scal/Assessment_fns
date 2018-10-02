@@ -7,6 +7,7 @@
 
 # Frist grab the directory to work from 
 direct <- "d:/r/"
+direct <- "C:/Documents/Offshore scallop/Assessment/"
 # Grab the years of port sampling data.  Note that Ginette says the Port Sampling data goes all the way back to 1996
 # I haven't a clue where that data is, but would certainly be interesting to compare the last 20 years of data!!
 years <- 2006:2017
