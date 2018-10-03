@@ -213,9 +213,14 @@ fish.res <- as.data.frame((fish.res))
 colnames(fish.res) <- c("bank","year","effort","WF.effort","FT.effort","catch","WF.catch","FT.catch",
                         "cpue","WF.cpue","FT.cpue","WF.trips","FT.trips")
 # Turn the factors numbers... you'll need the cool function
-factor.2.number <- function(x) {as.numeric(as.character(x))}
-fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
-
+if(is.factor(fish.res[,2:13])){
+  factor.2.number <- function(x) {as.numeric(levels(x))[x]}  
+  fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
+}
+if(is.character(fish.res[,2:13])){
+  factor.2.number <- function(x) {as.numeric(x)}  
+  fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
+}
 
 # Output the results of interest
 if(export==T)
@@ -252,8 +257,14 @@ for(i in 1:length(bnk))
 
 } # end for(i in 1:length(bnk))
    
+### Create the meat count table
+### Uses data from Port Sampling Reports. You must copy all of the word docs from Offshore scallop/Amy/PortSampling/PSYEAR/JoansOriginals into your direct's Data/Port_Sampling/2018 folder (whichever year you're on)
+### Only copy over the word docs that have Fsh or Fzn in the names.
+source(paste0(direct, "Assessment_fns/Fishery/meat.count.table.R"))
+mctable <- meat.count.table(filenames=list.files(path = paste0(direct, "Data/Port_Sampling/", year, "/")), year=year)
+
 # Save the results
-if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,
+if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,meat.count.table,
                        file = paste(direct,"Data/Fishery_data/Summary/",yr,"/OSAC_summary.RData",sep=""))
 
 ##############  OSAC Mini survey figs (for the top corner of presentation)  ###################
@@ -346,11 +357,10 @@ for(j in 1:length(bnk))
 } # end for(j in 1:length(bnk))
 }# End if(make.mini.figs==T)
 
-
 # Send back objects of interest...
 
 OSAC_res <- list(fish.res = fish.res,surv.res=surv.res,sum.stat = sum.stat,fish.cells = fish.cells,
-                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat)
+                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count.table=mctable)
 assign("OSAC_res",OSAC_res,pos=1)
 
 } #end function.

@@ -14,7 +14,8 @@ meat.count.table <- function(filenames, year) {
       txtfile[[i]] <- read.table(paste0(direct, "Data/Port_Sampling/", year, "/", filenames[i]), fill=T)
     }
     bank <- paste(txtfile[[i]]$V2[1], txtfile[[i]]$V3[1], sep="") 
-    txtfile[[i]] <- data.frame(mc=txtfile[[i]]$V3[grepl(x=txtfile[[i]]$V1, pattern="Trip") & !is.na(as.numeric(txtfile[[i]]$V2))],
+    txtfile[[i]] <- data.frame(mc=txtfile[[i]]$V3[grepl(x=txtfile[[i]]$V1, pattern="Trip") & 
+                                                    !is.na(as.numeric(txtfile[[i]]$V2))],
                                sail = txtfile[[i]]$V5[txtfile[[i]]$V1=="Period"],
                                land = txtfile[[i]]$V7[txtfile[[i]]$V1=="Period"],
                                filename = filenames[i])
