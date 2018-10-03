@@ -261,7 +261,7 @@ for(i in 1:length(bnk))
 ### Uses data from Port Sampling Reports. You must copy all of the word docs from Offshore scallop/Amy/PortSampling/PSYEAR/JoansOriginals into your direct's Data/Port_Sampling/2018 folder (whichever year you're on)
 ### Only copy over the word docs that have Fsh or Fzn in the names.
 source(paste0(direct, "Assessment_fns/Fishery/meat.count.table.R"))
-mctable <- meat.count.table(filenames=list.files(path = paste0(direct, "Data/Port_Sampling/", year, "/")), year=year)
+mctable <- meat.count.table(filenames=list.files(path = paste0(direct, "Data/Port_Sampling/", yr, "/")), year=yr)
 
 # Save the results
 if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,meat.count.table,
