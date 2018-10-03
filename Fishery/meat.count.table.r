@@ -1,8 +1,9 @@
 # this looks at the word documents containing port sampling reports and creates the meat count table for the ppt!
 
 meat.count.table <- function(filenames, year) {
-  require(textreadr)
-  require(reshape2)
+  require(textreadr) || stop("Package textreadr cannot be found")
+  require(reshape2) || stop("Package reshape2 cannot be found")
+  require(plyr) || stop("Package plyr cannot be found")
   txtfile <- NULL
   txtfiles <- NULL
   bank <- NULL
@@ -30,8 +31,6 @@ meat.count.table <- function(filenames, year) {
   txtfiles$mc <- as.numeric(txtfiles$mc)
   
   txtfiles$bank <- tolower(txtfiles$bank)
-  
-  require(plyr)
   
   mctable <- arrange(join(ddply(.data=txtfiles, .(fleet, bank),
                                 summarize,
