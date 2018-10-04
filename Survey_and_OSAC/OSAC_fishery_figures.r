@@ -104,6 +104,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     ###########
     # plot the time seris of catch, CPUE and effort.  Save the image to the presentation directory or just plot it to the window.
     if(save.fig==F) windows(11,8.5)
+    
     if(save.fig==T)
     {
       png(paste(dirct,yr,"/Presentations/OSAC/",bnk[i],"/Fishery_summary.png",sep=""),units="in",width = 8.5, height = 11,

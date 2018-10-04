@@ -67,8 +67,10 @@ fish.regs <- subset(fish.regs,year==yr)
 #                 and you have saved that output you can simply load that data, this is sufficient to run all the analyses
 #                 in this document, though the fishery data may not be the latest 
 # This trick is needed because we don't have the Survey_all_results.Rdata file before 2015 (though it contains everything we want!)
+direct1 <- direct
 if(yr <= 2015) load(paste(direct,"Data/Survey_data/2015/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
 if(yr > 2015) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+direct <- direct1
 bnk <- bank # Reset the bank and year info
 years <- years.t
 yr <- max(years)
@@ -177,7 +179,6 @@ if(is.null(mid) == T) { sum.stat <- NULL ; fish.cells <- NULL ;extreme.catch <- 
 #as I already have these data and from the fishery figures function.  Only problem is I don't have number of trips correct in that function 
 #  (is provides number of watches I think) for the cpue ts info, I'll need to encorporate something like the below line which gets that info...
 #tmp <- aggregate(tripnum~bank+year+fleet,fish.dat,FUN=function(x) length(unique(x)))
-
 fishery.results <- NULL
 for(i in 1:length(bnk))
 {
@@ -212,9 +213,14 @@ fish.res <- as.data.frame((fish.res))
 colnames(fish.res) <- c("bank","year","effort","WF.effort","FT.effort","catch","WF.catch","FT.catch",
                         "cpue","WF.cpue","FT.cpue","WF.trips","FT.trips")
 # Turn the factors numbers... you'll need the cool function
-factor.2.number <- function(x) {as.numeric(levels(x))[x]}
-fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
-
+if(is.factor(fish.res[,2:13])){
+  factor.2.number <- function(x) {as.numeric(levels(x))[x]}  
+  fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
+}
+if(is.character(fish.res[,2:13])){
+  factor.2.number <- function(x) {as.numeric(x)}  
+  fish.res[,2:13] <- sapply(fish.res[,2:13],factor.2.number)
+}
 
 # Output the results of interest
 if(export==T)
@@ -251,8 +257,16 @@ for(i in 1:length(bnk))
 
 } # end for(i in 1:length(bnk))
    
+### Create the meat count table
+### Uses data from Port Sampling Reports. You must copy all of the word docs from Offshore scallop/Amy/PortSampling/PSYEAR/JoansOriginals into your direct's Data/Port_Sampling/2018 folder (whichever year you're on)
+### Only copy over the word docs that have Fsh or Fzn in the names.
+source(paste0(direct, "Assessment_fns/Fishery/meat.count.table.R"))
+fnames <- list.files(path = paste0(direct, "Data/Port_Sampling/", yr, "/"))
+fnames <- fnames[-grep("~",fnames)]
+mctable <- meat.count.table(filenames=fnames, year=yr)
+
 # Save the results
-if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,
+if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,meat.count.table,
                        file = paste(direct,"Data/Fishery_data/Summary/",yr,"/OSAC_summary.RData",sep=""))
 
 ##############  OSAC Mini survey figs (for the top corner of presentation)  ###################
@@ -345,11 +359,10 @@ for(j in 1:length(bnk))
 } # end for(j in 1:length(bnk))
 }# End if(make.mini.figs==T)
 
-
 # Send back objects of interest...
 
 OSAC_res <- list(fish.res = fish.res,surv.res=surv.res,sum.stat = sum.stat,fish.cells = fish.cells,
-                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat)
+                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count.table=mctable)
 assign("OSAC_res",OSAC_res,pos=1)
 
 } #end function.

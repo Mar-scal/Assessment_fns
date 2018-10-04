@@ -109,31 +109,24 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                           lastyear=c(NPR_prev, NR_prev, N_prev),
                           thisyear=c(NPR_current, NR_current, N_current),
                           LTM=c(NPR_LTM, NR_LTM, N_LTM))
-    # ifelse for the wording
-    abundPT$word <- ifelse(abundPT$thisyear - abundPT$lastyear >  10,
+    
+        # ifelse for the wording
+    abundPT$word <- ifelse(abundPT$thisyear/abundPT$lastyear >  1.10,
                            "increased",
-                           ifelse(abundPT$thisyear - abundPT$lastyear < -10,
+                           ifelse(abundPT$thisyear/abundPT$lastyear < 0.90 & abundPT$thisyear/abundPT$lastyear > 0.10,
                                   "decreased",
-                                  ifelse(abs(abundPT$thisyear - abundPT$lastyear) == 10 | 
-                                           (abs(abundPT$thisyear - abundPT$lastyear) < 10 &
-                                              abs(abundPT$thisyear - abundPT$lastyear) > 2),
-                                         "changed slightly",
-                                         ifelse(abs(abundPT$thisyear - abundPT$lastyear) < 2 |
-                                                  abs(abundPT$thisyear - abundPT$lastyear) == 2, 
-                                                "similar",
-                                                "other"))))
-    abundPT$nearLTM <- ifelse(abundPT$thisyear - abundPT$LTM >  10,
-                              "greater than",
-                              ifelse(abundPT$thisyear - abundPT$LTM < -10,
-                                     "less than",
-                                     ifelse(abs(abundPT$thisyear - abundPT$LTM) == 10 | 
-                                              (abs(abundPT$thisyear - abundPT$LTM) < 10 & 
-                                                 abs(abundPT$thisyear - abundPT$LTM) > 2),
-                                            "slightly different from",
-                                            ifelse(abs(abundPT$thisyear - abundPT$LTM) < 2|
-                                                     abs(abundPT$thisyear - abundPT$LTM) == 2, 
-                                                   "similar to",
-                                                   "other"))))
+                                  ifelse(abundPT$thisyear/abundPT$lastyear < 0.10 | 
+                                           (abundPT$thisyear/abundPT$lastyear > 0.90 &
+                                              abundPT$thisyear/abundPT$lastyear < 1.10),
+                                         "similar", "other")))
+    abundPT$nearLTM <- ifelse(abundPT$thisyear/abundPT$LTM >  1.10,
+                              "above",
+                              ifelse(abundPT$thisyear/abundPT$LTM < 0.90 & abundPT$thisyear/abundPT$LTM > 0.10,
+                                     "below",
+                                     ifelse(abundPT$thisyear/abundPT$LTM < 0.10 | 
+                                              (abundPT$thisyear/abundPT$LTM > 0.90 &
+                                                 abundPT$thisyear/abundPT$LTM < 1.10), 
+                                            "similar to", "other")))
     
     abundPT$bank <- banks[i]
     
@@ -198,31 +191,23 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                        LTM=c(IPR_LTM, IR_LTM, I_LTM))
     
     # ifelse for the wording
-    bmPT$word <- ifelse(bmPT$thisyear - bmPT$lastyear >  15,
+    bmPT$word <- ifelse(bmPT$thisyear/bmPT$lastyear >  1.10,
                         "increased",
-                        ifelse(bmPT$thisyear - bmPT$lastyear < -15,
+                        ifelse(bmPT$thisyear/bmPT$lastyear < 0.90 & bmPT$thisyear/bmPT$lastyear > 0.10,
                                "decreased",
-                               ifelse(abs(bmPT$thisyear - bmPT$lastyear) == 15 | 
-                                        (abs(bmPT$thisyear - bmPT$lastyear) < 15 &
-                                           abs(bmPT$thisyear - bmPT$lastyear) > 2),
-                                      "slightly different from",
-                                      ifelse(abs(bmPT$thisyear - bmPT$lastyear) < 2|
-                                               abs(bmPT$thisyear - bmPT$lastyear) == 2, 
-                                             "similar",
-                                             "other"))))
+                               ifelse(bmPT$thisyear/bmPT$lastyear < 0.10 | 
+                                        (bmPT$thisyear/bmPT$lastyear > 0.90 &
+                                           bmPT$thisyear/bmPT$lastyear < 1.10), 
+                                      "similar", "other")))
     
-    bmPT$nearLTM <- ifelse(bmPT$thisyear - bmPT$LTM >  15,
-                           "greater than",
-                           ifelse(bmPT$thisyear - bmPT$LTM < -15,
-                                  "less than",
-                                  ifelse(abs(bmPT$thisyear - bmPT$LTM) == 15 | 
-                                           (abs(bmPT$thisyear - bmPT$LTM) < 15 &
-                                              abs(bmPT$thisyear - bmPT$LTM) > 2),
-                                         "slightly different from",
-                                         ifelse(abs(bmPT$thisyear - bmPT$LTM) < 2|
-                                                  abs(bmPT$thisyear - bmPT$LTM) == 2, 
-                                                "similar to",
-                                                "other"))))
+    bmPT$nearLTM <- ifelse(bmPT$thisyear/bmPT$LTM >  1.10,
+                           "above",
+                           ifelse(bmPT$thisyear/bmPT$LTM < 0.90 & bmPT$thisyear/bmPT$LTM > 0.10,
+                                  "below",
+                                  ifelse(bmPT$thisyear/bmPT$LTM < 0.10 | 
+                                           (bmPT$thisyear/bmPT$LTM > 0.90 &
+                                              bmPT$thisyear/bmPT$LTM < 1.10), 
+                                         "similar to", "other")))
     
     bmPT$bank <- banks[i]
     
@@ -305,7 +290,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]>0){
     
-      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
+      cf_ltm <- mean(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
     
       cf <- data.frame(variable=c("CF",
                                 "spatialCF",
@@ -379,6 +364,32 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     mwshcf$bank <- banks[i]
     
     highlights <- rbind(highlights, mwshcf)
+    
+    # growth potential stuff
+    growpot <- data.frame(variable=c("minSH", "maxSH", "meanSH", 
+                                     "minSH.GP", "maxSH.GP", "meanSH.GP",
+                                     "minMW", "maxMW", "meanMW", 
+                                     "minMW.GP", "maxMW.GP", "meanMW.GP"),
+                          lastyear=NA,
+                          thisyear=c(min(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$gp.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$cur.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     min(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     max(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T),
+                                     mean(pot.grow[[banks[i]]]$gp.mw[pot.grow[[banks[i]]]$year == year], na.rm=T)),
+                                     LTM=NA,
+                                     word=NA,
+                                     nearLTM=NA,
+                                     bank=banks[i])
+                                     
+                          
+    highlights <- rbind(highlights, growpot)
     
     # meat count
     mc <- data.frame(variable=c("meanMC", "minMC", "maxMC", "lqMC", "uqMC"), 
@@ -518,7 +529,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
 
   highlights[,c(2,3,4)] <- apply(highlights[,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
-  sizes <<- sizes
+  sizes <<- as.data.frame(sizes)
   ntows <<- ntows
   highlights <<- highlights
   
