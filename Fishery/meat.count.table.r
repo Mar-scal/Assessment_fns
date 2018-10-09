@@ -44,6 +44,7 @@ meat.count.table <- function(filenames, path)
                                sail = txtfile[[i]]$V5[txtfile[[i]]$V1=="Period"],
                                land = txtfile[[i]]$V7[txtfile[[i]]$V1=="Period"],
                                filename = fnames[i],stringsAsFactors =F)
+    
     # Add the bank the the type of vessel.
     txtfile[[i]]$bank <- bank
     if(grepl(fnames[i], pattern="Fzn")) txtfile[[i]]$fleet <- "FT"
