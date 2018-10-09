@@ -93,9 +93,11 @@ shwt.lme<-function(wt.dat,random.effect="year",verbose=T, GBmodel=F, b.par='esti
 	    # Convert the shell height to it's cube.
   		wt.gdat$sh<-wt.gdat$sh^b.par
   		# Now fit a linear model on the wmw v.s. shell height to find the intercept, note this is forced through 0.
+  	
   		wt.lme <- lme(fixed = wmw ~ sh -1, data = wt.gdat, random = ~ sh -1 | raneff, method="REML")
   		# Pull out the random intercepts and make into a dataframe
   		if(is.character(wt.dat[,random.effect])) fit <- data.frame(raneff=row.names(coef(wt.lme)),coef(wt.lme))
+  		
   		# If this formats turns out to be non-numeric Convert any characters to numbers and make the  dataframe.
   		if(!is.character(wt.dat[,random.effect])) fit <- data.frame(raneff=sort(as.numeric(row.names(coef(wt.lme)))),
   		                                                           a=coef(wt.lme)[order(as.numeric(row.names(coef(wt.lme)))),])
@@ -123,9 +125,10 @@ shwt.lme<-function(wt.dat,random.effect="year",verbose=T, GBmodel=F, b.par='esti
 	
 	# If our random effect is month pull out the Month and put them in as the label.
 	if(random.effect=="month")wt.dat$label<-months(as.Date(paste("2009-",1:12,"-01",sep="")))[wt.dat$raneff]
-	
+	summy <- summary(wt.lme)
+	#browser()
 	# Send the model results and the wt.dat object back to the function calling this one.
-	return(list(A=A,B=B,a=a,b=b,data=wt.dat,fit=fit,summary = summary(wt.lme)))
-	
+	return(list(A=A,B=B,a=a,b=b,data=wt.dat,fit=fit,summary = summy))
+	#browser()
 } # end shwt.lme function
 	

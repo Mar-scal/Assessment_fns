@@ -58,7 +58,7 @@ pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessm
                       niter = NULL, nburn = NULL, nthin = NULL,nchains=NULL, 
                       direct="Y:/Offshore scallop/Assessment/",j.seed=123,parallel=T,bank=NULL,save.res = "default")
 {
-  
+
 # The functions to load
 source(paste(direct,"Assessment_fns/Model/projections.r",sep=""))
 library(R2jags)
