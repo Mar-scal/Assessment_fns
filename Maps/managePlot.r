@@ -3,6 +3,7 @@
 # This used to be part of ScallopMap.r, I have made it a stand alone function for ploting the Management boundaries as well, much
 # like has been done with strataPlot and bathyPlot
 ####  Version 1 created by Dave Keith August 6th, 2015
+####  Minor edit to exclude plotting of "sub-areas" found in the Offshore csv...
 ################################################################################################################
 ################################################################################################################
 ## Function Arguements
@@ -78,7 +79,8 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
       offshore<-read.table(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),sep=",",header=T) 
       attr(offshore,"projection") <- "LL" # DK added August 4 2015
       # Draw the offshore polygons as lines (Ass of August 4 2015 these aren't polygons or even close to it)
-      
+      # I need to remove any of the new "sub-areas" so the plot doesn't get messy...
+      offshore <- offshore[offshore$subarea == "N",]
       if(plot.color == F) addLines(offshore) # Added DK July 31, 2015
       if(plot.color == T) addPolys(offshore,col=manage.colors) # Added DK July 31, 2015
       

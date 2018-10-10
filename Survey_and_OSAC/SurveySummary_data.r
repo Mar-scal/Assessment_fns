@@ -335,6 +335,12 @@ all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
 # from GBa or GBb so remove them too...
 all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer" & surv.bank != "BanIcespring" & surv.bank != "Banspring")
 
+# We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
+BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == s.year,])
+# If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
+if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
+  
+
 # Now if we are going to run the spatial sub-areas we can nicely increase the number of survey
 spat.names <- NULL
 if(spatial == T)
@@ -371,9 +377,12 @@ seedbox.obj <- NULL
 lined.survey.obj <- NULL
 merged.survey.obj <- NULL
 pot.grow <- NULL
+survey.strata.table <- NULL
+detail.surv.poly <- NULL
+bound.surv.poly <- NULL
 # Now get the survey summary results for all the banks...
-num.surveys = 1
-surveys <- "GBa-Large_core"
+#num.surveys = 1
+#surveys <- "GBa-Large_core"
 for(i in 1:num.surveys)
 {
   #  So first thing to do is get the data for the bank.... 
@@ -500,7 +509,10 @@ for(i in 1:num.surveys)
     # subset to the strata areas.
     strata.areas <- subset(surv.info,select =c("Strata_ID","towable_area","startyear"))                                                               
   }
-  
+  # Save the survey strata table so we have it for later, this is mostly needed for when we have user defined areas carved out.
+  survey.strata.table[[bnk]] <- surv.info
+  detail.surv.poly[[bnk]] <- detail.poly.surv
+  bound.surv.poly[[bnk]]<- bound.poly.surv
   
   # Give each tow a unique identifier.
   bank.dat[[bnk]]$ID<-paste(bank.dat[[bnk]]$year,bank.dat[[bnk]]$tow,sep='.')
@@ -973,7 +985,7 @@ for(i in 1:num.surveys)
 		
 		pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
 				
-} # end loop
+
 	
 
 ###############################################################################################################
@@ -991,41 +1003,44 @@ for(i in 1:num.surveys)
 # where/what the data are saved as given what you've run.  For example "SurveySummary_figures" only works when you have run the
 # Spring/Summer/both for all the banks included in the survey (it loads Survey_all_results, Survey_spring_results, or Survey_summer_results).
 #Write2 Output some of the summary data from the survey.
-write.csv(SS.summary[[bnk]],
-          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",
-                       yr,".csv",sep=""),row.names = F)
-#Write3
-write.csv(SHF.summary[[bnk]],
-          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_SHF_summary",
-                       yr,".csv",sep=""),row.names = F)
-#Write4
-write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-                                  "/mw_Data.csv",sep=""),row.names=F)
-#Write5 - Output the raw survey data in it's entirety
-write.table(surv.dat[[bnk]],
-            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
-
-#Write2 Output some of the summary data from the survey.
-write.csv(SS.summary[[bnk]],
-          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",
-                       yr,".csv",sep=""),row.names = F)
-#Write3
-write.csv(SHF.summary[[bnk]],
-          file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_SHF_summary",
-                       yr,".csv",sep=""),row.names = F)
-#Write4
-write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-                                  "/mw_Data.csv",sep=""),row.names=F)
-#Write5 - Output the raw survey data in it's entirety
-write.table(surv.dat[[bnk]],
-            paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-                  "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
+#browser()
+		if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
+		{
+		  write.csv(SS.summary[[bnk]],
+		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",
+		                         yr,".csv",sep=""),row.names = F)
+		  #Write3
+		  write.csv(SHF.summary[[bnk]],
+		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_SHF_summary",
+		                         yr,".csv",sep=""),row.names = F)
+		  #Write4
+		  write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
+		                                    "/mw_Data.csv",sep=""),row.names=F)
+		  #Write5 - Output the raw survey data in it's entirety
+		  write.table(surv.dat[[bnk]],
+		              paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
+		                    "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
+		  
+		  #Write2 Output some of the summary data from the survey.
+		  write.csv(SS.summary[[bnk]],
+		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",
+		                         yr,".csv",sep=""),row.names = F)
+		  #Write3
+		  write.csv(SHF.summary[[bnk]],
+		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_SHF_summary",
+		                         yr,".csv",sep=""),row.names = F)
+		  #Write4
+		  write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
+		                                    "/mw_Data.csv",sep=""),row.names=F)
+		  #Write5 - Output the raw survey data in it's entirety
+		  write.table(surv.dat[[bnk]],
+		              paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
+		                    "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
+  } # end if(bnk %in% c("BBnspring" ,"BBsspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer"))
+} # end loop
 
 # If we have included all the surveyed banks save it as this.  This assumes we get 5 banks done in the spring and 2 banks in the summer.
 # This may need adjusted if we had a weird survey year (such as 2015).
-
-
 
 # If I'm just testing
 if(testing == T) save(list = ls(all.names = TRUE), 
@@ -1073,7 +1088,8 @@ return(list(survey.obj = survey.obj,
             lined.survey.obj = lined.survey.obj,
             merged.survey.obj = merged.survey.obj,
             seedbox.obj = seedbox.obj,
-            pot.grow = pot.grow))
+            pot.grow = pot.grow,
+            survey.strata.table = survey.strata.table))
 
 ##################################################################################################################################
 ########## End Section 3 ########## End Section 3 ########## End Section 3 ########## End Section 3 ########## End Section 3 #####
