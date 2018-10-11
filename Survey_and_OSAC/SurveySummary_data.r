@@ -968,6 +968,7 @@ for(i in 1:num.surveys)
 		  # too look at results from any seedbox of interest as long as we have it's name (but if so use the seebox object
 		  # as BBboxes is subset to just be currently closed boxes on BBn)
 		  #Source15. #source("fn/simple.surv.r")
+		  sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
 		  boxes <- as.PolySet(sb,projection = "LL")
 		  # Note that we are grabbing all samples from within a box and not just the random tows.
 		  box.dat <- data.frame(EID=1:nrow(surv.Live[[bnk]]),X=surv.Live[[bnk]]$lon,Y=surv.Live[[bnk]]$lat)

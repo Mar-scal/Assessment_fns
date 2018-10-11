@@ -1186,9 +1186,11 @@ for(i in 1:len)
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
                  pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
         } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
-          
           # Add the survey boxes if they exist.
-          if(length(sb[,1]) > 0) addPolys(sb,lty=2,lwd=2)
+          if(length(sb[,1]) > 0) {
+            sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
+            addPolys(sb,lty=2,lwd=2)
+          }
           # If saving as a png turn off the plot device
           if(fig != "screen") dev.off()
         } # end for(m in 1:n.maps)  
@@ -1402,8 +1404,10 @@ for(i in 1:len)
              pt.bg = c(rep(NA,length(surv.info$PName))),col='black',bty='n')
     } # End if(banks[i] == "BBs")
     # Add the survey boxes if they exist.
-    if(length(sb[,1]) > 0) addPolys(as.PolySet(sb, projection = "LL"),lty=2,lwd=2)
-    
+    if(length(sb[,1]) > 0) {
+      sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
+      addPolys(as.PolySet(sb, projection = "LL"),lty=2,lwd=2)
+    }
     if(fig != "screen") dev.off()
     
   } # end if(length(plots[grep("Survey",plots)]>0))
@@ -2085,6 +2089,7 @@ for(i in 1:len)
       bound.poly.surv <- subset(survey.bound.polys,label==banks[i]) 
       attr(bound.poly.surv,"projection")<-"LL"
       n.box <- length(seedbox.obj[[banks[i]]])
+      sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
       boxes <- as.PolySet(sb,projection = "LL")
       box.dat <- data.frame(EID=1:nrow(surv.Live[[banks[i]]]),X=surv.Live[[banks[i]]]$lon,Y=surv.Live[[banks[i]]]$lat)
       box.names <- unique(boxes$SCALLOP_Group_ID)
