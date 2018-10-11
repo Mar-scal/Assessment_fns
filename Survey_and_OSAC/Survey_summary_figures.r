@@ -1231,7 +1231,7 @@ for(i in 1:len)
     if(add.title == F) survey.title <- ""
     
     # Make the plot, this one is for cases in which we have survey strata
-    if(nrow(strata.areas) > 0)
+    if(!is.null(strata.areas))
     {
       
       # I need to move the scale bar for Sable and GBb...
@@ -1259,7 +1259,7 @@ for(i in 1:len)
           
     # For the banks without any strata
     
-    if(nrow(strata.areas) == 0)
+    if(is.null(strata.areas))
     {
       ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
                  plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",

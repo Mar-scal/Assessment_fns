@@ -115,6 +115,7 @@ if(surveys == "all") surveys = c("BBnspring" ,"BBsspring" ,"Gerspring", "Midspri
 # The length of the loop to run
 num.surveys <- length(surveys)
 atow<-800*2.4384/10^6 # area of standard tow in km2
+
 ############################# END GENERAL DATA ########################################################
 
 ############################# LOAD FUNCTIONS ########################################################
@@ -336,7 +337,7 @@ all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
 all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer" & surv.bank != "BanIcespring" & surv.bank != "Banspring")
 
 # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
-BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == s.year,])
+BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == yr,])
 # If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
 if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
   
