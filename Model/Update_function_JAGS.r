@@ -108,7 +108,7 @@ update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.nume
                    #Prediction evalulation options (only used when make.figs =T and at least one of make.pred.eval.figs
                    # and run.pred.eval.model = T)
                    pred.eval.fig.type = "box",pe.years = NULL, pe.iter = NULL,pe.burn= NULL,pe.thin = NULL,pe.chains = NULL ,
-                   un=un.ID,pw=pwd.ID,db.con="ptran"
+                   un=NULL,pw=NULL,db.con="ptran"
                   )
 {
   

@@ -71,12 +71,14 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	
 	# Calculate the meat weight shell height relationship, remember if b.par = 3 this assumes an allometric realtionship.
 	# Notice that we use a different random effect here, it is ID not tow, this is done since we may have the same tow # in different years.
+	#$browser()
 	SpatHtWt.fit<-shwt.lme(wgt.dat,random.effect='ID',b.par=b.par,verbose=F)
+
 	# Merge the raw data with the model fit, just keep the first sample for each tow in which we have multiple samples.
 	CF.data<-merge(wgt.dat[!duplicated(wgt.dat$ID),c('ID','lon','lat','year','depth','tow')],SpatHtWt.fit$fit,all=T)
 	# Make sure the names are what we want
 	names(CF.data)<-c('ID','lon','lat','year','depth','tow','CF')
-	
+
 	# Predict condition factor over bank using one of 5 models.
 	# This model assumes CF varies only with depth and year, Gaussian and linear relationship, no random effects (year might be best treated as such)
 	if(model.type=='glm')CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)

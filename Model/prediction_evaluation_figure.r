@@ -88,10 +88,12 @@ if(is.null(input))
 	      # For every year after this we'll grab the results and stick them into the same object..
 	      if(max(years) >=2017)
 	      {
-	      for(i in 1:length(years[years >=2017])) 
+	      # Now I need to grab the data from 2017 up to the current year...
+	      post.years <- 2017:years
+	      for(i in 1:length(post.years))
 	      {
-	        load(paste(direct,"Data/Model/",years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
-	        out.tmp[[as.character(years[i])]] <- out[[as.character(years[i])]]
+	        load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+	        out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
 	      } # end for(i in 1:length(years[years > 2016])) 
 	      } # end if(max(years) >=2017)
 	      # Get the data in a sensisble order...
@@ -108,10 +110,12 @@ if(is.null(input))
 	      if(max(years) >=2017)
 	      {
 	      # For every year after this we'll grab the results and stick them into the same object...
-	      for(i in 1:length(years[years >= 2017])) 
+	      # Now I need to grab the data from 2017 up to the current year...
+	      post.years <- 2017:years
+	      for(i in 1:length(post.years))
 	      {
-	        load(paste(direct,"Data/Model/",years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
-	        out.tmp[[as.character(years[i])]] <- out[[as.character(years[i])]]
+	        load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
+	        out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
 	      } # end for(i in 1:length(years[years > 2016])) 
 	      }
 	      # Get the names in a reasonable order...
@@ -154,7 +158,6 @@ if(any(growth %in% c("realized")))
   # Because we don't have data for both the projection and model in the 1st and final year lets toss those...
   realized.dat <- realized.dat[realized.dat$year != min(realized.dat$year) & realized.dat$year != max(realized.dat$year),]
 } # end if(any(growth %in% c("realized")))
-
 	# This plot is the median biomass trend from:
 	# a: the model predictions (e.g. the biomass is generated for 2012 from the model that ran from 1986:2011)
 	# b: from the actual model estimates (e.g. the biomass is generated for 2011 from the model that runs from 1986:2011)
