@@ -185,7 +185,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
-  if(is.null(bank.dat$BBs)) banks <- c("BBn" , "Ger", "Mid", "Sab", "GBb", "GBa","GB")
+  if(is.null(bank.dat$BBs)) banks <- banks[-which(grepl(x=banks, "BBs"))]
   # If we are plotting the sub-areas we wanna do this...
   if(sub.area == T) {spat.name <- unique(spat.names$label); banks <- c(banks,spat.name)}
   if(sub.area == F) spat.name <- NULL
