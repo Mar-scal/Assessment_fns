@@ -1248,14 +1248,20 @@ for(i in 1:len)
                    nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
       } # end if(banks[i] %in% c("Sab","GBb")) 
         # For the spatial sub-areas do this
-        
-        if(banks[i] %in% spat.name) 
+      if(banks[i] %in% spat.name) 
         {
-          x.bound <- range(bound.poly.surv$X)
-          y.bound <- range(bound.poly.surv$Y)
-          ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-                     plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-                     nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
+            x.bound <- range(bound.poly.surv$X)
+            y.bound <- range(bound.poly.surv$Y)
+            ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+                       plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                       nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
+          
+          if(banks[i] %in% "GBa-North"){
+            # Deal with the missing strata manually
+            addPolys(detail.poly.surv[detail.poly.surv$PID==3,],col=surv.info$col[surv.info$PID==3],border=NA)
+            addPolys(detail.poly.surv[detail.poly.surv$PID==4,],col=surv.info$col[surv.info$PID==4],border=NA)
+          }
+          
         } # end if(banks[i] %in% spat.name) 
     } # end if(nrow(strata.areas) > 0)
           
