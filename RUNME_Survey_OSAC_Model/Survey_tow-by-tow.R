@@ -18,7 +18,7 @@ library(viridis) # for colors...
 require(RColorBrewer)
 
 # Load the survey data.  If you've compiled all the surveys use this...
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
@@ -30,12 +30,14 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
 bnk <- c("BBn","Ger","Sab","Mid","GB"#,"BBs"
          )
+bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 bnk <- "GB"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
 
 for(i in 1:length(bnk))
 {
+  print(bnk[i])
   # Set up the directory to save the figures.
   # Get the plot directory
   plot.dir = paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures",bnk[i],"/",sep="")
@@ -66,6 +68,9 @@ if(yr<2017) bank.survey.info <- NA
 if(nrow(survey.poly) == 0) bank.survey.poly <- NA
 if(nrow(survey.inf) == 0) bank.survey.info <- NA
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
+  bound.poly.surv <- as.PolySet(bound.surv.poly[[bnk[i]]],projection ="LL")
+}
 
 # Here I am exploring the data to see if there is anything odd happening!
 # This has the nice summary of all the tow data in it, subset into 2015 and let's look at what is happening in each tow.
@@ -80,6 +85,8 @@ bank.clap <- bank.clap[order(bank.clap$tow),]
 # To minimize code changes I will make a new variable called Strata_ID for any bank which has been restratified (so far just Sable) given we'll only be
 # running this script for the most recent year this works fine.
 if(any(names(bank.clap) == "Strata_ID_new")) bank.clap$Strata_ID <- bank.clap$Strata_ID_new
+
+print("1")
 
 # Get the columns with the shell height frequencies.
 cols <- which(names(bank.clap)=="h5"):which(names(bank.clap)=="h200")
@@ -120,7 +127,7 @@ for(j in seq(1,length(bank.live[,1])))
   title(paste("Standardized Number of Clappers per tow (tow ID-",bank.clap$tow[j],")",sep=""),cex=0.6)
 } # end for(i in seq(1,length(bank.live[,1])))
 dev.off()
-
+print("2")
 
 # Look at Condition factor from each tow, any stand out higher or low?
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow.pdf",sep=""),width=11,height=8.5)
@@ -179,7 +186,7 @@ axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
 dev.off()
 
-
+print("3")
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
@@ -250,7 +257,7 @@ axis(1)
 axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propRec,na.rm=T),lwd=2,lty=2,col="blue")
 
-
+print("4")
 # Now the Pre-recruits
 plot(bank.clap$depth,bank.clap$clap.propPre,
      xaxt="n",xlab="depth", ylab="% dead",
@@ -350,7 +357,7 @@ axis(2)
 axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 
-
+print("5")
 
 # Now fully recruited
 plot(bank.live$com[bank.live$com>0],bank.clap$clap.propCom[bank.live$com>0],
@@ -450,7 +457,7 @@ axis(2)
 axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 
-
+print("6")
 
 # Now fully recruited
 plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propCom[bank.live$pre>0],
@@ -553,6 +560,7 @@ text(10,max(bank.clap$pre,na.rm=T),"Pre-recruits")
 axis(1,at=seq(5,length(bank.clap$pre),by=5),labels = c(bank.clap$tow[seq(5,length(bank.clap$tow),by=5)]))
 dev.off()
 
+print("7")
 
 # Now lets look at biomass and abundance trends by tow
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Numbers_by_tow.pdf",sep=""),width=11,height=8.5)
@@ -667,31 +675,43 @@ abline(h=mean(bank.live$CF,na.rm=T),lwd=2,lty=2,col="blue")
 dev.off()
 ##############
 
+print("8")
 
 ### spatial numbers by tow
 baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F & !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Pre-recruit abundances",dec.deg = F)
+}
+  
 with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
 
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -713,26 +733,37 @@ dev.off()
 
 
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Recruit abundances",dec.deg = F)
+}
+
 with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -753,26 +784,37 @@ dev.off()
 
 
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Fully-recruited abundances",dec.deg = F)
+}
+
 with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -791,23 +833,33 @@ if(is.null(bank.survey.info) ==F)
 } # end if(is.null(bank.survey.info) ==F)
 dev.off()
 
-
+print("9")
 ### spatial biomass by tow
 
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
+
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Pre-recruit biomass",dec.deg = F)
+}
 
 with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
@@ -815,7 +867,8 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[bo
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -836,26 +889,37 @@ dev.off()
 
 
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Recruit biomass",dec.deg = F)
+}
+
 with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -876,26 +940,37 @@ dev.off()
 
 
 pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if(is.null(bank.survey.info) ==T)
+if(is.null(bank.survey.info) ==T& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Fully-recruited biomass",dec.deg = F)
+}
+
 with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addPolys(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 if(bnk[i]=="GB") addPolys(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -914,9 +989,9 @@ if(is.null(bank.survey.info) ==F)
 } # end if(is.null(bank.survey.info) ==F)
 dev.off()
 
-
+print("10")
 ### spatials for seedboxes
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) {
+if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
   plots <- c("PRspatial", "Recspatial", "FRspatial")
   for(j in 1:length(plots)){
     pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
@@ -1001,417 +1076,417 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) {
   }
 }
 ############## End of seedbox spatial figures
+print("11")
 
-
-############## Note that On this figure some true zero's will get a very small value so they can be plotted.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Abundance_by_depth.pdf",sep=""),width=8.5,height=11)
-#windows(8.5,11)
-par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
-     xaxt="n",xlab="depth", ylab="N/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot[bank.live$tot>0],na.rm=T),
-                                    5*max(bank.live$tot[bank.live$tot>0],na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-text(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
-     round(bank.live$tow[bank.live$tot>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!  On this figure some true zero's will get a very small value so they can be plotted.
-if(length(bank.live$depth[bank.live$tot==0]) > 0)
-  {
-text(bank.live$depth[bank.live$tot==0],
-  jitter((0*bank.live$tot[bank.live$tot==0]+0.1*min(bank.live$tot[bank.live$com>0],na.rm=T)),factor=25),
-     round(bank.live$tow[bank.live$tot==0]),cex=0.8)
-  } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$tot,na.rm=T),"Total")
-title("Abundance by depth")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$tot,na.rm=T),lwd=2,lty=2,col="blue")
-
-# Now fully recruited
-plot(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
-     xaxt="n",xlab="depth", ylab="N/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com[bank.live$com>0],na.rm=T),
-                                    5*max(bank.live$com,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-text(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
-     round(bank.live$tow[bank.live$com>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$com==0]) > 0)
-{
-  text(bank.live$depth[bank.live$com==0],
-    jitter((0*bank.live$com[bank.live$com==0]+0.1*min(bank.live$com[bank.live$com>0],na.rm=T)),factor=25),
-    round(bank.live$tow[bank.live$com==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$com,na.rm=T),"Fully Recruited")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$com,na.rm=T),lwd=2,lty=2,col="blue")
-
-# Now the recruits
-plot(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
-     xaxt="n",xlab="depth", ylab="N/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec[bank.live$rec>0],na.rm=T),
-                                    5*max(bank.live$rec,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-text(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
-     round(bank.live$tow[bank.live$rec>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$rec==0]) > 0)
-{
-  text(bank.live$depth[bank.live$rec==0],
-    jitter((0*bank.live$rec[bank.live$rec==0]+0.1*min(bank.live$rec[bank.live$rec>0],na.rm=T)),factor=25),
-    round(bank.live$tow[bank.live$rec==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$rec,na.rm=T),"Recruits")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$rec,na.rm=T),lwd=2,lty=2,col="blue")
-
-
-# Now the Pre-recruits
-plot(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
-     xaxt="n",xlab="depth", ylab="N/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre[bank.live$pre>0],na.rm=T),
-                                    5*max(bank.live$pre,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-text(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
-     round(bank.live$tow[bank.live$pre>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$pre==0]) > 0)
-{
-  text(bank.live$depth[bank.live$pre==0],
-    jitter((0*bank.live$pre[bank.live$pre==0]+0.1*min(bank.live$pre[bank.live$pre>0],na.rm=T)),factor=25),
-    round(bank.live$tow[bank.live$pre==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$pre,na.rm=T),"Pre-recruits")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$pre,na.rm=T),lwd=2,lty=2,col="blue")
-
-dev.off()
-############
-
-
-
-
-
-
-
-############### Note that On this figure some true zero's will get a very small value so they can be plotted.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_depth.pdf",sep=""),width=8.5,height=11)
-#windows(8.5,11)
-par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
-     xaxt="n",xlab="depth", ylab="kg/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T),
-                                    5*max(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-
-text(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
-     round(bank.live$tow[bank.live$tot.bm>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$tot.bm==0]) > 0)
-{
-  text(bank.live$depth[bank.live$tot.bm==0],
-       jitter((0*bank.live$tot.bm[bank.live$tot.bm==0]+
-                 0.1*min(bank.live$tot.bm[bank.live$com>0],na.rm=T)),factor=25),
-       round(bank.live$tow[bank.live$tot.bm==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot.bm==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$tot.bm,na.rm=T),"total")
-title("Biomass by depth")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$tot.bm,na.rm=T),lwd=2,lty=2,col="blue")
-
-# Now fully recruited
-plot(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
-     xaxt="n",xlab="depth", ylab="kg/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com.bm[bank.live$com.bm>0],na.rm=T),
-                                    5*max(bank.live$com.bm,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-
-text(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
-     round(bank.live$tow[bank.live$com.bm>0]),cex=0.8)
-# Because this is log scale this is com.bmplicated by 0's!
-if(length(bank.live$depth[bank.live$com.bm==0]) > 0)
-{
-  text(bank.live$depth[bank.live$com.bm==0],
-       jitter((0*bank.live$com.bm[bank.live$com.bm==0]+
-                 0.1*min(bank.live$com.bm[bank.live$com.bm>0],na.rm=T)),factor=25),
-       round(bank.live$tow[bank.live$com.bm==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$com.bm,na.rm=T),"Fully Recruited")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$com.bm,na.rm=T),lwd=2,lty=2,col="blue")
-
-# Now the recruits
-plot(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
-     xaxt="n",xlab="depth", ylab="kg/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec.bm[bank.live$rec.bm>0],na.rm=T),
-                                    5*max(bank.live$rec.bm,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-
-text(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
-     round(bank.live$tow[bank.live$rec.bm>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$rec.bm==0]) > 0)
-{
-  text(bank.live$depth[bank.live$rec.bm==0],
-       jitter((0*bank.live$rec.bm[bank.live$rec.bm==0]+
-                 0.1*min(bank.live$rec.bm[bank.live$rec.bm>0],na.rm=T)),factor=25),
-       round(bank.live$tow[bank.live$rec.bm==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$rec.bm,na.rm=T),"Recruits")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$rec.bm,na.rm=T),lwd=2,lty=2,col="blue")
-
-
-# Now the Pre-recruits
-plot(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
-     xaxt="n",xlab="depth", ylab="kg/tow",
-     bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre.bm[bank.live$pre.bm>0],na.rm=T),
-                                    5*max(bank.live$pre.bm,na.rm=T)),
-     xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
-
-text(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
-     round(bank.live$tow[bank.live$pre.bm>0]),cex=0.8)
-# Because this is log scale this is complicated by 0's!
-if(length(bank.live$depth[bank.live$pre.bm==0]) > 0)
-{
-  text(bank.live$depth[bank.live$pre.bm==0],
-       jitter((0*bank.live$pre.bm[bank.live$pre.bm==0]+
-                 0.1*min(bank.live$pre.bm[bank.live$pre.bm>0],na.rm=T)),factor=25),
-       round(bank.live$tow[bank.live$pre.bm==0]),cex=0.8)
-} # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
-text(min(bank.live$depth)*1.05,max(bank.live$pre.bm,na.rm=T),"Pre-recruits")
-axis(1)
-axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
-abline(h=mean(bank.live$pre.bm,na.rm=T),lwd=2,lty=2,col="blue")
-
-dev.off()
-################
-
-# Set up a color palette even I can see for isobaths, the begin-end sets the hue range should be blue
-baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
-#plot(1:10,col=baths[9],type="o")
-# Nice plot of the GBa tow locations with accompanying survey data.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations.pdf",sep=""),width=11,height=8.5)
-#windows(11,8.5)
-if(is.null(bank.survey.info) ==F)
-{
-ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-           plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-           nafo.bord = T,nafo="all",nafo.lab = F,title="Tow locations",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if(is.null(bank.survey.info) ==T)
-{
-ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-           plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-           nafo.bord = T,nafo="all",nafo.lab = F,title="Tow locations",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-with(bank.live,text(lon,lat,tow,cex=0.5))
-#addPolys(GBa.boxes,lty=2,lwd=2)
-#addPolys(BBboxes,lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F)
-{
-legend("bottomleft",legend=c(bank.survey.info$PName),
-       fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-       pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-       pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-# Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-legend("topright",legend = round(bank.survey.info$area_km2),
-       fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-       pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-       pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-
-legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-       fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-       pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-       pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
-############
-
-############
-# Here's the Raw CF data by tow.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_samples_by_tow_or_depth.pdf",sep=""),
-    width=15,height=8.5)
-#windows(15,8.5)
-par(mfrow=c(2,1),mar=c(2,7,2,1))
-boxplot(bank.mw$CF_samp ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-mtext(side =2,cf.lab,3,las=1)
-title("Sample CF for each tow and depth")
-axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
-     labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
-text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$CF_samp),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
-text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$CF_samp),length(unique(bank.mw$tow))),
-     round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
-
-boxplot(bank.mw$CF_samp ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
-mtext(side =2,cf.lab,3,las=1)
-dev.off()
-############
-
-############
-# Here's the MW data by tow and depth
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MW_by_tow_and_depth.pdf",sep=""),
-    width=15,height=8.5)
-#windows(15,8.5)
-par(mfrow=c(2,1),mar=c(2,7,2,1))
-boxplot(bank.mw$wmw ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-mtext(side =2,"MW (g)",3,las=1)
-title("Wet Meat Weight for each tow and depth")
-axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
-            labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
-text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$wmw),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
-text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$wmw),length(unique(bank.mw$tow))),
-        round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
-
-boxplot(bank.mw$wmw ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
- mtext(side =2,"MW (g)",3,las=1)
- dev.off()
-############
-
-############
-# Here's the MW data by tow and depth
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/SH_by_tow_and_depth.pdf",sep=""),
-   width=15,height=8.5)
-#windows(15,8.5)
-par(mfrow=c(2,1),mar=c(2,7,2,1))
-boxplot(bank.mw$sh ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-mtext(side =2,"SH (mm)",3,las=1)
-title("Shell height for each tow and depth")
-axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
-     labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
-text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$sh),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
-text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$sh),length(unique(bank.mw$tow))),
-           round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
-
-boxplot(bank.mw$sh ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
-axis(2,las=1)
-axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
-mtext(side =2,"SH (mm)",3,las=1)
-dev.off()
-      ############
-
-
-
-# Now for the clappers by CF, any indication low CF is associated with High clapper numbers.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_vs_CF.pdf",sep=""),width=8.5,height=11)
-#windows(8.5,11)
-par(mfrow=c(4,1),mar=c(4,7,1,1))
-plot(cf.dat$clap.prop~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
-text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.prop,na.rm=T),"Total")
-title("Clappers_vs_CF")
-plot(cf.dat$clap.propCom~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
-text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propCom,na.rm=T),"Fully Recruited")
-plot(cf.dat$clap.propRec~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
-text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propRec,na.rm=T),"Recruits")
-plot(cf.dat$clap.propPre~cf.dat$cf,pch=20,xlab=cf.lab,ylab = "% dead",bty="L")
-text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propPre,na.rm=T),"Pre-recruits")
-dev.off()
-
-
-##### Condition factor, Meat Weight, and Shell Height of tows in various depth class bins...
-mins <- round(min(bank.live$depth)-5,digits = -1)
-maxs <- round(max(bank.live$depth)+5,digits = -1)
-bounds <- seq(mins,maxs,by=10)
-
-CF.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
-MW.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
-SH.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
-MC.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
-
-colnames(CF.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
-colnames(MW.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
-colnames(SH.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
-colnames(MC.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
-
-
-
-for(j in 1:length(bounds)-1)
-{
-  CF.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
-  CF.depth.table[j,"Mean"] <- mean(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  CF.depth.table[j,"Median"] <- median(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  CF.depth.table[j,"Min"] <- min(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  CF.depth.table[j,"Max"] <- max(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  CF.depth.table[j,"Number of Tows"] <- length(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
-  # Now Grab Meat Weight
-  MW.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
-  MW.depth.table[j,"Mean"] <- mean(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  MW.depth.table[j,"Median"] <- median(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  MW.depth.table[j,"Min"] <- min(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  MW.depth.table[j,"Max"] <- max(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  MW.depth.table[j,"Number of Tows"] <- length(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
-  # Now Grab Shell Height
-  SH.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
-  SH.depth.table[j,"Mean"] <- mean(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  SH.depth.table[j,"Median"] <- median(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  SH.depth.table[j,"Min"] <- min(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  SH.depth.table[j,"Max"] <- max(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
-  SH.depth.table[j,"Number of Tows"] <- length(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
-  # The Meat count, most of which can be calculated outside the loop
-  MC.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
-  MC.depth.table[j,"Number of Tows"] <- length(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
-}
-# Notice that I switch the min/max around as the Max MW would be the lowest meat count (which is a good thing!)
-MC.depth.table[,c("Mean","Median","Min","Max")] <- 500/MW.depth.table[,c("Mean","Median","Max","Min")]
-rownames(CF.depth.table) <- paste("CF:",CF.depth.table$Depth)
-rownames(MW.depth.table) <- paste("MW:",MW.depth.table$Depth)
-rownames(SH.depth.table) <- paste("SH:",SH.depth.table$Depth)
-rownames(MC.depth.table) <- paste("MC:",MC.depth.table$Depth)
-
-Depth.table <- rbind(CF.depth.table,MW.depth.table,MC.depth.table,SH.depth.table)
-write.csv(Depth.table,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Depth_table.csv",sep=""))
-
-
-### Now grab the abundance data averages for the bank in N/tow or kg/tow
-if(!is.null(bins)) bin.names <- paste("mean",sapply(strsplit(survey.obj[[bnk[i]]]$bin.names,"bin",fixed=T),function(x) (x[2])),sep="")
-clap.year <- subset(clap.survey.obj[[bnk[i]]][[1]], year == yr)
-this.year <- subset(survey.obj[[bnk[i]]][[1]], year == yr)
-if(bnk[i] == "Ger") this.year <-  subset(spr.survey.obj$out.obj[[1]], year == yr)
-nrows <- 6
-if(!is.null(bins)) nrows <- nrows + length(bin.names)
-row.names=c("N","NR","NPR","I","IR","IPR")
-if(!is.null(bins)) row.names <- c(row.names,bin.names)
-df <- data.frame(Live = rep(NA,nrows),Clap = rep(NA,nrows),row.names=row.names)
-
-if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
-{
-  df[,1] <- as.numeric(this.year[,row.names]/ sum(bank.survey.info$towable_area)*10^6)
-  # Get clappers
-  df[1,2]  <- clap.year$N / sum(bank.survey.info$towable_area)*10^6
-  df[2,2]<- clap.year$NR / sum(bank.survey.info$towable_area)*10^6
-  df[3,2]  <- clap.year$NPR / sum(bank.survey.info$towable_area)*10^6
-
-} # end if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
-
-if(bnk[i] %in% c("Ger","Mid","GB"))
-{
-  # everythign alive
-  df[1:length(row.names),1] <- as.numeric(this.year[,row.names])
-  # Get clappers
-
-  df[1,2]  <- clap.year$N
-  df[2,2] <- clap.year$NR
-  df[3,2]  <- clap.year$NPR
-} # end if(bnk[i] %in% c("Ger","Mid","GB"))
-
-
-write.csv(df,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/N_BM_and_Clap.csv",sep=""))
+# ############## Note that On this figure some true zero's will get a very small value so they can be plotted.
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Abundance_by_depth.pdf",sep=""),width=8.5,height=11)
+# #windows(8.5,11)
+# par(mfrow=c(4,1),mar=c(2,6,1,1))
+# plot(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
+#      xaxt="n",xlab="depth", ylab="N/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot[bank.live$tot>0],na.rm=T),
+#                                     5*max(bank.live$tot[bank.live$tot>0],na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# text(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
+#      round(bank.live$tow[bank.live$tot>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!  On this figure some true zero's will get a very small value so they can be plotted.
+# if(length(bank.live$depth[bank.live$tot==0]) > 0)
+#   {
+# text(bank.live$depth[bank.live$tot==0],
+#   jitter((0*bank.live$tot[bank.live$tot==0]+0.1*min(bank.live$tot[bank.live$com>0],na.rm=T)),factor=25),
+#      round(bank.live$tow[bank.live$tot==0]),cex=0.8)
+#   } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$tot,na.rm=T),"Total")
+# title("Abundance by depth")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$tot,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# # Now fully recruited
+# plot(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
+#      xaxt="n",xlab="depth", ylab="N/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com[bank.live$com>0],na.rm=T),
+#                                     5*max(bank.live$com,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# text(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
+#      round(bank.live$tow[bank.live$com>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$com==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$com==0],
+#     jitter((0*bank.live$com[bank.live$com==0]+0.1*min(bank.live$com[bank.live$com>0],na.rm=T)),factor=25),
+#     round(bank.live$tow[bank.live$com==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$com,na.rm=T),"Fully Recruited")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$com,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# # Now the recruits
+# plot(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
+#      xaxt="n",xlab="depth", ylab="N/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec[bank.live$rec>0],na.rm=T),
+#                                     5*max(bank.live$rec,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# text(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
+#      round(bank.live$tow[bank.live$rec>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$rec==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$rec==0],
+#     jitter((0*bank.live$rec[bank.live$rec==0]+0.1*min(bank.live$rec[bank.live$rec>0],na.rm=T)),factor=25),
+#     round(bank.live$tow[bank.live$rec==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$rec,na.rm=T),"Recruits")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$rec,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# 
+# # Now the Pre-recruits
+# plot(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
+#      xaxt="n",xlab="depth", ylab="N/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre[bank.live$pre>0],na.rm=T),
+#                                     5*max(bank.live$pre,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# text(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
+#      round(bank.live$tow[bank.live$pre>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$pre==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$pre==0],
+#     jitter((0*bank.live$pre[bank.live$pre==0]+0.1*min(bank.live$pre[bank.live$pre>0],na.rm=T)),factor=25),
+#     round(bank.live$tow[bank.live$pre==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$pre,na.rm=T),"Pre-recruits")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$pre,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# dev.off()
+# ############
+# 
+# 
+# 
+# 
+# 
+# 
+# 
+# ############### Note that On this figure some true zero's will get a very small value so they can be plotted.
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_depth.pdf",sep=""),width=8.5,height=11)
+# #windows(8.5,11)
+# par(mfrow=c(4,1),mar=c(2,6,1,1))
+# plot(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
+#      xaxt="n",xlab="depth", ylab="kg/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T),
+#                                     5*max(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# 
+# text(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
+#      round(bank.live$tow[bank.live$tot.bm>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$tot.bm==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$tot.bm==0],
+#        jitter((0*bank.live$tot.bm[bank.live$tot.bm==0]+
+#                  0.1*min(bank.live$tot.bm[bank.live$com>0],na.rm=T)),factor=25),
+#        round(bank.live$tow[bank.live$tot.bm==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot.bm==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$tot.bm,na.rm=T),"total")
+# title("Biomass by depth")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$tot.bm,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# # Now fully recruited
+# plot(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
+#      xaxt="n",xlab="depth", ylab="kg/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com.bm[bank.live$com.bm>0],na.rm=T),
+#                                     5*max(bank.live$com.bm,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# 
+# text(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
+#      round(bank.live$tow[bank.live$com.bm>0]),cex=0.8)
+# # Because this is log scale this is com.bmplicated by 0's!
+# if(length(bank.live$depth[bank.live$com.bm==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$com.bm==0],
+#        jitter((0*bank.live$com.bm[bank.live$com.bm==0]+
+#                  0.1*min(bank.live$com.bm[bank.live$com.bm>0],na.rm=T)),factor=25),
+#        round(bank.live$tow[bank.live$com.bm==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$com.bm,na.rm=T),"Fully Recruited")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$com.bm,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# # Now the recruits
+# plot(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
+#      xaxt="n",xlab="depth", ylab="kg/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec.bm[bank.live$rec.bm>0],na.rm=T),
+#                                     5*max(bank.live$rec.bm,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# 
+# text(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
+#      round(bank.live$tow[bank.live$rec.bm>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$rec.bm==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$rec.bm==0],
+#        jitter((0*bank.live$rec.bm[bank.live$rec.bm==0]+
+#                  0.1*min(bank.live$rec.bm[bank.live$rec.bm>0],na.rm=T)),factor=25),
+#        round(bank.live$tow[bank.live$rec.bm==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$rec.bm,na.rm=T),"Recruits")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$rec.bm,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# 
+# # Now the Pre-recruits
+# plot(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
+#      xaxt="n",xlab="depth", ylab="kg/tow",
+#      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre.bm[bank.live$pre.bm>0],na.rm=T),
+#                                     5*max(bank.live$pre.bm,na.rm=T)),
+#      xlim=c(min(bank.live$depth,na.rm=T),max(bank.live$depth,na.rm=T)),log="y",yaxt="n")
+# 
+# text(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
+#      round(bank.live$tow[bank.live$pre.bm>0]),cex=0.8)
+# # Because this is log scale this is complicated by 0's!
+# if(length(bank.live$depth[bank.live$pre.bm==0]) > 0)
+# {
+#   text(bank.live$depth[bank.live$pre.bm==0],
+#        jitter((0*bank.live$pre.bm[bank.live$pre.bm==0]+
+#                  0.1*min(bank.live$pre.bm[bank.live$pre.bm>0],na.rm=T)),factor=25),
+#        round(bank.live$tow[bank.live$pre.bm==0]),cex=0.8)
+# } # end if(length(bank.live$depth[bank.live$tot==0]) > 0)
+# text(min(bank.live$depth)*1.05,max(bank.live$pre.bm,na.rm=T),"Pre-recruits")
+# axis(1)
+# axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
+# abline(h=mean(bank.live$pre.bm,na.rm=T),lwd=2,lty=2,col="blue")
+# 
+# dev.off()
+# ################
+# 
+# # Set up a color palette even I can see for isobaths, the begin-end sets the hue range should be blue
+# baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
+# #plot(1:10,col=baths[9],type="o")
+# # Nice plot of the GBa tow locations with accompanying survey data.
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations.pdf",sep=""),width=11,height=8.5)
+# #windows(11,8.5)
+# if(is.null(bank.survey.info) ==F)
+# {
+# ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#            plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#            nafo.bord = T,nafo="all",nafo.lab = F,title="Tow locations",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if(is.null(bank.survey.info) ==T)
+# {
+# ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#            plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#            nafo.bord = T,nafo="all",nafo.lab = F,title="Tow locations",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# with(bank.live,text(lon,lat,tow,cex=0.5))
+# #addPolys(GBa.boxes,lty=2,lwd=2)
+# #addPolys(BBboxes,lty=2,lwd=2)
+# 
+# if(is.null(bank.survey.info) ==F)
+# {
+# legend("bottomleft",legend=c(bank.survey.info$PName),
+#        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#        pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+# # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+# legend("topright",legend = round(bank.survey.info$area_km2),
+#        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#        pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+# 
+# legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#        pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#        pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
+# ############
+# 
+# ############
+# # Here's the Raw CF data by tow.
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_samples_by_tow_or_depth.pdf",sep=""),
+#     width=15,height=8.5)
+# #windows(15,8.5)
+# par(mfrow=c(2,1),mar=c(2,7,2,1))
+# boxplot(bank.mw$CF_samp ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# mtext(side =2,cf.lab,3,las=1)
+# title("Sample CF for each tow and depth")
+# axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
+#      labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
+# text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$CF_samp),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
+# text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$CF_samp),length(unique(bank.mw$tow))),
+#      round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
+# 
+# boxplot(bank.mw$CF_samp ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
+# mtext(side =2,cf.lab,3,las=1)
+# dev.off()
+# ############
+# 
+# ############
+# # Here's the MW data by tow and depth
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MW_by_tow_and_depth.pdf",sep=""),
+#     width=15,height=8.5)
+# #windows(15,8.5)
+# par(mfrow=c(2,1),mar=c(2,7,2,1))
+# boxplot(bank.mw$wmw ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# mtext(side =2,"MW (g)",3,las=1)
+# title("Wet Meat Weight for each tow and depth")
+# axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
+#             labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
+# text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$wmw),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
+# text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$wmw),length(unique(bank.mw$tow))),
+#         round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
+# 
+# boxplot(bank.mw$wmw ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
+#  mtext(side =2,"MW (g)",3,las=1)
+#  dev.off()
+# ############
+# 
+# ############
+# # Here's the MW data by tow and depth
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/SH_by_tow_and_depth.pdf",sep=""),
+#    width=15,height=8.5)
+# #windows(15,8.5)
+# par(mfrow=c(2,1),mar=c(2,7,2,1))
+# boxplot(bank.mw$sh ~ bank.mw$tow,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# mtext(side =2,"SH (mm)",3,las=1)
+# title("Shell height for each tow and depth")
+# axis(1,at=c(1,seq(5,length(unique(bank.mw$tow)),by=5)),
+#      labels = c(sort(unique(bank.mw$tow)))[c(1,seq(5,length(unique(bank.mw$tow)),by=5))])
+# text(1:length(unique(bank.mw$tow)),rep(min(bank.mw$sh),length(unique(bank.mw$tow))),sort(unique(bank.mw$tow)),cex=0.5)
+# text(1:length(unique(bank.mw$tow)),rep(max(bank.mw$sh),length(unique(bank.mw$tow))),
+#            round(tapply(bank.mw$depth,bank.mw$tow,mean)),cex=0.5)
+# 
+# boxplot(bank.mw$sh ~ bank.mw$depth,xlab="tow",yaxt="n",xaxt="n")
+# axis(2,las=1)
+# axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$depth))))
+# mtext(side =2,"SH (mm)",3,las=1)
+# dev.off()
+#       ############
+# 
+# 
+# 
+# # Now for the clappers by CF, any indication low CF is associated with High clapper numbers.
+# pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_vs_CF.pdf",sep=""),width=8.5,height=11)
+# #windows(8.5,11)
+# par(mfrow=c(4,1),mar=c(4,7,1,1))
+# plot(cf.dat$clap.prop~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+# text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.prop,na.rm=T),"Total")
+# title("Clappers_vs_CF")
+# plot(cf.dat$clap.propCom~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+# text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propCom,na.rm=T),"Fully Recruited")
+# plot(cf.dat$clap.propRec~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+# text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propRec,na.rm=T),"Recruits")
+# plot(cf.dat$clap.propPre~cf.dat$cf,pch=20,xlab=cf.lab,ylab = "% dead",bty="L")
+# text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propPre,na.rm=T),"Pre-recruits")
+# dev.off()
+# 
+# 
+# ##### Condition factor, Meat Weight, and Shell Height of tows in various depth class bins...
+# mins <- round(min(bank.live$depth)-5,digits = -1)
+# maxs <- round(max(bank.live$depth)+5,digits = -1)
+# bounds <- seq(mins,maxs,by=10)
+# 
+# CF.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
+# MW.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
+# SH.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
+# MC.depth.table <- data.frame(matrix(NA,nrow=(length(bounds)-1),ncol = 6))
+# 
+# colnames(CF.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
+# colnames(MW.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
+# colnames(SH.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
+# colnames(MC.depth.table) <- c("Depth","Mean","Median","Min","Max","Number of Tows")
+# 
+# 
+# 
+# for(j in 1:length(bounds)-1)
+# {
+#   CF.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
+#   CF.depth.table[j,"Mean"] <- mean(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   CF.depth.table[j,"Median"] <- median(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   CF.depth.table[j,"Min"] <- min(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   CF.depth.table[j,"Max"] <- max(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   CF.depth.table[j,"Number of Tows"] <- length(bank.live$CF[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
+#   # Now Grab Meat Weight
+#   MW.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
+#   MW.depth.table[j,"Mean"] <- mean(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   MW.depth.table[j,"Median"] <- median(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   MW.depth.table[j,"Min"] <- min(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   MW.depth.table[j,"Max"] <- max(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   MW.depth.table[j,"Number of Tows"] <- length(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
+#   # Now Grab Shell Height
+#   SH.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
+#   SH.depth.table[j,"Mean"] <- mean(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   SH.depth.table[j,"Median"] <- median(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   SH.depth.table[j,"Min"] <- min(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   SH.depth.table[j,"Max"] <- max(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ],na.rm=T)
+#   SH.depth.table[j,"Number of Tows"] <- length(bank.live$l.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
+#   # The Meat count, most of which can be calculated outside the loop
+#   MC.depth.table[j,"Depth"] <- paste(bounds[j],"-",bounds[j+1],sep="")
+#   MC.depth.table[j,"Number of Tows"] <- length(bank.live$w.bar[bank.live$depth >= bounds[j] & bank.live$depth < bounds[j+1] ])
+# }
+# # Notice that I switch the min/max around as the Max MW would be the lowest meat count (which is a good thing!)
+# MC.depth.table[,c("Mean","Median","Min","Max")] <- 500/MW.depth.table[,c("Mean","Median","Max","Min")]
+# rownames(CF.depth.table) <- paste("CF:",CF.depth.table$Depth)
+# rownames(MW.depth.table) <- paste("MW:",MW.depth.table$Depth)
+# rownames(SH.depth.table) <- paste("SH:",SH.depth.table$Depth)
+# rownames(MC.depth.table) <- paste("MC:",MC.depth.table$Depth)
+# 
+# Depth.table <- rbind(CF.depth.table,MW.depth.table,MC.depth.table,SH.depth.table)
+# write.csv(Depth.table,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Depth_table.csv",sep=""))
+# 
+# 
+# ### Now grab the abundance data averages for the bank in N/tow or kg/tow
+# if(!is.null(bins)) bin.names <- paste("mean",sapply(strsplit(survey.obj[[bnk[i]]]$bin.names,"bin",fixed=T),function(x) (x[2])),sep="")
+# clap.year <- subset(clap.survey.obj[[bnk[i]]][[1]], year == yr)
+# this.year <- subset(survey.obj[[bnk[i]]][[1]], year == yr)
+# if(bnk[i] == "Ger") this.year <-  subset(spr.survey.obj$out.obj[[1]], year == yr)
+# nrows <- 6
+# if(!is.null(bins)) nrows <- nrows + length(bin.names)
+# row.names=c("N","NR","NPR","I","IR","IPR")
+# if(!is.null(bins)) row.names <- c(row.names,bin.names)
+# df <- data.frame(Live = rep(NA,nrows),Clap = rep(NA,nrows),row.names=row.names)
+# 
+# if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
+# {
+#   df[,1] <- as.numeric(this.year[,row.names]/ sum(bank.survey.info$towable_area)*10^6)
+#   # Get clappers
+#   df[1,2]  <- clap.year$N / sum(bank.survey.info$towable_area)*10^6
+#   df[2,2]<- clap.year$NR / sum(bank.survey.info$towable_area)*10^6
+#   df[3,2]  <- clap.year$NPR / sum(bank.survey.info$towable_area)*10^6
+# 
+# } # end if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
+# 
+# if(bnk[i] %in% c("Ger","Mid","GB"))
+# {
+#   # everythign alive
+#   df[1:length(row.names),1] <- as.numeric(this.year[,row.names])
+#   # Get clappers
+# 
+#   df[1,2]  <- clap.year$N
+#   df[2,2] <- clap.year$NR
+#   df[3,2]  <- clap.year$NPR
+# } # end if(bnk[i] %in% c("Ger","Mid","GB"))
+# 
+# 
+# write.csv(df,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/N_BM_and_Clap.csv",sep=""))
 
 
 } # end for i loop.

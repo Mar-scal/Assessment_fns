@@ -1034,7 +1034,7 @@ for(i in 1:len)
               if(length(grep("bm",maps.to.make[m])) >0) leg.title <- B.tow.lab # If it is biomass then the legend needs the biomass title.
           } #end if(maps.to.make[m]  %in% bin.names) 
           
-          
+
           
           
           # Don't add the titles?
@@ -1068,7 +1068,7 @@ for(i in 1:len)
           
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
-    
+
           
           ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
           ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
@@ -1146,7 +1146,7 @@ for(i in 1:len)
      
             
             
-            # For these plots the legend goes like this     
+            # For these plots the legend goes like this. Note: FK hacked in here temporarily to fix the 2018 GBa pre-recruit figure to hide the largest lvl.  
             if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial"))
             {
               legend("bottomleft",leg.lvls,fill=cols,
