@@ -1239,7 +1239,6 @@ for(i in 1:len)
     # Make the plot, this one is for cases in which we have survey strata
     if(!is.null(strata.areas))
     {
-      
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct,cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
@@ -1281,20 +1280,38 @@ for(i in 1:len)
     #bg.col<-tapply(GBb.surv.info$col,GBb.surv.info$PName,unique)[c(2,3,1,4,5)]
     
     # Add the regular survey tows.
-    points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
+    if(!banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
+    if(banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=2)
     
-    if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid","BBs" ,"Ban","GBb",spat.name))  
+    if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid","BBs" ,"Ban","GBb"))  
     {
       leg.loc <- ifelse(banks[i] %in% c("GBa","BBn","BBs"),"topleft","bottomright")    
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
              & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=0.8)
       legend(leg.loc,legend = c(paste('exploratory (n =',
-                                         length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
-                                         ")",sep=""),
-                                   paste('regular (n =',
-                                         length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
-                                         ")",sep="")),title="Tow type",
+                                      length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
+                                      ")",sep=""),
+                                paste('regular (n =',
+                                      length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
+                                      ")",sep="")),title="Tow type",
              pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA)
+    }
+    if(banks[i] %in% spat.name)  
+    {
+      if(banks[i] %in% spat.name) leg.loc <- "bottomright"
+      if(banks[i] == "GBa-West") leg.loc <- "bottomleft"
+      if(banks[i] == "GBa-Central") leg.loc <- "bottom"
+      if(banks[i] == "GBa-East") leg.loc <- "topright"
+      if(banks[i] == "GBa-North") leg.loc <- "topright"
+      points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
+             & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=2)
+      legend(leg.loc,legend = c(paste('exploratory (n =',
+                                      length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
+                                      ")",sep=""),
+                                paste('regular (n =',
+                                      length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
+                                      ")",sep="")),title="Tow type",
+             pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA, cex = 2, pt.cex = 2)
     } # end if(banks[i] %in% c("GBa","BBn"))
     
     # Add in the bank specific survey information, for some this is easier than for others.
@@ -1776,7 +1793,6 @@ for(i in 1:len)
     
     if(banks[i] != "Ger")
       {
-      browser()
         shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
