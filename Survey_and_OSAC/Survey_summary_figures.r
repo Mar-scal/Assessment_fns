@@ -277,6 +277,10 @@ for(i in 1:len)
   # Get the RS and CS for the bank...
   RS <- size.cats$RS[size.cats$Bank == banks[i]]
   CS <- size.cats$CS[size.cats$Bank == banks[i]]
+  if(banks[i] %in% spat.name) {
+    RS <- size.cats$RS[size.cats$Bank == "GBa"]
+    CS <- size.cats$CS[size.cats$Bank == "GBa"]
+  }
 
   # Grab any seedboxes of interest...
   # I'm picking November 1st of current year b/c if they close a box at this point none of our presentations
@@ -1531,7 +1535,6 @@ for(i in 1:len)
 #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE      
   if(any(plots=="abund-ts"))
   {
-    browser()
     survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,")",sep="")),
                                     list(year=as.character(yr),bank=banks[i]))
     if(banks[i] == "GB") survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,"-Spr)",sep="")),
@@ -1551,7 +1554,7 @@ for(i in 1:len)
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(4000,500,500))
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
     }# end if(banks[i] != "Ger" && banks[i] != "Mid")
     # For german bank
     if(banks[i] == "Ger")
