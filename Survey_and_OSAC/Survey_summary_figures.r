@@ -1527,11 +1527,11 @@ for(i in 1:len)
 ############  END THE MW SHELL HEIGHT FIGURE #######      ############  END THE MW SHELL HEIGHT FIGURE #######
 ############  END THE MW SHELL HEIGHT FIGURE ###################  END THE MW SHELL HEIGHT FIGURE #######
 
-      
 #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE
 #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE      
   if(any(plots=="abund-ts"))
   {
+    browser()
     survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,")",sep="")),
                                     list(year=as.character(yr),bank=banks[i]))
     if(banks[i] == "GB") survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,"-Spr)",sep="")),
@@ -1549,15 +1549,15 @@ for(i in 1:len)
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
+      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(4000,500,500))
     }# end if(banks[i] != "Ger" && banks[i] != "Mid")
     # For german bank
     if(banks[i] == "Ger")
     {
 
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
+      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,yl2=400,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
@@ -1773,6 +1773,7 @@ for(i in 1:len)
     
     if(banks[i] != "Ger")
       {
+      browser()
         shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
@@ -2286,7 +2287,6 @@ for(i in 1:len)
                 recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
-        browser()
         # A zoomed in view of the box in question with survey strata...
         # If we are on GB we'll grab the GBa details, if a box was ever on GBb this would need tweaked, but these are pretty minor
         # pics and there's never been a GBb box so this is fine for now....
@@ -2312,7 +2312,7 @@ for(i in 1:len)
                    plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,dec.deg = F,add.scale = F)
         if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
-                                           min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
+                                           min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
         addPolys(this.box,lwd=6,border="darkgrey")
         points(slat~slon,surv.seed,subset= year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
         # Add the exploratory survey tows
@@ -2451,7 +2451,7 @@ for(i in 1:len)
                      isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
                      title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = F)
           if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
-                                             min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=0.6,ratio=F)
+                                             min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
 
           # Add the contours
           if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
