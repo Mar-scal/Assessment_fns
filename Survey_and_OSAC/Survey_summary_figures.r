@@ -1545,6 +1545,7 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
 
     par(mfrow=c(1,1))
+    
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
@@ -2021,7 +2022,20 @@ for(i in 1:len)
       bm<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
       bm.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
       ymax <- max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1)
-      breakdown(survey.obj[[banks[i]]],yr=yr,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+      # need to do the same thing for the meat count axis, but this requires us to calculate the meatcounts for each bar first, for both years
+      ## this year:
+      bmmc<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
+      nummc<-survey.obj[[banks[i]]]$shf.dat$n.yst[which(survey.obj[[banks[i]]][[1]]$year==yr),which(seq(5,200,5) >= 5)]
+      countmc=nummc/bmmc*0.5
+      vec<-seq(0,195,5)
+      y2max<-max(countmc[(min(c(RS-15,160),na.rm=T)/5):length(vec)],na.rm=T)*1.1
+      ## last year
+      bmmc.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr-1),which(seq(5,200,5) >= 5)]/1000
+      nummc.last<-survey.obj[[banks[i]]]$shf.dat$n.yst[which(survey.obj[[banks[i]]][[1]]$year==yr-1),which(seq(5,200,5) >= 5)]
+      countmc.last=nummc.last/bmmc.last*0.5
+      y2max.last<-max(countmc.last[(min(c(RS-15,160),na.rm=T)/5):length(vec)],na.rm=T)*1.1
+      y2max <- max(c(max(y2max,na.rm=T)*1.1),max(y2max.last,na.rm=T)*1.1)
+      breakdown(survey.obj[[banks[i]]],yr=yr,mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
     } # end if(banks[i] != "Ger") 
 
     # Using the lined surevye object for German bank...
@@ -2054,7 +2068,7 @@ for(i in 1:len)
       if(banks[i] != "Ger")
       {
         # To get the ymax the same between succesive years I want to do this...
-        breakdown(survey.obj[[banks[i]]],yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        breakdown(survey.obj[[banks[i]]],yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
         if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep=""), cex.main=2,adj=0.35)
         
       } # end if(banks[i] != "Ger") 
@@ -2184,7 +2198,6 @@ for(i in 1:len)
           if(fig != "screen") dev.off()
         } # end if(any(plots %in% "user.SH.bins"))
         
-        
         # A seedbox breakdown figure, this would include all tows not just proper tows...
         if(fig == "screen") windows(11,8.5)
         if(fig == "png") png(paste(plot.dir,box.names[j],"-breakdown-",(yr),".png",sep=""),units="in",
@@ -2197,10 +2210,24 @@ for(i in 1:len)
         # as I need to compare these...
         bm<-boxy$shf.dat$w.yst[which(boxy[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
         bm.last<-boxy$shf.dat$w.yst[which(boxy[[1]]$year==(yr-1)),which(seq(5,200,5) >= 5)]/1000
+        # need to do the same thing for the meat count axis, but this requires us to calculate the meatcounts for each bar first, for both years
+        ## this year:
+        bmmc<-boxy$shf.dat$w.yst[which(boxy$model.dat$year==yr),which(seq(5,200,5) >= 5)]/1000
+        nummc<-boxy$shf.dat$n.yst[which(boxy$model.dat$year==yr),which(seq(5,200,5) >= 5)]
+        countmc=nummc/bmmc*0.5
+        vec<-seq(0,195,5)
+        y2max<-max(countmc[(min(c(RS-15,160),na.rm=T)/5-1):length(vec)],na.rm=T)*1.1
+        ## last year
+        bmmc.last<-boxy$shf.dat$w.yst[which(boxy$model.dat$year==yr-1),which(seq(5,200,5) >= 5)]/1000
+        nummc.last<-boxy$shf.dat$n.yst[which(boxy$model.dat$year==yr-1),which(seq(5,200,5) >= 5)]
+        countmc.last=nummc.last/bmmc.last*0.5
+        y2max.last<-max(countmc.last[(min(c(RS-15,160),na.rm=T)/5-1):length(vec)],na.rm=T)*1.1
+      
         # If there is no data from last year then I use this years ymax and I don't make the plot for last year...
         ymax <- ifelse(length(bm.last[!is.na(bm.last)]) > 0, max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1),max(bm,na.rm=T)*1.1)
+        y2max <- ifelse(length(countmc.last[!is.na(countmc.last)]) > 0, max(c(max(y2max,na.rm=T)*1.1),max(y2max.last,na.rm=T)*1.1),max(y2max,na.rm=T)*1.1)
         # Now make the breakdown plot...
-        breakdown(boxy,yr=yr,mc=mc,cx.axs=1,add.title="F",y1max = ymax,
+        breakdown(boxy,yr=yr,mc=mc,cx.axs=1,add.title="F",y1max = ymax, y2max=y2max,
                   CS = survey.obj[[banks[i]]][[1]]$CS[length(survey.obj[[banks[i]]][[1]]$CS)],
                   RS = survey.obj[[banks[i]]][[1]]$RS[length(survey.obj[[banks[i]]][[1]]$RS)])
         if(add.title==T) title(breakdown.title.seed, cex.main=2,adj=0.35)
@@ -2218,7 +2245,7 @@ for(i in 1:len)
         if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-breakdown-",(yr-1),".pdf",sep=""),
                              width = 11,height = 8.5)
         # To get the ymax the same between succesive years I want to do this...
-        breakdown(boxy,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        breakdown(boxy,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
         if(add.title==T) title(last.yr.breakdown.title.seed, cex.main=2,adj=0.35)
         if(fig != "screen") dev.off()   
         } # end if(length(bm.last[!is.na(bm.last)]) > 0)
@@ -2259,7 +2286,7 @@ for(i in 1:len)
                 recline=c(RS,CS),add.title = add.title,titl = seedbox.SHF.title,cex.mn=3,sample.size = T)
         if(fig != "screen") dev.off()
         
-        
+        browser()
         # A zoomed in view of the box in question with survey strata...
         # If we are on GB we'll grab the GBa details, if a box was ever on GBb this would need tweaked, but these are pretty minor
         # pics and there's never been a GBb box so this is fine for now....
@@ -2270,7 +2297,7 @@ for(i in 1:len)
                                                                     label=="GBa", select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
                                                                     projection = "LL")
         } # end if(banks[i] == "GB") 
-            
+          
         if(fig == "screen") windows(11,8.5)
         if(fig == "png") png(paste(plot.dir,box.names[j],"-spatial-",(yr),".png",sep=""),units="in",
                              width = 11,height = 8.5,res=420,bg = "transparent")

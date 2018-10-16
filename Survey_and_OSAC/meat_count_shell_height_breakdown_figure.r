@@ -42,8 +42,7 @@
 breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2max=NULL,col1='grey',
                     mc=40,title=paste("Breakdown",yr),cx.axs=1.5,cx.lab=1.5,cx.mn=2,add.title=T)
 {
-	
-  # Grab the biomass and numbers for each bin size from the survey, this is in kg per tow and number per tow.
+    # Grab the biomass and numbers for each bin size from the survey, this is in kg per tow and number per tow.
   	bm<-surv.obj$shf.dat$w.yst[which(surv.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
   	num<-surv.obj$shf.dat$n.yst[which(surv.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]
   	# Get the Commercial size if it hasn't been specified
@@ -107,7 +106,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
 	} # end for(i in 1:length(mc))
 
 	# Add the axis for the meat count and make sub ticks...
-	y.ax <- axTicks(4)
+	y.ax <- axTicks(4) # y.ax <- c(0, 20, 40, 60, 80, 100, 120, 140)
 	mn.ax <- (y.ax[2]-y.ax[1])/2
 	axis(4,at=y.ax,las=1,cex.axis=cx.axs,tcl=0.6,col.axis ="firebrick")
 	axis(4,at=seq(mn.ax,(max(y.ax)+mn.ax),2*mn.ax), las=1,cex.axis=cx.axs,tcl=0.3,labels=F,col.axis ="firebrick")

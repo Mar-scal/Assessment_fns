@@ -657,7 +657,7 @@ ScallopMap<-function(area='custom',
 	title(main=title,cex.main=cex.mn,font.main=2)
 	
 	# Do you want to add a scale to the figure
-	if(add.scale == T) maps::map.scale(mean(xlim)-0.1*(max(xlim)-min(xlim)),max(ylim)-0.02*(max(ylim)-min(ylim)),relwidth = 0.15,cex=0.6,ratio=F)
+	if(add.scale == T) maps::map.scale(mean(xlim)-0.1*(max(xlim)-min(xlim)),max(ylim)-0.02*(max(ylim)-min(ylim)),relwidth = 0.15,cex=cex,ratio=F)
   
 	# Final step, turn of the plotting device if outputing a figure
 		if(output.png == T || output.pdf == T) dev.off()
