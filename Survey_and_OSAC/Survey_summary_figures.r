@@ -783,7 +783,6 @@ for(i in 1:len)
       if(length(spatial.maps) > 0 || any(plots %in% "user.SH.bins")) # first only run this section if we want a spatial map (this excludes the seedbox spatail maps (at the end of function)
                                                                      # or the user specified SH bins.)
       {
-        browser()
         # if we have user SH bins we need to plot those...
         if(any(plots %in% "user.SH.bins") ==T) 
         {
@@ -805,9 +804,9 @@ for(i in 1:len)
           # This sets up our color ramps and titles for each of the spatial plots
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
-            cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
-                      rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+            base.lvls=c(0,5,10,50,100,200,500,700,1000,2000,5000,10000, 1e6)
+            cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.8,begin=0.6,end=1)),
+                      rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.9,begin=0.1,end=0.5)))
             max.lvl <- which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T))[1]
             lvls <- base.lvls[1:max.lvl]
             cols <- cols[1:(max.lvl-1)]
@@ -1005,9 +1004,9 @@ for(i in 1:len)
           # Now for the user specified SH bins, if they exist...
           if(maps.to.make[m]  %in% bin.names) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
-            cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
-                      rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+            base.lvls=c(0,5,10,50,100,200,500,700,1000,2000,5000,10000, 1e6)
+            cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.8,begin=0.6,end=1)),
+                      rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.9,begin=0.1,end=0.5)))
             if(length(grep("bm",maps.to.make[m])) > 0) # if we are looking at biomass figures...
             {
               base.lvls= c(0,0.005,0.01,0.05,0.1,0.5,1,2,5,10,20,50,1000)
@@ -1062,7 +1061,8 @@ for(i in 1:len)
           
           par(mfrow=c(1,1))
           # This is one figure to rule all 
-          ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,plot.bathy = plt.bath,plot.boundries=T,boundries="offshore",
+          ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
+                     plot.bathy = F,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
