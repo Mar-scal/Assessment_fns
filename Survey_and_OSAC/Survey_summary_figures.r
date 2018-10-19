@@ -184,8 +184,9 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
+  #browser()
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
-  if(is.null(bank.dat$BBs)) banks <- c("BBn" , "Ger", "Mid", "Sab", "GBb", "GBa","GB")
+  if(is.null(bank.dat$BBs) && grepl("BBs",banks)) banks <- banks[-which(grepl(x=banks, "BBs"))]
   # If we are plotting the sub-areas we wanna do this...
   if(sub.area == T) {spat.name <- unique(spat.names$label); banks <- c(banks,spat.name)}
   if(sub.area == F) spat.name <- NULL
@@ -283,6 +284,7 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
+  #browser()
   sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
 
@@ -731,6 +733,10 @@ for(i in 1:len)
                         control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
             # Now that this is done we need to make a prediction grid for projection onto our mesh,
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
+            # Get rid of all data outside our plotting area, necessary for the full model runs only.
+            # We use this later for our visualization...
+            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
