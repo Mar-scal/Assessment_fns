@@ -44,7 +44,6 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                           un=un.ID,pw=pwd.ID,db.con="ptran",direct.off=direct,
                           direct.in=paste(direct,"Data/Inshore/Logs/Processed/",sep=""))
   {
-
   require(RODBC) || stop("Package RODBC cannot be found")
   require(splancs) || stop("Package splancs cannot be found")
   

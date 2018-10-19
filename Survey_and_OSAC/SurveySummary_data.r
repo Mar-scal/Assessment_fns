@@ -71,7 +71,6 @@
 # 7:  un.ID:        Your SQL database username:  Default = un.ID (which I suggest you specify in your R profile so it is loaded by default)
 # 8:  pwd.ID:       Your SQL database password:  Default = pwd.ID (if specified in your R profile it will be loaded by default)
 # 9:  season:       For the spring survey we need to identify that we don't have all the results in yet.  When running the 
-#                   spring survey set to "spring".  If just running GBa and GBb you can set this to "summer"
 #                   When summer survey is complete you can also set this to the default of "both".  Used to determine name of saved results.
 # 10: bins:         This allows you to pick specific shell height bins to look at.  Default is bins = "bank_default", which will set up bins 
 #                   for each bank based on their recruit (RS) and commerical (CS) size bins, using this the bins will be <50, 50-70,70-RS,RS-CS,CS-120,120+

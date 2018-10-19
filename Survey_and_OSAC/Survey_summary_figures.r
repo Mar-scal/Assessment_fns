@@ -195,8 +195,9 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   {
     cat("Hi, just wanted to let you know that in 2018 Sable was restratified so you'll be plotting the restratified \n
          abundance and biomass time series.  Also, just an FYI that we noticed a slight mistake in how we did this in the Spring \n
-         survey summary so these figures won't match what was done in the presentation.  Thanks for your patience! \n")
-    # Load in the data from before 2018...
+         survey summary so these figures won't match what was done in the presentation. In the presentation, the correct towable 
+        areas were used, but the post-restratified values from 2017 were plotted :(. This was corrected in time for pre-OSAC.  Thanks for your patience! \n")
+    # Load in the data from before 2018...  # this is where survey.obj.sab comes from!
     load(paste0(direct,"Data/Survey_data/2017/Survey_summary_output/Sable_pre2018_results_forTSplot.RData"))
   }
   
@@ -782,6 +783,7 @@ for(i in 1:len)
       if(length(spatial.maps) > 0 || any(plots %in% "user.SH.bins")) # first only run this section if we want a spatial map (this excludes the seedbox spatail maps (at the end of function)
                                                                      # or the user specified SH bins.)
       {
+        browser()
         # if we have user SH bins we need to plot those...
         if(any(plots %in% "user.SH.bins") ==T) 
         {
@@ -1213,7 +1215,6 @@ for(i in 1:len)
   #Do we want to plot the survey?
   if(any(plots %in% "Survey"))
   {
-    
     # For this figure we want full bank names, this is ugly hack but does the trick.
     if(banks[i] %in% c("SPB","Ban","BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
     {    
@@ -1597,14 +1598,36 @@ for(i in 1:len)
       # In 2018 we restratified Sable so need to get fancy with our figure for 2018
       if(yr==2018)
       {
+        # this stuff is showing what went wrong in 2018 spring survey summary presentation. 
+        # freya <- survey.obj$Sab$model.dat
+        # surv.info.new <- survey.info[survey.info$startyear==2018 & survey.info$label=="Sab",]
+        # surv.info.old <- survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]
+        # surv.info <- NULL
+        # survey.info<-NULL
+        # direct <- "C:/Documents/Offshore scallop/Assessment/"
+        # load(paste0(direct, "Data/Survey_data/2017/Survey_summary_output/Survey_all_results.RData"))
+        # direct <- "C:/Documents/Offshore scallop/Assessment/"
+        # surv.info
+        # survey.info
+        # survey.obj$Sab$model.dat
+        # survey.obj$Sab$model.dat$year <- as.numeric(as.character(survey.obj$Sab$model.dat$year))
+        # survey.ts(freya, min(freya$year,na.rm=T):2018,pdf=F,
+        #           areas=surv.info.new$towable_area,
+        #           areas2=surv.info.old$towable_area,
+        #           dat2=survey.obj$Sab$model.dat,
+        #           clr=c('blue',"red","blue"),
+        #           se=T,
+        #           pch=c(16, 17),
+        #           add.title = F, cx.mn=3,axis.cx = 1.5)
+        # 
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
-                          areas=surv.info$towable_area,
-                          areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
-                          dat2=survey.obj.sab,
-                          clr=c('blue',"red","blue"),
-                          se=T,
-                          pch=c(16, 17),
-                          add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+                  areas=surv.info$towable_area,
+                  areas2=survey.info[!(survey.info$startyear==2018) & survey.info$label=="Sab",]$towable_area,
+                  dat2=survey.obj.sab,
+                  clr=c('blue',"red","blue"),
+                  se=T,
+                  pch=c(16, 17),
+                  add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
         legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
       }
 
