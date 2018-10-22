@@ -56,17 +56,20 @@ meat.count.table <- function(filenames, path)
   # Make sure the meat counts are numbers and the bank names are in the same case
   txtfiles$mc <- as.numeric(txtfiles$mc)
   txtfiles$bank <- tolower(txtfiles$bank)
+  txtfiles$unID <- 1:nrow(txtfiles)
   # Now make a summary table with min/max and mean by banks and fleet, clearly the work of FK and her ddply skills on this one!
   mctable <- arrange(join(ddply(.data=txtfiles, .(fleet, bank),
                                 summarize,
                                 min=min(mc),
                                 max=max(mc),
-                                mean=mean(mc)), 
+                                mean=mean(mc),
+                                trips=length(unique(unID))), 
                           ddply(.data=txtfiles, .(bank),
                                 summarize,
                                 min=min(mc),
                                 max=max(mc),
                                 mean=mean(mc),
+                                trips=length(unique(unID)),
                                 fleet="all"),
                           type="full"),
                      bank, fleet)

@@ -55,8 +55,8 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   #Read1 All the seedboxes ever.
   seedboxes <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv",sep=""),
                        stringsAsFactors = F,header=T)
-  seedboxes$Closed <- as.Date(seedboxes$Closed)
-  seedboxes$Open <- as.Date(seedboxes$Open)
+  seedboxes$Closed <- as.Date(seedboxes$Closed, format = "%m/%d/%Y")
+  seedboxes$Open <- as.Date(seedboxes$Open, format = "%m/%d/%Y")
   # Dump the commments they are just messy..
   seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
   # Read2 Get the survey boundary polygons for all banks.
@@ -152,10 +152,10 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     bnk.fish.dat <- na.omit(bnk.fish.dat)
       } # if(any(is.na(bnk.fish.dat)==T)) 
    
-   
       # If the current bank has a seedbox then grab it so we can plot it later
       if(nrow(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")))>0)
       {
+        seedboxes[, c("X", "Y")] <- apply(seedboxes[, c("X", "Y")], 2, function(x) as.numeric(as.character(x)))
         boxes <- as.PolySet(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")),projection = "LL")
       } # end if(bnk[i] == "BBn" || bnk[i] == "GBa")
       

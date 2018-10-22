@@ -118,6 +118,8 @@
 # 13: plt.bath  If you want to plot the bathymetry on the plots, this can be slow for the USGS data so if just trying to take a quick look at the
 #               figures set this to false for quicker rendering...
 # 14: sub.area Do you want to make plots of the user specfied sub areas.  T/F, default = T
+# 15: colour.bins Do you want to specify some colour bins for the PR-spatial, Rec-Spatial and FR-spatial plots? Default is NULL, but if you want bins, put in a vector 
+#               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000)
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -127,7 +129,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = "all" ,
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",plt.bath = T,sub.area=T)
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
+                       plt.bath = T,sub.area=T, colour.bins=NULL)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -804,12 +807,18 @@ for(i in 1:len)
           # This sets up our color ramps and titles for each of the spatial plots
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
-            base.lvls=c(0,5,10,50,100,200,500,700,1000,2000,5000,10000, 1e6)
-            cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.8,begin=0.6,end=1)),
-                      rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.9,begin=0.1,end=0.5)))
+            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
+                      rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+            if(!is.null(colour.bins)){
+              base.lvls=colour.bins
+              cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.7,begin=0.6,end=1)),
+                        rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.8,begin=0.1,end=0.5)))
+            }
             max.lvl <- which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T))[1]
             lvls <- base.lvls[1:max.lvl]
             cols <- cols[1:(max.lvl-1)]
+            
             # Get the levels for the legend.
             ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
                                                                paste(lvls[length(lvls)-1],'+',sep='')),
@@ -1004,9 +1013,16 @@ for(i in 1:len)
           # Now for the user specified SH bins, if they exist...
           if(maps.to.make[m]  %in% bin.names) 
           {
-            base.lvls=c(0,5,10,50,100,200,500,700,1000,2000,5000,10000, 1e6)
-            cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.8,begin=0.6,end=1)),
-                      rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.9,begin=0.1,end=0.5)))
+            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
+                      rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+            #user-defined colour bins
+            if(!is.null(colour.bins)){
+              base.lvls=colour.bins
+              cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.7,begin=0.6,end=1)),
+                        rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.8,begin=0.1,end=0.5)))
+            }
+            
             if(length(grep("bm",maps.to.make[m])) > 0) # if we are looking at biomass figures...
             {
               base.lvls= c(0,0.005,0.01,0.05,0.1,0.5,1,2,5,10,20,50,1000)
@@ -1017,11 +1033,13 @@ for(i in 1:len)
             max.lvl <- which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T))[1]
             lvls <- base.lvls[1:max.lvl]
             cols <- cols[1:(max.lvl-1)]
+            
             # Get the levels for the legend.
             ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
                                                                paste(lvls[length(lvls)-1],'+',sep='')),
                    leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
                                  paste(lvls[length(lvls)-1],'-',lvls[max.lvl],sep='')))
+            
             # Now set up the figure titles, different title depending on the spatial map here.
             count = count + 1
             
@@ -1062,7 +1080,7 @@ for(i in 1:len)
           par(mfrow=c(1,1))
           # This is one figure to rule all 
           ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
-                     plot.bathy = F,plot.boundries=T,boundries="offshore",
+                     plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1109,6 +1127,8 @@ for(i in 1:len)
                                                 length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
                                                 ")",sep="")),title="Tow type",
                      pt.bg = c("darkorange","black"),pch=c(24,20),inset=0.01,bg=NA,box.col=NA)
+              
+              
             } # end if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs"))  
               
             # Add the legends, for German we also have to add the "matched tows"
