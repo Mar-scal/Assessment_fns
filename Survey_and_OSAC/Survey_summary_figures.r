@@ -189,6 +189,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
   if(is.null(bank.dat$BBs) && banks ==  c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")) banks <- banks[-which(grepl(x=banks, "BBs"))]
+  if(is.null(bank.dat$BBs) && grepl("BBs",banks)) banks <- banks[-which(grepl(x=banks, "BBs"))]
   # If we are plotting the sub-areas we wanna do this...
   if(sub.area == T) {spat.name <- unique(spat.names$label); banks <- c(banks,spat.name)}
   if(sub.area == F) spat.name <- NULL
@@ -689,7 +690,7 @@ for(i in 1:len)
           } # end for(k in 1:length(seed.n.spatial.maps)) # End the loop for getting all the data needed for a bank for the spatial maps.
         } # end if(length(seed.n.spatial.maps > 0))
       } # end the if(length(grep("run",INLA)) > 0)
-      
+      print("finished running normal models")
       ### The user shell height bins....
       # Now we need to get the projections if we have specified the User.SH.bins plots to be produced.
       bin.names <- NULL # Name bin.names a NULL, if no user.SH.bins we still need this name to exist...
@@ -751,7 +752,7 @@ for(i in 1:len)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
       }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
-  
+      print("finished running user bin models")
       # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
       # Results are only saved if the option 'run.full' is chosen
       if(INLA == 'run.full') 
@@ -815,6 +816,7 @@ for(i in 1:len)
               cols <- c(rev(plasma(length(base.lvls[base.lvls < 700]),alpha=0.7,begin=0.6,end=1)),
                         rev(plasma(length(base.lvls[base.lvls > 200])-1,alpha=0.8,begin=0.1,end=0.5)))
             }
+            
             max.lvl <- which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T))[1]
             lvls <- base.lvls[1:max.lvl]
             cols <- cols[1:(max.lvl-1)]
@@ -1079,8 +1081,8 @@ for(i in 1:len)
           
           par(mfrow=c(1,1))
           # This is one figure to rule all 
-          ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
-                     plot.bathy = T,plot.boundries=T,boundries="offshore",
+          ScallopMap(banks[i],title=fig.title,#bathy.source=bath,isobath = iso,
+                     plot.bathy = F,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
