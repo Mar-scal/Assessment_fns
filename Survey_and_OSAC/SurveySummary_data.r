@@ -942,6 +942,7 @@ for(i in 1:num.surveys)
 		  
 		  
 		# MEAT COUNT & CONDITION FACTOR requires some processing
+		  browser()
 		CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
 		                               SpatHtWt.fit[[bnk]]$fit))
 		if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank %in% c("GB","GBa","GBb") & year==yr & month < 7,

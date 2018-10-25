@@ -1081,8 +1081,8 @@ for(i in 1:len)
           
           par(mfrow=c(1,1))
           # This is one figure to rule all 
-          ScallopMap(banks[i],title=fig.title,#bathy.source=bath,isobath = iso,
-                     plot.bathy = F,plot.boundries=T,boundries="offshore",
+          ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
+                     plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1304,7 +1304,7 @@ for(i in 1:len)
     
     # Add the regular survey tows.
     if(!banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
-    if(banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=2)
+    if(banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
     
     if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid","BBs" ,"Ban","GBb"))  
     {
@@ -1327,14 +1327,16 @@ for(i in 1:len)
       if(banks[i] == "GBa-East") leg.loc <- "topright"
       if(banks[i] == "GBa-North") leg.loc <- "topright"
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-             & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=2)
+             & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=1.2)
       legend(leg.loc,legend = c(paste('exploratory (n =',
                                       length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
                                       ")",sep=""),
                                 paste('regular (n =',
                                       length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
                                       ")",sep="")),title="Tow type",
-             pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA, cex = 2, pt.cex = 2)
+             pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA, cex = 1.2, pt.cex = 1.2)
+      sb2 <- seedboxes[which(grepl(seedboxes$ID, pattern="C4") | grepl(seedboxes$ID, pattern="C5") | grepl(seedboxes$ID, pattern="C6") |grepl(seedboxes$ID, pattern="C7")),]
+      addPolys(as.PolySet(sb2, projection = "LL"),lty=2,lwd=2)
     } # end if(banks[i] %in% c("GBa","BBn"))
     
     # Add in the bank specific survey information, for some this is easier than for others.
@@ -2356,7 +2358,7 @@ for(i in 1:len)
         # pics and there's never been a GBb box so this is fine for now....
         if(banks[i] == "GB") 
         {
-          surv.info <- surv.info <- subset(survey.info,label== "GBa")
+          surv.info <- subset(survey.info,label== "GBa")
           detail.poly.surv <- as.PolySet(subset(survey.detail.polys[!(survey.detail.polys$startyear==1900 & survey.detail.polys$label=="Sab"),],
                                                                     label=="GBa", select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
                                                                     projection = "LL")
