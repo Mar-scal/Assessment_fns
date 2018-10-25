@@ -382,7 +382,7 @@ if(!is.null(bank))
   # Send back objects of interest...
 
 OSAC_res <- list(fish.res = fish.res,surv.res=surv.res,sum.stat = sum.stat,fish.cells = fish.cells,
-                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count.table=mctable)
+                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count.table=meat.count)
 assign("OSAC_res",OSAC_res,pos=1)
 } # end if(!is.null(bank))
 
