@@ -130,7 +130,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
-                       plt.bath = T,sub.area=T, colour.bins=NULL)
+                       plt.bath = T,sub.area=T, colour.bins=NULL,
+                       keep.full.GB=NULL)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -677,15 +678,16 @@ for(i in 1:len)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
             if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
-            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
-  
-                        # for the Clapper model I need to make sure all the values are < 100...
+            if(is.null(keep.full.GB)) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+            
+            # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
           } # end for(k in 1:length(seed.n.spatial.maps)) # End the loop for getting all the data needed for a bank for the spatial maps.
         } # end if(length(seed.n.spatial.maps > 0))
@@ -744,11 +746,12 @@ for(i in 1:len)
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+              browser()
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             # Get rid of all data outside our plotting area...
-            mod.res[[bin.names[k]]][!pred.in] <- NA
+            if(is.null(keep.full.GB)) mod.res[[bin.names[k]]][!pred.in] <- NA
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
       }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
