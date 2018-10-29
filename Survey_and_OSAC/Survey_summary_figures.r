@@ -131,7 +131,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
                        plt.bath = T,sub.area=T, colour.bins=NULL,
-                       keep.full.GB=NULL)
+                       keep.full.GB=F)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -299,6 +299,10 @@ for(i in 1:len)
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
   if(banks[i] %in% c("GBa","GBb","BBn","BBs", "GB",spat.name)) bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
+  
+  if(!is.null(keep.full.GB) & keep.full.GB == T) {
+    bound.poly.surv <- as.PolySet(rbind(bound.surv.poly$GBa, bound.surv.poly$GBb), projection ="LL")
+  }
   # Need to treat Sable special...
   if(banks[i] %in% c("Sab")) 
   {
@@ -685,7 +689,7 @@ for(i in 1:len)
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
-            if(is.null(keep.full.GB)) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
@@ -741,17 +745,17 @@ for(i in 1:len)
             mod <- inla(formula3, family=family1, data = inla.stack.data(stk),
                         control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
             # Now that this is done we need to make a prediction grid for projection onto our mesh,
-            proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
+            proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.
+            
             if(banks[i] %in% c("Sab","Mid"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
-              browser()
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             # Get rid of all data outside our plotting area...
-            if(is.null(keep.full.GB)) mod.res[[bin.names[k]]][!pred.in] <- NA
+            mod.res[[bin.names[k]]][!pred.in] <- NA
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
       }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
@@ -1087,6 +1091,7 @@ for(i in 1:len)
           ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
           {
