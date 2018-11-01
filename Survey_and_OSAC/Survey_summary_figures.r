@@ -183,7 +183,12 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))  
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
-    } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.
+    } 
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))==T)
+    {
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))  
+      season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
+    } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.
   }# if(season == "summer")
   
   # Now get the banks to plot set up.
@@ -1592,18 +1597,19 @@ for(i in 1:len)
     
     
     if(add.title == F) survey.ts.N.title <- ""
-    if(fig == "screen") windows(11,8.5)
-    if(fig == "png") png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
+    if(fig == "screen") windows(8.5,11)
+   
+    if(fig == "png")png(paste(plot.dir,"/abundance_ts_log.png",sep=""),units="in",
                          width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
-
+browser()
     par(mfrow=c(1,1))
     
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
-                areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,log=T,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
     }# end if(banks[i] != "Ger" && banks[i] != "Mid")
     # For german bank
@@ -1678,14 +1684,14 @@ for(i in 1:len)
       
   if(any(plots =="biomass-ts"))
   {
-    
+  
     survey.ts.BM.title <- substitute(bold(paste("Survey biomass time series (",bank,")",sep="")),
                                      list(bank=banks[i]))
     if(banks[i] == "GB") survey.ts.BM.title <- substitute(bold(paste("Survey biomass time series (",bank,"-Spr)",sep="")),
                                                           list(year=as.character(yr),bank=banks[i]))
     if(add.title == F) survey.ts.BM.title <- ""
     
-    if(fig == "screen") windows(11,8.5)
+    if(fig == "screen") windows(8.5,11)
     if(fig == "png") png(paste(plot.dir,"/biomass_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
@@ -1841,14 +1847,16 @@ for(i in 1:len)
                                                    list(bank=banks[i])) 
     if(add.title == F) SHF.title <- ""
     if(fig == "screen") windows(8.5,11)
-    if(fig == "png") png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 8.5, 
+    if(fig == "png") {
+      png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 8.5, 
                           height = 11,res=420,bg="transparent")
+    }
     if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 8.5, height = 11)
     # Grab the last 7 years of data
     
     if(banks[i] != "Ger")
       {
-        shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
+      shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
         shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
@@ -2377,6 +2385,7 @@ for(i in 1:len)
                              width = 11,height = 8.5,res=420,bg = "transparent")
         if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-spatial-",(yr),".pdf",sep=""),
                              width = 11,height = 8.5)
+        
         diff.x <- diff(range(this.box$X))
         diff.y <- diff(range(this.box$Y))
         x.range <- c(min(this.box$X) - 2*diff.x, max(this.box$X) + 2*diff.x)

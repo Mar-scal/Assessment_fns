@@ -61,9 +61,10 @@
 #            should work with user.bins = survey.obj[[banks[i]]][[1]]$user.bins if this exists.
 
 survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=c('pre','rec','com'),
-                              clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,areas2=NULL,
+                              clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,areas2=NULL,log=F,
                               ypos=1, add.title = F, cx.mn = 1, titl = "", axis.cx=1,user.bins = NULL, ...)
 {
+
   # Subset the data into the years of interest
   shf<-subset(shf,year %in% years)
   # Get the current years RS and CS for the bank, this is slighly dis-engenious for GB since we actually calculate the biomass for the RS/CS
@@ -75,7 +76,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   # due to this!!
   # FK 2018: need to do this for the dat2 element as well.
   missing.years <-  years[!is.element(years,shf$year)]
-  if(length(missing.years > 0))
+  if(length(missing.years) > 0)
   {
     fill <- data.frame(matrix(NA,nrow=length(missing.years),ncol=ncol(shf)))
     fill[,1] <-missing.years
@@ -90,7 +91,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(!is.null(dat2))
   {
   missing.years.dat2 <-  years[!is.element(min(dat2$year):max(dat2$year),dat2$year)]
-  if(length(missing.years.dat2 > 0))
+  if(length(missing.years.dat2) > 0)
   {
     fill.dat2 <- data.frame(matrix(NA,nrow=length(missing.years.dat2),ncol=ncol(dat2)))
     fill.dat2[,1] <-missing.years.dat2
@@ -139,7 +140,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     mean.names <- as.character(na.omit(nm.tmp))
     CV.names <- paste(mean.names,".cv",sep="") 
   } # end if(is.null(user.bins))  
-  
+
   # Set up the pdf plot device + filename
   if(pdf == T & is.null(user.bins)) pdf(paste("figures/",Bank,type,min(years),"-",max(years),".pdf",sep=""), width = wd, height = ht)
   if(pdf == T & !is.null(user.bins)) pdf(paste("figures/",Bank,"User_SH_bins",type,min(years),"-",max(years),".pdf",sep=""), width = wd, height = ht)
@@ -150,6 +151,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   {
     if(is.null(user.bins)) shf[,mean.names] <- shf[,mean.names] / sum(areas) * 10^6 
     if(!is.null(user.bins)) shf[,mean.names] <- shf[,mean.names] / sum(areas) * 10^6 
+    if(log==T) shf[,mean.names] <- log(shf[,mean.names])
   } # end if(!is.null(areas) == T && Npt == T)
   
   # If you have provided a second set of data, but only 1 area we assume the area is the same b/t the datasets.
@@ -243,6 +245,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
       ymax <- NA
       # I make it 20% larger b/c it seems to look decent that way...
       for(i in 1:length(se.names)) ymax[i] <- max(shf[,se.names[i]] + shf[,mn.tmp[i]],na.rm=T)
+      
       # Do the same if a second set of data...
       if(!is.null(dat2)) 
       {
@@ -281,7 +284,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
         # If this ratio is > 25% then let's make all the axis the same...
         if((min(ymax)/max(ymax)) >= 0.33) ymax <- rep(max(ymax),length(mn.tmp))
         # And forcing the minimum y axis for biomass to be a minimum of 50/tow 
-        if(max(ymax) < 50) ymax <- rep(50,length(mn.tmp))
+        if(max(ymax) < 50 & log==F) ymax <- rep(50,length(mn.tmp))
       } # end if(is.null(user.bins))
     } # end if(Npt == T )
     
@@ -310,11 +313,13 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     
     if(type =="N") axis(2, y.axis.ticks,labels = y.axis.ticks, mgp = c(0.5, 0.7, 0),las=1,cex.axis=axis.cx)
     if(type =="B") axis(2, y.axis.ticks,labels = y.axis.ticks/1000, mgp = c(0.5, 0.7, 0),las=1,cex.axis=axis.cx)
+  
     axis(4, pretty(c(0,ymax[i]*ys)),lab = F, tcl = -0.3,cex.axis=axis.cx)
     # Now add the median line, but only for the years we have data, allow the lines to have their own unique color.
     if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],rep(median(shf[,mn.tmp[i]],na.rm=T),
                                                                                            length(shf$year[-which(is.na(shf[,mn.tmp[i]]))])),col=clr[3],lty=2,lwd=2)
     if(any(is.na(shf[,mn.tmp[i]]))==F)  lines(shf$year,rep(median(shf[,mn.tmp[i]],na.rm=T),length(shf$year)),col=clr[3],lty=2,lwd=2)
+
     # now add the points
     points(shf$year, shf[,mn.tmp[i]] , type = "o", pch = pch[1],cex=cx,col=clr[1])
     
@@ -346,9 +351,13 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
       # Add the axis label to whichever plot comes last and include the labels (years)
       axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),5), tcl = -0.6,cex.axis=axis.cx)
       # Is data in Numbers per tow or total numbers.bgroup("(",frac(N,tow),")")
-      if(Npt==T && type == "N") mtext(side=2,substitute(paste("",frac(N,tow),),list(N="N",tow="tow")), line=2,
+      if(Npt==T && type == "N" && log==F) mtext(side=2,substitute(paste("",frac(N,tow)),list(N="N",tow="tow")), line=2,
                                       outer = T, cex = 1.2,las=1)
-      if(Npt==F && type == "N") mtext("Number of scallops (millions)", 2, 3, outer = T, cex = 1.2)	
+      if(Npt==T && type == "N" && log==T) mtext(side=2,substitute(paste("log(",frac(N,tow), ")"),list(N="N",tow="tow")), line=2,
+                                                outer = T, cex = 1.2,las=1)
+      if(Npt==F && type == "N" && log==F) mtext("Number of scallops (millions)", 2, 3, outer = T, cex = 1.2)	
+      if(Npt==T && type == "N" && log==F) mtext(side=2,substitute(paste("log(",frac(N,tow), ")"),list(N="N",tow="tow")), line=2,
+                                                outer = T, cex = 1.2,las=1)
       # Lots of options to change this from current if we want (if we want brackets bgroup("(",frac(bar(kg),tow),")"))
       if(Npt==T && type == "B")  mtext(side=2,substitute(paste("",frac(kg,tow)),list(kg="kg",tow="tow")), line=1.5,
                                        outer = T, cex = 1.2,las=1)	

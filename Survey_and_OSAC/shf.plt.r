@@ -78,6 +78,7 @@ shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red
     {
       # Now if we want to data from the survey fill in the data for the plot from either the survey.
       counts<-surv.obj[surv.obj$year==yr[i],-ncol(surv.obj)]
+      
       # Or from the survey object with weights instead of numbers, divide by 1000 to get into kg
       #A do it yourself historgram object based on our data...
       # I use mids to place the location of the tick marks, currently using 5 which puts the ticks for a size class at the
@@ -96,6 +97,8 @@ shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red
         # add tick marks and such
         if(rel== F) plot(obj,main="",xlab="",ylab="",xlim=c((select-5),max(bins)),col=col1,yaxt='n',xaxt='n',ylim=c(0,ymax[i]),freq=T)
         if(rel==T)  plot(obj,main="",xlab="",ylab="",xlim=c((select-5),max(bins)),col=col1,yaxt='n',xaxt='n',freq=F)
+        # if we put in a ymax, and there are bins that exceed the ymax, let's put a little arrow on them to show that they are actually larger than ymax.
+        if(dim(counts[which(counts>ymax[i])])[2]>0) text(obj$mids[which(counts>ymax[i])]-2.5, rep(ymax[i], length(which(counts>ymax[i]))), adj =c(1, 0.4), label=round(counts[which(counts>ymax[i])], 0), srt=90, cex=1) 
         axis(1,obj$mids,lab=F,tcl=-0.3)
         axis(1,seq(min(obj$mids),max(obj$mids),by=20),lab=F,tcl=-0.6)
         if(rel==F) axis(2,las=1,at=pretty(c(0,ymax[i])),labels=pretty(c(0,ymax[i])),cex.axis=cx.axis)
@@ -161,7 +164,7 @@ shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red
         # Add the lines showing the minimum size of the recruit and commercial scallops.
         if(is.null(recline) == F) abline(v=recline,lwd=2,col=col2)
         
-        # Add the total to the plot
+        # Add the title to the plot
         if(i == 1 && add.title==T) title(titl,cex.main = cex.mn,outer=T)
         # On the other side of the plot we add the large sizes.
         if(rel== F) plot(obj.large,main="",xlab="",ylab="",xlim=c(split+5,200),col=col1,yaxt='n',xaxt='n',ylim=c(0,ymax.large),freq=T)
