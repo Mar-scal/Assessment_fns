@@ -1599,18 +1599,18 @@ for(i in 1:len)
     if(add.title == F) survey.ts.N.title <- ""
     if(fig == "screen") windows(8.5,11)
    
-    if(fig == "png")png(paste(plot.dir,"/abundance_ts_log.png",sep=""),units="in",
+    if(fig == "png")png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
                          width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
-browser()
+
     par(mfrow=c(1,1))
     
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
-                areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,log=T,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+                areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, log.y=T)
     }# end if(banks[i] != "Ger" && banks[i] != "Mid")
     # For german bank
     if(banks[i] == "Ger")
