@@ -76,7 +76,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   # due to this!!
   # FK 2018: need to do this for the dat2 element as well.
   missing.years <-  years[!is.element(years,shf$year)]
-  if(length(missing.years > 0))
+  if(length(missing.years) > 0)
   {
     fill <- data.frame(matrix(NA,nrow=length(missing.years),ncol=ncol(shf)))
     fill[,1] <-missing.years
@@ -91,7 +91,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(!is.null(dat2))
   {
   missing.years.dat2 <-  years[!is.element(min(dat2$year):max(dat2$year),dat2$year)]
-  if(length(missing.years.dat2 > 0))
+  if(length(missing.years.dat2) > 0)
   {
     fill.dat2 <- data.frame(matrix(NA,nrow=length(missing.years.dat2),ncol=ncol(dat2)))
     fill.dat2[,1] <-missing.years.dat2
@@ -303,8 +303,9 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     
     if(log.y == F) plot(years, years, type = "n",  ylab = "", xlab = "", las = 1, ylim = c(ymin, ymax[i]*ys), mgp = c(0.5, 0.5, 0), 
          tcl = -0.3, xaxt = "n", yaxt="n", cex.axis=axis.cx,bty="U")
-    if(log.y == T) plot(years, years, type = "n",  ylab = "", xlab = "", las = 1, ylim = c(ymin, ymax[i]*ys), mgp = c(0.5, 0.5, 0), 
-                       tcl = -0.3, xaxt = "n", yaxt="n", cex.axis=axis.cx,bty="U",log='y')
+    # if log.y is T, then you need to specify 3 ymin values in the survey.tx call. If log.y is F, then one ymin is fine (0)
+    if(log.y == T) plot(years, years, type = "n",  ylab = "", xlab = "", las = 1, ylim = c(ymin[i], ymax[i]*ys), mgp = c(0.5, 0.5, 0), 
+                       tcl = -0.3, xaxt = "n", yaxt="n", cex.axis=axis.cx, bty="U", log="y") 
     
     # Axis, revised to ensure min year is as low as it possibly could be (but will never be plotted) and the max is 
     # the latest year, every 5th year plotted

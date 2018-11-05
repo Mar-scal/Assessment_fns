@@ -184,7 +184,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))  
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } 
-    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))==T)
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))==F & 
+       file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))  
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
@@ -1605,20 +1606,21 @@ for(i in 1:len)
 
     par(mfrow=c(1,1))
     
+    # if log.y=T you must also specify ymin.
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, log.y=T)
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
     }# end if(banks[i] != "Ger" && banks[i] != "Mid")
     # For german bank
     if(banks[i] == "Ger")
     {
 
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
-                ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,yl2=400,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+                ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     if(banks[i] == "Mid" || banks[i] == "GB")
@@ -1692,6 +1694,7 @@ for(i in 1:len)
     if(add.title == F) survey.ts.BM.title <- ""
     
     if(fig == "screen") windows(8.5,11)
+
     if(fig == "png") png(paste(plot.dir,"/biomass_ts.png",sep=""),
                          units="in",width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
