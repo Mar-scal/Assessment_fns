@@ -6,6 +6,7 @@
 # April 2015 DK overhauled this function to work with JAGS and to produce box-plots removed some of code as no evidence it is ever used.
 # Jan 2018:  DK split the function into 2 functions, one to run the model and one to pull in these results and make the figures...
 # April 2018:  Dk tidying up some loose ends from the January revision
+# Oct 2018:  More DK tidying to make it work for multiple years (had something screwy in priors...)
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -62,7 +63,7 @@ pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessm
 # The functions to load
 source(paste(direct,"Assessment_fns/Model/projections.r",sep=""))
 library(R2jags)
-if(is.null(bank)) bank <- names(DD.lst) # Identify the bank if not specified
+if(is.null(bank)) bank <- names(input) # Identify the bank if not specified
 # The input data is the years and all the data excluding the number of years
 input.dat <- data.frame(input[names(input)!="NY"])
 # Set the years to be just the most recent year if pe.years is set to null.
@@ -72,11 +73,13 @@ num.years <- length(pe.years)
 if(growth[1] == "both") growth <- c("modelled","realized")
 growth <- sort(growth) # the below needs this in alphabetical order...
 
-
+# Make a temp priors object we can use to reset the priors for the second k loop
+priors.t <- priors
 
 # Now we loop this through each growth scenario
 for(k in 1:length(growth))
 { 
+  priors <- priors.t
   # Now if we are using the realized growth we need to revise these so the model is pulling in the correct growth term
   if(growth[k]=="realized") 
   {
@@ -94,6 +97,7 @@ for(k in 1:length(growth))
 	  if(i > 1) input.lst <- as.list(subset(input.dat,year %in% min(input.dat$year):pe.years[i]),-i)
 	  # Get the Number of years correct.
 	  input.lst$NY <- length(input.lst$C)
+	  #browser()
 	  
 	  # Need to do a little stick handling to get the right priors for the ones specified each year
 	  # We need to do this for the predictions in previous years

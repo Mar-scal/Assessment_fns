@@ -336,7 +336,7 @@ all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
 all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer" & surv.bank != "BanIcespring" & surv.bank != "Banspring")
 
 # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
-BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == yr,])
+BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
 # If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
 if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
   
@@ -927,14 +927,14 @@ for(i in 1:num.surveys)
 		  
 		  # Now get the rest of the Survey summary and SHF summaries for the banks, later we'll export as csv's.
 		  if(bank.4.spatial != "Ger")
-		    {
+		  {
 		    
 		      SS.summary[[bnk]] <- survey.obj[[bnk]][[1]]
 		      SS.summary[[bnk]]$bank <- bank.4.spatial
 		      # Same for the SHF data.
 		      SHF.summary[[bnk]] <- as.data.frame(cbind(survey.obj[[bnk]][[1]]$year,survey.obj[[bnk]][[2]]$n.yst))
 		      SHF.summary[[bnk]]$bank <- bank.4.spatial
-		    } # end if(bnk != "Ger")
+		  } # end if(bnk != "Ger")
 		    
 		  # Give the SS.summary headers nice names and output the results to the appropriate folder
 		  #names(SS.summary[[bnk]]) <- c("year","n","FR.BM","CV.FR.BM","R.BM","CV.R.BM","Pre.BM","CV.Pre.BM",
@@ -951,7 +951,11 @@ for(i in 1:num.surveys)
 		if(bank.4.spatial == "GBb") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bank.4.spatial & year==yr & month > 6,
 		                                                         c('tow','lon','lat')), SpatHtWt.fit[[bnk]]$fit))
 		names(CF.current[[bnk]])[4]<-"CF"
-		CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+		# For German we want all the tows here, both the random and the repeats.
+		if(bank.4.spatial == "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+		# If not German we only want the 'random' tows
+		if(bank.4.spatial != "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+		
 		# Meat count per 500g
 		CF.current[[bnk]]$meat.count<-0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
 	
