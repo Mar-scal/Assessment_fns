@@ -71,7 +71,6 @@
 # 7:  un.ID:        Your SQL database username:  Default = un.ID (which I suggest you specify in your R profile so it is loaded by default)
 # 8:  pwd.ID:       Your SQL database password:  Default = pwd.ID (if specified in your R profile it will be loaded by default)
 # 9:  season:       For the spring survey we need to identify that we don't have all the results in yet.  When running the 
-#                   spring survey set to "spring".  If just running GBa and GBb you can set this to "summer"
 #                   When summer survey is complete you can also set this to the default of "both".  Used to determine name of saved results.
 # 10: bins:         This allows you to pick specific shell height bins to look at.  Default is bins = "bank_default", which will set up bins 
 #                   for each bank based on their recruit (RS) and commerical (CS) size bins, using this the bins will be <50, 50-70,70-RS,RS-CS,CS-120,120+
@@ -972,6 +971,7 @@ for(i in 1:num.surveys)
 		  # too look at results from any seedbox of interest as long as we have it's name (but if so use the seebox object
 		  # as BBboxes is subset to just be currently closed boxes on BBn)
 		  #Source15. #source("fn/simple.surv.r")
+		  sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
 		  boxes <- as.PolySet(sb,projection = "LL")
 		  # Note that we are grabbing all samples from within a box and not just the random tows.
 		  box.dat <- data.frame(EID=1:nrow(surv.Live[[bnk]]),X=surv.Live[[bnk]]$lon,Y=surv.Live[[bnk]]$lat)
@@ -1073,10 +1073,9 @@ if(testing == F)
   # If fewer than 5 banks selected save the data as this
   if(season == "spring" && num.surveys <5) save(list = ls(all.names = TRUE),
                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_spring_survey_results.Rdata",sep=""))
-  
   # If for some reason you just want the summer results save this here (note if you specify summer but still specify a bank that was sampled
   # during the spring you'll end up with spring data mixed in here.)
-  if(season == "summer" && surveys %in% c("GBasummer") && surveys %in% c("GBbsummer"))		  save(list = ls(all.names = TRUE),
+  if(season == "summer" && surveys %in% c("GBasummer", "GBbsummer"))		  save(list = ls(all.names = TRUE),
                                  file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
   
   if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),

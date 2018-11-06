@@ -45,6 +45,10 @@ fishsum.plt<-function(dat,years=1955:2007,cx.mn =2,add.title=F,bnk = NULL,cx.lab
 	
 	if(!is.null(wf.cpue)) wf.cpue <- wf.cpue[wf.cpue$year %in% years,]
 	if(!is.null(ft.cpue)) ft.cpue <- ft.cpue[ft.cpue$year %in% years,]
+	
+	# force catch to be NA if effort is also NA
+	dat$catch[is.na(dat$effort)] <- NA
+	
   # Set up the plot window 
 	par(mfrow=c(3,1), mar = c(1, 14, 3, 1), omi = c(1, 0.25, 0.1, 0.25))
   # Subset the data into the years of interest
@@ -68,6 +72,7 @@ fishsum.plt<-function(dat,years=1955:2007,cx.mn =2,add.title=F,bnk = NULL,cx.lab
   axis(4, lab = F, tcl = -0.6, cex.axis=cx.axis)
   # Now add the "points", in this case they are added as histogram bars.
   points(catch~ year,data=d,  type='h',pch=15,lwd=lwd,lend=3,col="grey50")
+  # Why do we use bars? I dunno. Just wanted to look at points instead... points(catch~ year,data=d,col="grey50")
   # Add the axis label
   mtext("Catch (t)", 2, 5, outer = F, cex = cx.lab,las=1)	
   # Add the median if requested, this is the average catch in years the fleet actually fishes out there!
