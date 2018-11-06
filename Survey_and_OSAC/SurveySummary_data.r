@@ -1069,10 +1069,9 @@ if(testing == F)
   # If fewer than 5 banks selected save the data as this
   if(season == "spring" && num.surveys <5) save(list = ls(all.names = TRUE),
                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_spring_survey_results.Rdata",sep=""))
-  
   # If for some reason you just want the summer results save this here (note if you specify summer but still specify a bank that was sampled
   # during the spring you'll end up with spring data mixed in here.)
-  if(season == "summer" && surveys %in% c("GBasummer") && surveys %in% c("GBbsummer"))		  save(list = ls(all.names = TRUE),
+  if(season == "summer" && surveys %in% c("GBasummer", "GBbsummer"))		  save(list = ls(all.names = TRUE),
                                  file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
   
   if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),
