@@ -29,6 +29,8 @@
 # Nov 2017:     Updated the INLA based on what we did with SPERA project, the models now run many times quicker than they did...
 # July 2018:    Numererous changes, see Github for full description/history of modifications
 # Oct 2018:     Updated to enable plotting of small user defined sub-areas.
+# Nov 2018:     Created colour.bins option which allows you to specify the colour ramp on INLA spatial plots. Revisit this in June 2019 to figure out appropriate bins for spring banks.
+#               Created keep.full.GB option which allows you to create INLA spatial maps for ALL of GB, not just GBa and GBb separately. 
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -119,7 +121,9 @@
 #               figures set this to false for quicker rendering...
 # 14: sub.area Do you want to make plots of the user specfied sub areas.  T/F, default = T
 # 15: colour.bins Do you want to specify some colour bins for the PR-spatial, Rec-Spatial and FR-spatial plots? Default is NULL, but if you want bins, put in a vector 
-#               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000)
+#               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000). Max bin must exceed max INLA estimate for any tow in plot.
+# 16. keep.full.GB Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately)
+
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",

@@ -59,7 +59,7 @@
 #user.bins:  If we want to plot the user defined bins instead of the pre-rec-com time series (it is an either or option)
 #            this needs to be set to whatever the user.bins names are within the shf object.  Default = NULL which doesn't create these plots
 #            should work with user.bins = survey.obj[[banks[i]]][[1]]$user.bins if this exists.
-#log.y:      Do you want to log transform the y axis?
+#log.y:      Do you want to log transform the y axis? Note: if log.y is T, then you need to specify 3 ymin values in the survey.ts call. If log.y is F, then one ymin is fine (0, the default)
 
 survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=c('pre','rec','com'),
                               clr=c(1,1,1),cx=1.2,pch=1:2,lty=1:2,wd=10,ht=8,Npt=T,se=F,ys=1.2,yl2=NULL,ymin=0,dat2=NULL,areas=NULL,areas2=NULL,
