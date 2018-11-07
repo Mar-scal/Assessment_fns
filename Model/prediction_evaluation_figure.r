@@ -56,7 +56,12 @@ if(is.null(path)) path <- getwd()
 # If going to plot both growth terms...
 if(growth == "both") growth <- c("modelled", "realized")
 
-yr <- max(years)
+# If years is supplied get the max from that
+if(!missing(years)) yr <- max(years)
+# If you don't supply the years you need to supply the input
+if(missing(years) && is.null(input)) stop("Hallo again modelling friend, for the Pred-Eval Figures you need to specify the year 
+                                          or provide the input data")
+if(missing(years)) yr <- max(as.numeric(names(out)))
 # If you have supplied the input data directly this is run
 if(!is.null(input))
 {
@@ -70,7 +75,7 @@ if(!is.null(input))
 if(is.null(input))
 {
   # First load in the data required to make the plot...
-  
+
 	    # If the files don't exist yet print a warning saying you have to run the models first
 	    if(file.exists(paste(direct,"Data/Model/",(yr+1),"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))==F &&
 	       file.exists(paste(direct,"Data/Model/",(yr+1),"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))==F &&  
@@ -83,15 +88,27 @@ if(is.null(input))
 	    if(any(growth %in% c("modelled")))
 	    {
 	      # This loads in all the model runs from 2000-2016 without us having to continually re-run them...
+	      if(file.exists(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_results_mod_growth.RData",sep='')))
+	      {
 	      load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
+	      } # end ugly if 
+	      
+	      # Or load this one...
+	      if(file.exists(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep='')))
+	      {
+	        load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+	      }# end ugly if # 2
+	      
 	      out.tmp <- out
 	      # For every year after this we'll grab the results and stick them into the same object..
 	      if(max(years) >=2017)
 	      {
-	      for(i in 1:length(years[years >=2017])) 
+	      # Now I need to grab the data from 2017 up to the current year...
+	      post.years <- 2017:years
+	      for(i in 1:length(post.years))
 	      {
-	        load(paste(direct,"Data/Model/",years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
-	        out.tmp[[as.character(years[i])]] <- out[[as.character(years[i])]]
+	        load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+	        out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
 	      } # end for(i in 1:length(years[years > 2016])) 
 	      } # end if(max(years) >=2017)
 	      # Get the data in a sensisble order...
@@ -103,15 +120,28 @@ if(is.null(input))
 	    if(any(growth %in% c("realized")))
 	    {
 	      # This loads in all the model runs from 2000-2016 without us having to continually re-run them...
-	      load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_results_g2_growth.RData",sep=''))
+	      if(file.exists(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_results_g2_growth.RData",sep='')))
+	      {
+	        load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_results_g2_growth.RData",sep=''))
+	      } # end ugly if
+	      
+	      # Or load this one...
+	      if(file.exists(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep='')))
+	      {
+	        load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
+	      } # end ugly if # 2
+	      
+	      
 	      out.tmp <- out
 	      if(max(years) >=2017)
 	      {
 	      # For every year after this we'll grab the results and stick them into the same object...
-	      for(i in 1:length(years[years >= 2017])) 
+	      # Now I need to grab the data from 2017 up to the current year...
+	      post.years <- 2017:years
+	      for(i in 1:length(post.years))
 	      {
-	        load(paste(direct,"Data/Model/",years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
-	        out.tmp[[as.character(years[i])]] <- out[[as.character(years[i])]]
+	        load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
+	        out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
 	      } # end for(i in 1:length(years[years > 2016])) 
 	      }
 	      # Get the names in a reasonable order...
@@ -154,7 +184,6 @@ if(any(growth %in% c("realized")))
   # Because we don't have data for both the projection and model in the 1st and final year lets toss those...
   realized.dat <- realized.dat[realized.dat$year != min(realized.dat$year) & realized.dat$year != max(realized.dat$year),]
 } # end if(any(growth %in% c("realized")))
-
 	# This plot is the median biomass trend from:
 	# a: the model predictions (e.g. the biomass is generated for 2012 from the model that ran from 1986:2011)
 	# b: from the actual model estimates (e.g. the biomass is generated for 2011 from the model that runs from 1986:2011)

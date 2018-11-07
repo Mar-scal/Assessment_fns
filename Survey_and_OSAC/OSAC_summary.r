@@ -53,7 +53,7 @@ OSAC_summary <- function(yr = as.numeric(format(Sys.time(), "%Y")), mx.dt = as.D
                          bank = "all",low.banks = c("Ban","Mid","Sab","Ger","BBs","SPB"),high.banks = c("BBn","GBa","GBb"),
                          low = 1,high = 10, extreme = 50,
                          poly.brd = "black", mini.figs=F, add.titles = T,
-                         save.fig = F,save.res=F,export=F,calc.mc = T, 
+                         save.fig = F,save.res=F, rdata.logs=F, export=F,calc.mc = T, 
                          mc.path = "default",direct = "Y:/Offshore scallop/Assessment",
                          un=NULL,pw=NULL,db.con="ptran")
 {
@@ -94,6 +94,9 @@ if(!is.null(bank))
   fish.dat<-merge(new.log.dat,old.log.dat,all=T)
   fish.dat$ID<-1:nrow(fish.dat)
   
+  if(rdata.logs==T) save(fish.dat,
+                         file = paste(direct,"Data/Fishery_data/Summary/",yr,"/OSAC_tidy_logs.RData",sep=""))
+  
   ############################# END GENERAL DATA #######################################################
   #################  PART I Fishery summary #################### PART I Fishery summary  #################### 
   #################  PART I Fishery summary #################### PART I Fishery summary  #################### 
@@ -104,7 +107,6 @@ if(!is.null(bank))
   # This object also contains the catch in each cell for each bank...
   bank.spatial <- fishery_figures(fish.dat=fish.dat,bnk=bnk,max.date=mx.dt,dirct=direct,poly.brd=poly.brd,
                                   years=years,save.fig=save.fig,add.titles = add.titles)
-  
   cpue.dat <- bank.spatial[[2]]
   bank.spatial <- bank.spatial[[1]]
   ###################  Fishery Data for OSAC ################################## ###################  Fishery Data for OSAC ##########
@@ -286,7 +288,7 @@ if(!is.null(bank))
   # Since we save the thing we need to make the object for the list, just make it a null if you haven't calculated it.
   if(calc.mc == F) meat.count <- NULL
   # Save the results
-  if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,meat.count,
+  if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,cpue.dat,meat.count,
                          file = paste(direct,"Data/Fishery_data/Summary/",yr,"/OSAC_summary.RData",sep=""))
   
   ##############  OSAC Mini survey figs (for the top corner of presentation)  ###################
@@ -382,7 +384,7 @@ if(!is.null(bank))
   # Send back objects of interest...
 
 OSAC_res <- list(fish.res = fish.res,surv.res=surv.res,sum.stat = sum.stat,fish.cells = fish.cells,
-                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count.table=mctable)
+                        extreme.catch = extreme.catch,high.catch=high.catch,cpue.ts = cpue.dat, meat.count=meat.count)
 assign("OSAC_res",OSAC_res,pos=1)
 } # end if(!is.null(bank))
 

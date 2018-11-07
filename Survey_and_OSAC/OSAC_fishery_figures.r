@@ -55,8 +55,8 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   #Read1 All the seedboxes ever.
   seedboxes <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv",sep=""),
                        stringsAsFactors = F,header=T)
-  seedboxes$Closed <- as.Date(seedboxes$Closed)
-  seedboxes$Open <- as.Date(seedboxes$Open)
+  seedboxes$Closed <- as.Date(seedboxes$Closed, format = "%m/%d/%Y")
+  seedboxes$Open <- as.Date(seedboxes$Open, format = "%m/%d/%Y")
   # Dump the commments they are just messy..
   seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
   # Read2 Get the survey boundary polygons for all banks.
@@ -152,21 +152,21 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     bnk.fish.dat <- na.omit(bnk.fish.dat)
       } # if(any(is.na(bnk.fish.dat)==T)) 
    
-   
       # If the current bank has a seedbox then grab it so we can plot it later
       if(nrow(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")))>0)
       {
+        seedboxes[, c("X", "Y")] <- apply(seedboxes[, c("X", "Y")], 2, function(x) as.numeric(as.character(x)))
         boxes <- as.PolySet(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")),projection = "LL")
       } # end if(bnk[i] == "BBn" || bnk[i] == "GBa")
       
       # Get the survey boundary polygon for the bank 
       bnk.survey.bound.poly <- subset(survey.bound.polys,label==bnk[i])
+      bnk.survey.bound.poly <- bnk.survey.bound.poly[bnk.survey.bound.poly$startyear == max(bnk.survey.bound.poly$startyear),]
       
       # Set the levels, might need to think a bit about these!
       lvls=lvl
       #Get the total removals from each 1 minute cell within the bank for the levels (10 kg to 50 tonnes!)
       bnk.polys <- gridPlot(bnk.fish.dat,bnk.survey.bound.poly,lvls,border=poly.brd,FUN=fun,grid.size=grids)
-      
       ##########
       # Plot the spatial distribution of catch for each bank and save the image (or just plot to a window if you prefer)
       if(save.fig==F) windows(11,8.5)

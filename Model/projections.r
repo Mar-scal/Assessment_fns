@@ -60,9 +60,9 @@ projections<-function(model.out,C.p=c(200,300))
 		Pmed.p[[i]]<- log(exp(-d$m[,d$NY])*(d$g[d$NY])*(d$P[,d$NY]-C.p[i]/d$K)+exp(-d$mR[,d$NY])*(d$gR[d$NY])*d$r[,d$NY])
 		if(any(is.na(Pmed.p[[i]]))) 
 		{
-		  cat(paste("*HEADS UP MY WONDERFUL MODELLER FRIEND* Check your projections carefully as there are NA's in there.
+		  cat(paste0("*HEADS UP MY WONDERFUL MODELLER FRIEND* Check your projections carefully as there are NA's in there.
 		            Make sure this is only occuring rarely and that these NA's are being handled properly.  
-		            At the moment the NA's are being replaced by 0's; this assumes NA's occur because Projected Catch > Biomass",sep = " "))
+		            At the moment the NA's are being replaced by 0's; this assumes NA's occur because Projected Catch > Biomass \n"))
 		  Pmed.p[[i]][is.na(Pmed.p[[i]])] <- 0 # These NA's happen when Catch > Biomass, just set these rare cases to 0.
 		}
 		# Now get P.
