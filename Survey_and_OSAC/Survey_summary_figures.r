@@ -2325,10 +2325,12 @@ for(i in 1:len)
         ymax <- ifelse(length(bm.last[!is.na(bm.last)]) > 0, max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1),max(bm,na.rm=T)*1.1)
         y2max <- ifelse(length(countmc.last[!is.na(countmc.last)]) > 0, max(c(max(y2max,na.rm=T)*1.1),max(y2max.last,na.rm=T)*1.1),max(y2max,na.rm=T)*1.1)
         # Now make the breakdown plot...
-        breakdown(boxy,yr=yr,mc=mc,cx.axs=1,add.title="F",y1max = ymax, y2max=y2max,
+        if(!ymax %in% "-Inf") {
+          breakdown(boxy,yr=yr,mc=mc,cx.axs=1,add.title="F",y1max = ymax, y2max=y2max,
                   CS = survey.obj[[banks[i]]][[1]]$CS[length(survey.obj[[banks[i]]][[1]]$CS)],
                   RS = survey.obj[[banks[i]]][[1]]$RS[length(survey.obj[[banks[i]]][[1]]$RS)])
         if(add.title==T) title(breakdown.title.seed, cex.main=2,adj=0.35)
+        }
         if(fig != "screen") dev.off()   
         
         # I also want to remake the previsou year's breakdown plot (if we have tows in the area), this will go in the current years folder but will
@@ -2343,9 +2345,11 @@ for(i in 1:len)
         if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-breakdown-",(yr-1),".pdf",sep=""),
                              width = 11,height = 8.5)
         # To get the ymax the same between succesive years I want to do this...
-        breakdown(boxy,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
-        if(add.title==T) title(last.yr.breakdown.title.seed, cex.main=2,adj=0.35)
-        if(fig != "screen") dev.off()   
+          if(!ymax %in% "-Inf") {
+            breakdown(boxy,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
+            if(add.title==T) title(last.yr.breakdown.title.seed, cex.main=2,adj=0.35)
+          }
+          if(fig != "screen") dev.off()   
         } # end if(length(bm.last[!is.na(bm.last)]) > 0)
         
         # Now the Shell height frequency plots.
@@ -2552,10 +2556,11 @@ for(i in 1:len)
                                              min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
 
           # Add the contours
-          if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-          if(b == 2) image(list(x = proj$x, y=proj$y, z = mod.res[["Rec-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-          if(b == 3) image(list(x = proj$x, y=proj$y, z = mod.res[["FR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-          
+          if(!lvls==0){
+            if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+            if(b == 2) image(list(x = proj$x, y=proj$y, z = mod.res[["Rec-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+            if(b == 3) image(list(x = proj$x, y=proj$y, z = mod.res[["FR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+          }
           #Add the rest of the crap to the plot.
           addPolys(this.box,lty=2,lwd=2)
           # Add the regular survey tows.
@@ -2591,7 +2596,6 @@ for(i in 1:len)
           
         if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
         if(fig != "screen") dev.off()
-        
         
         ########### Now add the CF, MC, and Clapper figures for inside any of the seedboxes that exist, all of these must exist for this to plot.
         if(!is.null(mod.res[["Clap-spatial"]]) & !is.null(mod.res[["CF-spatial"]]) & !is.null(mod.res[["MC-spatial"]]))
