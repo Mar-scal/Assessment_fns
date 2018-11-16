@@ -413,7 +413,9 @@ for(i in 1:len)
       if(any(s.res == "low")) s.res <- c(25,25)
       
       # The offset for the INLA mesh needs to be specified, these are tricky as some combinations of offsets can lead to the script hanging, the
-      # defaults worked nicely for the 2018 survey so hopefully will work in most other years, but no guarantees!
+      # defaults worked nicely for the 2018 survey so hopefully will work in most other years, but no guarantees! Before the default offsets were established in 
+      # summer 2018 (after spring survey summary), GB was assigned 0.35 and the rest were all 0.15. If INLA plots have changed slightly since spring 2018,
+      # this is likely why!
       if(offsets == "default")
       {
         if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
@@ -2529,74 +2531,76 @@ for(i in 1:len)
         
         
         # Get the correct levels for the legend and the image plots for the spatial abundance
-        base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
-        cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
-                  rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
-        max.lvl <- which(base.lvls >= max(c(max(surv.seed$pre[surv.seed$year == yr],na.rm=T),max(surv.seed$rec[surv.seed$year == yr],na.rm=T),
-                                            max(surv.seed$com[surv.seed$year == yr],na.rm=T))))[1]
-        lvls <- base.lvls[1:max.lvl]
-        cols <- cols[1:(max.lvl-1)]
-        # Get the levels for the legend.
-        ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                                           paste(lvls[length(lvls)-1],'+',sep='')),
-               leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                             paste(lvls[length(lvls)-1],'-',lvls[max.lvl],sep='')))
-        # Loop through each size category
-        for(b in 1:3) 
-        {
-          # Get the title for each panel...
-          if(b ==1) fig.title <- pre.title.seed
-          if(b ==2) fig.title <- rec.title.seed 
-          if(b ==3) fig.title <- fr.title.seed
-          # Make the map
-          ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-                     isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
-                     title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = F)
-          if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
-                                             min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
-
-          # Add the contours
-          if(!lvls==0){
+        if(dim(surv.seed[surv.seed$year==yr,]) >0) {
+          base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+          cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
+                    rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+          max.lvl <- which(base.lvls >= max(c(max(surv.seed$pre[surv.seed$year == yr],na.rm=T),max(surv.seed$rec[surv.seed$year == yr],na.rm=T),
+                                              max(surv.seed$com[surv.seed$year == yr],na.rm=T))))[1]
+          lvls <- base.lvls[1:max.lvl]
+          cols <- cols[1:(max.lvl-1)]
+          # Get the levels for the legend.
+          ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                             paste(lvls[length(lvls)-1],'+',sep='')),
+                 leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                               paste(lvls[length(lvls)-1],'-',lvls[max.lvl],sep='')))
+          
+          # Loop through each size category
+          for(b in 1:3) 
+          {
+            # Get the title for each panel...
+            if(b ==1) fig.title <- pre.title.seed
+            if(b ==2) fig.title <- rec.title.seed 
+            if(b ==3) fig.title <- fr.title.seed
+            # Make the map
+            ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
+                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+                       title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = F)
+            if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
+                                               min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
+            
+            # Add the contours
+            #if(dim(surv.seed==0){
             if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
             if(b == 2) image(list(x = proj$x, y=proj$y, z = mod.res[["Rec-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
             if(b == 3) image(list(x = proj$x, y=proj$y, z = mod.res[["FR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-          }
-          #Add the rest of the crap to the plot.
-          addPolys(this.box,lty=2,lwd=2)
-          # Add the regular survey tows.
-          points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
-          # Add the exploratory survey tows
-          points(slat~slon,surv.seed,subset=year==yr&state =='live' & random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.3)
-          if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=1.3) # add the repeat tows.
-        } # end for(b in 1:3)
-        
-        # Now add the legend.
-        par(xpd=T)
-        plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
-        legend("left",leg.lvls,fill=cols,border="black",pch=c(rep(NA,length(lvls))),title = N.tow.lab,title.adj = 0.2,
-               pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n")
-        
-        if(banks[i] != "GB")
-        {
-          legend("topright",pch=c(20,24), pt.bg = c("black","darkorange"), title="Tow type",inset=0.01,
-               legend = c(paste('regular (n =',
-                                length(subset(surv.seed,year==yr & state=='live'& random==1)$ID),")",sep=""),
-                          paste('exploratory (n =',
-                                length(subset(surv.seed,year==yr & state=='live'& random%in% c(0,2,4,5))$ID),")",sep="")),
-               bg=NA,box.col=NA,bty="n")
-        } # end if(banks[i] != "GB")
-        if(banks[i] == "GB")
-        {
-        legend("topright",legend = c(paste('exploratory (n =',
-                                          length(unique(subset(surv.seed,year==yr & random%in% c(2,4,5))$tow)),")",sep=""),
-                                    paste('repeated (n =',length(unique(subset(surv.seed,year==yr & 
-                                                                                 random==3)$tow)),")", sep="")),title="Tow type",
-               pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
-        } # # end if(banks[i] == "GB")
+            #}
+            #Add the rest of the crap to the plot.
+            addPolys(this.box,lty=2,lwd=2)
+            # Add the regular survey tows.
+            points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
+            # Add the exploratory survey tows
+            points(slat~slon,surv.seed,subset=year==yr&state =='live' & random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.3)
+            if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=1.3) # add the repeat tows.
+          } # end for(b in 1:3)
           
-        if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
-        if(fig != "screen") dev.off()
-        
+          # Now add the legend.
+          par(xpd=T)
+          plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
+          legend("left",leg.lvls,fill=cols,border="black",pch=c(rep(NA,length(lvls))),title = N.tow.lab,title.adj = 0.2,
+                 pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n")
+          
+          if(banks[i] != "GB")
+          {
+            legend("topright",pch=c(20,24), pt.bg = c("black","darkorange"), title="Tow type",inset=0.01,
+                   legend = c(paste('regular (n =',
+                                    length(subset(surv.seed,year==yr & state=='live'& random==1)$ID),")",sep=""),
+                              paste('exploratory (n =',
+                                    length(subset(surv.seed,year==yr & state=='live'& random%in% c(0,2,4,5))$ID),")",sep="")),
+                   bg=NA,box.col=NA,bty="n")
+          } # end if(banks[i] != "GB")
+          if(banks[i] == "GB")
+          {
+            legend("topright",legend = c(paste('exploratory (n =',
+                                               length(unique(subset(surv.seed,year==yr & random%in% c(2,4,5))$tow)),")",sep=""),
+                                         paste('repeated (n =',length(unique(subset(surv.seed,year==yr & 
+                                                                                      random==3)$tow)),")", sep="")),title="Tow type",
+                   pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
+          } # # end if(banks[i] == "GB")
+          
+          if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
+          if(fig != "screen") dev.off()
+        } # end if(dim(surv.seed[surv.seed$year==yr,])>0)
         ########### Now add the CF, MC, and Clapper figures for inside any of the seedboxes that exist, all of these must exist for this to plot.
         if(!is.null(mod.res[["Clap-spatial"]]) & !is.null(mod.res[["CF-spatial"]]) & !is.null(mod.res[["MC-spatial"]]))
         {
