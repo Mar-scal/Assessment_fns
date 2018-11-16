@@ -142,6 +142,17 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep=""))
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/growth_potential.r",sep="")) 
 ################################## End Load Functions   #######################################################
 
+################################## Update the run log   #######################################################
+# add an entry into the run log
+runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+rundate <- as.character(Sys.time())
+runfunction <- "data"
+runassigned <- paste(as.character(deparse(match.call())), collapse="")
+rundefaults <- paste(as.character(deparse(args(survey.data))), collapse="")
+runlog <- rbind(runlog, cbind(rundate, runfunction, runassigned, rundefaults))
+write.csv(runlog, file = paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+################################# End update the runlog #######################################################
+
 ################################### START LOAD & PRE-PROCESS DATA ############################################
 # Step 2:  Load Data: Load all input data here, 
 ##########################################################################################################

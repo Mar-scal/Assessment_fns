@@ -253,6 +253,14 @@ B.tow.lab <- expression(frac(kg,tow))
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
 
+# add an entry into the run log
+runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+rundate <- as.character(Sys.time())
+runfunction <- "figures"
+runassigned <- paste(as.character(deparse(match.call())), collapse="")
+rundefaults <- paste(as.character(deparse(args(survey.figs))), collapse="")
+runlog <- rbind(runlog, cbind(rundate, runfunction, runassigned, rundefaults))
+write.csv(runlog, file = paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
 
 # Clean up any open plot devices.
 if(!is.null(dev.list())) dev.off()
