@@ -354,15 +354,13 @@ for(i in 1:len)
                                                                                projection = "LL")
   } # end if(banks[i] %in% c("Sab")) 
 
-
- 
   # Get the strata areas.  For most areas we use the survey.strata.table which is output from the data function
-  if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) strata.areas <- subset(survey.strata.table[[banks[i]]],select =c("PID","towable_area"))
-  
-  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
-    strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
-  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
-    strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  # if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) strata.areas <- subset(survey.strata.table[[banks[i]]],select =c("PID","towable_area"))
+  # 
+  # if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+  #   strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  # if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+  #   strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
   if(banks[i] %in% c("GB", "Mid", "Ger")) strata.areas <- NULL
   
   #Get all the details of the survey strata
@@ -538,6 +536,7 @@ for(i in 1:len)
                                     prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
         # Because of the generally thin spacing on GB we need to decrease the spatial correlation distance and allow for more spatial variability in the 
         # data, so I have changed the priors...  Revised by DK August 2018, not fully incorporated into the Spring Survey summary presentation
+        # previous prior.range was c(1,0.5) (July 2018 spring survey summary used this value)
         if(banks[i] == "GB") 
         {
           spde <- inla.spde2.pcmatern(mesh,    
