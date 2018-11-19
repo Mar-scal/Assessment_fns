@@ -355,12 +355,12 @@ for(i in 1:len)
   } # end if(banks[i] %in% c("Sab")) 
 
   # Get the strata areas.  For most areas we use the survey.strata.table which is output from the data function
-  # if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) strata.areas <- subset(survey.strata.table[[banks[i]]],select =c("PID","towable_area"))
-  # 
-  # if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
-  #   strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
-  # if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
-  #   strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) strata.areas <- subset(survey.strata.table[[banks[i]]],select =c("PID","towable_area"))
+
+  if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+    strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
+  if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
+    strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
   if(banks[i] %in% c("GB", "Mid", "Ger")) strata.areas <- NULL
   
   #Get all the details of the survey strata
