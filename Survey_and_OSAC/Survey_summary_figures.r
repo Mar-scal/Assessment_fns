@@ -255,6 +255,7 @@ mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")")))
 
 # add an entry into the run log
 runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+runlog <- runlog[, !names(runlog) %in% "X"]
 rundate <- as.character(Sys.time())
 runfunction <- "figures"
 runassigned <- paste(as.character(deparse(match.call())), collapse="")

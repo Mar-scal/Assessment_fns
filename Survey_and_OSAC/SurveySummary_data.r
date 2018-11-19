@@ -145,6 +145,7 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/growth_potential.r",sep=""))
 ################################## Update the run log   #######################################################
 # add an entry into the run log
 runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+runlog <- runlog[, !names(runlog) %in% "X"]
 rundate <- as.character(Sys.time())
 runfunction <- "data"
 runassigned <- paste(as.character(deparse(match.call())), collapse="")
