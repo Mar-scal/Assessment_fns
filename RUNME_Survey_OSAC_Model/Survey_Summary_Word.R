@@ -4,7 +4,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   options(scipen=999)
   load(data)
   banks <- names(bank.dat)
-  if(any(grepl(banks, "GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
+  if(any(grepl(x=banks, pattern="GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
   
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
