@@ -1,63 +1,70 @@
 # This is a hack of a function the INLA lasses/lads use to plot their INLA model results
 # Stand-alone function created by DK in Nov 2018
 
-# Note that we need a couple of cute little functions for this to work.  Be sure to all call "addalpha"  and "all.layers 
+# Note that we need a couple of cute little functions for this to work.  Be sure to all call "addalpha" , "convert_coords", and "all.layers"
 # Before running this function, but I haven't settled on a directory for them quite yet...
 
 # Arguements:
 
-#1:   field     The values from the random field generated using INLA.  Default = NULL which just plots a nice map of the "area" chosen
-#2:   mesh      The INLA mesh that corresponds to the values of field, which gets projected properly in this function .
-#               Default = NULL which results in a plot of a nice map of the 'area' chosen
-#3:   area      The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a dataframe with
+## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
+#1:   area      The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a dataframe with
 #               The coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
 #               in lat/long coordinates and a WGS84 projection.
-#5:   zlim      The range of values for the field plotted, default is  c(0,1) and this seems to be overwritten if you supply levels outside the 0-1 range.
-#6:   dims      The number of X and Y values for the INLA surface.  Higher is better resolution, too high is silly. Default = c(50, 50) which is pretty low res
-#7:   trans     Do you want to transform the spacing of the levels "none" (default), and "exp" (e.g. for a model with log link) is supported, but you can add more that!
-#8:   clip      Do you want to clip the area plotted to some polygon?  Default = NULL which is no clipping
-#9:   lvls      The number of levels you want to set up.  Default is seq(0,1,by=0.01) which is a lot of levels!
-#10:  repo      The repository from which you will pull the data.  This is either Github (which has all the main data)
-#11:  colors    What colours would you like to use for the colour ramp.  Default = c("blue","white","yellow","darkred"), will get slipt into more colours based on lvls
-#12:  alpha     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque, Default = 0.8
-#13:  c_sys     What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
+#2:   repo      The repository from which you will pull the data.  This is either Github (which has all the main data)
+#3:   c_sys     What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
 #               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
 #               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
-#14:  add_EEZ   Do you want to add in the EEZ, default = NULL which does nothing.  If you want the EEZ this pulls it from either
+#4:   add_EEZ   Do you want to add in the EEZ, default = NULL which does nothing.  If you want the EEZ this pulls it from either
 #               our github respository (if github = "repo") or a location of your chosing (this would have to be the full directory)
 #               add_EEZ = "Y:/Offshore scallop/Assessment/Data/Maps/approved/TO DO - Good map products to incorporate/world_eez_boundary"
-#15:  add_bathy Do you want to add in the bathymetry, default = NULL which does nothing.  If you want to add the bathy you simply need to supply the 
+#5:  add_bathy  Do you want to add in the bathymetry, default = NULL which does nothing.  If you want to add the bathy you simply need to supply the 
 #               resolution that you want.  The smaller the resolution the slower this runs, it relies on data provided by NOAA, so if the server
 #               is down this won't plot the bathymetry.  add_bathy = 10 plots the 10 meter bathymetry for the region selected by your xlim and ylim
-#16: add_land   Do you want to add land to the figure, T/F, default = T which plots the the world in HiRes from the mapdata pacakge
-#17: add_nafo   Do you want to add the NAFO divisions to the figure, T/F, default = T which grabs the NAFO divisions from online repository.
-#18: add_sfas   Do you want to add the sfa boundariesto the figure.  NULL doesn't add anything.
+#6:  add_land   Do you want to add land to the figure, T/F, default = T which plots the the world in HiRes from the mapdata pacakge
+#7:  add_nafo   Do you want to add the NAFO divisions to the figure, T/F, default = T which grabs the NAFO divisions from online repository.
+#8:  add_sfas   Do you want to add the sfa boundariesto the figure.  NULL doesn't add anything.
 #               If you are using the github repository the options are "inshore", "offshore", or "all"
 #               If you are sourcing these locally you'll need to supply the directory for the shapefile
-#19: add_strata Do you want to add the survey strata to the figure, NuLL = default.  NULL doesn't add anything.
+#9:  add_strata Do you want to add the survey strata to the figure, NuLL = default.  NULL doesn't add anything.
 #               If you are using the github repository the options are "inshore", "offshore", or "all"
 #               If you are sourcing these locally you'll need to supply the directory for the shapefile
 #10: add_obj    Do you have some spatial objects to add?  Default = NULL which doesn't add anything. 
 #               While this was designed for seedboxes any sp class objects will work.  This can either be an SP object in R
 #               Or will plot the seedboxes that were closed in the year you specify (e.g. add_obj = 2018 will pull in all seedboxes)
 #               that were closed in 2018
-#21: add_custom Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
+#11: add_custom Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
 #               custom layer/PBS massing object is.
 #               If using PBSmapping this assumes that you have the data formatted properly in a csv or xlsx file and 
 #               that the proection for the data is WGS84.  Default = NULL
-#22:  direct    If you aren't using the GitHub respoistory the directory that your shapefiles reside.  The default is the
+#12:  direct    If you aren't using the GitHub respoistory the directory that your shapefiles reside.  The default is the
 #               location of the files on the ESS directory.  If repo = "github" this is ignored.  This is limited to look for shapefiles 
 #               that are found in a similar repository structure to GitHub, this is just pointing to where those are.  If you want to add
 #               shapefiles that are in a different folder structure/name either use the add_custom option or just add these
 #               after running this function (you'd likely need to overplot the land after if you were doing that)
 
-pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),
-                     zlim = c(0,1), dims = c(50, 50), trans= "none", repo = "github",
-                     clip= NULL,lvls = seq(0,1,by=0.01),colors = c("blue","white","yellow","darkred"),alpha = 0.8,
-                     c_sys = "ll", 
-                     add_EEZ = NULL,add_bathy = NULL,add_land = F,add_nafo=F,add_sfas = NULL, 
+## The INLA related inputs, if field and mesh are not supplied these won't do anything.  You do need field and mesh if plotting an INLA model result
+#13:   field    The values from the random field generated using INLA.  Default = NULL which just plots a nice map of the "area" chosen
+#               Note that the field and the mesh need to be in the same projection as c_sys.
+#14:   mesh     The INLA mesh that corresponds to the values of field, which gets projected properly in this function .
+#               Default = NULL which results in a plot of a nice map of the 'area' chosen
+#               Note that the field and the mesh need to be in the same projection as c_sys.
+#15:   zlim     The range of values for the field plotted, default is  c(0,1) and this seems to be overwritten if you supply levels outside the 0-1 range.
+#16:   dims     The number of X and Y values for the INLA surface.  Higher is better resolution, too high is silly. Default = c(50, 50) which is pretty low res
+#17:   trans    Do you want to transform the spacing of the levels "none" (default), and "exp" (e.g. for a model with log link) is supported, but you can add more that!
+#18:   clip     Do you want to clip the area plotted to some polygon?  Default = NULL which is no clipping
+#19:   lvls     The number of levels you want to set up.  Default is seq(0,1,by=0.01) which is a lot of levels!
+#20:  colors    What colours would you like to use for the colour ramp.  Default = c("blue","white","yellow","darkred"), will get split into more colours based on lvls
+#21:  alpha     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque, Default = 0.8
+
+pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),repo = "github",c_sys = "ll", 
+                     add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo=F,add_sfas = NULL, 
                      add_strata = NULL, add_obj = NULL,add_custom = NULL,
-                     direct = "Y:/Offshore scallop/Assessment/Data/Maps/approved/") 
+                     direct = "Y:/Offshore scallop/Assessment/Data/Maps/approved/",
+                     # The below control the INLA surface added to the figure.
+                     field = NULL, mesh=NULL, 
+                     zlim = c(0,1), dims = c(50, 50), trans= "none", clip= NULL,
+                     lvls = seq(0,1,by=0.01),colors = c("blue","white","yellow","darkred"),alpha = 0.8
+                    ) 
 { 
   require(splancs) || stop("You need le package splancs, thanks!")
   require(PBSmapping) || stop("You need PBSmapping, thanks!")
@@ -68,11 +75,25 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
   require(maptools) || stop("You need maptools, thanks!")
   require(maps) || stop("You need maps, thanks!")
   require(mapdata)|| stop("You need mapdata, thanks!")
+  
+  # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
+  if(repo == "github")
+  {
+    require(RCurl)|| stop("You need RCurl or this will all unfurl!")
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/convert_coords.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+  } # end if(repo == "github")
   if(!exists("addalpha")) stop("You need to source the add_alpha_function.R for this to work, it should be in the same folder location as this function")
   if(!exists("convert.coords")) stop("You need to source the convert_coords.R for this to work, it should be in the same folder location as this function")
+  if(!exists("all.layers")) stop("You need to source all.layers.R for this to work, it should be in the same folder location as this function")
   # Don't do this if the field and mesh lengths differ.
   if(!is.null(field)) stopifnot(length(field) == mesh$n) 
 
+  
+  # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
+  if(c_sys == "ll") c_sys <- "+init=epsg:4326"
+  
   # Now we need to get our ylim and xlim using the convert.coords function
   if(is.data.frame(area))
   {
@@ -89,24 +110,56 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
     xlim <- coords@bbox[rownames(coords@bbox) == 'x']
     ylim <- coords@bbox[rownames(coords@bbox) == 'y']
   } # end if(!is.data.frame(area)) 
-  #browser()
+  
  
-  # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
-  if(c_sys == "ll") c_sys <- "+init=epsg:4326"
+  
+
   
   # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
-  if(!is.null(add_obj) && c_sys == "+init=epsg:4326") add_obj <- spTransform(add_obj,CRS(c_sys))
+  # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
+  if(!is.null(add_obj)) add_obj <- spTransform(add_obj,CRS(c_sys))
   
-  if(c_sys != "+init=epsg:4326")
+  # We will want to bound the data to the area of interest (this is especially important if we are using something other than lat/lon)
+  # This assumes that we have entered the xlim and ylim in the coordinate reference system we have chosen
+  # Now I actually want the bounding box to be about 5% larger than the xlim and ylim values just so nothing gets clipped 
+  # incorrectly, so I need to do a little sloppy stick handling...
+  
+  if(xlim[1] < xlim[2])
   {
-    # We will want to clip the data to the area of interest so that the transformation works (especially if going for utm)
-    b.box <- as(raster::extent(c(xlim,ylim)), "SpatialPolygons")
-    proj4string(b.box) = c_sys
-    # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
-    if(!is.null(add_obj)) add_obj <- spTransform(add_obj,c_sys)
-    # If we aren't in lat/lon both our boxes and our EEZ will need to be converted...
-  } # end if(c_sys != "+init=epsg:4326")
-
+    if(xlim[1] < 0) x1 <- xlim[1] + 0.05*xlim[1]
+    if(xlim[1] > 0) x1 <- xlim[1] - 0.05*xlim[1]
+    # Now we could have xlim[2] being positive when xlim 1 is negative so this needs it's own if's
+    if(xlim[2] < 0) x2 <- xlim[2] - 0.05*xlim[2]
+    if(xlim[2] > 0) x2 <- xlim[2] + 0.05*xlim[2]
+    
+  } else{
+    if(xlim[1] < 0) y1 <- xlim[1] - 0.05*xlim[1]
+    if(xlim[1] > 0) y1 <- xlim[1] + 0.05*xlim[1]
+    # Now we could have xlim[2] being positive when xlim 1 is negative so this needs it's own if's
+    if(xlim[2] < 0) y2 <- xlim[2] + 0.05*xlim[2]
+    if(xlim[2] > 0) y2 <- xlim[2] - 0.05*xlim[2]
+  } # end else and the if tied to xlim
+  # Now do the same for y's
+  if(ylim[1] < ylim[2])
+  {
+    if(ylim[1] < 0) y1 <- ylim[1] + 0.05*ylim[1]
+    if(ylim[1] > 0) y1 <- ylim[1] - 0.05*ylim[1]
+    # Now we could have ylim[2] being positive when ylim 1 is negative so this needs it's own if's
+    if(ylim[2] < 0) y2 <- ylim[2] - 0.05*ylim[2]
+    if(ylim[2] > 0) y2 <- ylim[2] + 0.05*ylim[2]
+    
+  } else{
+    if(ylim[1] < 0) y1 <- ylim[1] - 0.05*ylim[1]
+    if(ylim[1] > 0) y1 <- ylim[1] + 0.05*ylim[1]
+    # Now we could have ylim[2] being positive when ylim 1 is negative so this needs it's own if's
+    if(ylim[2] < 0) y2 <- ylim[2] + 0.05*ylim[2]
+    if(ylim[2] > 0) y2 <- ylim[2] - 0.05*ylim[2]
+  } # end else and the if tied to ylim
+  
+  # i.e. these can't be lat/lon while the c_sys is UTM
+  b.box <- as(raster::extent(c(x1,x2,y1,y2)), "SpatialPolygons")
+  proj4string(b.box) = c_sys
+  
   # If we are going to add the EEZ do this...
   if(!is.null(add_EEZ)) 
   {
@@ -152,7 +205,7 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
   # We also want to get the land
   land <- maps::map(database = "worldHires", c("USA","Canada"),fill=TRUE,col="transparent", plot=FALSE)
   IDs <- sapply(strsplit(land$names, ":"), function(x) x[1])
-  land.sp <- map2SpatialPolygons(land, IDs = IDs,proj4string =  CRS(c_sys))
+  land.sp <- map2SpatialPolygons(land, IDs = IDs,proj4string =  CRS("+init=epsg:4326"))
   # This is a hack to clean up maps objects in R, if you ever see the error
   #"TopologyException: Input geom 1 is invalid: Self-intersection at or near point"
   # It is due to cleans up issues with the polygons coming from maps in this case, but any "bad" polygons get taken care of.
@@ -164,8 +217,8 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
   # Now if we need to transform the coordinates we will clip the land object so that we aren't trying to project like a sucker.
     if(c_sys != "+init=epsg:4326") 
     {
-      # Now we get the land into 
-      land.b.box <- spTransform(b.box,c_sys)
+      # Now we get the land into the coordinate system of the land
+      land.b.box <- spTransform(b.box,"+init=epsg:4326")
       # Now clip the land to this bounding box
       land.sp <- gIntersection(land.sp,land.b.box)
       # And now we can transform the land, if there is any to be plotted!

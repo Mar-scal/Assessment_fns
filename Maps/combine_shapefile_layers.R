@@ -5,8 +5,6 @@
 # Arguements:
 #1:   loc    The folder in which all the different shapefile layers are found.
 
-
-
 all.layers <- function(loc)
 {
   require(rgdal)  || stop("You need to have the package 'rgdal' or this won't work pal")
