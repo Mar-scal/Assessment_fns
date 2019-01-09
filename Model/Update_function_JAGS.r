@@ -215,10 +215,10 @@ if(preprocessed==F)
       } # end if(!bank[i] %in% c("GBa","BBn"))
       
       # If we're just running the regular old GBa/BBn banks, then no need to do the above, but we need to create fish.dat
-      if(bank[i] %in% c("GBa", "BBn")) fish.dat <- dat.fish
+      if(bank[i] %in% c("GBa", "BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
       
       # Bring in the vonB parameters..
-      vonB.par <-vonB[vonB$Bank ==master.bank,]
+      vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
       cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
                                          direct=direct,period = "survyr") 	
@@ -228,7 +228,7 @@ if(preprocessed==F)
       #for all other years we need to do this for Browns Bank North
       # It really makes very little difference which way this is done as the catch in June-August
       # has averaged around just 40 tonnes since about 1996.
-      if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=,yr=(min(years)-1):max(years),surv='May',
+      if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
                                                                                 method='jackknife',direct=direct,period = "survyr") 	
       # Combine the survey and Fishery data here.
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
