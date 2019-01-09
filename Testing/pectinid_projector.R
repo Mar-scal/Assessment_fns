@@ -73,6 +73,9 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
   # Don't do this if the field and mesh lengths differ.
   if(!is.null(field)) stopifnot(length(field) == mesh$n) 
 
+  # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
+  if(c_sys == "ll") c_sys <- "+init=epsg:4326"
+  
   # Now we need to get our ylim and xlim using the convert.coords function
   if(is.data.frame(area))
   {
@@ -90,20 +93,16 @@ pecjector = function(field = NULL, mesh=NULL, area = data.frame(y = c(40,46),x =
     ylim <- coords@bbox[rownames(coords@bbox) == 'y']
   } # end if(!is.data.frame(area)) 
   #browser()
- 
-  # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
-  if(c_sys == "ll") c_sys <- "+init=epsg:4326"
   
   # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
   if(!is.null(add_obj) && c_sys == "+init=epsg:4326") add_obj <- spTransform(add_obj,CRS(c_sys))
-  
+
   if(c_sys != "+init=epsg:4326")
   {
     # We will want to clip the data to the area of interest so that the transformation works (especially if going for utm)
     b.box <- as(raster::extent(c(xlim,ylim)), "SpatialPolygons")
     proj4string(b.box) = c_sys
     # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
-    if(!is.null(add_obj)) add_obj <- spTransform(add_obj,c_sys)
     # If we aren't in lat/lon both our boxes and our EEZ will need to be converted...
   } # end if(c_sys != "+init=epsg:4326")
 
