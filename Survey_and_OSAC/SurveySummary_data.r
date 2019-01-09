@@ -218,6 +218,8 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     # take out 2000 for all banks except browns and GB
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
 
+    print("check years in import.survey.data to update for any additional historical data that has been loaded since last time.")
+    
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
     survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
     survAug.dat<-survAug.dat[which(!names(survAug.dat)%in%c("dis","brg",'totwt','baskets'))]
@@ -270,12 +272,14 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 		all.surv.dat$lon<-with(all.surv.dat,apply(cbind(elon,slon),1,mean))
 		all.surv.dat$lat<-with(all.surv.dat,apply(cbind(elat,slat),1,mean))
 		
+		print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
+		
 		# THe MW data is now from 2006 to current soon to be all data...
 		MW.dat.new <- SurvDB$MWs
 		
 		#Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
 		# NOTE:  This function will go away once we have Offshore data loaded, someday...
-		MW.dat<-import.hyd.data(yrs=1982:2005, export=F,dirt=direct)
+		MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
 
 		print("import.hyd.data done")
 		
@@ -463,7 +467,7 @@ for(i in 1:num.surveys)
   if(bins != "bank_default") bin <- bins 
   
   # Remove years in which we don't have good data for specific banks, 1984 very problematic with clappers/live data.
-  # One Browns South and North we also need to be particulatr with data
+  # One Browns South and North we also need to be particulatr with data # NOTE: May need to add Ban year cut-off here?
   if((bnk == "Ger" || bnk == "Mid") && yr.start < 1985) years <- 1985:yr
   if(bnk == "Sab" && yr.start < 1986) years <- 1986:yr # The first year for Sable is causing issues with condFac model.
   # Looks like it is due to the lme part of the model predicting mw of 9.5 (rest of years more like 12-13)
@@ -559,7 +563,7 @@ for(i in 1:num.surveys)
     bank.dat[[bnk]] <- cbind(newscheme, data.frame(Strata_ID_old=oldscheme[,dim(oldscheme)[2]]))
   } # end if(bnk == "Sab") 
   
-  if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
+  if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab" && bnk!= "Ban") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
   # above assigns strata to each tow. 
   
   print("assign.strata done")
@@ -603,15 +607,20 @@ for(i in 1:num.surveys)
 		
 		print("shwt.lme done")
 		
+		print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
+		
 		# here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
-		# then we export it as a csv.
-		if(bank.4.spatial == "Mid") 
+		# then we export it as a csv. NOTE: FK added Ban here
+		if(bank.4.spatial %in% c("Mid", "Ban")) 
 		{
   		  # MEAT WEIGHT DATA - hydration sampling, This will vary for certain banks, 
   		  # Create and export a MW-SH object
-  		  mw.dat.all[[bnk]] <- merge(subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
+  		  if(bank.4.spatial == "Mid") {mw.dat.all[[bnk]] <- merge(subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
   		                                       c("tow","year","lon","lat","depth","sh","wmw")),
-                         subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+                         subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)}
+		    if(bank.4.spatial == "Ban") {mw.dat.all[[bnk]] <- merge(subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
+		                                                                 c("tow","year","lon","lat","depth","sh","wmw")),
+		                                                          subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)}
         mw.dat.all[[bnk]]$ID<-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
         write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial,"/mw_Data.csv",sep=""),row.names=F) # Write1
         ## MODEL - This is the model used to esimate condition factor across Middle Bank
@@ -622,7 +631,7 @@ for(i in 1:num.surveys)
         cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
     } # end if(bnk == "Mid")
 		
-		if(bank.4.spatial != "Mid")
+		if(!bank.4.spatial %in% c("Mid", "Ban"))
 	  {
 		    if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
 		    if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
@@ -638,7 +647,7 @@ for(i in 1:num.surveys)
 	  } # end if(bnk == "Sab" | bnk == "Ger") 
 #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
 		## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle
-		if(bank.4.spatial != "Mid") 
+		if(!bank.4.spatial %in% c("Mid", "Ban")) 
 		{
 		  # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
 		  if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct)
@@ -656,7 +665,7 @@ for(i in 1:num.surveys)
 		
 		print("condFac done")
 		
-		# Fill the years without any data with NA's (this helps with plotting data.)
+		# Fill the years without any data with NA's (this helps with plotting data.). Appended NA rows are fine (no need to be interspersed)
 		cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
 
 		# Output the predictions for the bank
@@ -677,7 +686,7 @@ for(i in 1:num.surveys)
 		# e.g. in 1984 RS =60 and CS=75, so the pre's will be < 60 while the user specified bins are constrained
 		# to use just the current RS size (unless of course you specify something yourself).
 		#Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
-		if(bank.4.spatial %in% c("Mid","Ger","BBn","GB","GBa","GBb")) 
+		if(bank.4.spatial %in% c("Ban", "Mid","Ger","BBn","GB","GBa","GBb")) 
 		 {
 		  surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
 		  #surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS, type='B', mw.par="CF")
@@ -770,7 +779,7 @@ for(i in 1:num.surveys)
 		
 		
 		#Source15 source("fn/simple.surv.r") prepare survey index data obj
-		if(bank.4.spatial == "Mid") 
+		if(bank.4.spatial %in% c("Mid", "Ban")) 
 		  {
 		    survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
 		    survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
@@ -925,7 +934,7 @@ for(i in 1:num.surveys)
 		  
 	
 		# Get the survey estimates for the banks for which we have strata. 
-		if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB") 
+		if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban") 
 		  {
 		  
 		  if(bank.4.spatial=="Sab")  
@@ -992,7 +1001,7 @@ for(i in 1:num.surveys)
 		if(bank.4.spatial != "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
 		
 		# Meat count per 500g
-		CF.current[[bnk]]$meat.count<-0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
+		CF.current[[bnk]]$meat.count <- 0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
 	
 		# The seedbox calculations		
 		# Bring in the seeboxes for the latest year
