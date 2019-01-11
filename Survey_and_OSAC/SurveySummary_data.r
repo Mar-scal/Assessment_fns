@@ -209,12 +209,12 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-
+browser()
     survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 
     print("import.survey.data done")
-    
+
     # take out 2000 for all banks except browns and GB
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
 
@@ -268,6 +268,9 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 		# Make German and BBn all spring too, 2015 did occur in summer, but these are spring surveys so makes the below work easier.
 		all.surv.dat$survey[all.surv.dat$bank %in% c("Ger","BBn")] <- "spring"
 		
+		# Make German and BBn all spring too, 2015 did occur in summer, but these are spring surveys so makes the below work easier.
+		all.surv.dat$survey[all.surv.dat$bank %in% c("Ger","BBn")] <- "spring"
+		
 		# This makes sure that ALL the data have the lat/long calculated in the same way
 		all.surv.dat$lon<-with(all.surv.dat,apply(cbind(elon,slon),1,mean))
 		all.surv.dat$lat<-with(all.surv.dat,apply(cbind(elat,slat),1,mean))
@@ -280,7 +283,9 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 		#Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
 		# NOTE:  This function will go away once we have Offshore data loaded, someday...
 		MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
-
+    # remove "commercial" survey tows that were done in the past
+		MW.dat <- MW.dat[!MW.dat$tow==0,]
+		
 		print("import.hyd.data done")
 		
 	  # You're done with the SQL calls at this point so remove your username and password so they don't get saved...
@@ -349,7 +354,7 @@ if(preprocessed == T)
 
 ################################### SECTION 2 SECTION 2 SECTION 2 ############################################
 ###############################################################################################################
-browser()
+
 # Create a new column that ID's the Bank-Survey combo...
 # Make all the GB spring data just GB as we don't differentiate it here.
 all.surv.dat$bank[all.surv.dat$bank %in% c("GBa","GBb","GB") & all.surv.dat$survey == "spring"] <- "GB"
@@ -600,14 +605,18 @@ for(i in 1:num.surveys)
   # For the most recent data
   mw.dm <- na.omit(subset(mw[[bnk]],year==yr))
   mw.dm$sh<-mw.dm$sh/100
-		# MODEL - This is the meat weight Shell height realationship.  
-		#MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
-		#Source5 source("fn/shwt.lme.r") note that the exponent is set as a parameter here b=3
-		SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
-		
-		print("shwt.lme done")
-		
-		print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
+  # MODEL - This is the meat weight Shell height realationship.  
+  #MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
+  #Source5 source("fn/shwt.lme.r") note that the exponent is set as a parameter here b=3
+  SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
+  
+  print("shwt.lme done")
+  
+  print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
+  
+  # just in case there are still remnant Commercial sampling station 0 tows that we need to get rid of:
+  MW.dat <- MW.dat[!MW.dat$tow==0,]
+  
 		
 		# here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
 		# then we export it as a csv. NOTE: FK added Ban here
@@ -637,7 +646,7 @@ for(i in 1:num.surveys)
 		    if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
 		    mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
 		    # Grab the relavent Meat-Weight Shell height data and make a flat file from it
-		    if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB")) mw.dat.all[[bnk]] <- merge(subset(mw.tmp, month %in% 5:6 & year %in% years, 
+		    if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB")) mw.dat.all[[bnk]] <- merge(subset(mw.tmp, month %in% 5:6 & year %in% years & tow>0, 
 		                                c("ID","year","lon","lat","depth","sh","wmw","tow")),
 		                            subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),all=T)
 		    # Grab the relavent Meat-Weight Shell height data for the summer 

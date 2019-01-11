@@ -138,8 +138,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
 
 if(preprocessed==F)
   {
-   
-    # Bring in the survey results for the current year, this also includes the fishery data..
+  direct.real <- direct  
+  # Bring in the survey results for the current year, this also includes the fishery data..
     # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
@@ -177,6 +177,8 @@ if(preprocessed==F)
       } # if(length(bank) > 1) 
         
     }# end if(file.exists(paste(direct,"Data/... == F
+  
+  direct <- direct.real
   
     # Now bring in the latest fishery data
     logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct.off=direct)
@@ -663,8 +665,6 @@ for(j in 1:num.banks)
     # Get the percent biomass change from the projection. 0 means unchanged, + means % increase, - means % decline
     percent.B.change[[bnk]] <- (BM.proj.1yr[[bnk]] / DD.out[[bnk]]$median$B[length(DD.out[[bnk]]$median$B)]) -1
   
-  
-  
     ####################  MODEL DIAGNOSITCS ####################  MODEL DIAGNOSITCS ####################  MODEL DIAGNOSITCS 
     ##### Now we can run some model diagnostics.
     # Some quick diagnoistics, the maximum should be < 1.05
@@ -893,7 +893,6 @@ for(j in 1:num.banks)
   
 ####################  END SECTION 4 Figures ####################  END SECTION 4 Figures####################  END SECTION 4 Figures####################  
     ####################  END SECTION 4 Figures ####################  END SECTION 4 Figures####################  END SECTION 4 Figures####################  
-    
     
 ################## Section 5 Prediction evaluation Model################## Section 5 Prediction evaluation Model##################
 ################## Section 5 Prediction evaluation Model################## Section 5 Prediction evaluation Model################## 

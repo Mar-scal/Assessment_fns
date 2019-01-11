@@ -47,7 +47,6 @@
 pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= "box",path=NULL,bank="GBa",
                    wd=11,ht=8.5,direct = "Y:/Offshore scallop/Assessment/",title = F,txt_size = 18)
 {
-
 require(tidyverse) || stop("Make sure you have tidyverse loaded to run this")
 require(reshape2) || stop("Make sure you have reshape2 loaded to run this")
 options(stringsAsFactors = F)
@@ -98,8 +97,10 @@ if(is.null(input))
 	      {
 	        load(paste(direct,"Data/Model/",2017,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
 	      }# end ugly if # 2
+
+	      if(exists("out")==F) print(paste0("missing 2017 Projection_evaluation_modelled_growth.RData for ", bank, ". Your figures are doomed to fail unless you go back and run the model."))
+	      if(exists("out")==T) out.tmp <- out; rm(out) # pass "out" object to out.tmp, then remove it from the environment
 	      
-	      out.tmp <- out
 	      # For every year after this we'll grab the results and stick them into the same object..
 	      if(max(years) >=2017)
 	      {
@@ -107,8 +108,10 @@ if(is.null(input))
 	      post.years <- 2017:years
 	      for(i in 1:length(post.years))
 	      {
-	        load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
-	        out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
+	        if(file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData")))
+	           {load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))}
+	        if(exists("out")==T) out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
+	        if(exists("out")==F) print(paste0("missing ", post.years[i]+1, " Projection_evaluation_modelled_growth.RData for ", bank, ". Your figures are doomed to fail unless you go back and run this model."))
 	      } # end for(i in 1:length(years[years > 2016])) 
 	      } # end if(max(years) >=2017)
 	      # Get the data in a sensisble order...
@@ -193,9 +196,15 @@ if(any(growth %in% c("realized")))
 	  if(any(growth %in% c("modelled")))
 	  {
 		# Now make the plot for the modelled growth data
-		p <- ggplot(modelled.dat) + geom_point(aes(year,biomass/1000,colour=type)) + geom_line(aes(year,biomass/1000,group=type,colour=type)) + 
-		  ylab("Fully recruited biomass (Kt)") + xlab("") + theme_bw(base_size=txt_size) + theme(panel.grid=element_blank(),legend.title = element_blank()) + 
-		  scale_colour_discrete(name=NULL) + scale_x_continuous(breaks = seq(min(yrs),max(yrs),by=3))
+		p <- ggplot(modelled.dat) + 
+		  geom_point(aes(year,biomass/1000,colour=type)) + 
+		  geom_line(aes(year,biomass/1000,group=type,colour=type)) + 
+		  ylab("Fully recruited biomass (Kt)") + 
+		  xlab("") + 
+		  theme_bw(base_size=txt_size) + 
+		  theme(panel.grid=element_blank(),legend.title = element_blank()) + 
+		  scale_colour_discrete(name=NULL) + 
+		  scale_x_continuous(breaks = seq(min(yrs),max(yrs),by=3))
 		if(title == T) p <- p + ggtitle("Biomass based on modelled growth rate")
 		if(graphic != 'screen') ggsave(paste0("pred_eval_point_estimates_",max(years),"_modelled_growth.",graphic),path = path,width = wd, height = ht) 
 		if(graphic=="screen")  windows(wd,ht) ; plot(p)
