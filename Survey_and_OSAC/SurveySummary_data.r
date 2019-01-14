@@ -81,13 +81,14 @@
 #                   the current years data/Survey_data/ folder.  If set to F it will save as specified by options used.
 # 12: spatial:      Do we want to do a simple spatial analysis for any area that we have sub-divided into finer regions.  For the moment
 #                   we only have this available for GBa.
-# 13: commercialsampling  Do we want to include MW-SH data that were collected during year-round commercial fishing trips? Default is T, yes include all data.
+# 13: commercialsampling:  Do we want to include MW-SH data that were collected during year-round commercial fishing trips? Default is T, yes include all data.
 #                    F means include only survey MW-SH samples.
+# 14: nickname:     if testing = T, adds a nickname to your Rdata file for testing purposes (so that you don't overwrite one of the hard-coded versions)
 ###############################################################################################################
 
 survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
                         surveys = "all", survey.year= NULL,preprocessed = F,un.ID=un.ID,pwd.ID=pwd.ID,db.con="ptran",
-                        season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T)
+                        season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T, nickname=NULL)
 {  
 ##############################################################################################################
 ################################### SECTION 1 SECTION 1 SECTION 1 ############################################
@@ -294,8 +295,9 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 	  rm("un.ID","pwd.ID")
 		
     # Now save the data so you don't have to do all that every time
-		save(list = ls(all.names = TRUE), file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))
-		
+		if(is.null(nickname)) save(list = ls(all.names = TRUE), file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))
+	  if(!is.null(nickname)) save(list = ls(all.names = TRUE), file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))
+	  
 } # end if(preprocessed == F)
 
 # Load the preprocessed data, this is a little stick handling to make sure I have survey's picked right when using this data.
@@ -312,7 +314,8 @@ if(preprocessed == T)
   ssn <- season
   bins.tmp <- bins
   test <- testing
-  load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
+  if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
+  if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
   # Reset the arguement names and re-load the functions to ensure we have the latest versions
   direct <- dirc
   # These are the functions used to within the heart of the code to make stuff happen
@@ -1114,11 +1117,14 @@ for(i in 1:num.surveys)
 
 # If we have included all the surveyed banks save it as this.  This assumes we get 5 banks done in the spring and 2 banks in the summer.
 # This may need adjusted if we had a weird survey year (such as 2015).
-
+browser()
 # If I'm just testing
-if(testing == T) save(list = ls(all.names = TRUE), 
+if(testing == T & is.null(nickname)) save(list = ls(all.names = TRUE), 
                                file = paste(direct,"Data/Survey_data/",yr,
                                             "/Survey_summary_output/testing_results.Rdata",sep=""))
+if(testing == T & !is.null(nickname)) save(list = ls(all.names = TRUE), 
+                                          file = paste(direct,"Data/Survey_data/",yr,
+                                                       "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
 if(testing == F)
 {
   if(season == "both" && num.surveys >=7)	save(list = ls(all.names = TRUE), 
