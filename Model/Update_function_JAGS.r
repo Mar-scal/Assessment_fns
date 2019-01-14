@@ -814,7 +814,7 @@ for(j in 1:num.banks)
     # Now we make the figures used in the update document  
     if(make.update.figs == T)
     {
-      if(bnk == "GBa") bm.max <- 55000
+      if(bnk == "GBa") bm.max <- 60000
       if(bnk == "BBn") bm.max <- 25000
       
       # Now make the biomass plots for the areas as necessary

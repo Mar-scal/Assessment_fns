@@ -135,7 +135,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
                        plt.bath = T,sub.area=T, colour.bins=NULL,
-                       keep.full.GB=F)
+                       keep.full.GB=F, nickname=NULL)
 { 
   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
@@ -143,8 +143,10 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   {
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T) 
     {                   
-       load(paste(direct,"Data/Survey_data/",yr,
-                                     "/Survey_summary_output/testing_results.Rdata",sep=""))  
+      if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
+                                     "/Survey_summary_output/testing_results.Rdata",sep=""))
+      if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
+                                       "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
       season <- tmp.season 
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
@@ -1513,6 +1515,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
   if(any(plots == "MW-SH"))
   {
+    browser()
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                              list(year=as.character(yr),bank=banks[i]))
     CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),
