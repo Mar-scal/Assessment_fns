@@ -814,13 +814,19 @@ for(j in 1:num.banks)
     # Now we make the figures used in the update document  
     if(make.update.figs == T)
     {
-      bm.max <- ifelse(bnk == "GBa", 55000,25000)
+      if(bnk == "GBa") bm.max <- 55000
+      if(bnk == "BBn") bm.max <- 25000
       
       # Now make the biomass plots for the areas as necessary
       if(bnk != "GBa")
       {
-        biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
+        # If it's BBn, we have a y-axis maximum that we want to use (bm.max)
+        if(bnk=="BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
+        # If it's a GBa subarea (i.e. not BBn and not GBa), we rely on biomass.plt to assign the y-axis maximum based on the upper credible limit,
+        # we also don't have a TAC for the subareas
+        if(bnk!= "BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
+                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL)
       } # end if(bnk == "BBn")
       
       if(bnk == "GBa")

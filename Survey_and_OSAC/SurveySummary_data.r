@@ -81,11 +81,13 @@
 #                   the current years data/Survey_data/ folder.  If set to F it will save as specified by options used.
 # 12: spatial:      Do we want to do a simple spatial analysis for any area that we have sub-divided into finer regions.  For the moment
 #                   we only have this available for GBa.
+# 13: commercialsampling  Do we want to include MW-SH data that were collected during year-round commercial fishing trips? Default is T, yes include all data.
+#                    F means include only survey MW-SH samples.
 ###############################################################################################################
 
 survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
                         surveys = "all", survey.year= NULL,preprocessed = F,un.ID=un.ID,pwd.ID=pwd.ID,db.con="ptran",
-                        season = "both",bins = "bank_default",testing = T,spatial = T)
+                        season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T)
 {  
 ##############################################################################################################
 ################################### SECTION 1 SECTION 1 SECTION 1 ############################################
@@ -209,7 +211,7 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-browser()
+
     survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 
@@ -284,7 +286,7 @@ browser()
 		# NOTE:  This function will go away once we have Offshore data loaded, someday...
 		MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     # remove "commercial" survey tows that were done in the past
-		MW.dat <- MW.dat[!MW.dat$tow==0,]
+		if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
 		
 		print("import.hyd.data done")
 		
@@ -614,45 +616,72 @@ for(i in 1:num.surveys)
   
   print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
   
-  # just in case there are still remnant Commercial sampling station 0 tows that we need to get rid of:
-  MW.dat <- MW.dat[!MW.dat$tow==0,]
+  # just in case there are still remnant Commercial sampling station 0 tows that we need to get rid of (e.g. if you have pre-processed = T and are using an RData created before Jan2019 edits):
+  if(commercialsampling==F) MW.dat <- MW.dat[!MW.dat$tow==0,]
   
-		
-		# here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
-		# then we export it as a csv. NOTE: FK added Ban here
-		if(bank.4.spatial %in% c("Mid", "Ban")) 
-		{
-  		  # MEAT WEIGHT DATA - hydration sampling, This will vary for certain banks, 
-  		  # Create and export a MW-SH object
-  		  if(bank.4.spatial == "Mid") {mw.dat.all[[bnk]] <- merge(subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
-  		                                       c("tow","year","lon","lat","depth","sh","wmw")),
-                         subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)}
-		    if(bank.4.spatial == "Ban") {mw.dat.all[[bnk]] <- merge(subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
-		                                                                 c("tow","year","lon","lat","depth","sh","wmw")),
-		                                                          subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)}
-        mw.dat.all[[bnk]]$ID<-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
-        write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial,"/mw_Data.csv",sep=""),row.names=F) # Write1
-        ## MODEL - This is the model used to esimate condition factor across Middle Bank
-        #Source6 source("fn/condFac.r")
-        # Due to the sparseness of the data for this bank the most complex model we can fit is a gam_d, 
-        # data this is like far more complex still than the really allows for.
-        # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
-        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
-    } # end if(bnk == "Mid")
-		
-		if(!bank.4.spatial %in% c("Mid", "Ban"))
-	  {
-		    if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
-		    if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
-		    mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
-		    # Grab the relavent Meat-Weight Shell height data and make a flat file from it
-		    if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB")) mw.dat.all[[bnk]] <- merge(subset(mw.tmp, month %in% 5:6 & year %in% years & tow>0, 
-		                                c("ID","year","lon","lat","depth","sh","wmw","tow")),
-		                            subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),all=T)
-		    # Grab the relavent Meat-Weight Shell height data for the summer 
-		    if(bank.4.spatial %in% c("GBa","GBb")) mw.dat.all[[bnk]] <- merge(subset(mw.tmp, month > 7 & year %in% years, 
-		                                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-		                               subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),all=T)
+  
+  # here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
+  # then we export it as a csv. NOTE: FK added Ban here
+  if(bank.4.spatial %in% c("Mid", "Ban")) 
+  {
+    # MEAT WEIGHT DATA - hydration sampling, This will vary for certain banks, 
+    # Create and export a MW-SH object
+    if(bank.4.spatial == "Mid") {
+      mw.dat.all[[bnk]] <- merge(
+        subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
+               c("tow","year","lon","lat","depth","sh","wmw")),
+        subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+      if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+    }
+    if(bank.4.spatial == "Ban") {
+      mw.dat.all[[bnk]] <- merge(
+        subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
+               c("tow","year","lon","lat","depth","sh","wmw")),
+        subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+      if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+    }
+    
+    mw.dat.all[[bnk]]$ID<-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
+    
+    # write this now for these banks
+    write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial,"/mw_Data.csv",sep=""),row.names=F) # Write1
+    ## MODEL - This is the model used to esimate condition factor across Middle Bank
+    #Source6 source("fn/condFac.r")
+    # Due to the sparseness of the data for this bank the most complex model we can fit is a gam_d, 
+    # data this is like far more complex still than the really allows for.
+    # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
+    cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
+  } # end if(bnk %in% c("Mid", "Ban"))
+  
+  if(!bank.4.spatial %in% c("Mid", "Ban"))
+  {
+    if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
+    if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
+    mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
+    # Grab the relavent Meat-Weight Shell height data and make a flat file from it
+    if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB")) 
+    {
+      mw.dat.all[[bnk]] <- merge(
+        subset(mw.tmp, 
+               month %in% 5:6 & year %in% years,
+               c("ID","year","lon","lat","depth","sh","wmw","tow")),
+        subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+        all=T)
+      if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+    }
+    
+    # Grab the relavent Meat-Weight Shell height data for the summer 
+    if(bank.4.spatial %in% c("GBa","GBb")) 
+    {
+      mw.dat.all[[bnk]] <- merge(
+        subset(mw.tmp, 
+               month > 7 & year %in% years,
+               c("ID","year","lon","lat","depth","sh","wmw","tow")),
+        subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+        all=T)
+      if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+    }
+		    
 	  } # end if(bnk == "Sab" | bnk == "Ger") 
 #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
 		## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle
@@ -662,6 +691,7 @@ for(i in 1:num.surveys)
 		  if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct)
 		  if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct)
 		}
+  
 		# Because of the lined survey on German we want to differentiate between the lined and unlined CF data
 		if(bank.4.spatial == "Ger")
 		{
@@ -1064,21 +1094,6 @@ for(i in 1:num.surveys)
 #browser()
 		if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
 		{
-		  write.csv(SS.summary[[bnk]],
-		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",
-		                         yr,".csv",sep=""),row.names = F)
-		  #Write3
-		  write.csv(SHF.summary[[bnk]],
-		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_SHF_summary",
-		                         yr,".csv",sep=""),row.names = F)
-		  #Write4
-		  write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-		                                    "/mw_Data.csv",sep=""),row.names=F)
-		  #Write5 - Output the raw survey data in it's entirety
-		  write.table(surv.dat[[bnk]],
-		              paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,
-		                    "/Survey",min(years),"-",max(years),".csv",sep=""),sep=',',row.names=F)
-		  
 		  #Write2 Output some of the summary data from the survey.
 		  write.csv(SS.summary[[bnk]],
 		            file = paste(direct,"Data/Survey_data/",yr,"/",unique(bank.dat[[bnk]]$survey),"/",bank.4.spatial,"/Annual_summary",

@@ -59,6 +59,7 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   if(length(alpha)==1) alpha[2]<-alpha[1]
   #If TAC isn't specified set it as the catch from the data for the final year of data we are interested in..
   if(missing(TAC)==T) TAC <- out.data$data$C[DD.out[[bnk]]$data$year == max(years)]
+  
   # Get the projected years TAC.
   TACI<-which(out.data$data$C.p==TAC)
   
@@ -66,9 +67,10 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   par(mfrow = c(2,1), mar = c(1, 4, 1, 1), omi = c(0.2, 0.1, 0, 0.2))
   
   # If Bymax isn't specified than set the maxium using the Biomass data for the Upper credible limit.
-  if(missing(Bymax)==T )
+  if(missing(Bymax)==T | is.null(Bymax))
   {
-    Bymax <- max(c(apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2),quantile(out.data$sims.list$B.p[,TACI],1-alpha[2]/2)))
+    if(!is.null(TAC)) Bymax <- max(c(apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2),quantile(out.data$sims.list$B.p[,TACI],1-alpha[2]/2)))
+    if(is.null(TAC)) Bymax <- max(apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2))
   } # if(missing(Bymax)==T )
   
   # Make the plot
