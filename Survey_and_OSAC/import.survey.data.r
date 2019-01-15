@@ -47,8 +47,7 @@
 import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=T, 
                              export=T,dirc="Y:/Offshore scallop/Assessment/")
   {
-	
-  # Load in necessary packages
+	# Load in necessary packages
   require(chron) || stop("Install chron package")
   require(splancs)  || stop("Install splancs package")
   
@@ -60,6 +59,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 	shf.lst<-list(NULL)
 	for(i in 1:length(years)){
 		shf.lst[[i]]<-import.hf.data(survey=survey,type=type,year=years[i],dirt=dirc)
+		print(unique(shf.lst[[i]]$bank))
 		print(years[i])	# just to check on your progress
 	}
 
@@ -116,7 +116,6 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 
 import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dirc)
 {
-
   require(splancs)  || stop("Install splancs package")
   # Imports Ginette's survey data
 	GBsurvey.gin <- read.table(paste(dirt,"/Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T)
@@ -142,7 +141,6 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 	
 	# This runs a loop to return the data for the banks that we are interested in (default is all banks)
 		for(i in 1:length(bank)){
-			#browser()
 			# read hf file, this file has  with the data for a specific bank/year combination for shell height frequencies
 			hf <- parse.shf(paste(path, year, "/hf", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
 			# read dis file (1994- ) If later than 1994 we need to run the parse.dis function to align the data. Contains data for distance coefficients.

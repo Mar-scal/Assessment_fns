@@ -97,7 +97,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
 ################################### SECTION 1 SECTION 1 SECTION 1 ############################################
 ##############################################################################################################
 
-
 ################################### Start Load Packages and Functions #########################################
 # Step 1:  Load all required packages and functions immediately
 #
@@ -113,7 +112,7 @@ require(maptools)
 ############################# GENERAL DATA ########################################################
 # Enter here standard data which is used throughout this script.
 # Note that if you specifed surveys == "all" that runs these banks.
-if(surveys == "all") surveys = c("Banspring", "BBnspring" ,"BBsspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer")
+if(surveys == "all") surveys = c("BanSeaspring", "BanIcespring", "BBnspring" ,"BBsspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer")
 # The length of the loop to run
 num.surveys <- length(surveys)
 atow<-800*2.4384/10^6 # area of standard tow in km2
@@ -212,13 +211,19 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-
-    survMay.dat<-import.survey.data(1984:2000,survey='May',explore=T,export=F,dirc=direct)
+browser()
+    survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 
     print("import.survey.data done")
 
-    # take out 2000 for all banks except browns and GB
+    # keep BanIce separate
+    survBanIce.dat <- survMay.dat[survMay.dat$bank =="BanIce",]
+    # take out BanIce
+    survMay.dat <- survMay.dat[!survMay.dat$bank == "BanIce",]
+    # take out years 2001-2006
+    survMay.dat <- survMay.dat[survMay.dat$year<2001,]
+    # take out 2000 for all banks except browns, GB
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
 
     print("check years in import.survey.data to update for any additional historical data that has been loaded since last time.")
@@ -239,6 +244,8 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 		SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)
 		
 		print("get.offshore.survey done")
+		
+		if("BanIcespring" %in% surveys) BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
 		
 		### This grabs the data directly from the database and makes it it's own object, works for now
 		### since we don't use the data for anything but a plot on GB.
@@ -286,6 +293,9 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
 		#Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
 		# NOTE:  This function will go away once we have Offshore data loaded, someday...
 		MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
+		# No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
+		# if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
+		
     # remove "commercial" survey tows that were done in the past
 		if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
 		
@@ -373,6 +383,8 @@ BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.s
 # If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
 if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
   
+# Prep the BanIce data here too
+if("BanIcespring" %in% surveys) BanIceSurvey2012$surv.bank <- paste0(BanIceSurvey2012$bank,"spring")
 
 # Now if we are going to run the spatial sub-areas we can nicely increase the number of survey
 spat.names <- NULL
@@ -423,11 +435,22 @@ for(i in 1:num.surveys)
   # If we aren't dealing with spatial data do this to get the bank and the bank data...
   if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
   {
-    bnk <- as.character(unique(subset(all.surv.dat,surv.bank == surveys[i])$bank))
-    bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank==surveys[i])
-    # I also want to make this bank.4.spatial object here as well as it will allow me to use this throughout the file without
-    # having to add in a billion if loops
-    bank.4.spatial <- bnk
+    if(surveys[i] %in% all.surv.dat$surv.bank) {
+      bnk <- as.character(unique(subset(all.surv.dat,surv.bank == surveys[i])$bank))
+      bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank==surveys[i])
+      # I also want to make this bank.4.spatial object here as well as it will allow me to use this throughout the file without
+      # having to add in a billion if loops
+      bank.4.spatial <- bnk
+    }
+    else bnk <- NULL
+    
+    if("BanIcespring" %in% surveys[i]){
+      bnk <- c(bnk, as.character(unique(subset(BanIceSurvey2012,surv.bank == surveys[i])$bank)))
+      bank.dat[[bnk]] <- subset(BanIceSurvey2012,surv.bank==surveys[i])
+      # I also want to make this bank.4.spatial object here as well as it will allow me to use this throughout the file without
+      # having to add in a billion if loops
+      bank.4.spatial <- bnk
+    }
   } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
   
   # If we are dealing with spatial data do this...
@@ -490,17 +513,33 @@ for(i in 1:num.surveys)
   # Get the  bank survey boundary polygon when we are dealing with the entire bank
   if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
   {
-    bound.poly.surv <- subset(survey.bound.polys,label==bnk) 
-    attr(bound.poly.surv,"projection")<-"LL"
+    if(surveys[i] == "BanIcespring") {
+      bound.poly.surv <- subset(survey.bound.polys,label=="Ban") 
+      attr(bound.poly.surv,"projection")<-"LL"
+      
+      #Read4 Read drooped #Detailed Survey polygons
+      detail.poly.surv <- subset(survey.detail.polys,label=="Ban")
+      attr(detail.poly.surv,"projection")<-"LL"
+      
+      # Get the strata areas.
+      strata.areas <- subset(survey.info,label=="Ban",select =c("Strata_ID","towable_area","startyear"))
+      #Read25 read removed... Get all the details of the survey strata
+      surv.info <- subset(survey.info,label== "Ban")
+    }
     
-    #Read4 Read drooped #Detailed Survey polygons
-    detail.poly.surv <- subset(survey.detail.polys,label==bnk)
-    attr(detail.poly.surv,"projection")<-"LL"
-    
-    # Get the strata areas.
-    strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
-    #Read25 read removed... Get all the details of the survey strata
-    surv.info <- subset(survey.info,label== bnk)
+    if(!surveys[i] == "BanIcespring") {
+      bound.poly.surv <- subset(survey.bound.polys,label==bnk) 
+      attr(bound.poly.surv,"projection")<-"LL"
+      
+      #Read4 Read drooped #Detailed Survey polygons
+      detail.poly.surv <- subset(survey.detail.polys,label==bnk)
+      attr(detail.poly.surv,"projection")<-"LL"
+      
+      # Get the strata areas.
+      strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
+      #Read25 read removed... Get all the details of the survey strata
+      surv.info <- subset(survey.info,label== bnk)
+    }
   } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
   
   # If we are dealing with a spatial subset we need to do some fancy dancy-ness
@@ -1095,7 +1134,7 @@ for(i in 1:num.surveys)
   # Spring/Summer/both for all the banks included in the survey (it loads Survey_all_results, Survey_spring_results, or Survey_summer_results).
   #Write2 Output some of the summary data from the survey.
   #browser()
-  if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "Sab", "GB" ,"GBb", "GBa"))
+  if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "BanIce", "Sab", "GB" ,"GBb", "GBa"))
   {
     #Write2 Output some of the summary data from the survey.
     write.csv(SS.summary[[bnk]],

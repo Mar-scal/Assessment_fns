@@ -68,9 +68,9 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 	# If years isn't entered it is all years in shf.dat
 	if(missing(years))years<-sort(unique(shf.dat$year))
 	#  If just 1 number entered for pre-recruit height make it an object with that same value for all years
-	if(length(pre.ht==1))pre.ht<-rep(pre.ht,length(years))
+	if(length(pre.ht)==1)pre.ht<-rep(pre.ht,length(years))
 	#  If just 1 number entered for recruit height make it an object with that same value for all years
-	if(length(rec.ht==1))rec.ht<-rep(rec.ht,length(years))
+	if(length(rec.ht)==1)rec.ht<-rep(rec.ht,length(years))
 	# Make a mw object if needed later.
 	mw<-list(NULL)
 	
