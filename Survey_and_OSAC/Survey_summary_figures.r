@@ -137,11 +137,13 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
 { 
-  tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
+ 
+   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
   if(season == "testing") 
   {
-    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T) 
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T ||
+       file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))==T) 
     {                   
       if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
                                      "/Survey_summary_output/testing_results.Rdata",sep=""))
@@ -324,7 +326,7 @@ for(i in 1:len)
 
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
-  if(banks[i] %in% c("GBa","GBb","BBn","BBs", "GB",spat.name)) bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs", "Ban", "GB",spat.name)) bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
   
   if(!is.null(keep.full.GB) & keep.full.GB == T) {
     bound.poly.surv <- as.PolySet(rbind(bound.surv.poly$GBa, bound.surv.poly$GBb), projection ="LL")
@@ -363,7 +365,7 @@ for(i in 1:len)
     strata.areas <- subset(survey.info[!(survey.info$startyear==1900 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
   if(banks[i] %in% c("Sab") & yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
     strata.areas <- subset(survey.info[!(survey.info$startyear==2018 & survey.info$label=="Sab"),], label==banks[i],select =c("PID","towable_area"))}
-  if(banks[i] %in% c("GB", "Mid", "Ger")) strata.areas <- NULL
+  if(banks[i] %in% c("GB", "Mid", "Ger", "Ban")) strata.areas <- NULL
   
   #Get all the details of the survey strata
   if(banks[i] %in% c("Sab") & !yr < max(survey.info$startyear[survey.info$label=="Sab"])) {
@@ -376,7 +378,7 @@ for(i in 1:len)
   ### If we are missing years in the data I want to add those years in as NA's so the plots see those as NA's  ####
   check.year <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
   missing.year <- check.year[!is.element(check.year,survey.obj[[banks[i]]][[1]]$year)]
-  if(length(missing.year > 0))
+  if(length(missing.year) > 0)
   {
     # Before doing anything I need to add a dummy row to the SHF data with the year in it
     survey.obj[[banks[i]]][[2]]$n.yst <- cbind(survey.obj[[banks[i]]][[1]]$year,survey.obj[[banks[i]]][[2]]$n.yst)
@@ -404,12 +406,12 @@ for(i in 1:len)
 ################  Next up are the rest of the spatial plots ###########################
 ################  Next up are the rest of the spatial plots ###########################
  ############  Now start getting the spatial data for this year for the specific bank.
-  
+ 
   # If we are making the seedbox or any of the spatial plots we need to set up our mesh...
   # We need to make a mesh for the plots from which we had data from all tows
   # and a mesh for the plots from which we only had data for select tows (i.e. condition factor)
   # Only run this for the full banks, we don't want to run this for the "sub-areas"
-  if(banks[i] %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
+  if(banks[i] %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "Sab", "GB" ,"GBb", "GBa"))
   {    
     spatial.maps <- plots[grep("spatial",plots)]
     # If we want spatial maps or seedboxes and/or have user SH.bins (for both of which we will produce all figures automatically.)
@@ -427,7 +429,7 @@ for(i in 1:len)
       # this is likely why!
       if(offsets == "default")
       {
-        if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
+        if(banks[i] %in% c("BBn","BBs","Ger","Mid", "Ban")) offset = 0.12
         if(banks[i] %in% c("Sab")) offset = 0.1
         if(banks[i] %in% c("GBa","GBb")) offset = 0.1
         if(banks[i] %in% c("GB")) offset = 0.35
@@ -473,6 +475,7 @@ for(i in 1:len)
         bound.poly.surv <- as.PolySet(g.tmp,projection="LL")
       } # end if(banks[i] == "Ger") 
       # Now convert this to an object for sp, this gets our bounding area for the survey.
+      
       bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
       
       # This section only needs run if we are running the INLA models
@@ -708,10 +711,10 @@ for(i in 1:len)
                                                                             inla.mesh.project(proj, mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] !="Ban") pred.in <- inout(proj$lattice$loc,bound$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
-            if(banks[i] %in% c("Sab","Mid"))
+            if(banks[i] %in% c("Sab","Mid", "Ban"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
@@ -775,7 +778,7 @@ for(i in 1:len)
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] != "Ban") pred.in <- inout(proj$lattice$loc,bound$loc) 
             # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid"))
             {
@@ -1190,7 +1193,7 @@ for(i in 1:len)
             } # end if(banks[i] == "Ger") 
             
             # For the banks without exploratory tows we add this legend.
-            if( banks[i] == "Ban") 
+            if(banks[i] == "Ban") 
             {
               legend("topleft",pch=c(20), pt.bg = c("black"), title="Tow type",
                 legend = paste('regular (n =',length(unique(subset(surv.Live[[banks[i]]],
@@ -1344,7 +1347,7 @@ for(i in 1:len)
     if(!banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
     if(banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
     
-    if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid","BBs" ,"Ban","GBb"))  
+    if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid", "Ban", "BBs" ,"Ban","GBb"))  
     {
       leg.loc <- ifelse(banks[i] %in% c("GBa","BBn","BBs"),"topleft","bottomright")    
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
@@ -1515,7 +1518,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
   if(any(plots == "MW-SH"))
   {
-    browser()
+    
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                              list(year=as.character(yr),bank=banks[i]))
     CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),
@@ -1632,7 +1635,7 @@ for(i in 1:len)
     par(mfrow=c(1,1))
     
     # if log.y=T you must also specify ymin.
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
@@ -1648,7 +1651,7 @@ for(i in 1:len)
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
-    if(banks[i] == "Mid" || banks[i] == "GB")
+    if(banks[i] == "Mid" || banks[i] == "GB" || banks[i] == "Ban")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
                 ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
@@ -1725,7 +1728,7 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
     
 
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "GB" && banks[i] != "Sab")
 
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
@@ -1762,7 +1765,7 @@ for(i in 1:len)
 
     } # end if(banks[i] == "Sab")
     
-    if(banks[i] == "Mid"|| banks[i] == "GB")
+    if(banks[i] == "Mid"|| banks[i] == "GB"|| banks[i] == "Ban")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,  type='B',
                ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
@@ -1793,7 +1796,7 @@ for(i in 1:len)
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_user_SH_bins_ts.pdf",sep=""),width = 8.5, height = 11)
     
     par(mfrow=c(1,1))
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "GB")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F, 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,ys=1.3,
@@ -1807,7 +1810,7 @@ for(i in 1:len)
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5,user.bins = user.bins)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
-    if(banks[i] == "Mid" || banks[i] == "GB")
+    if(banks[i] == "Mid" || banks[i] == "GB"|| banks[i] == "Ban")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, user.bins = user.bins,
                 ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5,ys=1.3)
@@ -1826,7 +1829,7 @@ for(i in 1:len)
                          units="in",width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/biomass_user_SH_bins_ts.pdf",sep=""),width = 8.5, height = 11)
     
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "GB" && banks[i] != "Sab")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,ys=1.3,
@@ -1847,7 +1850,7 @@ for(i in 1:len)
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx=1.5,user.bins=user.bins)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
-    if(banks[i] == "Mid"|| banks[i] == "GB")
+    if(banks[i] == "Mid"|| banks[i] == "GB" || banks[i] == "Ban")
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,  type='B',user.bins=user.bins,
                 ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5,ys=1.3)
@@ -2016,7 +2019,7 @@ for(i in 1:len)
                          units="in",width = 8.5, height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
 
-    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "GB" && banks[i] != "Sab")
+    if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "GB" && banks[i] != "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]], Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
@@ -2033,7 +2036,7 @@ for(i in 1:len)
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # end if(banks[i] = "Sab")
     
-    if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "GB")
+    if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "Ban" || banks[i] == "GB")
     {
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
       survey.ts(clap.survey.obj[[banks[i]]][[1]],Bank=bank[i],pdf=F,axis.cx = 1.5, 
@@ -2127,8 +2130,8 @@ for(i in 1:len)
       # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
       # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
       # but wanted to look at the 2015 data for example).
-      current.year <- which(na.omit(survey.obj[[banks[i]]]$model.dat)$year == yr)
-      last.surv.year <- na.omit(survey.obj[[banks[i]]]$model.dat)$year[current.year-1]
+      current.year <- which(survey.obj[[banks[i]]]$model.dat$year[!is.na(survey.obj[[banks[i]]]$model.dat$n)] == yr)
+      last.surv.year <- survey.obj[[banks[i]]]$model.dat$year[!is.na(survey.obj[[banks[i]]]$model.dat$n)][current.year-1]
       # To get the ymax the same between succesive years I want to do this...
       bm<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
       bm.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
@@ -2184,7 +2187,6 @@ for(i in 1:len)
         
       } # end if(banks[i] != "Ger") 
       
-      # Using the lined surevye object for German bank...
       if(banks[i] == "Ger") 
       {
         breakdown(lined.survey.obj,yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
