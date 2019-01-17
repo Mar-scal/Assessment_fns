@@ -262,7 +262,30 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   pot.grow[[bnk]] <- NULL
 
   ############# Return all objects created here to the main SurveySummary_data script. 
-browser()
-  return(ls(all.names=T))
+  returnlist <- list(bank.dat=bank.dat,
+                     strata.mis.match=strata.mis.match,
+                     mw=mw,
+                     SpatHtWt.fit=SpatHtWt.fit,
+                     HtWt.fit=HtWt.fit,
+                     mw.dat.all=mw.dat.all,
+                     cf.data=cf.data,
+                     surv.dat=surv.dat,
+                     surv.Clap=surv.Clap,
+                     surv.Clap.Rand=surv.Clap.Rand,
+                     surv.Live=surv.Live,
+                     surv.Rand=surv.Rand,
+                     survey.obj=survey.obj,
+                     clap.survey.obj=clap.survey.obj,
+                     SS.summary=SS.summary,
+                     SHF.summary=SHF.summary,
+                     CF.current=CF.current,
+                     seedbox.obj=seedbox.obj,
+                     lined.survey.obj=lined.survey.obj,
+                     merged.survey.obj=merged.survey.obj,
+                     pot.grow=pot.grow,
+                     survey.strata.table=survey.strata.table,
+                     detail.surv.poly=detail.surv.poly,
+                     bound.surv.poly=bound.surv.poly)
+ return(returnlist)
   
 }
