@@ -211,7 +211,7 @@ size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-browser()
+
     survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
 
@@ -430,7 +430,31 @@ bound.surv.poly <- NULL
 #surveys <- "GBa-Large_core"
 for(i in 1:num.surveys)
 {
-  #  So first thing to do is get the data for the bank.... 
+  
+  # first things first, if you're dealing with Icelandic scallops from Banquereau, go to the one-off script:
+  if("BanIcespring" %in% surveys[i]){
+    source(paste0(direct, "Assessment_fns/Survey_and_OSAC/BanIce_SurveySummary_data.R"))
+    BanIce <- BanIce_SurveySummary_data(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
+                              meatweightdata = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
+                              positionsdata=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
+                              commercialsampling=commercialsampling)
+  browser()
+    survey.obj[["BanIce"]] = BanIce$survey.obj[["BanIce"]]
+    SHF.summary[["BanIce"]] = BanIce$SHF.summary[["BanIce"]]
+    SS.summary[["BanIce"]] = BanIce$SS.summary[["BanIce"]]
+    CF.current[["BanIce"]] = BanIce$CF.current[["BanIce"]]
+    cf.data[["BanIce"]] = BanIce$cf.data[["BanIce"]]
+    clap.survey.obj[["BanIce"]] = BanIce$clap.survey.obj[["BanIce"]]
+    lined.survey.obj[["BanIce"]] = BanIce$lined.survey.obj[["BanIce"]]
+    merged.survey.obj[["BanIce"]] = BanIce$merged.survey.obj[["BanIce"]]
+    seedbox.obj[["BanIce"]] = BanIce$seedbox.obj[["BanIce"]]
+    pot.grow[["BanIce"]] = BanIce$pot.grow[["BanIce"]]
+    survey.strata.table[["BanIce"]] = BanIce$survey.strata.table[["BanIce"]]
+    browser()
+    
+    }
+  else
+    #  So first thing to do is get the data for the bank.... 
   
   # If we aren't dealing with spatial data do this to get the bank and the bank data...
   if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
@@ -442,17 +466,9 @@ for(i in 1:num.surveys)
       # having to add in a billion if loops
       bank.4.spatial <- bnk
     }
-    else bnk <- NULL
     
-    if("BanIcespring" %in% surveys[i]){
-      bnk <- c(bnk, as.character(unique(subset(BanIceSurvey2012,surv.bank == surveys[i])$bank)))
-      bank.dat[[bnk]] <- subset(BanIceSurvey2012,surv.bank==surveys[i])
-      # I also want to make this bank.4.spatial object here as well as it will allow me to use this throughout the file without
-      # having to add in a billion if loops
-      bank.4.spatial <- bnk
-    }
   } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
-  
+
   # If we are dealing with spatial data do this...
   if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
   {
@@ -513,21 +529,6 @@ for(i in 1:num.surveys)
   # Get the  bank survey boundary polygon when we are dealing with the entire bank
   if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
   {
-    if(surveys[i] == "BanIcespring") {
-      bound.poly.surv <- subset(survey.bound.polys,label=="Ban") 
-      attr(bound.poly.surv,"projection")<-"LL"
-      
-      #Read4 Read drooped #Detailed Survey polygons
-      detail.poly.surv <- subset(survey.detail.polys,label=="Ban")
-      attr(detail.poly.surv,"projection")<-"LL"
-      
-      # Get the strata areas.
-      strata.areas <- subset(survey.info,label=="Ban",select =c("Strata_ID","towable_area","startyear"))
-      #Read25 read removed... Get all the details of the survey strata
-      surv.info <- subset(survey.info,label== "Ban")
-    }
-    
-    if(!surveys[i] == "BanIcespring") {
       bound.poly.surv <- subset(survey.bound.polys,label==bnk) 
       attr(bound.poly.surv,"projection")<-"LL"
       
@@ -539,7 +540,6 @@ for(i in 1:num.surveys)
       strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
       #Read25 read removed... Get all the details of the survey strata
       surv.info <- subset(survey.info,label== bnk)
-    }
   } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
   
   # If we are dealing with a spatial subset we need to do some fancy dancy-ness
@@ -726,7 +726,8 @@ for(i in 1:num.surveys)
 		    
 	  } # end if(bnk == "Sab" | bnk == "Ger") 
 #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-		## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle
+	
+  ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle
   if(!bank.4.spatial %in% c("Mid", "Ban")) 
   {
     # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
@@ -1134,7 +1135,7 @@ for(i in 1:num.surveys)
   # Spring/Summer/both for all the banks included in the survey (it loads Survey_all_results, Survey_spring_results, or Survey_summer_results).
   #Write2 Output some of the summary data from the survey.
   #browser()
-  if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "BanIce", "Sab", "GB" ,"GBb", "GBa"))
+  if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "Sab", "GB" ,"GBb", "GBa"))
   {
     #Write2 Output some of the summary data from the survey.
     write.csv(SS.summary[[bnk]],

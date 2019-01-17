@@ -214,7 +214,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     # So the to do list here is to grab the flat files that exist, not need to do anything fancy!
     # For the stuff before 2008 the files are simply these, grab them and bring them into import.fishery.data_DK
     # These are already processed and ready to go so no need to do anything pre-2009 here.
-  
+
         if(max(yr) > 2008) 
         {
           new.yr <- yr[yr > 2008]

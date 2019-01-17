@@ -44,7 +44,6 @@
 surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=NULL, A=htwt.fit$A , user.bins = c(50,70,85,95,110),
                       B=htwt.fit$B, mw.par='fixed',bar.ht='com', mc=33)
 {
-  
   # Get the names for the user bins
   bnames <- paste0("bin_lt_",user.bins[1])
   for(i in 1:length(user.bins)+1) 
@@ -229,7 +228,6 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 
 # Finally to get the meat counts, DK added Sept 2015.
 	if(type == "ALL") shf.dat$meat.count <- 0.5* shf.dat$tot / shf.dat$tot.bm
-	
 	
 	# return the object..
 	shf.dat
