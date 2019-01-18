@@ -8,8 +8,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
-  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "GBa", "GBb", "Ban", "BanIce"),
-                                season=c(rep("spring", 7), rep("summer", 2)))
+  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "BanIce", "GBa", "GBb"),
+                                season=c(rep("spring", 8), rep("summer", 2)))
   bankcheck <- data.frame(banks, year=year)
   bankcheck <- plyr::join(bankcheck, possiblebanks, type="full")
   bankcheck$word[bankcheck$banks=="BBn"] <- "Browns Bank North"
@@ -48,11 +48,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     ntowsy$type[ntowsy$Var1 == 4] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 4], "4", "other")
     ntowsy$type[ntowsy$Var1 == 5] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 5], "5", "exploratory_5")
     ntowsy$bank <- banks[i]
-    
+    browser()
     ntows <- rbind(ntows, ntowsy)
     
     # number per tow
-    if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
+    if(banks[i] %in% c("Mid", "GB", "Ger")){
       NPR_current <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year]
       NPR_prev <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year-1]
       NR_current <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==year]
@@ -226,12 +226,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
-      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
+      }
     if(banks[i] == "BBs"){
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-2, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
-      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
+      }
     
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
