@@ -8,7 +8,7 @@
 #                UTM zone 20 is best for BoF and SS, UTM 19 is best for GB, SPA3, and SPA6, and the greater GOM area
 #4 type:        The type of shapefile you will make.  Default is "lines" which will make a spatiallines dataframe.  
 #               If you know you have closed polygons go with "polygon".
-#5 layer.names: The name of the layers in your shapefile.  The default is NULL which will look in your object for a column called "layer"
+#5 layer.names: The name of the layers in your shapefile.  The default is NULL which will look in your object for a column called "label"
 #               and will use that as the layer names.  You can also specify the column name in the data that you want to use as your name.
 #6 save.loc:    The location you want to save the shapefiles to.  This is specified as a directory only, each layer will get placed into this
 #               directory as a series of files (i.e. GIS shapefiles.)
@@ -16,7 +16,7 @@
 
 pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc)
 {
-  
+
 options(stringsAsFactors = F)
 # Load the libraries you need.
 require(splancs) || stop("You need le package splancs, thanks!")
@@ -44,7 +44,7 @@ dat <- dat[!is.na(dat$Y),]
 # in there, without that you can't keep track of the names of each layer.
 if(is.null(layer.names)) layer.name <- unique(dat$label)
 if(!is.null(layer.names)) layer.name <- unique(dat[,names(dat) == layer.names])
-
+if(is.null(layer.names)) layer.names <- "label"
 
 # Now we set up the main 3 coordinate systems with lat/lon data that I know of, first WGS84, 
 if(c_sys == "WGS84") c_sys <- "+init=epsg:4326"
@@ -79,12 +79,12 @@ for(i in 1:length(layer.name))
   # Now this puppy won't be a spatial dataframe, if we want a spatial dataframe we need to add a dummy variable to this...
   # Create a dataframe and display rownames
   
-  # Now replace each of the slots in the spatial data frame with the layer names
-  if(type == "polygon") for(j in 1:length(slot(dat.sp, "polygons"))) slot(slot(dat.sp, "polygons")[[j]], "ID") 
-  if(type == "lines") for(j in 1:length(slot(dat.sp, "lines"))) slot(slot(dat.sp, "lines")[[j]], "ID") 
+  # Now replace each of the slots in the spatial data frame with a counter from 1:j
+  if(type == "polygon") for(j in 1:length(slot(dat.sp, "polygons"))) slot(slot(dat.sp, "polygons")[[j]], "ID") <- as.character(j)
+  if(type == "lines") for(j in 1:length(slot(dat.sp, "lines"))) slot(slot(dat.sp, "lines")[[j]], "ID")  <-  as.character(j)
   
   # Create dataframe with correct rownames
-  dat.sp.df <- data.frame(ID=1:length(dat.sp), row.names = 1:length(dat.sp))    
+  dat.sp.df <- data.frame(ID=1:length(dat.sp), row.names = as.character(1:length(dat.sp)))
   
   # Try coersion again and check class
   if(type == "lines") dat.sdf <- SpatialLinesDataFrame(dat.sp, dat.sp.df)

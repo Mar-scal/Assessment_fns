@@ -75,6 +75,8 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   require(maptools) || stop("You need maptools, thanks!")
   require(maps) || stop("You need maps, thanks!")
   require(mapdata)|| stop("You need mapdata, thanks!")
+  require(viridis) || stop("You need the viridis package, thanks!")
+  require(marmap) || stop("You need the marmap function to get the bathymetry")
   
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
   if(repo == "github")
@@ -111,11 +113,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     ylim <- coords@bbox[rownames(coords@bbox) == 'y']
   } # end if(!is.data.frame(area)) 
   
- 
-  
-
-  
-  # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
+   # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
   # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
   if(!is.null(add_obj)) add_obj <- spTransform(add_obj,CRS(c_sys))
   
@@ -163,71 +161,79 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # If we are going to add the EEZ do this...
   if(!is.null(add_EEZ)) 
   {
-    if(repo == 'github')
+    # if we already have the full eez in the global environment we don't need to reload it, we do need to sub-set it and project it though
+    if(!exists("eez.all"))
     {
-      # Figure out where your tempfiles are stored
-      temp <- tempfile()
-      # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/EEZ/EEZ.zip", temp)
-      # Figure out what this file was saved as
-      temp2 <- tempfile()
-      # Unzip it
-      unzip(zipfile=temp, exdir=temp2)
-      # Now read in the shapefile
-      eez <- readOGR(paste0(temp2, "/EEZ.shp"))
-    } else{ # end if(repo = 'github')
-      eez <- read.OGR(add_EEZ)} # If the repo is anything other than github we are loading the file using the add_EEZ.
-    # We then need to transform these coordinates to the coordinates of the eez data
-    eez.bbox <- spTransform(b.box,proj4string(eez))
+      if(repo == 'github')
+      {
+        # Figure out where your tempfiles are stored
+        temp <- tempfile()
+        # Download this to the temp directory you created above
+        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/EEZ/EEZ.zip", temp)
+        # Figure out what this file was saved as
+        temp2 <- tempfile()
+        # Unzip it
+        unzip(zipfile=temp, exdir=temp2)
+        # Now read in the shapefile
+        eez.all <- readOGR(paste0(temp2, "/EEZ.shp"))
+      } else{ # end if(repo = 'github')
+        eez.all <- read.OGR(add_EEZ)} # If the repo is anything other than github we are loading the file using the add_EEZ.
+    } # end if(!exists("eez.all"))
+      # We then need to transform these coordinates to the coordinates of the eez data
+    eez.bbox <- spTransform(b.box,proj4string(eez.all))
     # Then intersect the coordiates so we only plot the part of the eez we want
-    eez <- gIntersection(eez,eez.bbox)
+    eez <- gIntersection(eez.all,eez.bbox)
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
     if(!is.null(eez)) eez <- spTransform(eez,c_sys)
   } # end if(!is.null(add_EEZ)) 
 
   # For the moment the bathymetry can only be added to a figure if it is in lat-lon coordinates as we don't have a bathymetric shapefile
-  if(!is.null(add_bathy) && c_sys == "+init=epsg:4326")
+  if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") # This would need done everytime as the boundng box could change for each call
   {
+    
     # The bathymetry needs to be in lat-lon, this is Lat/lon and WGS 84, I'm assuming that's what we want!
-    proj4string(bbox) = c_sys
+    proj4string(b.box) = c_sys
     # If c.sys isn't in lat/lon we need to tranform it to lat-lon
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
-    bathy <- getNOAA.bathy(lon1 = b.box@bbox[1] ,lon2=b.box@bbox[3],lat1 = b.box@bbox[2],lat2=b.box@bbox[4],resolution = 10)
+    bathy <- getNOAA.bathy(lon1 = b.box@bbox[1] ,lon2=b.box@bbox[3],lat1 = b.box@bbox[2],lat2=b.box@bbox[4],resolution = add_bathy)
     # Now I need to convert this to a sp object, note that this data is lat/lon and WGS 84
     bathy.sp <- as.SpatialGridDataFrame(bathy)
     # Because we have the bathymetry on a grid rather than as a vector we can't easily reproject, the lazy solution is that we
     # won't plot bathymetry data unless c_sys = "ll", there is a solution but it is slow
   } # end if(!is.null(add_bathy))
-  #browser()
   
-  if(add_land == T)
+  
+  if(add_land == T && !exists("land.all"))
   {
-  # We also want to get the land
-  land <- maps::map(database = "worldHires", c("USA","Canada"),fill=TRUE,col="transparent", plot=FALSE)
-  IDs <- sapply(strsplit(land$names, ":"), function(x) x[1])
-  land.sp <- map2SpatialPolygons(land, IDs = IDs,proj4string =  CRS("+init=epsg:4326"))
-  # This is a hack to clean up maps objects in R, if you ever see the error
-  #"TopologyException: Input geom 1 is invalid: Self-intersection at or near point"
-  # It is due to cleans up issues with the polygons coming from maps in this case, but any "bad" polygons get taken care of.
-  land.sp <- gSimplify(land.sp,tol=0.00001)
-  # This really should be done on projected data not Lat/Lon data, but this does the trick for our purposes.  If using this for something
-  # more than simply trying to draw some land we might want to do something more complex.
-  land.sp <- gBuffer(land.sp,byid=T,width=0)
-
+    # We also want to get the land
+    land <- maps::map(database = "worldHires", c("USA","Canada"),fill=TRUE,col="transparent", plot=FALSE)
+    IDs <- sapply(strsplit(land$names, ":"), function(x) x[1])
+    land.all <- map2SpatialPolygons(land, IDs = IDs,proj4string =  CRS("+init=epsg:4326"))
+    # This is a hack to clean up maps objects in R, if you ever see the error
+    #"TopologyException: Input geom 1 is invalid: Self-intersection at or near point"
+    # It is due to cleans up issues with the polygons coming from maps in this case, but any "bad" polygons get taken care of.
+    land.all <- gSimplify(land.all,tol=0.00001)
+    # This really should be done on projected data not Lat/Lon data, but this does the trick for our purposes.  If using this for something
+    # more than simply trying to draw some land we might want to do something more complex.
+    land.all <- gBuffer(land.all,byid=T,width=0)
+  } # end if(add_land == T && !exists("land.all"))
+  # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
+  if(c_sys == "+init=epsg:4326" && add_land ==T) land.sp <- land.all
+  
   # Now if we need to transform the coordinates we will clip the land object so that we aren't trying to project like a sucker.
-    if(c_sys != "+init=epsg:4326") 
-    {
-      # Now we get the land into the coordinate system of the land
-      land.b.box <- spTransform(b.box,"+init=epsg:4326")
-      # Now clip the land to this bounding box
-      land.sp <- gIntersection(land.sp,land.b.box)
-      # And now we can transform the land, if there is any to be plotted!
-      if(!is.null(land.sp)) land.sp <- spTransform(land.sp,c_sys)
-    } # end if(c_sys != +init=epsg:4326) 
-  } # end if(plot.land == T)
+  if(c_sys != "+init=epsg:4326" && add_land == T) 
+  {
+    # Now we get the land into the coordinate system of the land
+    land.b.box <- spTransform(b.box,"+init=epsg:4326")
+    # Now clip the land to this bounding box
+    land.sp <- gIntersection(land.all,land.b.box)
+    # And now we can transform the land, if there is any to be plotted!
+    if(!is.null(land.sp)) land.sp <- spTransform(land.sp,c_sys)
+  } # end if(c_sys != +init=epsg:4326) 
+
   
   # If you want to add the NAFO division we get this from the interweb so we know we have the right ones, adds about 20 seconds to the run to download.
-  if(add_nafo == T)
+  if(add_nafo == T && !exists("nafo.divs"))
   {
     # Figure out where your tempfiles are stored
     temp <- tempfile()
@@ -250,7 +256,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   {
     if(repo == 'github')
     {
-      if(add_sfas != "offshore")
+      if(add_sfas != "offshore" && !exists("inshore.spa"))
       {
         # Figure out where your tempfiles are stored
         temp <- tempfile()
@@ -267,7 +273,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         for(i in 1:length(inshore.spa)) inshore.spa[[i]] <- spTransform(inshore.spa[[i]],c_sys)
       } # end if(add_sfas != "offshore")
     
-      if(add_sfas != "inshore")
+      if(add_sfas != "inshore" && !exists("offshore.spa"))
       {
         # Figure out where your tempfiles are stored
         temp <- tempfile()
@@ -289,7 +295,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     # Now if you aren't using github do this...
     if(repo != 'github')
     {
-      if(add_sfas != "offshore")
+      if(add_sfas != "offshore" && !exists("inshore.spa"))
       {
         loc <- paste0(direct,"inshore")
         inshore.spa <- all.layers(loc)
@@ -297,7 +303,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         for(i in 1:length(inshore.spa)) inshore.spa[[i]] <- spTransform(inshore.spa[[i]],c_sys)
         # Now we don't have these nice shape files for SFA 29 sadly... I'll take these ones
       } # end if(detailed != "offshore")
-      if(add_sfas != "inshore")
+      if(add_sfas != "inshore" && !exists("offshore.spa"))
       {
         loc <- paste0(direct,"offshore")
         # This pulls in all the layers from the above location
@@ -314,7 +320,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   {
     if(repo == 'github')
     {
-      if(add_strata != "offshore")
+      if(add_strata != "offshore"  && !exists("inshore.strata"))
       {
         # Figure out where your tempfiles are stored
         temp <- tempfile()
@@ -331,8 +337,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         for(i in 1:length(inshore.strata)) inshore.strata[[i]] <- spTransform(inshore.strata[[i]],c_sys)
       } # end if(add_strata != "offshore")
       
-      if(add_strata != "inshore")
+      if(add_strata != "inshore" && !exists("offshore.strata"))
       {
+        # Notewe only do this if there is no offshore.strata object already loaded, this will really speed up using this function multiple times as you only will load these data once.
+        # The only problem with this would be if offshore strata was loaded as an object but it wasn't the offshore strata we wanted!
+        
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -353,7 +362,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     # Now if you aren't using github do this...
     if(repo != 'github')
     {
-      if(add_strata != "offshore")
+      if(add_strata != "offshore" && !exists("inshore.strata"))
       {
         loc <- paste0(direct,"inshore_survey_strata")
         inshore.strata <- all.layers(loc)
@@ -361,7 +370,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         for(i in 1:length(inshore.strata)) inshore.strata[[i]] <- spTransform(inshore.strata[[i]],c_sys)
         # Now we don't have these nice shape files for SFA 29 sadly... I'll take these ones
       } # end if(detailed != "offshore")
-      if(add_strata != "inshore")
+      if(add_strata != "inshore" && !exists("offshore.strata"))
       {
         loc <- paste0(direct,"offshore_survey_strata")
         # This pulls in all the layers from the above location
@@ -398,13 +407,13 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!is.null(field))
   {
   # Project the values appropriately for the data
-  proj = inla.mesh.projector(mesh, xlim = xlim, ylim = ylim, dims=dims)
-  field.proj = inla.mesh.project(proj, field)
+  projec = inla.mesh.projector(mesh, xlim = xlim, ylim = ylim, dims=dims)
+  field.projec = inla.mesh.project(projec, field)
   # If you want to clip the data to some coordinates/shape this is where that happens.
   if(!is.null(clip)) 
   {
-    pred.in <- inout(proj$lattice$loc,clip) 
-    field.proj[!pred.in] <- NA
+    pred.in <- inout(projec$lattice$loc,clip) 
+    field.projec[!pred.in] <- NA
   } # end if(!is.null(clip)) 
 
   #windows(11,11)
@@ -413,10 +422,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(trans == "none") arg.list <- list(at=lvls,labels=lvls)
   #browser()
   par(mar=c(4,4,1,1))
-  image.plot(list(x = proj$x, y=proj$y, z = field.proj), xlim = xlim, ylim = ylim, zlim=zlim, 
+  image.plot(list(x = projec$x, y=projec$y, z = field.projec), xlim = xlim, ylim = ylim, zlim=zlim, 
              axes=F,las=1,add=F, breaks=lvls, axis.args= arg.list,
              col = addalpha(colorRampPalette(colors,interpolate = "spline",alpha=T)(length(lvls)-1),alpha=alpha))
-  }
+  } # end if(!is.null(field))
+  #browser()
   # If we don't specify the field let's just make a blank plot of the correct type..
   if(is.null(field)) plot(coords,col='white')
   # 
@@ -427,7 +437,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     if(!is.null(eez)) plot(eez,lwd=3,col=magma(1,alpha=0.3,begin=0),add=T) # EEZ b/t Can and US
   } # end if(!is.null(add_EEZ)) 
   # Add the bathymetry
-  if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") plot(bathy.sp,add=T,col = "blue") # bathymetry, only works if plotting in lat/lon coordinates and WGS84...
+  if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") plot(bathy,add=T,col = "blue") # bathymetry, only works if plotting in lat/lon coordinates and WGS84...
   # Add the NAFO regions, make them dotted lines and thin
   if(add_nafo ==T) plot(nafo.divs,add=T,lty=2) # NAFO divisions
   # now add in the spa boundaries, these are set up as a number of layers in an sp object
@@ -452,5 +462,13 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   {
     if(!is.null(land.sp)) plot(land.sp,add=T,col = "lightgrey")
   } # end if(add_land == T) 
-  
+  #browser()
+  # Now if these shapefiles aren't already in the global environment but exist within the function put them into the global environment for later use
+  if(!exists("eez.all",where=1) && exists("eez.all"))                   assign('eez.all',eez.all,pos=1)
+  if(!exists("nafo.divs",where=1) && exists("nafo.divs"))               assign('nafo.divs',nafo.divs,pos=1)
+  if(!exists("land.all",where=1) && exists("land.all"))                 assign('land.all',land.all,pos=1)
+  if(!exists("offshore.spa",where=1) && exists("offshore.spa"))         assign('offshore.spa',offshore.spa,pos=1)
+  if(!exists("inshore.spa",where=1) && exists("inshore.spa"))           assign('inshore.spa',inshore.spa,pos=1)
+  if(!exists("offshore.strata",where=1) && exists("offshore.strata"))   assign('offshore.strata',offshore.strata,pos=1)
+  if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
 } # end function
