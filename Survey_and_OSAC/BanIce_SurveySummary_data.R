@@ -1,10 +1,17 @@
+### yr: current year
+### survey.year: year of survey
+### surveydata: dataframe containing all SHF data for survey (similar to all.surv.dat from SurveySummary_data, but only for BanIce)
+### meatweightdata: dataframe containing all MW data for survey
+### positionsdata: dataframe containing positions for MW data
+### commercial sampling: should commercial samples be included (T or F)
 
 BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
                                       meatweightdata = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                       positionsdata=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
                                       commercialsampling=commercialsampling){
   
-  bnk <- "BanIce"
+  require(plyr)
+   bnk <- "BanIce"
   bank.4.spatial <- "BanIce"
 
   #Initialize some variables
@@ -105,6 +112,8 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # Join MW data with SHF data to get lat/lon
   if(!is.null(positionsdata)) 
     mw.dm <- join(mw.dm, bank.dat[[bnk]][,c("year", "tow", "lon", "lat")], type="left")
+  
+  # mw.dm contains all years.
   
   ################ current year MW-SH model ################
   
@@ -247,8 +256,8 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # Same for the SHF data.
   SHF.summary[[bnk]] <- as.data.frame(cbind(survey.obj[[bnk]][[1]]$year,survey.obj[[bnk]][[2]]$n.yst))
   SHF.summary[[bnk]]$bank <- bank.4.spatial
-  browser()
-  CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
+  
+  CF.current[[bnk]]<-na.omit(merge(unique(subset(surveydata,bank == bnk & year==yr,c('tow','lon','lat'))),
                                    SpatHtWt.fit[[bnk]]$fit))
   names(CF.current[[bnk]])[4]<-"CF"
   CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))

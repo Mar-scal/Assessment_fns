@@ -8,7 +8,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
-  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "GBa", "GBb"),
+  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "GBa", "GBb", "Ban", "BanIce"),
                                 season=c(rep("spring", 7), rep("summer", 2)))
   bankcheck <- data.frame(banks, year=year)
   bankcheck <- plyr::join(bankcheck, possiblebanks, type="full")
@@ -18,7 +18,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   bankcheck$word[bankcheck$banks=="Mid"] <- "Middle Bank"
   bankcheck$word[bankcheck$banks=="Sab"] <- "Sable Bank"
   bankcheck$word[bankcheck$banks=="GB"] <- "Georges Bank"
-  bankcheck$word[bankcheck$banks=="Ban"] <- "Banquereau Bank"
+  bankcheck$word[bankcheck$banks=="Ban"] <- "Banquereau Bank (Sea Scallop)"
+  bankcheck$word[bankcheck$banks=="BanIce"] <- "Banquereau Bank (Icelandic)"
   bankcheck$word[bankcheck$banks=="GBa"] <- "Georges Bank 'a'"
   bankcheck$word[bankcheck$banks=="GBb"] <- "Georges Bank 'b'"
   
@@ -51,7 +52,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     ntows <- rbind(ntows, ntowsy)
     
     # number per tow
-    if(banks[i] %in% c("Mid", "GB", "Ger")){
+    if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
       NPR_current <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year]
       NPR_prev <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year-1]
       NR_current <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==year]
@@ -132,7 +133,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     abundPT$bank <- banks[i]
     
     # biomass per tow
-    if(banks[i] %in% c("Mid", "GB", "Ger")){
+    if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
       IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]
       IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year-1]
       IR_current <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year]

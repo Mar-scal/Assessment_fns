@@ -150,7 +150,6 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
                                        "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
       season <- tmp.season 
-      browser()
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
   
@@ -435,8 +434,8 @@ for(i in 1:len)
       # this is likely why!
       if(offsets == "default")
       {
-        if(banks[i] %in% c("BBn","BBs","Ger","Mid", "Ban", "BanIce")) offset = 0.12
-        if(banks[i] %in% c("Sab")) offset = 0.1
+        if(banks[i] %in% c("BBn","BBs","Ger","Mid", "Ban")) offset = 0.12
+        if(banks[i] %in% c("Sab", "BanIce")) offset = 0.1
         if(banks[i] %in% c("GBa","GBb")) offset = 0.1
         if(banks[i] %in% c("GB")) offset = 0.35
       }# end if(offsets == "default")
@@ -630,7 +629,6 @@ for(i in 1:len)
               
             if(seed.n.spatial.maps[k] == "CF-spatial")       
             {
-              browser()
               # This is the stack for the INLA model
               stk <- inla.stack(tag="est",data=list(y = tmp.cf$CF, link=1L),
                                 effects=list(a0 = rep(1, nrow(tmp.cf)), s = 1:spde$n.spde),
@@ -779,7 +777,7 @@ for(i in 1:len)
                               effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                               A = list(1, A))
             # This is the INLA model itself
-            mod <- inla(formula3, family=family1, data = inla.stack.data(stk),
+            mod <- inla(formula3, family=family1, data = inla.stack.data(stk), 
                         control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
             # Now that this is done we need to make a prediction grid for projection onto our mesh,
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
@@ -796,12 +794,14 @@ for(i in 1:len)
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             # Get rid of all data outside our plotting area...
             mod.res[[bin.names[k]]][!pred.in] <- NA
+            print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
       }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
       print("finished running user bin models")
       # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
       # Results are only saved if the option 'run.full' is chosen
+      
       if(INLA == 'run.full') 
       {
         save(mod.res,proj,
