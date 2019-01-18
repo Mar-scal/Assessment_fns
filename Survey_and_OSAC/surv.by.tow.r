@@ -124,7 +124,6 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 	  # If we are looking for the biomass
 		if(type=='B' || type == "ALL")
 		  {
-			
 			# Grab the meat weight bins
 			mw.bin<-seq(5,200,5)
 			# Now subset the data to the current year.
@@ -178,6 +177,7 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 			  } #end if(j == length(user.bins)) 
 			  
 			} # end for(j in 1:length(user.bins))
+
 			# Range of the commercial scallop size classes.
 			if(bar.ht=='com')wbar.ht<-c(rec.ht[i],200)
 			# Range user specified

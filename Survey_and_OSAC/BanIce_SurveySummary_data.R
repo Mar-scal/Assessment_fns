@@ -247,7 +247,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # Same for the SHF data.
   SHF.summary[[bnk]] <- as.data.frame(cbind(survey.obj[[bnk]][[1]]$year,survey.obj[[bnk]][[2]]$n.yst))
   SHF.summary[[bnk]]$bank <- bank.4.spatial
-  
+  browser()
   CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
                                    SpatHtWt.fit[[bnk]]$fit))
   names(CF.current[[bnk]])[4]<-"CF"
@@ -262,30 +262,26 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   pot.grow[[bnk]] <- NULL
 
   ############# Return all objects created here to the main SurveySummary_data script. 
-  returnlist <- list(bank.dat=bank.dat,
-                     strata.mis.match=strata.mis.match,
-                     mw=mw,
-                     SpatHtWt.fit=SpatHtWt.fit,
-                     HtWt.fit=HtWt.fit,
-                     mw.dat.all=mw.dat.all,
-                     cf.data=cf.data,
-                     surv.dat=surv.dat,
-                     surv.Clap=surv.Clap,
-                     surv.Clap.Rand=surv.Clap.Rand,
-                     surv.Live=surv.Live,
-                     surv.Rand=surv.Rand,
-                     survey.obj=survey.obj,
-                     clap.survey.obj=clap.survey.obj,
-                     SS.summary=SS.summary,
-                     SHF.summary=SHF.summary,
-                     CF.current=CF.current,
-                     seedbox.obj=seedbox.obj,
-                     lined.survey.obj=lined.survey.obj,
-                     merged.survey.obj=merged.survey.obj,
-                     pot.grow=pot.grow,
-                     survey.strata.table=survey.strata.table,
-                     detail.surv.poly=detail.surv.poly,
-                     bound.surv.poly=bound.surv.poly)
+  returnlist <- list(bank.dat=bank.dat[[bnk]],
+                     SpatHtWt.fit=SpatHtWt.fit[[bnk]],
+                     cf.data=cf.data[[bnk]],
+                     surv.dat=surv.dat[[bnk]],
+                     surv.Clap=surv.Clap[[bnk]],
+                     surv.Clap.Rand=surv.Clap.Rand[[bnk]],
+                     surv.Live=surv.Live[[bnk]],
+                     surv.Rand=surv.Rand[[bnk]],
+                     survey.obj=survey.obj[[bnk]],
+                     clap.survey.obj=clap.survey.obj[[bnk]],
+                     SS.summary=SS.summary[[bnk]],
+                     SHF.summary=SHF.summary[[bnk]],
+                     CF.current=CF.current[[bnk]],
+                     seedbox.obj=seedbox.obj[[bnk]],
+                     lined.survey.obj=lined.survey.obj[[bnk]],
+                     merged.survey.obj=merged.survey.obj[[bnk]],
+                     pot.grow=pot.grow[[bnk]],
+                     survey.strata.table=survey.strata.table[[bnk]],
+                     detail.surv.poly=detail.surv.poly[[bnk]],
+                     bound.surv.poly=bound.surv.poly[[bnk]])
  return(returnlist)
   
 }

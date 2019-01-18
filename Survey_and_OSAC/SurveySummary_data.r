@@ -245,7 +245,11 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     
     print("get.offshore.survey done")
     
-    if("BanIcespring" %in% surveys) BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
+    ### Do any preprocessing to the BanIce data here
+    if("BanIcespring" %in% surveys) {
+      BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
+      BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
+    }
     
     ### This grabs the data directly from the database and makes it it's own object, works for now
     ### since we don't use the data for anything but a plot on GB.
@@ -438,19 +442,27 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
                                           meatweightdata = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                           positionsdata=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
                                           commercialsampling=commercialsampling)
-      browser()
-      survey.obj[["BanIce"]] <- BanIce$
-      SHF.summary[["BanIce"]]<- BanIce$
-      SS.summary[["BanIce"]] <- BanIce$
-      CF.current[["BanIce"]] <- BanIce$
-      cf.data[["BanIce"]] <- BanIce$
-      clap.survey.obj[["BanIce"]] <- BanIce$
-      lined.survey.obj[["BanIce"]]<- BanIce$
-      merged.survey.obj[["BanIce"]] <- BanIce$
-      seedbox.obj[["BanIce"]] <- BanIce$
-      pot.grow[["BanIce"]] <- BanIce
-      survey.strata.table[["BanIce"]] <- BanIce$survey.strata.table[["BanIce"]]
-      browser()
+      
+      bank.dat[["BanIce"]] <- BanIce$bank.dat
+      SpatHtWt.fit[["BanIce"]] <- BanIce$SpatHtWt.fit
+      cf.data[["BanIce"]] <- BanIce$cf.data
+      surv.dat[["BanIce"]] <- BanIce$surv.dat
+      surv.Clap[["BanIce"]] <- BanIce$surv.Clap
+      surv.Clap.Rand[["BanIce"]] <- BanIce$surv.Clap.Rand
+      surv.Live[["BanIce"]] <- BanIce$surv.Live
+      surv.Rand[["BanIce"]] <- BanIce$surv.Rand
+      survey.obj[["BanIce"]] <- BanIce$survey.obj
+      clap.survey.obj[["BanIce"]] <- BanIce$clap.survey.obj
+      SS.summary[["BanIce"]] <- BanIce$SS.summary
+      SHF.summary[["BanIce"]] <- BanIce$SHF.summary
+      CF.current[["BanIce"]] <- BanIce$CF.current
+      seedbox.obj[["BanIce"]] <- BanIce$seedbox.obj
+      lined.survey.obj[["BanIce"]] <- BanIce$lined.survey.obj
+      merged.survey.obj[["BanIce"]] <- BanIce$merged.survey.obj
+      pot.grow[["BanIce"]] <- BanIce$pot.grow
+      survey.strata.table[["BanIce"]] <- BanIce$survey.strata.table
+      detail.surv.poly[["BanIce"]] <- BanIce$detail.surv.poly
+      bound.surv.poly[["BanIce"]] <- BanIce$bound.surv.poly
       
     }
     else
