@@ -314,6 +314,10 @@ for(i in 1:len)
     RS <- size.cats$RS[size.cats$Bank == "GBa"]
     CS <- size.cats$CS[size.cats$Bank == "GBa"]
   }
+  if(banks[i] %in% "BanIce") {
+    RS <- 75
+    CS <- 80
+  }
 
   # Grab any seedboxes of interest...
   # I'm picking November 1st of current year b/c if they close a box at this point none of our presentations
@@ -890,6 +894,7 @@ for(i in 1:len)
             } # end if(maps.to.make[m]  == "Rec-spatial")
             if(maps.to.make[m]  == "PR-spatial")
             {
+              
               fig.title <- substitute(bold(paste("Pre-recruit scallops (" ,""<b, " mm " , bank,"-",year,")",sep="")),
                                         list(b=as.character(RS),year=as.character(yr),bank=banks[i]))
               if(banks[i] == "GB") fig.title <- substitute(bold(paste("Pre-recruit scallops (" ,""<b, " mm " , bank,"-Spr-",year,")",sep="")),
