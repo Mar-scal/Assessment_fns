@@ -179,7 +179,7 @@ if(preprocessed==F)
     }# end if(file.exists(paste(direct,"Data/... == F
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct.off=direct)
+    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -198,6 +198,7 @@ if(preprocessed==F)
     # Now we need to calculate the growth for the models and we also extract the fishery data for the survey year here.  First up GBa.
     for(i in 1:length(bank))
     {
+      #browser()
       # If we are running a sub-area we need to make sure we have the correct bank to pull the data from
       master.bank <-ifelse(grepl("GBa",bank[i])==T , "GBa","BBn")
       years <- min(survey.obj[[bank[i]]][[1]]$year):max(survey.obj[[bank[i]]][[1]]$year)
@@ -215,10 +216,10 @@ if(preprocessed==F)
         # Just extract the fish data from the spatial object, don't need the spatial GIS component from this
         fish.dat <- fish.dat[which(fish.pts ==1),]
       } # end if(!bank[i] %in% c("GBa","BBn"))
-      
+      if(bank[i] %in% c("GBa","BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
      
       # Bring in the vonB parameters..
-      vonB.par <-vonB[vonB$Bank ==master.bank,]
+      vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
       cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
                                          direct=direct,period = "survyr") 	
@@ -227,7 +228,7 @@ if(preprocessed==F)
       #for all other years we need to do this for Browns Bank North
       # It really makes very little difference which way this is done as the catch in June-August
       # has averaged around just 40 tonnes since about 1996.
-      if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=,yr=(min(years)-1):max(years),surv='May',
+      if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
                                                                                 method='jackknife',direct=direct,period = "survyr") 	
       # Combine the survey and Fishery data here.
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
@@ -827,7 +828,7 @@ for(j in 1:num.banks)
       #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
       # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data 
       # anywhere at this point so we grab that
-      logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pwd,db.con=db.con,direct.off=direct)
+      logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pwd,db.con=db.con,direct=direct)
       # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
       # This should combine without any warnings so don't ignore warnings here.
       fish.dat<-merge(new.log.dat,old.log.dat,all=T)
