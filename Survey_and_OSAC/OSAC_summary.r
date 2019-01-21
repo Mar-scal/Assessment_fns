@@ -90,7 +90,7 @@ if(!is.null(bank))
   yr <- max(years)
   # So we update the fishery data with the lastest for this analysis in case the above is out of date.
   # This queries the offshore so gets the most up to date fishery information which we should be sure we are using!
-  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct.off=direct)
+  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
   fish.dat<-merge(new.log.dat,old.log.dat,all=T)
   fish.dat$ID<-1:nrow(fish.dat)
   
