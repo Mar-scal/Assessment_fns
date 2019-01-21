@@ -44,7 +44,6 @@
 surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=NULL, A=htwt.fit$A , user.bins = c(50,70,85,95,110),
                       B=htwt.fit$B, mw.par='fixed',bar.ht='com', mc=33)
 {
-  
   # Get the names for the user bins
   bnames <- paste0("bin_lt_",user.bins[1])
   for(i in 1:length(user.bins)+1) 
@@ -68,9 +67,9 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 	# If years isn't entered it is all years in shf.dat
 	if(missing(years))years<-sort(unique(shf.dat$year))
 	#  If just 1 number entered for pre-recruit height make it an object with that same value for all years
-	if(length(pre.ht==1))pre.ht<-rep(pre.ht,length(years))
+	if(length(pre.ht)==1)pre.ht<-rep(pre.ht,length(years))
 	#  If just 1 number entered for recruit height make it an object with that same value for all years
-	if(length(rec.ht==1))rec.ht<-rep(rec.ht,length(years))
+	if(length(rec.ht)==1)rec.ht<-rep(rec.ht,length(years))
 	# Make a mw object if needed later.
 	mw<-list(NULL)
 	
@@ -125,7 +124,6 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 	  # If we are looking for the biomass
 		if(type=='B' || type == "ALL")
 		  {
-			
 			# Grab the meat weight bins
 			mw.bin<-seq(5,200,5)
 			# Now subset the data to the current year.
@@ -179,6 +177,7 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 			  } #end if(j == length(user.bins)) 
 			  
 			} # end for(j in 1:length(user.bins))
+
 			# Range of the commercial scallop size classes.
 			if(bar.ht=='com')wbar.ht<-c(rec.ht[i],200)
 			# Range user specified
@@ -229,7 +228,6 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
 
 # Finally to get the meat counts, DK added Sept 2015.
 	if(type == "ALL") shf.dat$meat.count <- 0.5* shf.dat$tot / shf.dat$tot.bm
-	
 	
 	# return the object..
 	shf.dat

@@ -138,8 +138,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
 
 if(preprocessed==F)
   {
-   
-    # Bring in the survey results for the current year, this also includes the fishery data..
+  direct.real <- direct  
+  # Bring in the survey results for the current year, this also includes the fishery data..
     # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
@@ -178,6 +178,8 @@ if(preprocessed==F)
         
     }# end if(file.exists(paste(direct,"Data/... == F
   
+  direct <- direct.real
+  
     # Now bring in the latest fishery data
     logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
@@ -189,8 +191,6 @@ if(preprocessed==F)
     cat("We read in the von B growth parameters from the file .../Data/Ageing/Von_B_growth_parameters.csv \n")
     vonB <- read.csv(paste(direct,"Data/Ageing/Von_B_growth_parameters.csv",sep=""))
     
-
-    
     # Run this for one or both banks
     mod.dat <- NULL
     cpue.dat <- NULL
@@ -200,7 +200,7 @@ if(preprocessed==F)
     {
       #browser()
       # If we are running a sub-area we need to make sure we have the correct bank to pull the data from
-      master.bank <-ifelse(grepl("GBa",bank[i])==T , "GBa","BBn")
+      master.bank <-ifelse(grepl(pattern="GBa",x=bank[i])==T , "GBa","BBn")
       years <- min(survey.obj[[bank[i]]][[1]]$year):max(survey.obj[[bank[i]]][[1]]$year)
      
       # First off we subset the data to the area of interest using the survey boundary polygon, only do this for the sub-areas though
@@ -216,13 +216,16 @@ if(preprocessed==F)
         # Just extract the fish data from the spatial object, don't need the spatial GIS component from this
         fish.dat <- fish.dat[which(fish.pts ==1),]
       } # end if(!bank[i] %in% c("GBa","BBn"))
-      if(bank[i] %in% c("GBa","BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
-     
+      
+      # If we're just running the regular old GBa/BBn banks, then no need to do the above, but we need to create fish.dat
+      if(bank[i] %in% c("GBa", "BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
+      
       # Bring in the vonB parameters..
       vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
       cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
                                          direct=direct,period = "survyr") 	
+      
       # Now on Browns North the survey usually happens in June so the projection is actually different
       # But in 2015 the survey was messed so the above is the solution used for 2015, 
       #for all other years we need to do this for Browns Bank North
@@ -234,6 +237,7 @@ if(preprocessed==F)
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
       # Get the CV for the CPUE...
       mod.dat[[bank[i]]]$U.cv <- mod.dat[[bank[i]]]$cpue.se/mod.dat[[bank[i]]]$cpue
+
       # now get the catch data from end of survey until end of the year for the projection
       proj.sub <- subset(fish.dat,year %in% years & months(as.Date(fish.dat$date)) %in% c("September","October","November","December"))
       # Again on Browns North the survey usually happens in June so the projection is actually different
@@ -295,10 +299,12 @@ if(preprocessed==F)
       waa.t2 <- mod.dat[[bank[i]]]$CF*(laa.t/100)^3
       mod.dat[[bank[i]]]$gR <- waa.t/waa.tm1
       mod.dat[[bank[i]]]$gR2 <- waa.t2/waa.tm1# setwd("C:/Assessment/2014/r")
+      
     } # end for(i in 1:length(bank))
 
     # Save the results so you don't have to do section 1 over and over.
     save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
+    print("done pre-processing")
   } # end if(preprocessed == F)
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 
@@ -365,7 +371,7 @@ for(j in 1:num.banks)
   
   
   #Read2 Get the managment data, note this file needs updated annually! 
-  cat(paste("*NOTE #1* Please ensure the file Ref_pts_and_tac.csv is updated with the interim TAC or you won't have information for the", 
+  cat(paste("*NOTE #1* Please ensure the file Ref_pts_and_tac.csv is updated with the interim TAC (from the Interim Fishing Plan sent after OSAC) or you won't have information for the", 
         yr+1,"prediction, wouldn't you feel silly without that.\n",sep = " "))
   manage.dat <- read.csv(file=paste(direct,"Data/Model/Ref_pts_and_tac.csv",sep=""))
 # If you need to run the model giver.
@@ -586,6 +592,8 @@ for(j in 1:num.banks)
              URP,LRP,proj,bnk,TACi,yrs,j,
              file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
       } # if(final.run == F) 
+      
+      print("done running model. Results saved in Data/Model/year/bank/Results/")
   } # end if(run.mod==T)
 
 ############# END Section 2 Model#############  END Section 2 Model#############  END Section 2 Model#############  
@@ -658,8 +666,6 @@ for(j in 1:num.banks)
     # Get the percent biomass change from the projection. 0 means unchanged, + means % increase, - means % decline
     percent.B.change[[bnk]] <- (BM.proj.1yr[[bnk]] / DD.out[[bnk]]$median$B[length(DD.out[[bnk]]$median$B)]) -1
   
-  
-  
     ####################  MODEL DIAGNOSITCS ####################  MODEL DIAGNOSITCS ####################  MODEL DIAGNOSITCS 
     ##### Now we can run some model diagnostics.
     # Some quick diagnoistics, the maximum should be < 1.05
@@ -674,6 +680,7 @@ for(j in 1:num.banks)
          file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
 
 
+    print("done running diagnostics")
  
 ##################### END Section 3 Model Diagnostics #####################  END Section 3 Model Diagnostics #################  
 ##################### END Section 3 Model Diagnostics #####################  END Section 3 Model Diagnostics #################  
@@ -801,62 +808,71 @@ for(j in 1:num.banks)
       }  # end for(i in 1:num.param)
       dev.off()
     
+      print("done making diagnostic figures")
+      
     } #end  if(make.diag.figs == T)
     
     # Now we make the figures used in the update document  
     if(make.update.figs == T)
     {
-      bm.max <- ifelse(bnk == "GBa", 55000,25000)
+      if(bnk == "GBa") bm.max <- 60000
+      if(bnk == "BBn") bm.max <- 25000
       
-    # Now make the biomass plots for the areas as necessary
-    if(bnk != "GBa")
-    {
-      biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
-                  URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
-    } # end if(bnk == "BBn")
+      # Now make the biomass plots for the areas as necessary
+      if(bnk != "GBa")
+      {
+        # If it's BBn, we have a y-axis maximum that we want to use (bm.max)
+        if(bnk=="BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
+                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
+        # If it's a GBa subarea (i.e. not BBn and not GBa), we rely on biomass.plt to assign the y-axis maximum based on the upper credible limit,
+        # we also don't have a TAC for the subareas
+        if(bnk!= "BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
+                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL)
+      } # end if(bnk == "BBn")
+      
+      if(bnk == "GBa")
+      {
+        biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
+                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
+        
+      } # end if(bnk == "GBa")
     
-    if(bnk == "GBa")
-    {
-      biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
-                  URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
+      # Only make these figures for GBa or BBn
+      if(bnk %in% c("GBa","BBn"))
+      {
+        #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
+        # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data 
+        # anywhere at this point so we grab that
+        logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pwd,db.con=db.con,direct.off=direct)
+        # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
+        # This should combine without any warnings so don't ignore warnings here.
+        fish.dat<-merge(new.log.dat,old.log.dat,all=T)
+        fish.dat$ID<-1:nrow(fish.dat)
+        # Being lazy we get the data for each bank We are just looking for the annual values here so nothing fancy needed...
 
-    } # end if(bnk == "GBa")
-    
-    # Only make these figures for GBa or BBn
-    if(bnk %in% c("GBa","BBn"))
-    {
-      #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
-      # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data 
-      # anywhere at this point so we grab that
-      logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pwd,db.con=db.con,direct=direct)
-      # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
-      # This should combine without any warnings so don't ignore warnings here.
-      fish.dat<-merge(new.log.dat,old.log.dat,all=T)
-      fish.dat$ID<-1:nrow(fish.dat)
-      # Being lazy we get the data for each bank We are just looking for the annual values here so nothing fancy needed...
         dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
         if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
-  
-      if(fig== "screen") windows(8.5,8.5)
-      if(fig == "pdf") pdf(paste(plotsGo,"TAC_landings.pdf",sep=""),width=8.5,height=8.5)
-      if(fig == "png") png(paste(plotsGo,"TAC_landings.png",sep=""),width=8.5,height=8.5,res=920,units="in")
-      # Here are the time series on Georges Bank
-      if(bnk == "GBa") par(mfrow=c(2,1),cex=1.2,mar=c(2,5,1,1))
-      if(bnk != "GBa") par(mfrow=c(1,1),cex=1.2,mar=c(2,5,1,1))
-      plot(dat$catch~dat$year,type="n",ylab="",xlab="",las=1,xaxt="n",bty="n",ylim=c(0,max(dat$catch*1.1,na.rm=T)))
-      axis(1,pos=0)
-      abline(h=0)
-      points(dat$catch~dat$year,  type='h',pch=15,lwd=16,lend=3,col="grey50")
-      lines(subset(manage.dat,year %in% dat$year & bank ==bnk)$TAC~dat$year,lwd=2,col="blue")
-      if(bnk == "GBa") legend("topright","TAC",title="Georges Bank A",bty="n",col="blue",lwd=2)
-      if(bnk == "BBn")
-      {
-        legend("topright","TAC",title="Browns Bank North",bty="n",col="blue",lwd=2)
-        mtext(side=2,"Landings (meat, t)",line=3.3,cex=1.5)
-      }
-
-      # Now GBb
-      if(bnk=="GBa")
+        
+        if(fig== "screen") windows(8.5,8.5)
+        if(fig == "pdf") pdf(paste(plotsGo,"TAC_landings.pdf",sep=""),width=8.5,height=8.5)
+        if(fig == "png") png(paste(plotsGo,"TAC_landings.png",sep=""),width=8.5,height=8.5,res=920,units="in")
+        # Here are the time series on Georges Bank
+        if(bnk == "GBa") par(mfrow=c(2,1),cex=1.2,mar=c(2,5,1,1))
+        if(bnk != "GBa") par(mfrow=c(1,1),cex=1.2,mar=c(2,5,1,1))
+        plot(dat$catch~dat$year,type="n",ylab="",xlab="",las=1,xaxt="n",bty="n",ylim=c(0,max(dat$catch*1.1,na.rm=T)))
+        axis(1,pos=0)
+        abline(h=0)
+        points(dat$catch~dat$year,  type='h',pch=15,lwd=16,lend=3,col="grey50")
+        lines(subset(manage.dat,year %in% dat$year & bank ==bnk)$TAC~dat$year,lwd=2,col="blue")
+        if(bnk == "GBa") legend("topright","TAC",title="Georges Bank A",bty="n",col="blue",lwd=2)
+        if(bnk == "BBn")
+        {
+          legend("topright","TAC",title="Browns Bank North",bty="n",col="blue",lwd=2)
+          mtext(side=2,"Landings (meat, t)",line=3.3,cex=1.5)
+        }
+        
+        # Now GBb
+        if(bnk=="GBa")
         {
           plot(dat1$catch~dat1$year,type="n",ylab="",xlab="",las=1,xaxt="n",bty="n",ylim=c(0,1300))
           axis(1,pos=0)
@@ -866,8 +882,8 @@ for(j in 1:num.banks)
           legend("topright","TAC",title="Georges Bank B",bty="n",col="blue",lwd=2)
           mtext(side=2,"Landings (meat, t)",line=3.3,adj=2,cex=1.5)
         } # end if(bnk=")
-      # Turn off the plot device if making a pdf.
-      if(fig!="screen") dev.off()
+        # Turn off the plot device if making a pdf.
+        if(fig!="screen") dev.off()
 
   
       #############  FINALLY I WANT TO MAKE AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
@@ -879,19 +895,18 @@ for(j in 1:num.banks)
                  direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR")
       # Turn off the plot device if making a pdf.
       if(fig != "screen") dev.off()
-    } # end if(bnk %in% c("GBa","BBn"))
-  } # end if(make.update.figs == T)
+      } # end if(bnk %in% c("GBa","BBn"))
+  print("done making document figures")
+    } # end if(make.update.figs == T)
   
 ####################  END SECTION 4 Figures ####################  END SECTION 4 Figures####################  END SECTION 4 Figures####################  
     ####################  END SECTION 4 Figures ####################  END SECTION 4 Figures####################  END SECTION 4 Figures####################  
-    
     
 ################## Section 5 Prediction evaluation Model################## Section 5 Prediction evaluation Model##################
 ################## Section 5 Prediction evaluation Model################## Section 5 Prediction evaluation Model################## 
   # Do we want to run the prediction evaluation model
   if(run.pred.eval.model == T)
   {
-    #browser()
     # Specify the parameters for the prediction evalulation plots.
     if(is.null(pe.years)) pe.years <- max(yrs[[bnk]])
     if(is.null(pe.iter)) pe.iter <- niter
@@ -909,7 +924,7 @@ for(j in 1:num.banks)
     pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
     #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     
-    
+    print("done running prediction evaluation")
   }  # if(run.pred.eval.model == T)
 
 } # end for(j in 1:num.banks)

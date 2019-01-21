@@ -4,12 +4,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   options(scipen=999)
   load(data)
   banks <- names(bank.dat)
-  if(any(grepl(banks, "GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
+  if(any(grepl(x=banks, pattern="GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
   
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
-  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "GBa", "GBb"),
-                                season=c(rep("spring", 7), rep("summer", 2)))
+  possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "BanIce", "GBa", "GBb"),
+                                season=c(rep("spring", 8), rep("summer", 2)))
   bankcheck <- data.frame(banks, year=year)
   bankcheck <- plyr::join(bankcheck, possiblebanks, type="full")
   bankcheck$word[bankcheck$banks=="BBn"] <- "Browns Bank North"
@@ -18,7 +18,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   bankcheck$word[bankcheck$banks=="Mid"] <- "Middle Bank"
   bankcheck$word[bankcheck$banks=="Sab"] <- "Sable Bank"
   bankcheck$word[bankcheck$banks=="GB"] <- "Georges Bank"
-  bankcheck$word[bankcheck$banks=="Ban"] <- "Banquereau Bank"
+  bankcheck$word[bankcheck$banks=="Ban"] <- "Banquereau Bank (Sea Scallop)"
+  bankcheck$word[bankcheck$banks=="BanIce"] <- "Banquereau Bank (Icelandic)"
   bankcheck$word[bankcheck$banks=="GBa"] <- "Georges Bank 'a'"
   bankcheck$word[bankcheck$banks=="GBb"] <- "Georges Bank 'b'"
   
@@ -47,7 +48,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     ntowsy$type[ntowsy$Var1 == 4] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 4], "4", "other")
     ntowsy$type[ntowsy$Var1 == 5] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 5], "5", "exploratory_5")
     ntowsy$bank <- banks[i]
-    
+    browser()
     ntows <- rbind(ntows, ntowsy)
     
     # number per tow
@@ -132,7 +133,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     abundPT$bank <- banks[i]
     
     # biomass per tow
-    if(banks[i] %in% c("Mid", "GB", "Ger")){
+    if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
       IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]
       IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year-1]
       IR_current <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year]
@@ -225,12 +226,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
-      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
+      }
     if(banks[i] == "BBs"){
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-2, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
-      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)}
+      maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
+      }
     
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
