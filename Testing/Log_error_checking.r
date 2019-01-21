@@ -32,7 +32,10 @@
 #   bank:       The bank you are interested in checking, can be one, multiple, or all banks at once.  Default = NULL which will use all data, to select
 #               a bank you need to use the 3 digit codes (e.g. "GBa","BBn",)
 #   trips:      Do you want to just look at specfic trips.  Default is NULL (looks at everything for the year)
-#   dates:      Do you want to just look for trips that fished within a certain range.  Default is NULL specfy dates as YYYY-MM-DD
+
+#   dates:      Do you want to just look for trips that fished within a certain range.  Default is NULL. 
+#               For one day enter like: dates="YYYY-MM-DD"
+#               For a date range enter as: dates=c("YYYY-MM-DD", "YYYY-MM-DD") where the first date is the beginning and the second date is the end of the range.
 #   tow.time.check:   What is the range of tow times you want to check.  default = c(3,80) which will flag tow times < 3 and > 80.
 #   trip.tol:   What is the tolerance you want for comparing the slip weights with the trip weights from the logs.  Options include
 #               a: 'exact' which will flag trips that aren't exact matches, this may flag a lot of trips that are only off due to rounding error
@@ -99,11 +102,15 @@ if(!is.null(trips))
   dat.log <- dat.log[dat.log$tripnum %in% trips,]
 } # end if(!is.null(trips)) 
 # If you want to look by date fished, this would also pull any logs with the date fished missing from that year
+
 if(!is.null(dates)) 
 {
   miss.dat[["date_fished"]] <- dat.log[is.na(dat.log$fished),]
   dat.log <- dat.log[!is.na(dat.log$fished),]
-  dat.log <- dat.log[dat.log$fished %in% ymd(dates),]
+
+  if(length(dates)>1) dat.log <- dat.log[dat.log$fished %in% ymd(dates[1]):ymd(dates[2]),]
+  if(length(dates)==1) dat.log <- dat.log[dat.log$fished %in% ymd(dates),]
+
 } # end if(!is.null(dates)) 
 # If you want to look by vessel,this would also pull any logs with the vrnum missing from that year
 if(!is.null(vrnum)) 
@@ -120,6 +127,8 @@ if(!is.null(bank))
   dat.log <- dat.log[dat.log$bank %in% bank,]
 } #end if(!is.null(bank))
 
+# kill it and return an error message if too many parameters specified.
+if(dim(dat.log)[1] == 0) stop("No trips found with specified parameters.")
 
 
 # So we now subset our data to the trips/banks/dates we are interested in, we can now search for na's in these key fields for the remaining data.
@@ -248,7 +257,6 @@ for(i in 1:num.trips)
       offshore.survey.boundaries <- all.layers(temp2)
     } # if(i==1)
     
-    #browser()
     # Now we want to see if any of the data in the logs falls outside the region we think it is in.
     # For split trips I consider the first bank only, so this will pretty much flag all split trips, which I think is fine!
     trip.area <- na.omit(unique(trip.log$bank))[1]
@@ -271,11 +279,15 @@ for(i in 1:num.trips)
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
       pecjector(area = trip.area,add_EEZ = T,add_sfas = "all",add_land = T)
-    } else {pecjector(area = pr,add_EEZ = T,add_sfas = "all",add_land = T)}
+    } 
+    else {
+      pecjector(area = pr,add_EEZ = T,add_sfas = "all",add_land = T)
+      }
     
-    plot(trip.log,add=T,pch=19,cex=0.2)
-    plot(osa,add=T,pch=20,cex=1,color="blue") # These are any points outside the survey domain
-    title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=0.7)
+    plot(trip.log,add=T,pch=19,cex=0.5)
+    plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain
+    title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
+
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i]))
 } # end for(i in 1:num.trips)

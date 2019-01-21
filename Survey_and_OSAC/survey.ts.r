@@ -292,7 +292,6 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(!is.null(yl2) && length(yl2) == 1 ) ymax<-rep(yl2,length(mn.tmp))
   if(!is.null(yl2) && length(yl2) > 1 )  ymax<-yl2
   
-  
   # Set up the plot.
   par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
   
@@ -311,6 +310,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     # the latest year, every 5th year plotted
     axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),5),lab = F, tcl = -0.6,cex.axis=axis.cx)
     axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),1), lab = F, tcl = -0.3,cex.axis=axis.cx)
+    
     # Left and right y-axes, note that we scale the maximum by ys for some reason.
     y.axis.ticks <- pretty(c(0,ymax[i]))
     
@@ -353,7 +353,8 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     if(i == length(mn.tmp))
     {
       # Add the axis label to whichever plot comes last and include the labels (years)
-      axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),5), tcl = -0.6,cex.axis=axis.cx)
+      if(length(years)<11) axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),2), tcl = -0.6,cex.axis=axis.cx)
+      if(!length(years)<11) axis(1, at = seq(1955,as.numeric(format(Sys.time(),"%Y")),5), tcl = -0.6,cex.axis=axis.cx)
       # Is data in Numbers per tow or total numbers.bgroup("(",frac(N,tow),")")
       if(Npt==T && type == "N") mtext(side=2,substitute(paste("",frac(N,tow),),list(N="N",tow="tow")), line=2,
                                       outer = T, cex = 1.2,las=1)

@@ -45,7 +45,6 @@
 condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.loc=NULL,b.par=3,plt=F,
                   dirct="Y:/Offshore scallop/Assessment/")
 {
-
 	require(mgcv)  || stop("Install mgcv package needed for gam's")
   #Source1 Load in our missed effects model.
   source(paste(dirct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep=""),local=T)	

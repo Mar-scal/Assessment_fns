@@ -34,7 +34,6 @@
 import.hyd.data <- function(Bank=c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid","Ban","SP"),yrs=1981:2008, 
                             mths=1:12,export=T,dirt="Y:/Offshore scallop/Assessment/")
 {
-	
 	require(splancs)  || stop("You need to install the splancs package!")
 
 	#Source1
