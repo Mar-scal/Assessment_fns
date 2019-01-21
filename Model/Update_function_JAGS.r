@@ -181,7 +181,7 @@ if(preprocessed==F)
   direct <- direct.real
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct.off=direct)
+    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -198,6 +198,7 @@ if(preprocessed==F)
     # Now we need to calculate the growth for the models and we also extract the fishery data for the survey year here.  First up GBa.
     for(i in 1:length(bank))
     {
+      #browser()
       # If we are running a sub-area we need to make sure we have the correct bank to pull the data from
       master.bank <-ifelse(grepl(pattern="GBa",x=bank[i])==T , "GBa","BBn")
       years <- min(survey.obj[[bank[i]]][[1]]$year):max(survey.obj[[bank[i]]][[1]]$year)
@@ -848,6 +849,7 @@ for(j in 1:num.banks)
         fish.dat<-merge(new.log.dat,old.log.dat,all=T)
         fish.dat$ID<-1:nrow(fish.dat)
         # Being lazy we get the data for each bank We are just looking for the annual values here so nothing fancy needed...
+
         dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
         if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
         

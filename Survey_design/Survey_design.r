@@ -16,6 +16,8 @@
 # Feb 2018:   DK revised the German allocation so that something other that 80 tows worked...
 # May 2018:  Revised the GBa sampling design to allocate more stations than we would if randomly assigning by area on the northern portion of GBa and tidied up the seedbox dates, now 
 #            using our friend lubridate...
+# Jan 2019:  DK revised to incorporate Banquereau stations, at this time we are proposing Ban stations to be fixed based on the 2012 stations.  Also had
+#            to clean up for the revised Sable strataification due to WEBCA.
 
 #####################################  Function Summary ########################################################
 ####  
@@ -96,6 +98,7 @@ towlst <- NULL
 if(plot == T && !is.null(dev.list())) dev.off(dev.list())
 # Get the index for the loop.
 num.banks <- length(banks)
+#browser()
 for(i in 1:num.banks)
 {
   # Grab the bank
@@ -122,6 +125,8 @@ for(i in 1:num.banks)
     surv.poly[[i]] <- subset(surv.polyset,label==bnk)
     attr(surv.poly[[i]],"projection")<-"LL"
     polydata[[i]] <- subset(surv.polydata,label==bnk)
+    # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
+    polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
     # For GBa we actually want a different allocation scheme, I've set the number of tows in each strata to be what we had in 2016, this is similar to what we've
     # observed since 2010, but every year has varied slightly (in the north).
     # This scheme is based on a vague comment in the 2013 GBa Assessment about preferntially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
@@ -246,7 +251,8 @@ for(i in 1:num.banks)
 ######  Now do this for Middle and Georges Bank 
 #####   Middle has fixed stations so we call in these 15 fixed stations from a flat file
 #####   Georges Spring monitoring stations has 30 fixed stations 
-  if(bnk %in% c("Mid","GB")) 
+  
+  if(bnk %in% c("Mid","GB","Ban")) 
   {
     #Read5
     towlst[[i]] <-   subset(read.csv(paste(direct,"Data/Survey_data/fixed_station_banks_towlst.csv",sep="")),Bank == bnk)
@@ -263,7 +269,8 @@ for(i in 1:num.banks)
     addPoints(towlst[[i]],pch=21, cex=1)
     if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
     if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-    if(legend == T) legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+    if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+    if(legend == T && bnk == "Ban") legend('topright',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
     if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
                                                pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
     if(fig != "screen") dev.off()

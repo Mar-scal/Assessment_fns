@@ -32,6 +32,7 @@
 #   bank:       The bank you are interested in checking, can be one, multiple, or all banks at once.  Default = NULL which will use all data, to select
 #               a bank you need to use the 3 digit codes (e.g. "GBa","BBn",)
 #   trips:      Do you want to just look at specfic trips.  Default is NULL (looks at everything for the year)
+
 #   dates:      Do you want to just look for trips that fished within a certain range.  Default is NULL. 
 #               For one day enter like: dates="YYYY-MM-DD"
 #               For a date range enter as: dates=c("YYYY-MM-DD", "YYYY-MM-DD") where the first date is the beginning and the second date is the end of the range.
@@ -106,8 +107,10 @@ if(!is.null(dates))
 {
   miss.dat[["date_fished"]] <- dat.log[is.na(dat.log$fished),]
   dat.log <- dat.log[!is.na(dat.log$fished),]
+
   if(length(dates)>1) dat.log <- dat.log[dat.log$fished %in% ymd(dates[1]):ymd(dates[2]),]
   if(length(dates)==1) dat.log <- dat.log[dat.log$fished %in% ymd(dates),]
+
 } # end if(!is.null(dates)) 
 # If you want to look by vessel,this would also pull any logs with the vrnum missing from that year
 if(!is.null(vrnum)) 
@@ -126,6 +129,7 @@ if(!is.null(bank))
 
 # kill it and return an error message if too many parameters specified.
 if(dim(dat.log)[1] == 0) stop("No trips found with specified parameters.")
+
 
 # So we now subset our data to the trips/banks/dates we are interested in, we can now search for na's in these key fields for the remaining data.
 remove <- unique(c(which(is.na(dat.log$numrake)),
@@ -283,6 +287,7 @@ for(i in 1:num.trips)
     plot(trip.log,add=T,pch=19,cex=0.5)
     plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
+
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i]))
 } # end for(i in 1:num.trips)
