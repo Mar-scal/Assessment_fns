@@ -1912,13 +1912,30 @@ for(i in 1:len)
     
     if(banks[i] != "Ger")
       {
-      shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
+      if(!grepl(x=banks[i], pattern="Ban")) {
+        shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
         shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-            recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
         if(fig != "screen") dev.off()
-      } # end  if(banks[i] != "Ger")
+      }
+      
+      if(grepl(x=banks[i], pattern="Ban")) {
+        dev.off()
+        if(fig == "screen") windows(11,8.5)
+        if(fig == "png") {
+          png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 11, 
+              height = 8.5,res=420,bg="transparent")
+        }
+        if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 11, height = 8.5)
+        shf.years <- survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n) & (yr - survey.obj[[banks[i]]][[1]]$year) <10]
+        s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
+        shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, rows=2)	# rows=2 allows us to 
+        if(fig != "screen") dev.off()
+      }
+    } # end  if(banks[i] != "Ger")
     
     if(banks[i]=="Ger")
       {
