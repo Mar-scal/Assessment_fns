@@ -4,6 +4,7 @@
 # Revision History
 ## May 16, 2016 by DK, now can use 64 bit version of R when querying database.
 ## September 2016, DK, updating file locations
+## January 2019:  DK, updated to work with either Roracle or RODBC
 ####
 ################################################################################################################
 
@@ -35,16 +36,19 @@
 #un:          your SQL username.  default = un.ID (if set in your r.Profile this will run automatically)
 #pw:          Your SQL password.  default = pwd.ID  (if set in your r.Profile this will run automatically)
 #db.con:      Database to connect to.  Default is  "ptran"   
-#direct.off   The directory to put the logs for the offshore.  Default = direct which needs to be given a name somewhere
-#direct.in    The directory to put the logs for the inshore.  Default = paste(direct,"Data/Inshore/Logs/Processed/",sep="")
+#direct       The directory to put the logs for the offshore.  Default = direct which needs to be given a name somewhere
+#direct.in    The directory to put the logs for the inshore.  Default = NULL which will put it here paste(direct,"Data/Inshore/Logs/Processed/",sep="")
+# db.lib      The R library you are using to access the database.  default = "ROracle", RODBC also works
 ##### End ARGUMENTS ####################################################
 
 
 logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
-                          un=un.ID,pw=pwd.ID,db.con="ptran",direct.off=direct,
-                          direct.in=paste(direct,"Data/Inshore/Logs/Processed/",sep=""))
-  {
-  require(RODBC) || stop("Package RODBC cannot be found")
+                          direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle")
+{
+  # Set up the directories
+  direct.off <- direct
+  if(is.null(direct.in)) direct.in <- paste(direct,"Data/Inshore/Logs/Processed/",sep="")
+  source(paste0(direct,"/Assessment_fns/Other_functions/ScallopQuery.R"))
   require(splancs) || stop("Package splancs cannot be found")
   
   # First get the current year from your computer, need for some of the if/table writing options.
@@ -74,25 +78,26 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
           if(year[i] <2010 && year[i] > 2000) 
             {
             # Open the channel to the database
-            chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
+            #chan <- odbcConnect(package="db.lib", un=un.ID, pw=pwd.ID, db.con=db.con, db.con,uid=un,pwd=pw,believeNRows=FALSE)
             # The query to grab log data
             qu.log <- paste("select * from SCALLOP.SCALLOP_LOG_MARFIS where to_char(DATE_FISHED,'yy')='","0",year[i]-2000,"'",sep="")
             # Run the query and add data to the log.lst object
-            log.lst[[i]] <- sqlQuery(chan, qu.log)
+            log.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
+            #log.lst[[i]] <- sqlQuery()
             # close the odbc connection
-            odbcCloseAll()
+            #odbcCloseAll()
             } # end if year < 2010
           
           if(year[i] >=2010) 
             {
             # Open the channel to the database
-            chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
+            #chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
             # The query to grab log data
             qu.log <- paste("select * from SCALLOP.SCALLOP_LOG_MARFIS where to_char(DATE_FISHED,'yy')='",year[i]-2000,"'",sep="")
             # Run the query and add data to the log.lst object            
-            log.lst[[i]] <- sqlQuery(chan, qu.log)
+            log.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
             # close the odbc connection
-            odbcCloseAll()
+            #odbcCloseAll()
             } # end if year >= 2010
           
         } # end for i in 1:length(year))
@@ -102,19 +107,19 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
       
       # If we just pick all years it is simple!
       if(year[1]=='ALL')
-        {
+      {
         # Open the channel to the database
-        chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
-      qu.log <- "select * from SCALLOP.SCALLOP_LOG_MARFIS"
-      log.dat.in <- sqlQuery(chan, qu.log)
-      # close the odbc connection
-      odbcCloseAll()
-        } # end if year == ALL
+        #chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
+        qu.log <- "select * from SCALLOP.SCALLOP_LOG_MARFIS"
+        log.dat.in <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
+        # close the odbc connection
+        odbcCloseAll()
+      } # end if year == ALL
       
     # Let's make the variable names closer matches to offshore, add
     # a couple columns and return log.dat.in to any function calling this function.
       if(max(yr) >=2002) 
-        {
+      {
         log.dat.in <- with(log.dat.in, data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME,vrnum = VR_NUMBER, tripnum = TRIP_ID, 
                                              fished = as.Date(DATE_FISHED,format="%d-%b-%y"), nafo = NAFO_UNIT_AREA, 
                                              sfa.marfis = MARFIS_DET_AREA, 
@@ -214,7 +219,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     # So the to do list here is to grab the flat files that exist, not need to do anything fancy!
     # For the stuff before 2008 the files are simply these, grab them and bring them into import.fishery.data_DK
     # These are already processed and ready to go so no need to do anything pre-2009 here.
-
+  
         if(max(yr) > 2008) 
         {
           new.yr <- yr[yr > 2008]
@@ -258,12 +263,12 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
             
            
           } # end for 1:length(new.yr)
-          
+          #browser()
           log1 <- do.call("rbind",log.lst)
           slip1 <- do.call("rbind",slip.lst)
 
           # This removes columns/variables we do not need.
-          slip <- with(slip1, data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME, vrnum = VR_NUMBER, tripnum = TRIP_NUMBER, 
+          slip <- with(slip1, data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME, vrnum = VR_NUMBER, tripnum = TRIP_ID, 
                                          sail = as.Date(DATE_SAILED,format="%d-%b-%y"), 
                                          land = as.Date(LANDING_DATE_TIME,format="%d-%b-%y"), 
                                          gear.ft = GEAR_SIZE_FEET, numshuck = NUM_OF_CREW_SHUCKING, numcrew = NUM_OF_CREW, 
@@ -283,6 +288,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     # Grab the data from 2008 onwards, these are flat files which are SQL data fixed.
     if(max(log.year) > 2008 )
       {
+
         new.log.dat <- log
         slip.dat <- slip
      
@@ -429,7 +435,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     
     if(min(log.year) <= 2008 ) 
       {
-        
+
         # These two files include fishery data, they were previously processed by archived version of import.fishery.data.r 
         # No need to keep doing that.
         #Read4
@@ -536,21 +542,20 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
       # Run the loop across all years of data
       for(i in 1:len)
         {
-        
           # The query to make to the SQL database
           # The "like %-" ignores first two digits and selects anything ending in the year of interest
           # This will grab the data for the most recent 2 years.
           if(yr[i] == current.year || yr[i] == current.year-1) # This will always grab the data from the most recent year of interest.
             {
               # Open the channel
-              chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
+              #chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
               # The query to grab log data
               qu.slip <- paste("select * from marfissci.P_OFFSHORE_SCALLOP_SLIP_2008 where DATE_SAILED like '%-",yr[i]-2000,"'",sep="")
               qu.log <- paste("select * from marfissci.P_OFFSHORE_SCALLOP_LOG_2008 where DATE_FISHED like '%-",yr[i]-2000,"'",sep="")
               # Run the query and add data to the log.lst object            
-              log.lst[[i]] <- sqlQuery(chan, qu.log)
-              slip.lst[[i]] <- sqlQuery(chan, qu.slip)
-              odbcCloseAll()  # close the database connection.
+              log.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
+              slip.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.slip)
+              #odbcCloseAll()  # close the database connection.
               
               # Send each year to a flat file in the Raw_MARFIS folder
               # if we are extracting data from the current year include the date so we know how current the data are.
@@ -588,7 +593,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
           if(yr[i] < current.year-1) 
             {
               # Open the channel
-              chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
+              #chan <- odbcConnect(db.con,uid=un,pwd=pw,believeNRows=FALSE)
               # The query to grab log data, the qurey differs for before/after 2010
               if(yr[i] > 2009)
                 {
@@ -602,10 +607,10 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
               } # end if(yr[i] > 2009)
               
               
-              # Run the query and add data to the log.lst object            
-              log.lst[[i]] <- sqlQuery(chan, qu.log)
-              slip.lst[[i]] <- sqlQuery(chan, qu.slip)
-              odbcCloseAll()  # close the database connection.
+            # Run the query and add data to the log.lst object            
+            log.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
+            slip.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.slip)
+            #odbcCloseAll()  # close the database connection.
             
             # Send each year to a flat file in the MARFIS folder
               if(ex.marfis ==T)
@@ -629,12 +634,14 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
           log.lst[[k]] <- with(log.lst[[k]], data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME,vrnum = VR_NUMBER, tripnum = TRIP_ID, 
                                                        fished = as.Date(DATE_FISHED,format="%d-%b-%y"), nafo = NAFO_UNIT_AREA, 
                                                        sfa = FISHING_AREA, lon = LONGITUDE_DEG, lat = LATITUDE_DEG,
-                                                        depth.f = DEPTH_FM, bottom = BOTTOM_TYPE, watch = WATCH, 
+                                                       lon_ent = ENT_LONGITUDE,lat_ent = ENT_LATITUDE,
+                                                       depth.f = DEPTH_FM, bottom = BOTTOM_TYPE, watch = WATCH, 
                                                        numrake = NO_RAKES_FISHED, numtow = NO_TOWS_PER_WATCH,
-                                                        avgtime = AVG_TOW_TIME, pro.repwt = PRORATED_RPTD_WEIGHT_KGS,
-                                                        roeon = ROE_ON, numbags = NO_OF_BAGS)) 
+                                                       avgtime = AVG_TOW_TIME, pro.repwt = PRORATED_RPTD_WEIGHT_KGS,
+                                                       weight = WEIGHT,roeon = ROE_ON, numbags = NO_OF_BAGS,comments = COMMENTS)) 
   
-          slip.lst[[k]] <- with(slip.lst[[k]], data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME, vrnum = VR_NUMBER, tripnum = TRIP_NUMBER, 
+          slip.lst[[k]] <- with(slip.lst[[k]], data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME, vrnum = VR_NUMBER, tripnum = TRIP_ID, 
+                                                          sfa = SCALLOP_FISHING_AREA,nafo = NAFO_UNIT_AREA,
                                                           sail = as.Date(DATE_SAILED,format="%d-%b-%y"), 
                                                           land = as.Date(LANDING_DATE_TIME,format="%d-%b-%y"), 
                                                           gear.ft = GEAR_SIZE_FEET, numshuck = NUM_OF_CREW_SHUCKING, numcrew = NUM_OF_CREW, 
@@ -645,6 +652,33 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     log.SQL <-  do.call("rbind",log.lst)
     slip.SQL <- do.call("rbind",slip.lst)
 
+    # now we can also add a bank field to the log data...
+    
+    log.SQL$bank<-NA
+    log.SQL$bank[log.SQL$sfa=="27A"]<-"GBa"
+    log.SQL$bank[log.SQL$sfa=="27B"]<-"GBb"
+    log.SQL$bank[log.SQL$sfa=="25A"]<-"Sab"
+    log.SQL$bank[log.SQL$sfa=="25A"& log.SQL$nafo=="4WE"]<-"Mid"
+    log.SQL$bank[log.SQL$sfa=="26C"]<-"Ger"
+    log.SQL$bank[log.SQL$sfa=="26A"]<-"BBn"
+    log.SQL$bank[log.SQL$sfa=="26B"]<-"BBs"
+    log.SQL$bank[log.SQL$sfa=="25B"]<-"Ban"
+    log.SQL$bank[log.SQL$sfa=="3PS"]<-"SPB"
+    log.SQL$bank[log.SQL$sfa%in% c(10,11,12)]<-"SPB"
+    
+    # And same for the slips...
+    slip.SQL$bank<-NA
+    slip.SQL$bank[slip.SQL$sfa=="27A"]<-"GBa"
+    slip.SQL$bank[slip.SQL$sfa=="27B"]<-"GBb"
+    slip.SQL$bank[slip.SQL$sfa=="25A"]<-"Sab"
+    slip.SQL$bank[slip.SQL$sfa=="25A"& slip.SQL$nafo=="4WE"]<-"Mid"
+    slip.SQL$bank[slip.SQL$sfa=="26C"]<-"Ger"
+    slip.SQL$bank[slip.SQL$sfa=="26A"]<-"BBn"
+    slip.SQL$bank[slip.SQL$sfa=="26B"]<-"BBs"
+    slip.SQL$bank[slip.SQL$sfa=="25B"]<-"Ban"
+    slip.SQL$bank[slip.SQL$sfa=="3PS"]<-"SPB"
+    slip.SQL$bank[slip.SQL$sfa%in% c(10,11,12)]<-"SPB"
+    
       if(max(yr) != current.year)
         {
           #Write7
