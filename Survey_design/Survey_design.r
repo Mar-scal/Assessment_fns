@@ -171,7 +171,7 @@ for(i in 1:num.banks)
   	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==4,],col=polydata[[i]]$col[polydata[[i]]$PID==4],border=NA)
   	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==5,],col=polydata[[i]]$col[polydata[[i]]$PID==5],border=NA)
   	  }
-  	    
+  	    browser()
   	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
   	  if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  if(text.points == F) addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
