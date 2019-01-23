@@ -10,13 +10,15 @@
 #1:   area      The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a dataframe with
 #               The coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
 #               in lat/long coordinates and a WGS84 projection.
-#2:   repo      The repository from which you will pull the data.  This is either Github (which has all the main data)
+#2:   repo      The repository from which you will pull the data.  The default is "github" (which has all the main data) 
+#               option is to look for a 'local' directory based upon the "direct specification used 
 #3:   c_sys     What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
 #               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
 #               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
 #4:   add_EEZ   Do you want to add in the EEZ, default = NULL which does nothing.  If you want the EEZ this pulls it from either
-#               our github respository (if github = "repo") or a location of your chosing (this would have to be the full directory)
-#               add_EEZ = "Y:/Offshore scallop/Assessment/Data/Maps/approved/TO DO - Good map products to incorporate/world_eez_boundary"
+#               our github respository (if repo == "github") and add_EEZ is not NULL.  If repo == "local" you need to specify the 
+#               location of the EEZ  (this would have to be the full directory) such as the below
+#               add_EEZ = "Y:/Offshore scallop/Assessment/Data/Maps/approved/GIS_layers/EEZ"
 #5:  add_bathy  Do you want to add in the bathymetry, default = NULL which does nothing.  If you want to add the bathy you simply need to supply the 
 #               resolution that you want.  The smaller the resolution the slower this runs, it relies on data provided by NOAA, so if the server
 #               is down this won't plot the bathymetry.  add_bathy = 10 plots the 10 meter bathymetry for the region selected by your xlim and ylim
@@ -59,7 +61,7 @@
 pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),repo = "github",c_sys = "ll", 
                      add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo=F,add_sfas = NULL, 
                      add_strata = NULL, add_obj = NULL,add_custom = NULL,
-                     direct = "Y:/Offshore scallop/Assessment/Data/Maps/approved/",
+                     direct = "Y:/Offshore scallop/Assessment",
                      # The below control the INLA surface added to the figure.
                      field = NULL, mesh=NULL, 
                      zlim = c(0,1), dims = c(50, 50), trans= "none", clip= NULL,
@@ -86,6 +88,16 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
     eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
   } # end if(repo == "github")
+  
+  # If getting the data from a local source...
+  if(repo == "local")
+  {
+    source(paste(direct,"Assessment_fns/Maps/convert_coords.R",sep="")) #logs_and_fish is function call
+    source(paste(direct,"Assessment_fns/Maps/add_alpha_function.R",sep="")) # The new scallopMap
+    source(paste(direct,"Assessment_fns/Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
+  } # end if(repo == "local")
+    
+  
   if(!exists("addalpha")) stop("You need to source the add_alpha_function.R for this to work, it should be in the same folder location as this function")
   if(!exists("convert.coords")) stop("You need to source the convert_coords.R for this to work, it should be in the same folder location as this function")
   if(!exists("all.layers")) stop("You need to source all.layers.R for this to work, it should be in the same folder location as this function")
@@ -157,7 +169,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # i.e. these can't be lat/lon while the c_sys is UTM
   b.box <- as(raster::extent(c(x1,x2,y1,y2)), "SpatialPolygons")
   proj4string(b.box) = c_sys
-  
+  #browser()
   # If we are going to add the EEZ do this...
   if(!is.null(add_EEZ)) 
   {
@@ -176,8 +188,8 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         unzip(zipfile=temp, exdir=temp2)
         # Now read in the shapefile
         eez.all <- readOGR(paste0(temp2, "/EEZ.shp"))
-      } else{ # end if(repo = 'github')
-        eez.all <- read.OGR(add_EEZ)} # If the repo is anything other than github we are loading the file using the add_EEZ.
+      } else{ # end if(repo == 'github' )
+        eez.all <- readOGR(add_EEZ)} # If the repo isn't github and add_EEZ is specified we get it here.
     } # end if(!exists("eez.all"))
       # We then need to transform these coordinates to the coordinates of the eez data
     eez.bbox <- spTransform(b.box,proj4string(eez.all))
@@ -201,7 +213,6 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     # Because we have the bathymetry on a grid rather than as a vector we can't easily reproject, the lazy solution is that we
     # won't plot bathymetry data unless c_sys = "ll", there is a solution but it is slow
   } # end if(!is.null(add_bathy))
-  
   
   if(add_land == T && !exists("land.all"))
   {
@@ -293,11 +304,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     }# end if(repo = 'github')
     
     # Now if you aren't using github do this...
-    if(repo != 'github')
+    if(repo == 'local')
     {
       if(add_sfas != "offshore" && !exists("inshore.spa"))
       {
-        loc <- paste0(direct,"inshore")
+        loc <- paste0(direct,"Data/Maps/approved/GIS_layers/inshore")
         inshore.spa <- all.layers(loc)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         for(i in 1:length(inshore.spa)) inshore.spa[[i]] <- spTransform(inshore.spa[[i]],c_sys)
@@ -305,16 +316,16 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       } # end if(detailed != "offshore")
       if(add_sfas != "inshore" && !exists("offshore.spa"))
       {
-        loc <- paste0(direct,"offshore")
+        loc <- paste0(direct,"Data/Maps/approved/GIS_layers/offshore")
         # This pulls in all the layers from the above location
         offshore.spa <- all.layers(loc)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         for(i in 1:length(offshore.spa)) offshore.spa[[i]] <- spTransform(offshore.spa[[i]],c_sys)
         # Now we don't have these nice shape files for SFA 29 sadly... I'll take these ones
       } # end if(detailed != "offshore")
-    } # end if(repo != 'github')
+    } # end if(repo == 'local')
   } # end if(!is.null(add_sfas)) 
-  
+  #browser()
   # Now we do the same thing for the strata
   if(!is.null(add_strata)) 
   {
@@ -360,11 +371,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     }# end if(repo = 'github')
     
     # Now if you aren't using github do this...
-    if(repo != 'github')
+    if(repo == 'local')
     {
       if(add_strata != "offshore" && !exists("inshore.strata"))
       {
-        loc <- paste0(direct,"inshore_survey_strata")
+        loc <- paste0(direct,"Data/Maps/approved/GIS_layers/inshore_survey_strata")
         inshore.strata <- all.layers(loc)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         for(i in 1:length(inshore.strata)) inshore.strata[[i]] <- spTransform(inshore.strata[[i]],c_sys)
@@ -372,15 +383,16 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       } # end if(detailed != "offshore")
       if(add_strata != "inshore" && !exists("offshore.strata"))
       {
-        loc <- paste0(direct,"offshore_survey_strata")
+        loc <- paste0(direct,"Data/Maps/approved/GIS_layers/offshore_survey_strata")
         # This pulls in all the layers from the above location
         offshore.strata <- all.layers(loc)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         for(i in 1:length(offshore.strata)) offshore.strata[[i]] <- spTransform(offshore.strata[[i]],c_sys)
         # Now we don't have these nice shape files for SFA 29 sadly... I'll take these ones
       } # end if(detailed != "offshore")
-    } # end if(repo != 'github')
+    } # end if(repo == 'local')
   } # end if(!is.null(add_strata)) 
+  
   
   # Here you can add a custom PBSmapping object or shapefile here
   if(!is.null(add_custom))
