@@ -123,7 +123,7 @@
 # 15: colour.bins Do you want to specify some colour bins for the PR-spatial, Rec-Spatial and FR-spatial plots? Default is NULL, but if you want bins, put in a vector 
 #               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000). Max bin must exceed max INLA estimate for any tow in plot.
 # 16. keep.full.GB Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
-# 17. zoom.spatial Set to true (T) if you want to zoom in on the NW region of Banquereau in spatial figs
+
 ###############################################################################################################
 
 survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -135,7 +135,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
                        plt.bath = T,sub.area=T, colour.bins=NULL,
-                       keep.full.GB=F, nickname=NULL, zoom.spatial=F)
+                       keep.full.GB=F, nickname=NULL)
 { 
  
    tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
@@ -799,7 +799,7 @@ for(i in 1:len)
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             # Get rid of all data outside our plotting area...
-            mod.res[[bin.names[k]]][!pred.in] <- NA
+            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
@@ -1134,35 +1134,16 @@ for(i in 1:len)
           if(fig == "screen") windows(11,8.5)
           
           par(mfrow=c(1,1))
-          
+
           # This is one figure to rule all
-          if(!banks[i] %in% c("Ban", "BanIce")) ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
+          if(!banks[i] =="BanIce") ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-          if(banks[i] %in% c("Ban", "BanIce")) {
-            if(banks[i] == "Ban" && zoom.spatial==F) ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
-                                                             plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                                             direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-            if(banks[i] == "Ban" && zoom.spatial==T) {
-              ScallopMap(title=fig.title,bathy.source=bath,isobath = iso,
-                         plot.bathy = T,plot.boundries=T,boundries="offshore",
-                         direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale,
-                         xlim = c(-60.5, -59.75),
-                         ylim=c(44.5, 44.7))
-            }
-            if(banks[i] == "BanIce" && zoom.spatial==F) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
-                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                               direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-            if(banks[i] == "BanIce" && zoom.spatial==T) {
-              ScallopMap(title=fig.title,bathy.source=bath,isobath = iso,
-                         plot.bathy = T,plot.boundries=T,boundries="offshore",
-                         direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale
-                         xlim = c(-60.5, -59.75),
-                         ylim=c(44.5, 44.7))
-            }
           
-          }
-        
+          if(banks[i] == "BanIce") ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
+                                              plot.bathy = T,plot.boundries=T,boundries="offshore",
+                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+          
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
           {
