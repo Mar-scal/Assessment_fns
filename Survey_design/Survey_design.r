@@ -49,15 +49,11 @@
 # relief.plots:  For German bank do you want to make the "relief plots", note these take a long time to make!!.  T/F and default is F
 # digits:        For the relief plots this controls the smoothing of the surface.  Basically this says how many digits to retain in the X and Y locations
 #                Default is 4 (which is very detailed, using 3 makes a very smooth surface.)
-
-# text.points:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  T/F/"both", 
-#                default = F (which is circles). "both" requires that you specify and x.adj and y.adj proportion to place the ID next to the point.
+# point.style:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  
+#                Three options, Default = "points" which plots filled circles, "stn_num" puts in station numbers, and "both" does both
+#                "both" uses the x.adj and y.adj proportion to place the ID next to the point.
 # x.adj:         adjustment of ID placement relative to the full x-range (e.g. x.adj=0.02 will place ID 2% away from the point in the x direction.)
 # y.adj:         adjustment of ID placement relative to the full y-range (e.g. y.adj=0.02 will place ID 2% away from the point in the y direction.)
-
-# point.style:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  
-#                Two options, Default = "points" which plots filled circles, anything else will plot the station numbers, I suggest
-#                we use "stn_num" as the second choice, but as is any other character string will produce the station number figures.
 
 # ger.new:       Number of new stations to generate on German bank, default is 60 (this must be <= 80, generally we only use 60 or 80), change the
 #                alloc.poly number of stations below if you need > 80 new tows
@@ -68,7 +64,7 @@
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, ger.rep=20, x.adj=NULL, y.adj=NULL)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20)
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -156,7 +152,6 @@ for(i in 1:num.banks)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
     if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
       
-	  
 	  # if you want to save the tow lists you can export them to csv's.
   	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab")) 
   	{
@@ -188,10 +183,13 @@ for(i in 1:num.banks)
   	  }
   	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
 
-  	  
-  	  if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-  	  if(text.points == F) addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	  if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+  	  # So what do we want to do with the points, first plots the station numbers
+  	  if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	  # This just plots the points
+  	  if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	  # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	  if(point.style == "both" ) 
+  	  {
   	    addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	    x.range <- max(abs(labs$X)) - min(abs(labs$X))
@@ -199,7 +197,7 @@ for(i in 1:num.banks)
   	    labs$X.adj <- labs$X + x.adj*x.range
   	    labs$Y.adj <- labs$Y + y.adj*y.range
   	    text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-  	  }
+  	  } # end if(point.style == "both") 
 
   	  #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
@@ -226,22 +224,23 @@ for(i in 1:num.banks)
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
   	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2)
-  	    if(point.style != "points")  text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-
-  	    if(text.points == F)  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
-  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "points")  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "stn_num")  text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	    if(point.style == "both") 
+  	    {
+  	      points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
   	      labs$X.adj <- labs$X + x.adj*x.range
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-  	    }
+  	    } # end if(point.style == "both") 
 
-  	    #if(point.style == "points")  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
 
   	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
@@ -257,20 +256,22 @@ for(i in 1:num.banks)
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2)
-  	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-
-  	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
-  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	    if(point.style == "both") 
+  	    {
+  	      points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
   	      labs$X.adj <- labs$X + x.adj*x.range
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-  	    }
+  	    } # end if(point.style == "both") 
 
   	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
 
@@ -289,22 +290,22 @@ for(i in 1:num.banks)
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2)
-  	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-
-  	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
-  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	    if(point.style == "both" ) 
+  	    {
+  	      points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
   	      labs$X.adj <- labs$X + x.adj*x.range
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-  	    }
-
-  	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    } # end if(point.style == "both" ) 
 
         if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
@@ -318,7 +319,8 @@ for(i in 1:num.banks)
 
 ######  Now do this for Middle and Georges Bank 
 #####   Middle has fixed stations so we call in these 15 fixed stations from a flat file
-#####   Georges Spring monitoring stations has 30 fixed stations 
+#####   Georges Spring monitoring stations has 30 fixed stations also called from a flat file
+#####   Banquereau stations 
   
   if(bnk %in% c("Mid","GB","Ban")) 
   {
@@ -334,8 +336,12 @@ for(i in 1:num.banks)
                             height = 8.5,bg = "transparent")
     ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
     title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-    if(text.points == F) addPoints(towlst[[i]],pch=21, cex=1)
-    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+    # Add the points, or text or both
+    if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
+    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+    if(point.style == "both" ) 
+    {
       addPoints(towlst[[i]],pch=21, cex=1)
       labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
       x.range <- max(abs(labs$X)) - min(abs(labs$X))
@@ -344,6 +350,7 @@ for(i in 1:num.banks)
       labs$Y.adj <- labs$Y + y.adj*y.range
       text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
     }
+    
     if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
     if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
     if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
@@ -367,11 +374,10 @@ if(bnk == "Ger")
     Ger.polyset <- subset(read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),stringsAsFactors = F),label==bnk)
     Ger.polyset$PID <- 1 # Force the PID to be 1, since it is a boundary there is only 1 unique PID...
     attr(Ger.polyset,"projection")<-"LL"
-    # This gets us the tows for German bank, note we have ger.new new tows and ger.rep repeats when we call it this way.
+
+    # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
     Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
-                            ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
-    # Now subset the "new tows" down to what is specified in the above
-    if(is.null(seed)) seed <- sample(1:2^15, 1)
+                            ntows=ger.new,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
     ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
@@ -399,8 +405,14 @@ if(bnk == "Ger")
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-      if(text.points == F) addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
-      if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+
+      # Add points, station numbers, or both.
+      if(point.style == "points") addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
+      #browser()
+      if(point.style == "stn_num") text(Ger.tow.dat$X,Ger.tow.dat$Y,label=Ger.tow.dat$EID,col='black', cex=0.6)
+      # This does both, if it doesn't look pretty change the x.adj and y.adj options
+      if(point.style == "both") 
+      {
         addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
         labs <- data.frame(X=Ger.tow.dat$X,Y=Ger.tow.dat$Y,text=Ger.tow.dat$EID)
         x.range <- max(abs(labs$X)) - min(abs(labs$X))
@@ -416,12 +428,10 @@ if(bnk == "Ger")
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
 
+      #browser()
       if(ger.rep<21) legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
       if(ger.rep>20) legend('top',legend=c('new','repeated', 'repeated-backup'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
 
-      legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID+20), inset = .02)
-      legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
-      
       # Turn off the plot device if not plotting to screen
       if(fig != "screen") dev.off()
     } # end if(plot==T)
