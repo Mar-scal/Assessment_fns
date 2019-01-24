@@ -17,7 +17,8 @@
 # May 2018:  Revised the GBa sampling design to allocate more stations than we would if randomly assigning by area on the northern portion of GBa and tidied up the seedbox dates, now 
 #            using our friend lubridate...
 # Jan 2019:  DK revised to incorporate Banquereau stations, at this time we are proposing Ban stations to be fixed based on the 2012 stations.  Also had
-#            to clean up for the revised Sable strataification due to WEBCA.
+#            to clean up for the revised Sable strataification due to WEBCA.  DK also made some other tweaks to the function, specifically how the
+#            text points are dealt with, changed so the filenames easily incorporate the text point option and cut down on if() statements
 
 #####################################  Function Summary ########################################################
 ####  
@@ -48,21 +49,26 @@
 # relief.plots:  For German bank do you want to make the "relief plots", note these take a long time to make!!.  T/F and default is F
 # digits:        For the relief plots this controls the smoothing of the surface.  Basically this says how many digits to retain in the X and Y locations
 #                Default is 4 (which is very detailed, using 3 makes a very smooth surface.)
+
 # text.points:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  T/F/"both", 
 #                default = F (which is circles). "both" requires that you specify and x.adj and y.adj proportion to place the ID next to the point.
 # x.adj:         adjustment of ID placement relative to the full x-range (e.g. x.adj=0.02 will place ID 2% away from the point in the x direction.)
 # y.adj:         adjustment of ID placement relative to the full y-range (e.g. y.adj=0.02 will place ID 2% away from the point in the y direction.)
+
+# point.style:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  
+#                Two options, Default = "points" which plots filled circles, anything else will plot the station numbers, I suggest
+#                we use "stn_num" as the second choice, but as is any other character string will produce the station number figures.
+
 # ger.new:       Number of new stations to generate on German bank, default is 60 (this must be <= 80, generally we only use 60 or 80), change the
 #                alloc.poly number of stations below if you need > 80 new tows
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
 #                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, text.points = F,
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=NULL, y.adj=NULL)
 {
-
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
 # load required packages
@@ -104,6 +110,7 @@ num.banks <- length(banks)
 #browser()
 for(i in 1:num.banks)
 {
+
   # Grab the bank
   bnk <- banks[i]
   # Grab any extra tows selected for that bank and make them a PBS mapping object
@@ -135,11 +142,13 @@ for(i in 1:num.banks)
     # This scheme is based on a vague comment in the 2013 GBa Assessment about preferntially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
     # had simply stratified by area based on disscusions with Ginette and a collective lack of knowledge about the details around the 2013 comment.
     if(bnk == "GBa") polydata[[i]]$allocation <- c(51,37,32,26,35,11,8) 
+    # if the seed hasn't been set, set it...
+    if(is.null(seed)) seed <- sample(1:2^15, 1)
     # Now allocate the tows, each bank has it's own settings for this allocation.
     #DK Note, I question the use of mindist of 3 on Sable, I'm sure there is good reason for it, but how much does this limit the 
     #actual randomization of the tow locations?
     # DK revised Sable to be a minimum distance of 2 km given that the Haddock box has removed a percentage of the bank...
-    if(is.null(seed)) seed <- sample(1:2^15, 1)
+    
     if(bnk == "BBn") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=100,pool.size=3,mindist=1,seed=seed)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
@@ -162,10 +171,11 @@ for(i in 1:num.banks)
   	{
   	  # Where do yo want the plot to go?
   	  if(fig=="screen") windows(11,8.5)
-  	  if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".png",sep=""),width = 11, units="in", res=420,
+  	  if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
   	                        height = 8.5,bg = "transparent")
-  	  if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".pdf",sep=""),width = 11, 
+  	  if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
   	                        height = 8.5,bg = "transparent")
+  	  
   	  # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
   	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
   	  # For some reason I can't figure out Sable is overplotting the medium strata on top of the high and very high, this is my hack to fix....
@@ -176,6 +186,7 @@ for(i in 1:num.banks)
   	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==5,],col=polydata[[i]]$col[polydata[[i]]$PID==5],border=NA)
   	  }
   	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+
   	  
   	  if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  if(text.points == F) addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
@@ -188,6 +199,10 @@ for(i in 1:num.banks)
   	    labs$Y.adj <- labs$Y + y.adj*y.range
   	    text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	  }
+
+  	  #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	  #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	  if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	  if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
@@ -204,15 +219,16 @@ for(i in 1:num.banks)
   	  {
   	    # This looks closely at GBa south.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"South.png",sep=""),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"South.pdf",sep=""),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
   	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2)
-  	    if(text.points == T)  text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    if(point.style != "points")  text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
+
   	    if(text.points == F)  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
   	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
@@ -223,6 +239,9 @@ for(i in 1:num.banks)
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    }
+
+  	    #if(point.style == "points")  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('bottomright',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -231,15 +250,16 @@ for(i in 1:num.banks)
   	    
   	    # This looks closely at GBa Northwest
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"Northwest.png",sep=""),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"Northwest.pdf",sep=""),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2)
-  	    if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
+
   	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
   	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
@@ -250,6 +270,9 @@ for(i in 1:num.banks)
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    }
+
+  	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -259,15 +282,16 @@ for(i in 1:num.banks)
   	    
   	    # And this looks closely at GBa in the Northeast.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"Northeast.png",sep=""),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"Northeast.pdf",sep=""),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2)
-  	    if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
+
   	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
   	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
@@ -278,6 +302,9 @@ for(i in 1:num.banks)
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    }
+
+  	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
         if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -300,9 +327,9 @@ for(i in 1:num.banks)
     if(plot == T)
     {
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".png",sep=""),width = 11, units="in", res=420,
+      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
                             height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".pdf",sep=""),width = 11, 
+      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
                             height = 8.5,bg = "transparent")
     ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
     title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
@@ -344,7 +371,7 @@ if(bnk == "Ger")
                             ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
     
     # Now subset the "new tows" down to what is specified in the above
-    set.seed(seed)
+    if(is.null(seed)) seed <- sample(1:2^15, 1)
     ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
@@ -362,9 +389,9 @@ if(bnk == "Ger")
     if(plot==T)
     {
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".png",sep=""),width = 11, units="in", res=420,
+      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
                             height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,".pdf",sep=""),width = 11, 
+      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
                             height = 8.5,bg = "transparent")  
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
@@ -386,6 +413,8 @@ if(bnk == "Ger")
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
       legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID+20), inset = .02)
+      legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
+      
       # Turn off the plot device if not plotting to screen
       if(fig != "screen") dev.off()
     } # end if(plot==T)

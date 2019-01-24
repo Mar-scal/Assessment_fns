@@ -24,7 +24,8 @@
 # Arguments
 # 1 direct:     The root directory to work from  Default = "Y:/Offshore scallop/Assessment", 
 # 2 yrs:        The year(s0) you want to check, needs to be 2008 onwards or it'll break. Default is NULL which will pull everything form 2008 to current year
-
+#   repo:       Where are you getting the functions and the GIS layers from.  Default is 'github' whic pulls in the latest from Github
+#               while 'local' searches for the function in a subdirectory of your direct call above
 #32 db.con:     The database to connect to.  Default ="ptran",
 #33 un:         Your username to connect to SQL database.  Default = un.ID
 #34 pw:         Your password to connect to SQL database.  Default = pwd.ID
@@ -56,17 +57,28 @@
 #               same region for every trip.
 ###############################################################################################################
 
-log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL ,
+log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
                     un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
                     bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
                     reg.2.plot = NULL
                   )
 {
-  
 # Load in the functions needed for this function to run.
+  
+if(repo == "github")
+{
+  require(RCurl)|| stop("You need RCurl or this will all unfurl!")
+  eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Fishery/logs_and_fishery_data.r", ssl.verifypeer = FALSE)))
+  eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/pectinid_projector.r", ssl.verifypeer = FALSE)))
+  eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+} # end if(repo == "github")
+
+if(repo == "local")
+{
 source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
 source(paste(direct,"Assessment_fns/Maps/pectinid_projector.r",sep="")) # The new scallopMap
 source(paste(direct,"Assessment_fns/Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
+}
   
 # The necesary library
 require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
@@ -224,11 +236,14 @@ for(i in 1:num.trips)
 
   # We also want to make spatial plots, I'm going to test out pecjector for this..
   # and while I'm at it we may as well run simple spatial checks to make sure the data falls within the boundary we expect it to.
+  
   if(spatial==T)
   {
     # First we bring in the shapefiles if we haven't already...
+    
     if(!exists("offshore.spa"))
     {
+      #browser()
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
@@ -239,57 +254,110 @@ for(i in 1:num.trips)
       unzip(zipfile=temp, exdir=temp2)
       # This  little all_layers function brings in all the shapefiles we have currently
       offshore.spa <- all.layers(temp2)
+      # Pop this into the global environment so we don't make it a bunch of times..
+      assign('offshore.spa',offshore.spa,pos=1)
       # We also want to bring in the survey strata for the banks with a survey strata
       # Figure out where your tempfiles are stored
     }
     # Bring in the boundaries for each area, this has all the areas of interest which is nice!
-    if(!exists("offshore.survey.boundaries"))
-    {
-      temp <- tempfile()
-      # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
-      
-      # Figure out what this file was saved as
-      temp2 <- tempfile()
-      # Unzip it
-      unzip(zipfile=temp, exdir=temp2)
-      # This pulls in all the layers from the above location
-      offshore.survey.boundaries <- all.layers(temp2)
-    } # if(i==1)
-    
+    # if(!exists("offshore.survey.boundaries"))
+    # {
+    #   temp <- tempfile()
+    #   # Download this to the temp directory you created above
+    #   download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
+    #   
+    #   # Figure out what this file was saved as
+    #   temp2 <- tempfile()
+    #   # Unzip it
+    #   unzip(zipfile=temp, exdir=temp2)
+    #   # This pulls in all the layers from the above location
+    #   offshore.survey.boundaries <- all.layers(temp2)
+    # } # if(i==1)
+    #browser()
     # Now we want to see if any of the data in the logs falls outside the region we think it is in.
     # For split trips I consider the first bank only, so this will pretty much flag all split trips, which I think is fine!
     trip.area <- na.omit(unique(trip.log$bank))[1]
-    # Now if we are in an area with a survey strata we want to flag any tows that fall outside the survey strata.
-    # Turn the trip.log into a spatial object
+    if(trip.area == "Mid") trip.area <- "Sab" # Set middle to Sable.
+    # Now if we are in an area with a survey strata we want to flag any tows that fall outside the sfa
     # We need to remove any NA's (these would have been flagged above) or this breaks
     trip.log <- trip.log[!is.na(trip.log$lat),]
     trip.log <- trip.log[!is.na(trip.log$lon),]
-    coordinates(trip.log) <- ~ lon + lat
-    # project it, logs are all WGS84 as I understand it and Lat Lon
-    proj4string(trip.log) <- CRS("+init=epsg:4326")
-    osa <- trip.log[which(gDisjoint(trip.log,offshore.survey.boundaries[[trip.area]],byid=T)),]
-    watches.outside.sa[[as.character(trip.ids[i])]] <- osa@data
+    # SPB is a pain as it is two different pieces, so if looking at SPB I switch to look at this by SFA
+    #browser()
+    if(trip.area == "SPB")
+    {
+      #Pick it up here, I have logs that could be spread across 2-3 areas, so I think I need to loop through each of the SFA's and
+      # make sure the tows are landing inside the SFA it says, if they are we flag them.  I'll have to make the rest of the below an else
+      sfa.visited <- unique(trip.log$sfa)
+      num.sfas <- length(sfa.visited)
+      osa.spb <- NULL
+      
+
+      for(spb in 1:num.sfas)
+      {
+        trip.tmp <- trip.log[trip.log$sfa == sfa.visited[spb],]
+        spb.area <- paste0("SFA",sfa.visited[spb],collapse = "")
+        # Now if we are in an area with a survey strata we want to flag any tows that fall outside the the sfa
+        # Turn the trip.log into a spatial object
+        coordinates(trip.tmp) <- ~ lon + lat
+        # project it, logs are all WGS84 as I understand it and Lat Lon
+        proj4string(trip.tmp) <- CRS("+init=epsg:4326")
+        if(sfa.visited[spb] %in% c("10","11","12"))
+        {
+          tmp.res <- trip.tmp[which(gDisjoint(trip.tmp,offshore.spa[[spb.area]],byid=T)),]
+          osa.spb[[spb.area]] <- cbind(tmp.res@data,tmp.res@coords)
+        }# end if(sfa.visited %in% c("10","11","12"))
+        # If the SFA is not one of these then it's mislabelled and needs fixed so output them all
+        if(!sfa.visited[spb] %in% c("10","11","12"))
+        {
+          osa.spb[[spb.area]] <- cbind(trip.tmp@data,trip.tmp@coords)
+        } # end if(!sfa.visited %in% c("10","11","12"))
+      } # end for(spb in 1:num.sfas)
+      
+      # Now get the data pulled together and plop it in an object with the rest of the missing trips.
+      osa <- do.call("rbind",osa.spb)
+      watches.outside.sa[[as.character(trip.ids[i])]] <- osa
+      # Need to make this osa and trip.log spatial beasts.
+      # We need to turn the trip.log into a spatial object with projection
+      coordinates(trip.log) <- ~ lon + lat
+      if(nrow(osa) > 0) 
+      {
+        coordinates(osa) <- ~ lon + lat
+        proj4string(osa) <- CRS("+init=epsg:4326")
+      } # end if(nrow(osa > 1) 
+      # project it, logs are all WGS84 as I understand it and Lat Lon
+      proj4string(trip.log) <- CRS("+init=epsg:4326")
+      
+    } else {
+      # We  still need to turn the trip.log into a spatial object with projection
+      coordinates(trip.log) <- ~ lon + lat
+      # project it, logs are all WGS84 as I understand it and Lat Lon
+      proj4string(trip.log) <- CRS("+init=epsg:4326")
+      osa <- trip.log[which(gDisjoint(trip.log,offshore.spa[["Sab"]],byid=T)),]
+      watches.outside.sa[[as.character(trip.ids[i])]] <- cbind(osa@data,osa@coords)
+    } # end else which is everywhere outside SPB.
+    
     # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
     if(is.null(reg.2.plot)) pr <- data.frame(x = trip.log@bbox[1,],y = trip.log@bbox[2,],proj_sys = proj4string(trip.log))
     # This assumes that you are asking to plot a certain region that pecjector understands (e.g. "GBa","GB","SS", etc) or
     # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
     if(!is.null(reg.2.plot)) pr <- reg.2.plot
     # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
+    #browser()
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
-      pecjector(area = trip.area,add_EEZ = T,add_sfas = "all",add_land = T)
+      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"))
     } 
     else {
-      pecjector(area = pr,add_EEZ = T,add_sfas = "all",add_land = T)
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"))
       }
     
     plot(trip.log,add=T,pch=19,cex=0.5)
-    plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain
+    if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
 
   } # end if(spatial==T)
-  print(paste0("Trip ID:",trip.ids[i]))
+  print(paste0("Trip ID:",trip.ids[i],"  count=",i))
 } # end for(i in 1:num.trips)
 dev.off()
 #browser()
