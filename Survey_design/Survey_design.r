@@ -49,9 +49,16 @@
 # relief.plots:  For German bank do you want to make the "relief plots", note these take a long time to make!!.  T/F and default is F
 # digits:        For the relief plots this controls the smoothing of the surface.  Basically this says how many digits to retain in the X and Y locations
 #                Default is 4 (which is very detailed, using 3 makes a very smooth surface.)
+
+# text.points:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  T/F/"both", 
+#                default = F (which is circles). "both" requires that you specify and x.adj and y.adj proportion to place the ID next to the point.
+# x.adj:         adjustment of ID placement relative to the full x-range (e.g. x.adj=0.02 will place ID 2% away from the point in the x direction.)
+# y.adj:         adjustment of ID placement relative to the full y-range (e.g. y.adj=0.02 will place ID 2% away from the point in the y direction.)
+
 # point.style:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  
 #                Two options, Default = "points" which plots filled circles, anything else will plot the station numbers, I suggest
 #                we use "stn_num" as the second choice, but as is any other character string will produce the station number figures.
+
 # ger.new:       Number of new stations to generate on German bank, default is 60 (this must be <= 80, generally we only use 60 or 80), change the
 #                alloc.poly number of stations below if you need > 80 new tows
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
@@ -60,7 +67,7 @@
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=NULL, y.adj=NULL)
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -144,7 +151,7 @@ for(i in 1:num.banks)
     
     if(bnk == "BBn") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=100,pool.size=3,mindist=1,seed=seed)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
-    if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
+    if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
     if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
       
@@ -170,17 +177,32 @@ for(i in 1:num.banks)
   	                        height = 8.5,bg = "transparent")
   	  
   	  # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
-  	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
+  	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
   	  # For some reason I can't figure out Sable is overplotting the medium strata on top of the high and very high, this is my hack to fix....
   	  if(bnk == "Sab")
   	  {
+  	    surv.poly[[i]] <- surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),]
   	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==4,],col=polydata[[i]]$col[polydata[[i]]$PID==4],border=NA)
   	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==5,],col=polydata[[i]]$col[polydata[[i]]$PID==5],border=NA)
   	  }
-  	    
   	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-  	  if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-  	  if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
+  	  
+  	  if(text.points == T) text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	  if(text.points == F) addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	  if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+  	    addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
+  	    x.range <- max(abs(labs$X)) - min(abs(labs$X))
+  	    y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+  	    labs$X.adj <- labs$X + x.adj*x.range
+  	    labs$Y.adj <- labs$Y + y.adj*y.range
+  	    text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	  }
+
+  	  #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	  #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	  if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	  if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
@@ -206,7 +228,20 @@ for(i in 1:num.banks)
   	    if(point.style != "points")  text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-  	    if(point.style == "points")  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
+  	    if(text.points == F)  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
+  	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
+  	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+  	      labs$X.adj <- labs$X + x.adj*x.range
+  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	    }
+
+  	    #if(point.style == "points")  points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('bottomright',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -224,7 +259,20 @@ for(i in 1:num.banks)
   	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-  	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
+  	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
+  	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
+  	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+  	      labs$X.adj <- labs$X + x.adj*x.range
+  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	    }
+
+  	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
   	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -243,7 +291,20 @@ for(i in 1:num.banks)
   	    if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
-  	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
+  	    if(text.points == F) points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
+  	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
+  	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+  	      labs$X.adj <- labs$X + x.adj*x.range
+  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	    }
+
+  	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+
         if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -272,7 +333,16 @@ for(i in 1:num.banks)
                             height = 8.5,bg = "transparent")
     ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
     title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-    addPoints(towlst[[i]],pch=21, cex=1)
+    if(text.points == F) addPoints(towlst[[i]],pch=21, cex=1)
+    if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+      addPoints(towlst[[i]],pch=21, cex=1)
+      labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
+      x.range <- max(abs(labs$X)) - min(abs(labs$X))
+      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+      labs$X.adj <- labs$X + x.adj*x.range
+      labs$Y.adj <- labs$Y + y.adj*y.range
+      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+    }
     if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
     if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
     if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
@@ -326,7 +396,16 @@ if(bnk == "Ger")
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-      addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID+20)
+      if(text.points == F) addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID+20)
+      if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
+        addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID+20)
+        labs <- data.frame(X=Ger.tow.dat$X,Y=Ger.tow.dat$Y,text=Ger.tow.dat$EID)
+        x.range <- max(abs(labs$X)) - min(abs(labs$X))
+        y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
+        labs$X.adj <- labs$X + x.adj*x.range
+        labs$Y.adj <- labs$Y + y.adj*y.range
+        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+      }
       title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
       # If there are extra tows or seedboxes plot them
       if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)

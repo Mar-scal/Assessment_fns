@@ -723,12 +723,14 @@ for(i in 1:len)
             if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] !="Ban" && banks[i] !="BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
-            if(banks[i] %in% c("Sab","Mid", "Ban","BanIce"))
+            if(banks[i] %in% c("Sab","Mid"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
-            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+      
+            # this is the clipping step for all banks except Ban
+            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
@@ -797,7 +799,7 @@ for(i in 1:len)
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             # Get rid of all data outside our plotting area...
-            mod.res[[bin.names[k]]][!pred.in] <- NA
+            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
@@ -1132,14 +1134,16 @@ for(i in 1:len)
           if(fig == "screen") windows(11,8.5)
           
           par(mfrow=c(1,1))
-          # This is one figure to rule all 
-          if(!banks[i] == "BanIce") ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
+
+          # This is one figure to rule all
+          if(!banks[i] =="BanIce") ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+          
           if(banks[i] == "BanIce") ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
-                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                               direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
-
+                                              plot.bathy = T,plot.boundries=T,boundries="offshore",
+                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+          
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
           {
@@ -1912,13 +1916,30 @@ for(i in 1:len)
     
     if(banks[i] != "Ger")
       {
-      shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
+      if(!grepl(x=banks[i], pattern="Ban")) {
+        shf.years <- survey.obj[[banks[i]]][[1]]$year[(length(survey.obj[[banks[i]]][[1]]$year)-6):
                                                         length(survey.obj[[banks[i]]][[1]]$year)]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
         shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-            recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
         if(fig != "screen") dev.off()
-      } # end  if(banks[i] != "Ger")
+      }
+      
+      if(grepl(x=banks[i], pattern="Ban")) {
+        dev.off()
+        if(fig == "screen") windows(11,8.5)
+        if(fig == "png") {
+          png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 11, 
+              height = 8.5,res=420,bg="transparent")
+        }
+        if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 11, height = 8.5)
+        shf.years <- survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n) & (yr - survey.obj[[banks[i]]][[1]]$year) <10]
+        s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
+        shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, rows=2)	# rows=2 allows us to 
+        if(fig != "screen") dev.off()
+      }
+    } # end  if(banks[i] != "Ger")
     
     if(banks[i]=="Ger")
       {
