@@ -28,16 +28,21 @@ if(plot.extent%in% c('SS','ss','Scotian Shelf','scotian shelf',"SCOTIAN SHELF"))
 if(plot.extent%in% c('WOB','wob',"WOb",'Western Offshore Banks'))		                           {y=c(40.50,44.00);x=c(-68.00,-64.00)} 
 if(plot.extent%in% c('ESS','ess','Ess',"Eastern SS","EASTERN SS",'eastern ss'))                {y=c(43.00,45.40);x=c(-62.50,-57.40)}
 if(plot.extent%in% c('WSS','wss','Wss',"Western SS","WESTERN SS",'western ss'))		             {y=c(41.00,44.00);x=c(-67.00,-64.00)}
-if(plot.extent%in% c('BBn','bbn','BBN','Browns N','browns n','BROWNS N','Browns n'))		       {y=c(42.40,43.00);x=c(-66.60,-65.60)}
-if(plot.extent%in% c('BBs','bbs','BBS','Browns S','browns s','BROWNS S','Browns s'))		       {y=c(42.25,42.75);x=c(-66.00,-65.25)}
-if(plot.extent%in% c('BB','bb','Bb',"Browns","browns",'BROWNS'))		                           {y=c(42.25,43.00);x=c(-66.50,-65.25)}
-if(plot.extent%in% c('GBa',"GB","gb","Georges","georges","GEORGES"))		                       {y=c(41.10,42.30);x=c(-67.30,-65.60)}
-if(plot.extent%in% c('GBa',"GBa","gba","Georges A","georges a","GEORGES A","Georges a"))       {y=c(41.20,42.30);x=c(-67.15,-65.85)}
+if(plot.extent%in% c('BBn','bbn','BBN','Browns N','browns n','BROWNS N',
+                     'Browns n','26A',"SFA26A","26N","SFA26N"))                                {y=c(42.40,43.00);x=c(-66.60,-65.60)}
+if(plot.extent%in% c('BBs','bbs','BBS','Browns S','browns s','BROWNS S',
+                     'Browns s','26B',"SFA26B","26S","SFA26S"))                                {y=c(42.25,42.75);x=c(-66.00,-65.25)}
+if(plot.extent%in% c('BB','bb','Bb',"Browns","browns",'BROWNS'))                               {y=c(42.25,43.00);x=c(-66.50,-65.25)}
+if(plot.extent%in% c('GBa',"GB","gb","Georges","georges","GEORGES",
+                      "27B","27","SFA27B","SFA27"))		                                         {y=c(41.10,42.30);x=c(-67.30,-65.60)}
+if(plot.extent%in% c('GBa',"GBa","gba","Georges A","georges a",
+                     "GEORGES A","Georges a","27A","SFA27A"))                                  {y=c(41.20,42.30);x=c(-67.15,-65.85)}
 if(plot.extent%in% c('GBb',"GBB","gbb","Georges B","georges b","GEORGES B","Georges b"))		   {y=c(41.60,42.30);x=c(-66.70,-65.60)}
-if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german"))		                         {y=c(42.80,43.80);x=c(-67.00,-65.60)}
+if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german","SFA26C","26C"))             {y=c(42.80,43.80);x=c(-67.00,-65.60)}
 if(plot.extent%in% c('Sab',"SABLE","sab","sable","SAB","Sable"))		                           {y=c(43.00,44.35);x=c(-62.50,-60.50)}
 if(plot.extent%in% c('SPB','spb','Spb',"St Pierre", "Saint Pierre"))		                       {y=c(44.50,47.50);x=c(-58.00,-55.00)}
-if(plot.extent%in% c('SPB-banks', 'spb-banks',"SPB-BANKS","SPB BANKS", "spb banks"))           {y=c(45.25,46.25);x=c(-57.25,-55.50)}
+if(plot.extent%in% c('SPB-banks', 'spb-banks',"SPB-BANKS","SPB BANKS", "spb banks",
+                     "SFA10","SFA11","SFA12","10","11","12"))                                   {y=c(45.25,46.25);x=c(-57.25,-55.50)}
 # These are from offshore ScallopMap.r and I believe we'll need them
 if(plot.extent%in% c('West',"WEST","west","Western","WESTERN","western"))                      {y=c(43.00,44.10);x=c(-62.20,-60.40)}
 # We need to be slight careful that we don't get mixed up between middle bank and mid bay
