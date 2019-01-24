@@ -155,11 +155,11 @@ for(i in 1:num.banks)
 	  # if you want to save the tow lists you can export them to csv's.
   	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab")) 
   	{
-  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations.csv",sep=""),row.names=F) #Write1
+  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
   	} # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
   	if(export == T && bnk %in% c("GBa","GBb")) 
   	{  
-  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations.csv",sep=""),row.names=F) #Write2
+  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write2
   	} # end if(export == T && bnk %in% c("GBa,GBb")) 
 	  
   	# Now if you want to make the plots do all of this.
@@ -377,23 +377,37 @@ if(bnk == "Ger")
 
     # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
     Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
-                            ntows=ger.new,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
+                            ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
+
     ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)
+    
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
+    
     # Rename and tidy up the data
     Ger.tow.lst$Tows$new.tows$STRATA="new"
     Ger.tow.lst$Tows$repeated.tows$STRATA="repeated"
     # any repeated tows above 20 get flagged as repeated-backup
-    if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$STRATA[21:ger.rep] <- "repeated-backup"
+    # pull all OTHER repeats as backups and plot/list separately
+    names(lastyearstows) <- c("tow", "X", "Y", "stratum")
+    Ger.repeat.backups <- plyr::join(lastyearstows, Ger.tow.lst$Tows$repeated.tows, type="full")
+    Ger.repeat.backups <- select(Ger.repeat.backups[is.na(Ger.repeat.backups$EID),], c("tow", "X", "Y"))
+    #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$STRATA[21:ger.rep] <- "repeated-backup"
     Ger.tow.lst$Tows$new.tows$Poly.ID=1
-    Ger.tow.lst$Tows$repeated.tows$Poly.ID=2
-    if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
+    Ger.tow.lst$Tows$repeated.tows$Poly.ID=24
+    Ger.repeat.backups$Poly.ID<-24
+    Ger.repeat.backups$STRATA = "repeated-backup"
+    names(Ger.repeat.backups)[which(names(Ger.repeat.backups)=="tow")] <- "EID"
+    Ger.repeat.backups$EID <- Ger.repeat.backups$EID + 2000
+    Ger.tow.lst$Tows$backup.repeats <- Ger.repeat.backups
+    #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
     Ger.tow.dat<-do.call("rbind",Ger.tow.lst$Tows)
     
     #Write3 If you want to save the data here's where it will go
-    if(export == T)  write.csv(Ger.tow.dat,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations.csv",sep=""),row.names=F)
-    
+    if(export == T)  {
+      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
+      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+    }
     # Plot this bad boy up if you want to do such things
     if(plot==T)
     {
@@ -407,14 +421,18 @@ if(bnk == "Ger")
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
 
       # Add points, station numbers, or both.
-      if(point.style == "points") addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
+      if(point.style == "points") addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
       #browser()
-      if(point.style == "stn_num") text(Ger.tow.dat$X,Ger.tow.dat$Y,label=Ger.tow.dat$EID,col='black', cex=0.6)
+      if(point.style == "stn_num") text(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
+                                        Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
+                                        label=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID,col='black', cex=0.6)
       # This does both, if it doesn't look pretty change the x.adj and y.adj options
       if(point.style == "both") 
       {
-        addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
-        labs <- data.frame(X=Ger.tow.dat$X,Y=Ger.tow.dat$Y,text=Ger.tow.dat$EID)
+        addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
+        labs <- data.frame(X=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
+                           Y=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
+                           text=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID)
         x.range <- max(abs(labs$X)) - min(abs(labs$X))
         y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
         labs$X.adj <- labs$X + x.adj*x.range
@@ -433,6 +451,27 @@ if(bnk == "Ger")
       if(ger.rep>20) legend('top',legend=c('new','repeated', 'repeated-backup'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
 
       # Turn off the plot device if not plotting to screen
+      if(fig != "screen") dev.off()
+      
+      ### PLOTS BACKUP REPEATS
+      if(fig=="screen") windows(11,8.5)
+      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
+                            height = 8.5,bg = "transparent")
+      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
+                            height = 8.5,bg = "transparent")  
+      ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
+      # Add the German bank boundary and then add the survey points
+      addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
+      addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)
+      addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",]$Poly.ID, bg="black")
+      
+      title(paste("Repeat backups (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+      # If there are extra tows or seedboxes plot them
+      if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+      if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+      # If the seed was set display this on the plot so you know later how you made that plot!!
+      if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
+      
       if(fig != "screen") dev.off()
     } # end if(plot==T)
     
