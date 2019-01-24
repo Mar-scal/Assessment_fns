@@ -4,7 +4,7 @@ direct <- "C:/Documents/Offshore scallop/Assessment/"
 source(paste(direct,"Assessment_fns/testing/log_error_checking.r",sep="")) #logs_and_fish is function call
 log_checks(direct =direct, yrs = 2018 , 
                        un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "RODBC", export = "fish.dat",
-                       bank = "GBa" ,trips = NULL, dates = "2018-06-01", vrnum = NULL,tow.time.check = c(3,80),trip.tol = "exact",spatial = T)
+                       bank = NULL ,trips = NULL, dates = c("2018-04-01", "2018-04-30"), vrnum = 105912 ,tow.time.check = c(3,80),trip.tol = 1,spatial = T)
 
 # Check in on a vessel
 vessel.check <- log_checks(direct =direct, yrs = 2018 , un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle",
