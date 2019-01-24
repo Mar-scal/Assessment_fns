@@ -54,13 +54,14 @@
 # y.adj:         adjustment of ID placement relative to the full y-range (e.g. y.adj=0.02 will place ID 2% away from the point in the y direction.)
 # ger.new:       Number of new stations to generate on German bank, default is 60 (this must be <= 80, generally we only use 60 or 80), change the
 #                alloc.poly number of stations below if you need > 80 new tows
+# ger.rep:       Number of German repeat stations to assign. Default is 20 stations, but you can add more to be used as backup repeats
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
 #                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
 ##### SURVEY DESIGN
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, text.points = F,
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=NULL, y.adj=NULL)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, ger.rep=20, x.adj=NULL, y.adj=NULL)
 {
 
 # Make sure data imported doesn't become a factor
@@ -329,7 +330,7 @@ for(i in 1:num.banks)
 # Finally this will run German bank.
 if(bnk == "Ger")
   {
-    #Read6 Be careful here, I'm assuming that when you run this you are looking at the Ger data from "last year" and looking to identify the
+  #Read6 Be careful here, I'm assuming that when you run this you are looking at the Ger data from "last year" and looking to identify the
     # tows that you want to repeat for this year, if trying to reproduce something specific for past years you'd need to change yr
     # to the year that you are interested in (if going back before 2012 you may need to create this csv file)
     survey.dat <- read.csv(paste(direct,"Data/Survey_data/",(yr-1),"/Spring/Ger/Survey1985-",(yr-1),".csv",sep=""))
@@ -339,10 +340,9 @@ if(bnk == "Ger")
     Ger.polyset <- subset(read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),stringsAsFactors = F),label==bnk)
     Ger.polyset$PID <- 1 # Force the PID to be 1, since it is a boundary there is only 1 unique PID...
     attr(Ger.polyset,"projection")<-"LL"
-    # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
-    Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=20)),
+    # This gets us the tows for German bank, note we have ger.new new tows and ger.rep repeats when we call it this way.
+    Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
                             ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
-    
     # Now subset the "new tows" down to what is specified in the above
     set.seed(seed)
     ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)
@@ -351,8 +351,11 @@ if(bnk == "Ger")
     # Rename and tidy up the data
     Ger.tow.lst$Tows$new.tows$STRATA="new"
     Ger.tow.lst$Tows$repeated.tows$STRATA="repeated"
+    # any repeated tows above 20 get flagged as repeated-backup
+    if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$STRATA[21:ger.rep] <- "repeated-backup"
     Ger.tow.lst$Tows$new.tows$Poly.ID=1
-    Ger.tow.lst$Tows$repeated.tows$Poly.ID=4
+    Ger.tow.lst$Tows$repeated.tows$Poly.ID=2
+    if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
     Ger.tow.dat<-do.call("rbind",Ger.tow.lst$Tows)
     
     #Write3 If you want to save the data here's where it will go
@@ -369,9 +372,9 @@ if(bnk == "Ger")
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-      if(text.points == F) addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID+20)
+      if(text.points == F) addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
       if(text.points == "both" && !is.null(x.adj) && !is.null(y.adj)) {
-        addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID+20)
+        addPoints(Ger.tow.dat,pch=Ger.tow.dat$Poly.ID)
         labs <- data.frame(X=Ger.tow.dat$X,Y=Ger.tow.dat$Y,text=Ger.tow.dat$EID)
         x.range <- max(abs(labs$X)) - min(abs(labs$X))
         y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
@@ -385,7 +388,8 @@ if(bnk == "Ger")
       if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
-      legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID+20), inset = .02)
+      if(ger.rep<21) legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
+      if(ger.rep>20) legend('top',legend=c('new','repeated', 'repeated-backup'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
       # Turn off the plot device if not plotting to screen
       if(fig != "screen") dev.off()
     } # end if(plot==T)
