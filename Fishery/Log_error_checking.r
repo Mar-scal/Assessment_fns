@@ -45,7 +45,7 @@
 #                   Default is 1 lb which is pretty much equivalent to rounding to the nearest whole number.
 #   plot.trips  Do you want to make spatial plots of the trips.  T/F, default = T.
 #   export      Do you want to export the results to a xlsx spreadsheet.  Default is NULL which doesn't export anything.
-#               export = "fish.dat" will put a file in the fishery data/log_checks/yr folder with a name that attempts to
+#               export = "fish.dat" will put a file in the Assessment/yr/log_Checks/ folder with a name that attempts to
 #               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
 #   reg.2.plot  A few options here, the default is NULL.  What this does is to create a zoomed in plot focused on a bounding box around the
 #               points in each tow.  If you want to plot a bank or a region just put that here, see pecjector for 
@@ -202,8 +202,8 @@ for(i in 1:num.trips)
   trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
   trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
   # Get the slip and trip landings
-  sum.slip <- sum(trip.slip$weight) # This is in lbs
-  sum.trip <- sum(trip.log$pro.repwt)*2.20462 # Get this into lbs to match sum.slip
+  sum.slip <- sum(trip.slip$weight,na.rm=T) # This is in lbs
+  sum.trip <- sum(trip.log$pro.repwt,na.rm=T)*2.20462 # Get this into lbs to match sum.slip
   # Now what is your comparison criteria for these.
 
   # exact criteria
