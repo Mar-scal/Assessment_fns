@@ -16,14 +16,15 @@
 #               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
 #               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
 #4:   add_EEZ   Do you want to add in the EEZ, default = NULL which does nothing.  If you want the EEZ this pulls it from either
-#               our github respository (if repo == "github") and add_EEZ is not NULL.  If repo == "local" you need to specify the 
-#               location of the EEZ  (this would have to be the full directory) such as the below
-#               add_EEZ = "Y:/Offshore scallop/Assessment/Data/Maps/approved/GIS_layers/EEZ"
+#               our github respository (if repo == "github") and add_EEZ is not NULL.  If repo == "local" which looks for a GIS repository
+#               for the EEZ based on your  directory if add_EEZ is NOT NULL.  Basically add_EEZ = "anything except null" will results in it being plotted
 #5:  add_bathy  Do you want to add in the bathymetry, default = NULL which does nothing.  If you want to add the bathy you simply need to supply the 
 #               resolution that you want.  The smaller the resolution the slower this runs, it relies on data provided by NOAA, so if the server
 #               is down this won't plot the bathymetry.  add_bathy = 10 plots the 10 meter bathymetry for the region selected by your xlim and ylim
 #6:  add_land   Do you want to add land to the figure, T/F, default = T which plots the the world in HiRes from the mapdata pacakge
-#7:  add_nafo   Do you want to add the NAFO divisions to the figure, T/F, default = T which grabs the NAFO divisions from online repository.
+#7:  add_nafo   Do you want to add the NAFO divisions to the figure, Three options for NAFO, deault is "no" which doesn't add nafo areas.  Options include
+#               "main" which only plots the main areas, and "sub" which will plot the sub-areas.  The sub-areas are only available locally as
+#               the NAFO site does not have a GIS layer which includes the sub-areas.
 #8:  add_sfas   Do you want to add the sfa boundariesto the figure.  NULL doesn't add anything.
 #               If you are using the github repository the options are "inshore", "offshore", or "all"
 #               If you are sourcing these locally you'll need to supply the directory for the shapefile
@@ -59,7 +60,7 @@
 #21:  alpha     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque, Default = 0.8
 
 pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),repo = "github",c_sys = "ll", 
-                     add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo=F,add_sfas = NULL, 
+                     add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo="no",add_sfas = NULL, 
                      add_strata = NULL, add_obj = NULL,add_custom = NULL,
                      direct = "Y:/Offshore scallop/Assessment",
                      # The below control the INLA surface added to the figure.
@@ -188,8 +189,10 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         unzip(zipfile=temp, exdir=temp2)
         # Now read in the shapefile
         eez.all <- readOGR(paste0(temp2, "/EEZ.shp"))
-      } else{ # end if(repo == 'github' )
-        eez.all <- readOGR(add_EEZ)} # If the repo isn't github and add_EEZ is specified we get it here.
+      } else { # end if(repo == 'github' )
+                loc <- paste0(direct,"Data/Maps/approved/GIS_layers/EEZ")
+                eez.all <- readOGR(loc)
+              } # end the else
     } # end if(!exists("eez.all"))
       # We then need to transform these coordinates to the coordinates of the eez data
     eez.bbox <- spTransform(b.box,proj4string(eez.all))
@@ -202,7 +205,6 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # For the moment the bathymetry can only be added to a figure if it is in lat-lon coordinates as we don't have a bathymetric shapefile
   if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") # This would need done everytime as the boundng box could change for each call
   {
-    
     # The bathymetry needs to be in lat-lon, this is Lat/lon and WGS 84, I'm assuming that's what we want!
     proj4string(b.box) = c_sys
     # If c.sys isn't in lat/lon we need to tranform it to lat-lon
@@ -243,22 +245,68 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   } # end if(c_sys != +init=epsg:4326) 
 
   
-  # If you want to add the NAFO division we get this from the interweb so we know we have the right ones, adds about 20 seconds to the run to download.
-  if(add_nafo == T && !exists("nafo.divs"))
+  # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "repo = 'github'", for NAFO this is actually going
+  # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "repo = 'local'"
+  #browser()
+  if(add_nafo != "no")
   {
-    # Figure out where your tempfiles are stored
-    temp <- tempfile()
-    # Download this to there
-    download.file("https://www.nafo.int/Portals/0/GIS/Divisions.zip", temp)
-    # Figure out what this file was saved as
-    temp2 <- tempfile()
-    # Unzip it
-    unzip(zipfile=temp, exdir=temp2)
-    # Now read in the shapefile
-    nafo.divs <- readOGR(paste0(temp2, "/Divisions/Divisions.shp"))
-    # Now transform the data to the coordinates we are using.
-    nafo.divs <- spTransform(nafo.divs,c_sys)
-  } # end if(add_nafo == T)
+    # If they don't already exist and our repo is github and we just want the main nafo division go get them from online
+    if(repo == 'github' && !exists("nafo.divs") && add_nafo == "main")
+    {
+      # Figure out where your tempfiles are stored
+      temp <- tempfile()
+      # Download this to there
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Divisions/Divisions.zip", temp)
+      # Figure out what this file was saved as
+      temp2 <- tempfile()
+      # Unzip it
+      unzip(zipfile=temp, exdir=temp2)
+      # Now read in the shapefile
+      nafo.divs <- all.layers(temp2)
+      # Now transform the data to the coordinates we are using.
+      for(i in 1:length(nafo.divs)) nafo.divs <- spTransform(nafo.divs,c_sys)
+
+      
+    } # if(repo == 'github' && !exists("nafo.divs"))
+    ###########PICK IT UP HERE PECTINID PROJECTOR WITH NAFO DIVISIONS IS BROKEN IN HERE SOMEWHERE
+    # if we want the main divisions and 
+    if(repo == 'local' && !exists("nafo.divs") && add_nafo == "main")
+    {
+      loc <- paste0(direct,"Data/Maps/approved/GIS_layers/NAFO/Divisions")
+      nafo.divs <- all.layers(loc)
+      for(i in 1:length(nafo.divs)) nafo.divs[[i]] <- spTransform(nafo.divs[[i]],c_sys)
+    } # end if(repo == 'local' && !exists("nafo.divs") && add_nafo = "main")
+
+    # Now if we want the nafo sub-areas we do this, for the locals
+    if(repo == 'github' && !exists("nafo.subs") && add_nafo == "sub")
+    {
+        # Figure out where your tempfiles are stored
+        temp <- tempfile()
+        # Download this to the temp directory you created above
+        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/nafo.zip", temp)
+        # Figure out what this file was saved as
+        temp2 <- tempfile()
+        # Unzip it
+        unzip(zipfile=temp, exdir=temp2)
+        # This pulls in all the layers from the above location
+        nafo.subs <- all.layers(temp2)
+        # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
+        for(i in 1:length(nafo.subs)) nafo.subs[[i]] <- spTransform(nafo.subs[[i]],c_sys)
+      } # end if(add_sfas != "offshore")
+    
+    # Now if we want the nafo sub-areas we do this, for the locals
+    if(repo == 'local' && !exists("nafo.subs") && add_nafo == "sub")
+    {
+      # Now if we want the nafo sub-areas we do this...
+      loc <- paste0(direct,"Data/Maps/approved/GIS_layers/NAFO/")
+      nafo.subs <- all.layers(loc)
+      # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
+      for(i in 1:length(nafo.subs)) nafo.subs[[i]] <- spTransform(nafo.subs[[i]],c_sys)
+    } # end if(repo == 'local' && !exists("nafo.subs") && add_nafo = "main")
+    
+  } # end if(add_nafo != "no")
+  #browser()
+
   
   
   # Now do we want to add in the SPA and SFA's for the region, this is using the approve Inshore polygons that Leslie Nasmith developed in 2014, these are
@@ -451,7 +499,9 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # Add the bathymetry
   if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") plot(bathy,add=T,col = "blue") # bathymetry, only works if plotting in lat/lon coordinates and WGS84...
   # Add the NAFO regions, make them dotted lines and thin
-  if(add_nafo ==T) plot(nafo.divs,add=T,lty=2) # NAFO divisions
+  #browser()
+  if(add_nafo =="main") for(i in 1:length(nafo.divs))plot(nafo.divs[[i]],add=T,lwd= 0.5) # NAFO divisions
+  if(add_nafo =="sub") for(i in 1:length(nafo.subs)) plot(nafo.subs[[i]],add=T,lwd=0.5) # NAFO sub areas
   # now add in the spa boundaries, these are set up as a number of layers in an sp object
   if(!is.null(add_sfas))  
   {
@@ -478,9 +528,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # Now if these shapefiles aren't already in the global environment but exist within the function put them into the global environment for later use
   if(!exists("eez.all",where=1) && exists("eez.all"))                   assign('eez.all',eez.all,pos=1)
   if(!exists("nafo.divs",where=1) && exists("nafo.divs"))               assign('nafo.divs',nafo.divs,pos=1)
+  if(!exists("nafo.subs",where=1) && exists("nafo.subs"))               assign('nafo.subs',nafo.divs,pos=1)
   if(!exists("land.all",where=1) && exists("land.all"))                 assign('land.all',land.all,pos=1)
   if(!exists("offshore.spa",where=1) && exists("offshore.spa"))         assign('offshore.spa',offshore.spa,pos=1)
   if(!exists("inshore.spa",where=1) && exists("inshore.spa"))           assign('inshore.spa',inshore.spa,pos=1)
   if(!exists("offshore.strata",where=1) && exists("offshore.strata"))   assign('offshore.strata',offshore.strata,pos=1)
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
+  
 } # end function

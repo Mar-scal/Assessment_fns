@@ -378,7 +378,7 @@ if(bnk == "Ger")
     # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
     Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
                             ntows=ger.new,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
-    ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)
+
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
     # Rename and tidy up the data
