@@ -1,10 +1,12 @@
 # Log error checking script, you run this script to check whatever logs you want from marfis
 
 direct <- "C:/Documents/Offshore scallop/Assessment/"
-source(paste(direct,"Assessment_fns/testing/log_error_checking.r",sep="")) #logs_and_fish is function call
+direct <- "Y:/Offshore scallop/Assessment/"
+source(paste(direct,"Assessment_fns/Fishery/log_error_checking.r",sep="")) #logs_and_fish is function call
 log_checks(direct =direct, yrs = 2018 , 
-                       un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "RODBC", export = "fish.dat",
-                       bank = NULL ,trips = NULL, dates = c("2018-04-01", "2018-04-30"), vrnum = 105912 ,tow.time.check = c(3,80),trip.tol = 1,spatial = T)
+           un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "RODBC", export = "fish.dat",repo = "local",
+           bank = NULL ,trips = NULL, dates = c("2018-04-01", "2018-04-30"), vrnum = 105912 ,
+           tow.time.check = c(3,80),trip.tol = 1,spatial = T)
 
 # Check in on a vessel
 vessel.check <- log_checks(direct =direct, yrs = 2018 , un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle",

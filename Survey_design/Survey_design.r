@@ -202,7 +202,17 @@ for(i in 1:num.banks)
   	  #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
 
-  	  if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	  if(nrow(extras) > 0) {
+  	    if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	    if(point.style == "both" ) 
+  	    {
+  	      addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	      labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	      labs$X.adj <- labs$X + x.adj*x.range
+  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	    }
+  	  }
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	  if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
   	  if(legend == T && bnk %in% c("GBa","GBb")) legend('bottomleft',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
@@ -242,7 +252,17 @@ for(i in 1:num.banks)
   	    } # end if(point.style == "both") 
 
 
-  	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+  	    if(nrow(extras) > 0) {
+  	      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	      if(point.style == "both" ) 
+  	      {
+  	        addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	        labs$X.adj <- labs$X + x.adj*x.range
+  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	      }
+  	    }
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('bottomright',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	    # Turn the device off if necessary.  
@@ -275,7 +295,17 @@ for(i in 1:num.banks)
 
   	    #if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
 
-  	    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+  	    if(nrow(extras) > 0) {
+  	      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	      if(point.style == "both" ) 
+  	      {
+  	        addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	       labs$X.adj <- labs$X + x.adj*x.range
+  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	      }
+  	    }
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	    
@@ -307,7 +337,17 @@ for(i in 1:num.banks)
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both" ) 
 
-        if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+  	    if(nrow(extras) > 0) {
+  	      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	      if(point.style == "both" ) 
+  	      {
+  	        addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	        labs$X.adj <- labs$X + x.adj*x.range
+  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	      }
+  	    }
   	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	    
@@ -351,15 +391,25 @@ for(i in 1:num.banks)
       text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
     }
     
-    if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1,bg="darkorange")
+    if(nrow(extras) > 0) {
+      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+      if(point.style == "both" ) 
+      {
+        addPoints(extras,pch=24, cex=1,bg="darkorange")
+        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+        labs$X.adj <- labs$X + x.adj*x.range
+        labs$Y.adj <- labs$Y + y.adj*y.range
+        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+      }
+    }
     if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
     if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-    if(legend == T && bnk == "Ban") legend('topright',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+    if(legend == T && bnk == "Ban") legend('topright',paste("Exploratory repeat stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
     if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
                                                pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
     if(fig != "screen") dev.off()
     }# end if(plot==T)
-  } # end if(bnk %in% c("Mid","GB")) 
+  } # end if(bnk %in% c("Mid","GB", "Ban")) 
   
 # Finally this will run German bank.
 if(bnk == "Ger")
@@ -441,7 +491,17 @@ if(bnk == "Ger")
       }
       title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
       # If there are extra tows or seedboxes plot them
-      if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+      if(nrow(extras) > 0) {
+        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+        if(point.style == "both" ) 
+        {
+          addPoints(extras,pch=24, cex=1,bg="darkorange")
+          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+          labs$X.adj <- labs$X + x.adj*x.range
+          labs$Y.adj <- labs$Y + y.adj*y.range
+          text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+        }
+      }
       if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
@@ -467,7 +527,17 @@ if(bnk == "Ger")
       
       title(paste("Repeat backups (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
       # If there are extra tows or seedboxes plot them
-      if(nrow(extras) > 0) addPoints(extras,pch=24, cex=1)
+      if(nrow(extras) > 0) {
+        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+        if(point.style == "both" ) 
+        {
+          addPoints(extras,pch=24, cex=1,bg="darkorange")
+          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+          labs$X.adj <- labs$X + x.adj*x.range
+          labs$Y.adj <- labs$Y + y.adj*y.range
+          text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+        }
+      }
       if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")

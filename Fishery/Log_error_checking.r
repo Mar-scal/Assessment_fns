@@ -60,7 +60,7 @@
 log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
                     un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
                     bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
-                    reg.2.plot = NULL
+                    reg.2.plot = NULL, shiny = F, plot_package=NULL
                   )
 {
 # Load in the functions needed for this function to run.
@@ -196,6 +196,12 @@ watches.outside.sa <- NULL
 
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
+
+trip.log.all <- list()
+osa.all <- list()
+pr.all <- list()
+if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all <- list()
+
 for(i in 1:num.trips)
 {
   #browser()  
@@ -240,7 +246,6 @@ for(i in 1:num.trips)
   if(spatial==T)
   {
     # First we bring in the shapefiles if we haven't already...
-    
     if(!exists("offshore.spa"))
     {
       #browser()
@@ -343,13 +348,13 @@ for(i in 1:num.trips)
     # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
     if(!is.null(reg.2.plot)) pr <- reg.2.plot
     # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
-    #browser()
+    
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
-      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"))
+      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"), plot_package=plot_package)
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"))
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"), plot_package=plot_package)
       }
     
     plot(trip.log,add=T,pch=19,cex=0.5)
@@ -358,9 +363,21 @@ for(i in 1:num.trips)
 
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i],"  count=",i))
+  dev.off()
+  
+  # for use in shiny
+  trip.log.all[[i]] <- trip.log
+  osa.all[[i]] <- osa
+  pr.all[[i]] <- pr
+  if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
 } # end for(i in 1:num.trips)
-dev.off()
-#browser()
+
+# run shiny app?
+if(shiny == T && is.null(reg.2.plot) && plot_package=="ggplot2") {
+  source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
+  shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
+}
+
 # Missing data is anything that is missing the vrnum, bank, date fished, or trip number
 missing.dat <- NA
 if(!is.null(miss.dat)) missing.dat <- do.call("rbind",miss.dat)

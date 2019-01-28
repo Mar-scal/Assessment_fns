@@ -57,7 +57,7 @@
 #19:   lvls     The number of levels you want to set up.  Default is seq(0,1,by=0.01) which is a lot of levels!
 #20:  colors    What colours would you like to use for the colour ramp.  Default = c("blue","white","yellow","darkred"), will get split into more colours based on lvls
 #21:  alpha     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque, Default = 0.8
-
+#22:  plot_package  NULL for base R, "ggplot2" for ggplot2
 pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),repo = "github",c_sys = "ll", 
                      add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo=F,add_sfas = NULL, 
                      add_strata = NULL, add_obj = NULL,add_custom = NULL,
@@ -65,8 +65,9 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
                      # The below control the INLA surface added to the figure.
                      field = NULL, mesh=NULL, 
                      zlim = c(0,1), dims = c(50, 50), trans= "none", clip= NULL,
-                     lvls = seq(0,1,by=0.01),colors = c("blue","white","yellow","darkred"),alpha = 0.8
-                    ) 
+                     lvls = seq(0,1,by=0.01),colors = c("blue","white","yellow","darkred"),alpha = 0.8,
+                     plot_package = NULL
+) 
 { 
   require(splancs) || stop("You need le package splancs, thanks!")
   require(PBSmapping) || stop("You need PBSmapping, thanks!")
@@ -96,14 +97,14 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     source(paste(direct,"Assessment_fns/Maps/add_alpha_function.R",sep="")) # The new scallopMap
     source(paste(direct,"Assessment_fns/Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
   } # end if(repo == "local")
-    
+  
   
   if(!exists("addalpha")) stop("You need to source the add_alpha_function.R for this to work, it should be in the same folder location as this function")
   if(!exists("convert.coords")) stop("You need to source the convert_coords.R for this to work, it should be in the same folder location as this function")
   if(!exists("all.layers")) stop("You need to source all.layers.R for this to work, it should be in the same folder location as this function")
   # Don't do this if the field and mesh lengths differ.
   if(!is.null(field)) stopifnot(length(field) == mesh$n) 
-
+  
   
   # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
   if(c_sys == "ll") c_sys <- "+init=epsg:4326"
@@ -125,7 +126,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     ylim <- coords@bbox[rownames(coords@bbox) == 'y']
   } # end if(!is.data.frame(area)) 
   
-   # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
+  # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
   # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
   if(!is.null(add_obj)) add_obj <- spTransform(add_obj,CRS(c_sys))
   
@@ -191,14 +192,14 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       } else{ # end if(repo == 'github' )
         eez.all <- readOGR(add_EEZ)} # If the repo isn't github and add_EEZ is specified we get it here.
     } # end if(!exists("eez.all"))
-      # We then need to transform these coordinates to the coordinates of the eez data
+    # We then need to transform these coordinates to the coordinates of the eez data
     eez.bbox <- spTransform(b.box,proj4string(eez.all))
     # Then intersect the coordiates so we only plot the part of the eez we want
     eez <- gIntersection(eez.all,eez.bbox)
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
     if(!is.null(eez)) eez <- spTransform(eez,c_sys)
   } # end if(!is.null(add_EEZ)) 
-
+  
   # For the moment the bathymetry can only be added to a figure if it is in lat-lon coordinates as we don't have a bathymetric shapefile
   if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") # This would need done everytime as the boundng box could change for each call
   {
@@ -241,7 +242,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     # And now we can transform the land, if there is any to be plotted!
     if(!is.null(land.sp)) land.sp <- spTransform(land.sp,c_sys)
   } # end if(c_sys != +init=epsg:4326) 
-
+  
   
   # If you want to add the NAFO division we get this from the interweb so we know we have the right ones, adds about 20 seconds to the run to download.
   if(add_nafo == T && !exists("nafo.divs"))
@@ -283,7 +284,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         for(i in 1:length(inshore.spa)) inshore.spa[[i]] <- spTransform(inshore.spa[[i]],c_sys)
       } # end if(add_sfas != "offshore")
-    
+      
       if(add_sfas != "inshore" && !exists("offshore.spa"))
       {
         # Figure out where your tempfiles are stored
@@ -418,27 +419,27 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # If we have a field to plot, i.e. an INLA object and mesh
   if(!is.null(field))
   {
-  # Project the values appropriately for the data
-  projec = inla.mesh.projector(mesh, xlim = xlim, ylim = ylim, dims=dims)
-  field.projec = inla.mesh.project(projec, field)
-  # If you want to clip the data to some coordinates/shape this is where that happens.
-  if(!is.null(clip)) 
-  {
-    pred.in <- inout(projec$lattice$loc,clip) 
-    field.projec[!pred.in] <- NA
-  } # end if(!is.null(clip)) 
-
-  #windows(11,11)
-  # Transform the axis?
-  if(trans== "exp") arg.list <- list(at=lvls,labels=round(exp(lvls)))
-  if(trans == "none") arg.list <- list(at=lvls,labels=lvls)
-  #browser()
-  par(mar=c(4,4,1,1))
-  image.plot(list(x = projec$x, y=projec$y, z = field.projec), xlim = xlim, ylim = ylim, zlim=zlim, 
-             axes=F,las=1,add=F, breaks=lvls, axis.args= arg.list,
-             col = addalpha(colorRampPalette(colors,interpolate = "spline",alpha=T)(length(lvls)-1),alpha=alpha))
+    # Project the values appropriately for the data
+    projec = inla.mesh.projector(mesh, xlim = xlim, ylim = ylim, dims=dims)
+    field.projec = inla.mesh.project(projec, field)
+    # If you want to clip the data to some coordinates/shape this is where that happens.
+    if(!is.null(clip)) 
+    {
+      pred.in <- inout(projec$lattice$loc,clip) 
+      field.projec[!pred.in] <- NA
+    } # end if(!is.null(clip)) 
+    
+    #windows(11,11)
+    # Transform the axis?
+    if(trans== "exp") arg.list <- list(at=lvls,labels=round(exp(lvls)))
+    if(trans == "none") arg.list <- list(at=lvls,labels=lvls)
+    #browser()
+    par(mar=c(4,4,1,1))
+    image.plot(list(x = projec$x, y=projec$y, z = field.projec), xlim = xlim, ylim = ylim, zlim=zlim, 
+               axes=F,las=1,add=F, breaks=lvls, axis.args= arg.list,
+               col = addalpha(colorRampPalette(colors,interpolate = "spline",alpha=T)(length(lvls)-1),alpha=alpha))
   } # end if(!is.null(field))
-  #browser()
+  
   # If we don't specify the field let's just make a blank plot of the correct type..
   if(is.null(field)) plot(coords,col='white')
   # 
@@ -483,4 +484,27 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!exists("inshore.spa",where=1) && exists("inshore.spa"))           assign('inshore.spa',inshore.spa,pos=1)
   if(!exists("offshore.strata",where=1) && exists("offshore.strata"))   assign('offshore.strata',offshore.strata,pos=1)
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
+  
+  # make a ggplot2 obj
+  if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
+     is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
+     is.null(add_custom)){
+    require(ggplot2)
+    
+    eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
+    eez_f <- fortify(eez_f)
+    inshore.spa_f <- NULL
+    offshore.spa_f <- NULL
+    #inshore.spa_f[[i]] <- fortify(inshore.spa[[i]])
+    offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
+    
+    pect_ggplot <<- ggplot() +
+      geom_path(data=eez_f, aes(x=long, y=lat, group=group)) +
+      #geom_polygon(data=inshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black") +
+      geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black") + 
+      coord_map() + 
+      theme_bw() + 
+      theme(panel.grid=element_blank())
+  }
+  
 } # end function
