@@ -101,6 +101,10 @@ logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,
 # the marfis data
 dat.log <- marfis.log
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
+
+# extra time check column
+dat.log$watchtime <- (as.numeric(dat.log$numtow)*dat.log$avgtime)/60
+
 dat.slip <- marfis.slip
 
 
@@ -160,8 +164,8 @@ log.checks <- dat.log[remove,]
 
 # If any of the trips have roe-on we want to flag those
 roe.on <- dat.log[dat.log$roeon == "Y",]
-# If the tow time is < 3 or > 80 that's something we want to investigate further.  
-tow.time.outliers <- dat.log[dat.log$avgtime < tow.time.check[1] || dat.log$avgtime > tow.time.check[2] ,]
+# If the tow time is < 3 or > 80 that's something we want to investigate further. Also flagging any watches that are longer than 6h. 
+tow.time.outliers <- dat.log[(dat.log$avgtime < tow.time.check[1] | dat.log$avgtime > tow.time.check[2] | dat.log$watchtime >= 6) & !is.na(dat.log$watchtime),]
 
 # Now before I get into the spatial bit I need to make an automated file name so I can save either/both a pdf or an xlsx
 if(export == T || spatial == T)
