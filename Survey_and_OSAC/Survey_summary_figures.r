@@ -771,9 +771,9 @@ for(i in 1:len)
         } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
         
         # Only run the models if not loading them....
-        if(length(grep("run",INLA)) > 0)
+        if(length(grep("run",INLA)) > 0 & !(banks[i] =="BanIce" & yr<2018))
         {
-        # Now run through each bin...
+          # Now run through each bin...
           for(k in 1:num.bins)
           {
             # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
@@ -789,7 +789,7 @@ for(i in 1:len)
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
             # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid"))
             {
@@ -810,7 +810,7 @@ for(i in 1:len)
       
       if(INLA == 'run.full') 
       {
-        save(mod.res,proj,
+        save(mod.res,proj,mesh,pred.in,
              file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
       } # end if(save.INLA ==T) 
       

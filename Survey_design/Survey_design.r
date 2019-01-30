@@ -64,7 +64,7 @@
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F)
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -77,7 +77,7 @@ source(paste(direct,"Assessment_fns/Survey_design/alloc.poly.r",sep=""))
 source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
 source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
 source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
-#source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
@@ -121,6 +121,9 @@ for(i in 1:num.banks)
     if(bnk == "Mid") key <-findPolys(extras, subset(areas,bank == "Sab")) # This will put extras with Middle if any on Sable, but they won't show up on figure so ok.
     extras <- extras[extras$EID %in% key$EID,]
     attr(extras,"projection") <- "LL"
+    extras$lon.deg.min <- round(convert.dd.dddd(x = extras$X, format = "deg.min"), 4)
+    extras$lat.deg.min <- round(convert.dd.dddd(x = extras$Y, format = "deg.min"), 4)
+    extras <- extras[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "bank")]
   } # end if(add.extras == T)
   # Grab any seedboxes that were closed during the current year.
   sb <- subset(seedboxes,Bank == bnk & Open >= ymd(paste(yr,"-01-01",sep="")))
@@ -152,14 +155,27 @@ for(i in 1:num.banks)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
     if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
       
+    #get the deg dec minutes coordinates too
+    if(!bnk == "Ger")  {
+      writetows <- towlst[[i]]$Tows
+      if(add.extras==T) {
+        extras$Poly.ID <- NA
+        extras$STRATA <- "extra"
+        writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID", "STRATA")])
+      }
+      writetows$lon.deg.min <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
+      writetows$lat.deg.min <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
+      writetows <- writetows[, c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA")]
+    }
+    
 	  # if you want to save the tow lists you can export them to csv's.
-  	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab")) 
+  	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
   	{
-  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
+  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
   	} # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
   	if(export == T && bnk %in% c("GBa","GBb")) 
   	{  
-  	  write.csv(towlst[[i]]$Tows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write2
+  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write2
   	} # end if(export == T && bnk %in% c("GBa,GBb")) 
 	  
   	# Now if you want to make the plots do all of this.
@@ -212,6 +228,10 @@ for(i in 1:num.banks)
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    }
+  	  }
+  	  if(cables==T){
+  	    cables <- readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
+  	    lines(cables, col="red", lty="dashed")
   	  }
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
   	  if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
@@ -365,7 +385,24 @@ for(i in 1:num.banks)
   if(bnk %in% c("Mid","GB","Ban")) 
   {
     #Read5
-    towlst[[i]] <-   subset(read.csv(paste(direct,"Data/Survey_data/fixed_station_banks_towlst.csv",sep="")),Bank == bnk)
+    towlst[[i]] <-  subset(read.csv(paste(direct,"Data/Survey_data/fixed_station_banks_towlst.csv",sep="")),Bank == bnk)
+    
+    #get the deg dec minutes coordinates too
+    towlst[[i]]$lon.deg.min <- round(convert.dd.dddd(x = towlst[[i]]$X, format = "deg.min"), 4)
+    towlst[[i]]$lat.deg.min <- round(convert.dd.dddd(x = towlst[[i]]$Y, format = "deg.min"), 4)
+    towlst[[i]] <- towlst[[i]][, c("EID", "X", "Y", "lon.deg.min", "lat.deg.min")]
+    
+    writetows <- towlst[[i]]
+    
+    if(add.extras==T) writetows <- rbind(writetows, extras[,!names(extras) %in% "bank"])
+    
+    writetows$Bank <- bnk
+    writetows$Survey <- "spring"
+    
+    if(export == T) {
+      write.csv(writetows[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Bank", "Survey")],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
+    }
+    
     attr(towlst[[i]],"projection") <- "LL"
     if(plot == T)
     {
@@ -374,40 +411,40 @@ for(i in 1:num.banks)
                             height = 8.5,bg = "transparent")
       if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
                             height = 8.5,bg = "transparent")
-    ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
-    title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-    # Add the points, or text or both
-    if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
-    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-    # This does both, if it doesn't look pretty change the x.adj and y.adj options
-    if(point.style == "both" ) 
-    {
-      addPoints(towlst[[i]],pch=21, cex=1)
-      labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
-      x.range <- max(abs(labs$X)) - min(abs(labs$X))
-      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-      labs$X.adj <- labs$X + x.adj*x.range
-      labs$Y.adj <- labs$Y + y.adj*y.range
-      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-    }
-    
-    if(nrow(extras) > 0) {
-      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+      ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
+      title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+      # Add the points, or text or both
+      if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
+      if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+      # This does both, if it doesn't look pretty change the x.adj and y.adj options
       if(point.style == "both" ) 
       {
-        addPoints(extras,pch=24, cex=1,bg="darkorange")
-        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+        addPoints(towlst[[i]],pch=21, cex=1)
+        labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
+        x.range <- max(abs(labs$X)) - min(abs(labs$X))
+        y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
         labs$X.adj <- labs$X + x.adj*x.range
         labs$Y.adj <- labs$Y + y.adj*y.range
         text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
       }
-    }
-    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-    if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-    if(legend == T && bnk == "Ban") legend('topright',paste("Exploratory repeat stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-    if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
-                                               pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
-    if(fig != "screen") dev.off()
+      
+      if(nrow(extras) > 0) {
+        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+        if(point.style == "both" ) 
+        {
+          addPoints(extras,pch=24, cex=1,bg="darkorange")
+          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+          labs$X.adj <- labs$X + x.adj*x.range
+          labs$Y.adj <- labs$Y + y.adj*y.range
+          text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+        }
+      }
+      if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+      if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+      if(legend == T && bnk == "Ban") legend('topright',paste("Exploratory repeat stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+      if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
+                                                 pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
+      if(fig != "screen") dev.off()
     }# end if(plot==T)
   } # end if(bnk %in% c("Mid","GB", "Ban")) 
   
@@ -441,7 +478,7 @@ if(bnk == "Ger")
     # pull all OTHER repeats as backups and plot/list separately
     names(lastyearstows) <- c("tow", "X", "Y", "stratum")
     Ger.repeat.backups <- plyr::join(lastyearstows, Ger.tow.lst$Tows$repeated.tows, type="full")
-    Ger.repeat.backups <- select(Ger.repeat.backups[is.na(Ger.repeat.backups$EID),], c("tow", "X", "Y"))
+    Ger.repeat.backups <- dplyr::select(Ger.repeat.backups[is.na(Ger.repeat.backups$EID),], c("tow", "X", "Y"))
     #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$STRATA[21:ger.rep] <- "repeated-backup"
     Ger.tow.lst$Tows$new.tows$Poly.ID=1
     Ger.tow.lst$Tows$repeated.tows$Poly.ID=24
@@ -452,6 +489,11 @@ if(bnk == "Ger")
     Ger.tow.lst$Tows$backup.repeats <- Ger.repeat.backups
     #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
     Ger.tow.dat<-do.call("rbind",Ger.tow.lst$Tows)
+    
+    # Get degree decimal minutes
+    Ger.tow.dat$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$X, format = "deg.min"), 4)
+    Ger.tow.dat$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$Y, format = "deg.min"), 4)
+    Ger.tow.dat <- Ger.tow.dat[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA")]
     
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {

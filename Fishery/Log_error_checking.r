@@ -60,7 +60,7 @@
 log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
                     un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
                     bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
-                    reg.2.plot = NULL, shiny = F, plot_package=NULL
+                    reg.2.plot = NULL, shiny = F, plot_package=NULL, marfis_or_csv="marfis"
                   )
 {
 # Load in the functions needed for this function to run.
@@ -99,7 +99,8 @@ if(is.null(yrs)) yrs <- 2008:as.numeric(format(Sys.Date(),"%Y"))
 # Now bring in the fishery data you want to look at.
 logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,get.marfis = T,export=F,db.lib=db.lib)
 # the marfis data
-dat.log <- marfis.log
+if(marfis_or_csv=="marfis") dat.log <- marfis.log
+if(marfis_or_csv=="csv") dat.log <- new.log.dat
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
 
 # extra time check column
