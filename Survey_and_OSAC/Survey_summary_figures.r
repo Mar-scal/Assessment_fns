@@ -720,7 +720,7 @@ for(i in 1:len)
                                                                             inla.mesh.project(proj, mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] !="Ban" && banks[i] !="BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid"))
@@ -798,6 +798,7 @@ for(i in 1:len)
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
+            field <- exp(mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area...
             if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
@@ -810,7 +811,7 @@ for(i in 1:len)
       
       if(INLA == 'run.full') 
       {
-        save(mod.res,proj,mesh,pred.in,
+        save(mod.res,proj,mesh,pred.in,field,
              file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
       } # end if(save.INLA ==T) 
       

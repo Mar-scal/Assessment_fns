@@ -116,7 +116,7 @@ for(i in 1:num.banks)
   {
     extras <- subset(extra.tows,year == yr & bank == banks[i],select = c("tow","lon","lat","bank"))
     names(extras) <- c("EID","X","Y","bank")
-    extras$EID <- 1:nrow(extras)
+    extras$EID <- as.numeric(extras$EID)
     if(bnk != "Mid") key <-findPolys(extras, subset(areas,bank == bnk))
     if(bnk == "Mid") key <-findPolys(extras, subset(areas,bank == "Sab")) # This will put extras with Middle if any on Sable, but they won't show up on figure so ok.
     extras <- extras[extras$EID %in% key$EID,]
