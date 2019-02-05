@@ -507,7 +507,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       bathy_f <- data.frame(rasterToPoints(r))
       bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
       pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
-                                                breaks=seq(floor(min(bathy_f$layer)), ceiling(max(bathy_f$layer)), 100), colour="grey")
+                                                bins=10, colour="grey")
     }   
     
     if(add_land == T) {
