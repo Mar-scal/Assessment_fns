@@ -237,10 +237,59 @@ legend("bottomleft",leg.lvls,fill=cols,
 dev.off()
 
 
-
-
-
 vals <- BanModMatrix
 vals[is.na(vals)] <- 0
 mean(vals)
+
+
+#### pulling ISDB data
+#### two trips visited banquereau - J12-0326 and J16-0528
+bydirect <- "C:/Documents/Bycatch/"
+source(paste0(bydirect, "Bycatch_fns/getdiscards.r"))
+
+sets <- read.csv(paste0(bydirect, "data/Observed scallop trip metadata_2008-2018_tidysets_2019-02-04.csv"))
+sets <- subset(sets, TRIP %in% c("J12-0326", "J16-0528") & area == "Ban" & !is.na(area))
+
+discards2012 <- getdiscards_long_detail(trip="J12-0326", un = un.ID, pw = pwd.ID, db.con = "ptran", direct.off = direct, package="ROracle") # must use getdiscards_long in order to deal with split trips properly
+discards2016 <- getdiscards_long_detail(trip="J16-0528", un = un.ID, pw = pwd.ID, db.con = "ptran", direct.off = direct, package="ROracle") # must use getdiscards_long in order to deal with split trips properly
+
+discards_ban <- rbind(discards2012, discards2016)
+
+discards_ban <- join(sets, discards_ban, type="left")
+
+discards_ban <- discards_ban[discards_ban$COMMON %in% c("ICELAND SCALLOP", "SEA SCALLOP", "SCALLOPS"),]
+
+discards_ban <- ddply(.data=discards_ban, .(LATITUDE, LONGITUDE, area, COMMON, SOURCE, TRIP),
+                      summarize,
+                      total_discard=sum(`SUM(EST_DISCARD_WT)`, na.rm=T),
+                      total_kept=sum(`SUM(EST_KEPT_WT)`, na.rm=T))
+
+discards_ban$total_caught <- discards_ban$total_discard + discards_ban$total_kept
+
+ggplot() + geom_point(data=discards_ban, aes(-LONGITUDE, LATITUDE, colour=total_caught)) +
+  facet_grid(TRIP~COMMON) + 
+  coord_map()
+
+discards_ban_wide <- reshape2::dcast(data=discards_ban, TRIP+LATITUDE+LONGITUDE+area ~ COMMON, value.var="total_caught")
+discards_ban_wide$`ICELAND SCALLOP`[is.na(discards_ban_wide$`ICELAND SCALLOP`)] <- 0
+discards_ban_wide$`SEA SCALLOP`[is.na(discards_ban_wide$`SEA SCALLOP`)] <- 0
+discards_ban_wide$prop_iceland <- discards_ban_wide$`ICELAND SCALLOP` / discards_ban_wide$`SEA SCALLOP`
+
+discards_ban_wide$iceland_1_0[discards_ban_wide$prop_iceland<1] <- "sea > ice"
+discards_ban_wide$iceland_1_0[discards_ban_wide$prop_iceland>1] <- "ice > sea"
+
+levs <- seq(floor(min(discards_ban_wide$prop_iceland[!is.na(discards_ban_wide$prop_iceland)])), ceiling(max(discards_ban_wide$prop_iceland[!is.na(discards_ban_wide$prop_iceland)])), 1.5)
+cols <- brewer.pal(length(levs)-1,"YlOrRd")
+leg.lvls <- c(paste(levs[-length(levs)],'-',levs[-1],sep='')[-(length(levs)-1):-length(levs)],
+              paste(levs[length(levs)-1],'+',sep=''))
+
+discards_ban_wide$LONGITUDE <- -discards_ban_wide$LONGITUDE
+discards_ban_wide <- arrange(discards_ban_wide, LONGITUDE, LATITUDE)
+
+
+source(paste0(direct, "Assessment_fns/Maps/pectinid_projector.R"))
+pecjector("Ban", direct=direct, plot_package = "ggplot2", add_EEZ=T, add_nafo=T, add_sfas = "all", add_bathy=T, add_land = T)
+### CONTINUE HERE!
+
+pect_ggplot
 

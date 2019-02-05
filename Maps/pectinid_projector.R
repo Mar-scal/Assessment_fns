@@ -486,25 +486,72 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
   
   # make a ggplot2 obj
-  if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
-     is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
-     is.null(add_custom)){
+  #if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
+     # is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
+     # is.null(add_custom)){
     require(ggplot2)
     
-    eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
-    eez_f <- fortify(eez_f)
-    inshore.spa_f <- NULL
-    offshore.spa_f <- NULL
-    #inshore.spa_f[[i]] <- fortify(inshore.spa[[i]])
-    offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
-    
-    pect_ggplot <<- ggplot() +
-      geom_path(data=eez_f, aes(x=long, y=lat, group=group)) +
-      #geom_polygon(data=inshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black") +
-      geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black") + 
+    # here's the ggplot template (pect_ggplot). We'll add geom layers onto this based on the arguments provided
+    pect_ggplot <- ggplot() +
       coord_map() + 
       theme_bw() + 
-      theme(panel.grid=element_blank())
-  }
+      theme(panel.grid=element_blank()) +
+      scale_x_continuous(expand = c(0,0), limits = xlim) +
+      scale_y_continuous(expand = c(0,0), limits = ylim) 
+    
+    if(add_bathy == T & c_sys == "+init=epsg:4326"){
+      dim <- bathy.sp@grid@cells.dim
+      bbox <- bathy.sp@bbox
+      r <- raster(xmn=bbox[1,1], xmx=bbox[1,2], ymn=bbox[2,1], ymx=bbox[2,2], ncols=dim[1], nrows=dim[2])
+      r <- setValues(r, t(matrix(bathy.sp@data$layer, nrow=dim[1], ncol=dim[2])))
+      bathy_f <- data.frame(rasterToPoints(r))
+      bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
+      pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
+                                                breaks=seq(floor(min(bathy_f$layer)), ceiling(max(bathy_f$layer)), 100), colour="grey")
+    }   
+    
+    if(add_land == T) {
+      land_f <- fortify(land.sp)
+      land_f <- land_f[land_f$long>xlim[1] & land_f$long <xlim[2] & land_f$lat>ylim[1] & land_f$lat<ylim[2],]
+      land_f$order <- 1:nrow(land_f)
+      pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+    }
+    
+    if(add_EEZ == T) {
+      eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
+      eez_f <- fortify(eez_f)
+      pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group))
+    }
+
+    if(!is.null(add_sfas)) {
+      if((add_sfas == "inshore" | add_sfas == "all")) {
+        inshore.spa_f <- NULL
+        #inshore.spa_f[[i]] <- fortify()
+        #pect_ggplot <- pect_ggplot + geom_polygon(data=inshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+      }
+      if(add_sfas == "offshore" | add_sfas == "all") {
+        offshore.spa_f <- NULL
+        offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
+        pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+      }
+    }
+    
+    if(add_nafo == T) {
+      nafo_f <- fortify(nafo.divs)
+      pect_ggplot <- pect_ggplot + geom_path(data=nafo_f, aes(x=long, y=lat, group=group))
+    }
+    
+    if(!is.null(add_strata)) {
+      if(add_strata == "inshore") {
+        #inshore.strata[[i]]
+      }
+      if(add_strata == "offshore") {
+        #offshore.strata[[i]]
+      }
+    }
+    
+    pect_ggplot <<- pect_ggplot +
+      xlab("Longitude") + ylab("Latitude")
+#  }
   
 } # end function
