@@ -499,15 +499,17 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       scale_x_continuous(expand = c(0,0), limits = xlim) +
       scale_y_continuous(expand = c(0,0), limits = ylim) 
     
-    if(add_bathy == T & c_sys == "+init=epsg:4326"){
-      dim <- bathy.sp@grid@cells.dim
-      bbox <- bathy.sp@bbox
-      r <- raster(xmn=bbox[1,1], xmx=bbox[1,2], ymn=bbox[2,1], ymx=bbox[2,2], ncols=dim[1], nrows=dim[2])
-      r <- setValues(r, t(matrix(bathy.sp@data$layer, nrow=dim[1], ncol=dim[2])))
-      bathy_f <- data.frame(rasterToPoints(r))
-      bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
-      pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
-                                                breaks=pretty(bathy_f$layer, min.n=2), colour="grey")
+    if(!is.null(add_bathy) & c_sys == "+init=epsg:4326"){
+      if(add_bathy==T) {
+        dim <- bathy.sp@grid@cells.dim
+        bbox <- bathy.sp@bbox
+        r <- raster(xmn=bbox[1,1], xmx=bbox[1,2], ymn=bbox[2,1], ymx=bbox[2,2], ncols=dim[1], nrows=dim[2])
+        r <- setValues(r, t(matrix(bathy.sp@data$layer, nrow=dim[1], ncol=dim[2])))
+        bathy_f <- data.frame(rasterToPoints(r))
+        bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
+        pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
+                                                  breaks=pretty(bathy_f$layer, min.n=2), colour="grey")
+      }
     }   
     
     if(add_land == T) {
