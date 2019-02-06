@@ -507,14 +507,16 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       bathy_f <- data.frame(rasterToPoints(r))
       bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
       pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
-                                                bins=10, colour="grey")
+                                                breaks=pretty(bathy_f$layer, min.n=2), colour="grey")
     }   
     
     if(add_land == T) {
       land_f <- fortify(land.sp)
       land_f <- land_f[land_f$long>xlim[1] & land_f$long <xlim[2] & land_f$lat>ylim[1] & land_f$lat<ylim[2],]
-      land_f$order <- 1:nrow(land_f)
-      pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+      if(dim(land_f)[1]>0) {
+        land_f$order <- 1:nrow(land_f)
+        pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+      }
     }
     
     if(add_EEZ == T) {
