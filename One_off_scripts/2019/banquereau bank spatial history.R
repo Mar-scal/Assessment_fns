@@ -296,13 +296,14 @@ discards_ban_wide$prop_iceland <- discards_ban_wide$`ICELAND SCALLOP` / (discard
 
 levs <- pretty(discards_ban_wide$prop_iceland[!is.na(discards_ban_wide$prop_iceland)], n=5)
 levs <- sort(c(levs, 0.5))
+lev.labs <- c(paste0(levs[1:length(levs)-1], " - ", levs[2:length(levs)]), paste0(levs[length(levs)], " +"))
 
 discards_ban_wide$LONGITUDE <- -discards_ban_wide$LONGITUDE
 discards_ban_wide <- arrange(discards_ban_wide, LONGITUDE, LATITUDE)
 discards_ban_wide$prop_iceland <- cut(discards_ban_wide$prop_iceland, breaks = levs)
 
 source(paste0(direct, "Assessment_fns/Maps/pectinid_projector.R"))
-pecjector(area=data.frame(x=c(-60.25,-59.25), y=c(44.4,44.65),proj_sys = as.character("+init=epsg:4326")), repo="local", direct=direct, plot_package = "ggplot2", add_EEZ=F, add_nafo=F, add_bathy=T, add_land = T)
+pecjector(area=data.frame(x=c(-60.25,-59.25), y=c(44.4,44.65),proj_sys = as.character("+init=epsg:4326")), repo="local", direct=direct, plot_package = "ggplot2", add_bathy=T, add_land = T)
 #display.brewer.all(type="all", n=NULL)
 require(viridis)
 png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Banquereau_Bycatch.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
@@ -310,9 +311,9 @@ pect_ggplot +
   geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
   geom_point(data=discards_ban_wide[!is.na(discards_ban_wide$prop_iceland),], aes(LONGITUDE, LATITUDE, fill=prop_iceland), colour="black",shape=21, size=2) +
   facet_wrap(~TRIP, nrow=2) + 
-  # scale_x_continuous(expand=c(0,0)) +
-  # scale_y_continuous(expand=c(0,0)) +
-  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin observed scallop catch\n(kept and discarded)", labels=levs, drop=F)
+  #scale_x_continuous(expand=c(0,0)) +
+  #scale_y_continuous(expand=c(0,0)) +
+  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin observed scallop catch\n(kept and discarded)", labels=lev.labs, drop=F)
  # scale_colour_brewer(palette="Dark2", name="Observed catch\n(kept and discarded)", labels=c("Icelandic > Sea scallop", "Sea scallop > Icelandic"))
 dev.off()
 
@@ -353,23 +354,29 @@ spde <- inla.spde2.pcmatern(mesh,
                             prior.sigma=c(1,0.5), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                             prior.range=c(0.1,0.5)) # The Median range and the probability that the range is less than this..
 
-spat.index <- inla.spde.make.index(name="spatial.field", n.spde=spde$n.spde)
+spat.index <- inla.spde.make.index(name="s", n.spde=spde$n.spde)
+
+# must transform propIcetotal to get rid of 0's and 1's
+Ban_both$propIcetotal_trans <-(Ban_both$propIcetotal * (length(Ban_both$propIcetotal)-1) + 0.5)/length(Ban_both$propIcetotal)
 
 # This is the stack for estimation from the INLA model
 print("stack")
-stk <- inla.stack(tag="est", data=list(propIcetotal=Ban_both$propIcetotal, link=1L),
-                  effects=list(a0 = rep(1, nrow(Ban_both)), s = 1:spde$n.spde),
+stk <- inla.stack(tag="est", data=list(propIcetotal=Ban_both$propIcetotal_trans, link=1L),
+                  effects=list(intercept = rep(1, nrow(Ban_both)),
+                               s = spat.index),
                   A = list(1, A))
-
 print(stk)
 
 # Add an index to the data
 # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
 # basically the random deviations for each piece of the mesh.
+intercept=1
 
 # This is the INLA model itself
-mod <- inla(propIcetotal ~ 0 + 1 + f(s, model=spde), family="beta", data = inla.stack.data(stk),#control.family= control.family1,
-            control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+mod <- inla(propIcetotal ~ 0 + intercept + f(s, model=spde), family="beta", 
+            data = inla.stack.data(stk),
+            control.fam = list(control.link=list(model="logit")),
+            control.predictor=list(A=inla.stack.A(stk)))
 
 # Now that this is done we need to make a prediction grid for projection onto our mesh,
 print("projecting")
@@ -378,15 +385,14 @@ proj <- inla.mesh.projector(mesh=mesh,
                             dims = c(500,500)
 ) # 500 x 500 gives very fine results but is slow.        
 # Then make a matrix of the correct dimension
-mod.res.proj <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
+require(boot)
+mod.res.proj <- inla.mesh.project(proj, inv.logit(mod$summary.random$s$mean + mod$summary.fixed$mean))
 
 pred.in <- splancs::inout(proj$lattice$loc,bound$loc)
-mod.res.proj[!pred.in] <- NA
-
+#mod.res.proj[!pred.in] <- NA # TURN THIS OFF TO MAKE EAST PLOT
 
 ## plot it
 source(paste0(direct, "Assessment_fns/Maps/pectinid_projector.R"))
-pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_EEZ=F, add_nafo=F, add_bathy=T, add_land = T)
 
 # from INLAutils ggplot_projection_shapefile (which is deprecated)
 #undebug(ggplot_projection_shapefile)
@@ -402,34 +408,104 @@ raster.df <- tidyr::gather(raster.df, key = "raster_name",
                            value = "z", -x, -y)
 names(raster.df) <- c("long", "lat", "raster_name", 
                       "value")
-levs <- pretty(raster.df$value, n=5)
+levs <- sort(c(pretty(raster.df$value, n=5), 0.5))
 tile <- raster.df
 tile$value <- cut(x = tile$value, breaks=levs, labels=levs[1:length(levs)-1])
 tile$value <- tile$value
-## warning - this takes a long time to plot!
-png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_INLA_raster.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
-pect_ggplot + 
-  geom_tile(data = raster.df[!is.na(raster.df$value),c("long", "lat", "value")], 
-            aes(long, lat, fill = value))+
-  coord_quickmap()+ # needed to make geom_tile plot fast. Should run it without this line first to make sure that projection looks ok.
-  geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
-  scale_fill_gradient(high=brewer.pal(n=3, 'YlGnBu')[1], low=brewer.pal(n=3, 'YlGnBu')[3], name="Proportion of Icelandic\nin overall scallop catch",
-                      trans="reverse", expand=c(0,0))
+
+lev.labs <- c(paste0(levs[1:length(levs)-1], " - ", levs[2:length(levs)]), paste0(levs[length(levs)], " +"))
+
+names(banstations2) <- c("EID", "X", "Y", "Bank", "Year", "Cruise", "Survey")
+banstations2$EID <- as.character(banstations2$EID)
+banstations$type <- "Exploratory repeat"
+banstations2$type <- "Extra"
+cols <- c(brewer.pal(name="YlGnBu", n=length(levs)), "transparent", "darkorange") 
+names(cols) <- c(levs, "Exploratory repeat", "Extra")
+banstations_all <- join(banstations, banstations2, type="full")
+
+### points only! No INLA
+
+## warning - this takes a long time to plot unless coord_quickmap is used
+# pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_bathy=T, add_land = T)
+# png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_INLA_raster.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
+# pect_ggplot + 
+#   geom_tile(data = raster.df[!is.na(raster.df$value),c("long", "lat", "value")], 
+#             aes(long, lat, colour = value))+
+#   coord_quickmap()+ # needed to make geom_tile plot fast. Should run it without this line first to make sure that projection looks ok.
+#   geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
+#   scale_colour_gradient(high=brewer.pal(n=3, 'YlGnBu')[1], low=brewer.pal(n=3, 'YlGnBu')[3], name="Proportion of Icelandic\nin overall scallop catch",
+#                       trans="reverse", expand=c(0,0))+
+#   annotate(geom="text",-Inf, Inf, hjust=-0.05, vjust=1.1,label=paste0("Bank mean=", round(mean(raster.df$value),2))) +
+#   geom_point(data=banstations_all, aes(X, Y, shape=type, fill=type)) +
+#   scale_shape_manual(name="Tow type", values=c(21, 24)) +
+#   scale_fill_manual(name="Tow type", values=cols)
+# dev.off()
+# 
+# # alternatively:
+# pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_bathy=T, add_land = T)
+# png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_INLA_contour.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
+# pect_ggplot + 
+#   geom_tile(data = tile[!is.na(tile$value),c("long", "lat", "value")], 
+#             aes(long, lat, fill = as.factor(value)))+
+#   geom_contour(data=raster.df[!is.na(raster.df$value),c("long", "lat", "value")], aes(long, lat, z=value), breaks=levs, colour="black") +
+#   coord_quickmap()+ # needed to make geom_tile plot fast. Should run it without this line first to make sure that projection looks ok.
+#   geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
+#   scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin overall scallop catch", labels=lev.labs, drop=F)+
+#   annotate(geom="text",-Inf, Inf, hjust=-0.05, vjust=2,label=paste0("Bank mean=", round(mean(raster.df$value),2)))+
+#   geom_point(data=banstations_all[banstations_all$type=="Exploratory repeat",], aes(X, Y), shape=21, size=2) +
+#   geom_point(data=banstations_all[banstations_all$type=="Extra",], aes(X, Y), shape=24, fill="darkorange", size=2) +
+#   geom_segment(data=surv.Live[["Ban"]][surv.Live[["Ban"]]$year==2012,], aes(x=slon, xend=elon, y=slat, yend=elat))
+# ### cannot for the life of me figure out how to create two separate fill legends :(
+# dev.off()
+# 
+# pecjector(area=data.frame(x=c(-60.084, -59.4), y=c(44.3, 44.8), proj_sys = as.character("+init=epsg:4326")), repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_bathy=T, add_land = T)
+# raster.df2 <- raster.df[raster.df$long > -60.084 & raster.df$long < -59.4 & raster.df$lat > 44.3 & raster.df$lat < 44.8,]
+# png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_INLA_contour_zoomEast.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
+# pect_ggplot + 
+#   geom_tile(data = tile[!is.na(tile$value),c("long", "lat", "value")], 
+#             aes(long, lat, fill = as.factor(value)))+
+#   geom_contour(data=raster.df2[!is.na(raster.df2$value),c("long", "lat", "value")], aes(long, lat, z=value), breaks=levs, colour="black") +
+#   coord_quickmap()+ # needed to make geom_tile plot fast. Should run it without this line first to make sure that projection looks ok.
+#   geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
+#   scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin overall scallop catch", labels=lev.labs, drop=F)+
+#   annotate(geom="text",-Inf, Inf, hjust=-0.05, vjust=2,label=paste0("Area mean=", round(mean(raster.df2$value),2)))+
+#   geom_point(data=banstations_all[banstations_all$type=="Exploratory repeat",], aes(X, Y), shape=21, size=2) +
+#   geom_point(data=banstations_all[banstations_all$type=="Extra",], aes(X, Y), shape=24, fill="darkorange", size=2) +
+#   geom_segment(data=surv.Live[["Ban"]][surv.Live[["Ban"]]$year==2012,], aes(x=slon, xend=elon, y=slat, yend=elat))
+# ### cannot for the life of me figure out how to create two separate fill legends :(
+# dev.off()
+
+levs <- sort(c(pretty(Ban_both$propIcetotal, n=6), 0.5))
+Ban_both$propIcetotal_levs <- cut(x=Ban_both$propIcetotal, breaks=levs, include.lowest=T, right=F)
+Ban_both$propIcetotal_levs <- as.character(Ban_both$propIcetotal_levs)
+Ban_both$propIcetotal_levs[Ban_both$propIcetotal==0] <- "0"
+Ban_both$propIcetotal_levs[Ban_both$propIcetotal==1] <- "1"
+Ban_both$propIcetotal_levs <- as.factor(Ban_both$propIcetotal_levs)
+Ban_both$propIcetotal_levs <- factor(Ban_both$propIcetotal_levs, levels=c("0", "[0,0.2)", "[0.2,0.4)", "[0.4,0.5)", 
+                                                                          "[0.5,0.6)", "[0.6,0.8)","[0.8,1]", "1"))
+
+lev.labs <- c(0, paste0(levs[1:length(levs)-1], " - ", levs[2:length(levs)]), 1)
+
+pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_bathy=T, add_land = T)
+png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_points.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
+pect_ggplot +
+  geom_point(data=Ban_both[!is.na(Ban_both$propIcetotal_levs),], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=3) +
+  #geom_point(data=Ban_both[Ban_both$propIcetotal==0,], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=2) +
+  #geom_point(data=Ban_both[Ban_both$propIcetotal==1,], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=2) +
+  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin overall scallop catch", labels=lev.labs, drop=F)+
+  annotate(geom="text",-Inf, Inf, hjust=-0.05, vjust=2,label=paste0("Bank mean=", round(mean(raster.df$value),2)))#+
+  # geom_point(data=banstations_all[banstations_all$type=="Exploratory repeat",], aes(X, Y), shape=21, size=2) +
+  # geom_point(data=banstations_all[banstations_all$type=="Extra",], aes(X, Y), shape=24, fill="darkorange", size=2) +
+  #geom_segment(data=surv.Live[["Ban"]][surv.Live[["Ban"]]$year==2012,], aes(x=slon, xend=elon, y=slat, yend=elat))
 dev.off()
 
-# alternatively:
-
-png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_INLA_contour.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
 pect_ggplot + 
-  geom_tile(data = tile[!is.na(tile$value),c("long", "lat", "value")], 
-            aes(long, lat, fill = as.factor(value)))+
-  geom_contour(data=raster.df[!is.na(raster.df$value),c("long", "lat", "value")], aes(long, lat, z=value), breaks=levs, colour="black") +
-  coord_quickmap()+ # needed to make geom_tile plot fast. Should run it without this line first to make sure that projection looks ok.
   geom_path(data=bound.poly.surv, aes(X, Y, group=PID))+
-  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin overall scallop catch", labels=levs, drop=F)
-#
+  geom_point(data=discards_ban_wide[!is.na(discards_ban_wide$prop_iceland),], aes(LONGITUDE, LATITUDE, fill=prop_iceland), colour="black",shape=21, size=2) +
+  facet_wrap(~TRIP, nrow=2) + 
+  #scale_x_continuous(expand=c(0,0)) +
+  #scale_y_continuous(expand=c(0,0)) +
+  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin observed scallop catch\n(kept and discarded)", labels=lev.labs, drop=F)
+# scale_colour_brewer(palette="Dark2", name="Observed catch\n(kept and discarded)", labels=c("Icelandic > Sea scallop", "Sea scallop > Icelandic"))
 dev.off()
 
-ggplot() + geom_raster(data = raster.df, 
-                       aes_string("long", "lat", fill = "value"))
-  

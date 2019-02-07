@@ -862,7 +862,7 @@ for(i in 1:len)
           # This sets up our color ramps and titles for each of the spatial plots
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
             cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
             if(!is.null(colour.bins)){
@@ -1070,7 +1070,7 @@ for(i in 1:len)
           # Now for the user specified SH bins, if they exist...
           if(maps.to.make[m]  %in% bin.names) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
             cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
             #user-defined colour bins
@@ -1139,11 +1139,11 @@ for(i in 1:len)
           # This is one figure to rule all
           if(!banks[i] =="BanIce") ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
-                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           if(banks[i] == "BanIce") ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1151,8 +1151,8 @@ for(i in 1:len)
             image(list(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]]), axes=F,add=T,breaks = lvls,col=cols)
             if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
           } # end if(!is.null(mod.res[[maps.to.make[m]]])) 
-          plot(bound.poly.surv.sp,add=T,lwd=2)
-          
+          if(!banks[i] %in% c("Ban", "BanIce")) plot(bound.poly.surv.sp,add=T,lwd=2)
+          if(banks[i] %in% c("Ban", "BanIce")) maps::map.scale(x = -59.55, y=43.97,relwidth = 0.15,ratio=F)
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
 

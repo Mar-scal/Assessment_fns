@@ -101,12 +101,14 @@ logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,
 # the marfis data
 if(marfis_or_csv=="marfis") dat.log <- marfis.log
 if(marfis_or_csv=="csv") dat.log <- new.log.dat
+
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
 
 # extra time check column
 dat.log$watchtime <- (as.numeric(dat.log$numtow)*dat.log$avgtime)/60
 
-dat.slip <- marfis.slip
+if(marfis_or_csv=="marfis") dat.slip <- marfis.slip
+if(marfis_or_csv=="csv") dat.slip <- slip.dat
 
 
 

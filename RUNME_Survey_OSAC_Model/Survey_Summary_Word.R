@@ -47,12 +47,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     ntowsy$type[ntowsy$Var1 == 3] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 3], "3", "repeated_spr")
     ntowsy$type[ntowsy$Var1 == 4] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 4], "4", "other")
     ntowsy$type[ntowsy$Var1 == 5] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 5], "5", "exploratory_5")
+    ntowsy$type[!ntowsy$Var1 %in% 1:5] <- "unclassified"
     ntowsy$bank <- banks[i]
-    browser()
+    
     ntows <- rbind(ntows, ntowsy)
     
     # number per tow
-    if(banks[i] %in% c("Mid", "GB", "Ger")){
+    if(banks[i] %in% c("Mid", "GB", "Ger","Ban", "BanIce")){
       NPR_current <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year]
       NPR_prev <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year-1]
       NR_current <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==year]
@@ -266,8 +267,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                                   surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
+    print('check1')
     
-    towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
                              lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
                              thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q),
                              LTM=NA,
@@ -275,6 +277,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
                                     paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
                                     paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)")),
+                             nearLTM=NA,
+                             bank=banks[i])
+    
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q),
+                             LTM=NA,
+                            word=NA,
                              nearLTM=NA,
                              bank=banks[i])
     
@@ -329,7 +339,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                        LTM=cf_ltm)
     }
-    
+    print('check2')
     # if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]==0){
     #   
     #   cf <- data.frame(variable=c("CF",
@@ -394,7 +404,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                      
                           
     highlights <- rbind(highlights, growpot)
-    
+    print('check3')
     # meat count
     mc <- data.frame(variable=c("meanMC", "minMC", "maxMC", "lqMC", "uqMC"), 
                      lastyear=NA,
@@ -461,7 +471,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     clap$nearLTM <- NA
     clap$bank <- banks[i]
     highlights <- rbind(highlights, clap)
-    
+    print('check4')
     #seedboxes
     if(banks[i] %in% unique(names(seedbox.obj))){
       boxy <- seedbox.obj[[banks[i]]][[1]]
@@ -519,7 +529,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                  "other"))))
       bmseedPT$nearLTM <- NA
       bmseedPT$bank <- banks[i]
-      
+      browser()
       highlights <- rbind(highlights, seedPT)
       highlights <- rbind(highlights, bmseedPT)
     }

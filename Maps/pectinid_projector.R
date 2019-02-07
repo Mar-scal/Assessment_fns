@@ -170,7 +170,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # i.e. these can't be lat/lon while the c_sys is UTM
   b.box <- as(raster::extent(c(x1,x2,y1,y2)), "SpatialPolygons")
   proj4string(b.box) = c_sys
-  #browser()
+  
   # If we are going to add the EEZ do this...
   if(!is.null(add_EEZ)) 
   {
@@ -199,7 +199,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
     if(!is.null(eez)) eez <- spTransform(eez,c_sys)
   } # end if(!is.null(add_EEZ)) 
-  
+  # browser()
   # For the moment the bathymetry can only be added to a figure if it is in lat-lon coordinates as we don't have a bathymetric shapefile
   if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") # This would need done everytime as the boundng box could change for each call
   {
@@ -512,19 +512,23 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       }
     }   
     
-    if(add_land == T) {
-      land_f <- fortify(land.sp)
-      land_f <- land_f[land_f$long>xlim[1] & land_f$long <xlim[2] & land_f$lat>ylim[1] & land_f$lat<ylim[2],]
-      if(dim(land_f)[1]>0) {
-        land_f$order <- 1:nrow(land_f)
-        pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+    if(!is.null(add_land)){
+      if(add_land == T) {
+        land_f <- fortify(land.sp)
+        land_f <- land_f[land_f$long>xlim[1] & land_f$long <xlim[2] & land_f$lat>ylim[1] & land_f$lat<ylim[2],]
+        if(dim(land_f)[1]>0) {
+          land_f$order <- 1:nrow(land_f)
+          pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+        }
       }
     }
     
-    if(add_EEZ == T) {
-      eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
-      eez_f <- fortify(eez_f)
-      pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group))
+    if(!is.null(add_EEZ)){
+      if(add_EEZ == T) {
+        eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
+        eez_f <- fortify(eez_f)
+        pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group))
+      }
     }
 
     if(!is.null(add_sfas)) {
@@ -540,9 +544,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       }
     }
     
-    if(add_nafo == T) {
-      nafo_f <- fortify(nafo.divs)
-      pect_ggplot <- pect_ggplot + geom_path(data=nafo_f, aes(x=long, y=lat, group=group))
+    if(!is.null(add_nafo)){
+      if(add_nafo == T) {
+        nafo_f <- fortify(nafo.divs)
+        pect_ggplot <- pect_ggplot + geom_path(data=nafo_f, aes(x=long, y=lat, group=group))
+      }
     }
     
     if(!is.null(add_strata)) {
