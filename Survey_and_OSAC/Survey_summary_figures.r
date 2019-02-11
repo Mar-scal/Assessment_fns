@@ -487,6 +487,14 @@ for(i in 1:len)
       
       bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
       
+      if(banks[i] %in% c("Ban", "BanIce")) 
+      {
+        ban.poly.clip <- read.csv(paste0(direct, "Data/Maps/approved/Other_Borders/BanqDomain_OffshorePlots_Feb2019.csv"))
+        names(ban.poly.clip) <- c("POS", "PID", "X", "Y") 
+        ban.poly.clip <- as.PolySet(ban.poly.clip,projection="LL")
+        ban.poly.clip.sp <- PolySet2SpatialPolygons(ban.poly.clip)
+      }
+      
       # This section only needs run if we are running the INLA models
       if(length(grep("run",INLA)) > 0)
       {
@@ -720,7 +728,7 @@ for(i in 1:len)
                                                                             inla.mesh.project(proj, mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid"))
@@ -729,8 +737,15 @@ for(i in 1:len)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
+            if(banks[i] %in% c("Ban", "BanIce"))
+            {
+              bound2 <- inla.sp2segment(ban.poly.clip.sp)
+              simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
+              pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+            }
             # this is the clipping step for all banks except Ban
-            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+            #if(!banks[i] %in% c("Ban", "BanIce")) 
+            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
@@ -800,7 +815,8 @@ for(i in 1:len)
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
             field <- exp(mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area...
-            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
+            if(!banks[i] %in% c("Ban", "BanIce")) 
+            mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
@@ -808,7 +824,6 @@ for(i in 1:len)
       print("finished running user bin models")
       # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
       # Results are only saved if the option 'run.full' is chosen
-      
       if(INLA == 'run.full') 
       {
         save(mod.res,proj,mesh,pred.in,field,
@@ -832,7 +847,6 @@ for(i in 1:len)
         load(file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
         #spatial.maps <- s.maps
       } # end if(INLA == 'load') 
-      
       
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
@@ -1298,11 +1312,12 @@ for(i in 1:len)
   #Do we want to plot the survey?
   if(any(plots %in% "Survey"))
   {
+    
     # For this figure we want full bank names, this is ugly hack but does the trick.
     if(banks[i] %in% c("SPB","Ban", "BanIce", "BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
     {    
     full.names <- data.frame(abrv = c("SPB","Ban","BanIce","Mid","Sab","Ger","BBs","BBn","GBa","GBb","GB"),
-                             full = c("St. Pierre Bank","Banquereau (Sea)","Banquereau (Icelandic)","Middle Bank","Sable Bank","German Bank","Browns Bank South",
+                             full = c("St. Pierre Bank","Banquereau (Sea Scallop)","Banquereau (Icelandic)","Middle Bank","Sable Bank","German Bank","Browns Bank South",
                                       "Browns Bank North","Georges Bank a","Georges Bank b","Georges Bank Spring"))
     
     survey.title <- substitute(bold(paste("Survey (",bank," ",year,")",sep="")),
