@@ -40,6 +40,9 @@ logs_and_fish(loc="offshore",year = 1981:2018,un=un.ID,pw=pwd.ID,db.con=db.con, 
 ban.fish.dat.new <- new.log.dat[new.log.dat$bank=="Ban" & !is.na(new.log.dat$bank=="Ban"),]
 ban.fish.dat.old <- old.log.dat[old.log.dat$bank=="Ban" & !is.na(old.log.dat$bank=="Ban"),]
 ban.fish.dat <- plyr::join(ban.fish.dat.new, ban.fish.dat.old, type="full")
+
+somedat <- read.csv(paste0(direct, "Data/Fishery_data/Logs/Compiled/logs_1981-2017.csv"))
+ggplot() + geom_point(data=somedat, aes(lon, lat, colour=kg))
 # require(plyr)
 # test<- ddply(.data=ban.fish.dat.new, .(year),
 #       summarize,
@@ -75,7 +78,7 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) #Source3
 pdf(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ban/Spatial_history.pdf"), onefile=T)
 for (i in 1:length(years)) {
   
-  titl <- paste("Sea Scallop Catch (","Ban","-",years[i],")",sep="")
+  titl <- paste("Scallop Fishery Catch (","Ban","-",years[i],")",sep="")
   
   bnk.polys <- gridPlot(ban.fish.dat.plot[ban.fish.dat.plot$year==years[i], c("EID", "X", "Y", "Z")], bnk.survey.bound.poly, lvls, FUN=sum, grid.size=1/60)  
   
@@ -95,19 +98,21 @@ dev.off()
 #Get the total removals from each 1 minute cell within the bank for the levels (10 kg to 50 tonnes!)
 source(paste0(direct, "Assessment_fns/Survey_and_OSAC/gridPlot.r"))
 source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) #Source3 
-rec.years <- 2012:2018
+
 #plot the proposed survey stations too
 banstations <- read.csv(paste0(direct, "/Data/Survey_data/fixed_station_banks_towlst.csv"))
 banstations2 <- read.csv(paste0(direct, "/Data/Survey_data/extra_stations.csv"))
 banstations <- banstations[banstations$Bank=="Ban",]
 banstations2 <- banstations2[banstations2$bank=="Ban",]
 
+rec.years <- 2012:2018
+
 rec.years<-unique(ban.fish.dat.plot[ban.fish.dat.plot$year %in% rec.years,]$year)
 
 for (i in 1:length(rec.years)) {
   png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ban/Spatial_history_", rec.years[i], ".png"), units = "in", width=11, height=8.5, res=920)
   
-  titl <- paste("Sea Scallop Catch (","Ban","-",rec.years[i],")",sep="")
+  titl <- paste("Scallop Fishery Catch (","Ban","-",rec.years[i],")",sep="")
   
   bnk.polys <- gridPlot(ban.fish.dat.plot[ban.fish.dat.plot$year==rec.years[i], c("EID", "X", "Y", "Z")], bnk.survey.bound.poly, lvls, FUN=sum, grid.size=1/60)  
   
@@ -125,7 +130,8 @@ for (i in 1:length(rec.years)) {
 
 
 #### calculate cumulative catch
-cum.ban.fish.dat.plot <- ban.fish.dat.plot[ban.fish.dat.plot$year %in% 2012:2018,]
+rec.years <- 1999:2011
+cum.ban.fish.dat.plot <- ban.fish.dat.plot[ban.fish.dat.plot$year %in% rec.years,]
 require(plyr)
 cum.ban.fish.dat.plot <- ddply(.data=cum.ban.fish.dat.plot, .(as.character(X), as.character(Y)),
                                summarize,
@@ -144,8 +150,8 @@ cum.ban.fish.dat.plot <- dplyr::select(cum.ban.fish.dat.plot, EID, X, Y, Z)
 source(paste0(direct, "Assessment_fns/Survey_and_OSAC/gridPlot.r"))
 bnk.polys.cum <- gridPlot(cum.ban.fish.dat.plot, bnk.survey.bound.poly, lvls, FUN=sum, grid.size=1/60)  
 
-png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ban/Spatial_history_cumulative_2012-2018.png"), units = "in", width=11, height=8.5, res=920)
-titl <- paste("Ban - Cumulative Sea Scallop Catch (2012-2018)")
+png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ban/Spatial_history_cumulative_", min(rec.years),"-", max(rec.years),".png"), units = "in", width=11, height=8.5, res=920)
+titl <- paste0("Ban - Cumulative Catch (", min(rec.years), "-", max(rec.years), ")")
 ScallopMap("Ban",poly.lst=bnk.polys.cum[1:2],poly.border=bnk.polys[[2]]$border,xlab="",ylab="",
            title=titl, bathy.source="quick",
            plot.bathy = T,plot.boundries = T,boundries="offshore",cex.mn=2,dec.deg = F)
@@ -324,7 +330,7 @@ Ban_raw <- surv.Live[["Ban"]][surv.Live[["Ban"]]$year == 2012,c("tow", "lon", "l
 BanIce_raw <- surv.Live[["BanIce"]][surv.Live[["BanIce"]]$year == 2012,c("tow", "lon", "lat","com")]
 Ban_raw$sp <- "sea"
 BanIce_raw$sp <- "ice"
-
+require(plyr)
 Ban_both <- join(Ban_raw, BanIce_raw, type="full")
 require(reshape2)
 Ban_both$lon <- round(Ban_both$lon, 6)
@@ -419,6 +425,7 @@ names(banstations2) <- c("EID", "X", "Y", "Bank", "Year", "Cruise", "Survey")
 banstations2$EID <- as.character(banstations2$EID)
 banstations$type <- "Exploratory repeat"
 banstations2$type <- "Extra"
+require(RColorBrewer)
 cols <- c(brewer.pal(name="YlGnBu", n=length(levs)), "transparent", "darkorange") 
 names(cols) <- c(levs, "Exploratory repeat", "Extra")
 banstations_all <- join(banstations, banstations2, type="full")
@@ -486,14 +493,37 @@ Ban_both$propIcetotal_levs <- factor(Ban_both$propIcetotal_levs, levels=c("0", "
 
 lev.labs <- c(0, paste0(levs[1:length(levs)-1], " - ", levs[2:length(levs)]), 1)
 
-pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_bathy=T, add_land = T)
+
+### bathymetry
+isobath <- c(seq(50,200,by=50))
+all<- NULL
+for(i in 1:length(isobath))
+{
+  
+  #Read4 Bring in the files
+  d.ll<-read.table(paste(direct,"Data/Maps/approved/Bathymetry/quick/offshore/d",isobath[i],".ll",sep=''),header=T)
+  # remove any "NA" values
+  d.ll<-na.omit(d.ll)
+  # Make sure data is a projection and it is Latitude/longitude
+  attr(d.ll,"projection") <- "LL"
+  # Add the lines to the plot
+  # addLines(d.ll,col=b.col[i])
+  d.ll$FID <- paste0(d.ll$SID, ".", i)
+  all <- rbind(all,d.ll)
+  
+} # end for(i in 1:length(isobath))  
+
+pecjector(area="Ban", repo="local", direct=direct, plot_package = "ggplot2", add_nafo=F, add_land = T)
 png(paste0(direct, "2012/Presentations/Survey_summary/test_figures/Ratio_points.png"), height=8.5, width=8.5, units="in", res=420, bg="transparent")
+
 pect_ggplot +
+  geom_path(data=all, aes(X, Y, group=FID), colour="lightblue", alpha=0.5) +
   geom_point(data=Ban_both[!is.na(Ban_both$propIcetotal_levs),], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=3) +
   #geom_point(data=Ban_both[Ban_both$propIcetotal==0,], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=2) +
   #geom_point(data=Ban_both[Ban_both$propIcetotal==1,], aes(lon, lat, fill=propIcetotal_levs), colour="black",shape=21, size=2) +
-  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of Icelandic\nin overall scallop catch", labels=lev.labs, drop=F)+
-  annotate(geom="text",-Inf, Inf, hjust=-0.05, vjust=2,label=paste0("Bank mean=", round(mean(raster.df$value),2)))#+
+  scale_fill_brewer(palette = 'YlGnBu', name="Proportion of\nIcelandic in\noverall scallop\nabundance", labels=lev.labs, drop=F)+
+  annotate(geom="text", x=-60.2, y=44.72, hjust=0, vjust=0,
+           label=paste0("Bank mean = ", round(mean(Ban_both$propIcetotal, na.rm=T),2)))#+
   # geom_point(data=banstations_all[banstations_all$type=="Exploratory repeat",], aes(X, Y), shape=21, size=2) +
   # geom_point(data=banstations_all[banstations_all$type=="Extra",], aes(X, Y), shape=24, fill="darkorange", size=2) +
   #geom_segment(data=surv.Live[["Ban"]][surv.Live[["Ban"]]$year==2012,], aes(x=slon, xend=elon, y=slat, yend=elat))

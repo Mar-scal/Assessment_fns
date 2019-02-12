@@ -133,6 +133,7 @@ for(i in 1:num.banks)
   {
     # Get the correct survey polygons
     surv.poly[[i]] <- subset(surv.polyset,label==bnk)
+    surv.poly[[i]] <- subset(surv.poly[[i]], startyear == max(surv.poly[[i]]$startyear))
     attr(surv.poly[[i]],"projection")<-"LL"
     polydata[[i]] <- subset(surv.polydata,label==bnk)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.

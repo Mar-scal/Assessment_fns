@@ -581,7 +581,7 @@ for(i in 1:len)
         # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
         # basically the random deviations for each piece of the mesh.
         formula3 <- y ~ 0 + a0 + f(s, model=spde)
-  
+        
         # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
         if(length(seed.n.spatial.maps) > 0)
         {
@@ -737,15 +737,7 @@ for(i in 1:len)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
-            if(banks[i] %in% c("Ban", "BanIce"))
-            {
-              bound2 <- inla.sp2segment(ban.poly.clip.sp)
-              simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
-              pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
-            }
-            # this is the clipping step for all banks except Ban
-            #if(!banks[i] %in% c("Ban", "BanIce")) 
-            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
@@ -786,7 +778,7 @@ for(i in 1:len)
         } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
         
         # Only run the models if not loading them....
-        if(length(grep("run",INLA)) > 0 & !(banks[i] =="BanIce" & yr<2018))
+        if(length(grep("run",INLA)) > 0 & !(banks[i] %in% c("Ban", "BanIce") & yr<2018))
         {
           # Now run through each bin...
           for(k in 1:num.bins)
@@ -813,10 +805,9 @@ for(i in 1:len)
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
-            field <- exp(mod$summary.random$s$mean + mod$summary.fixed$mean)
+            
             # Get rid of all data outside our plotting area...
-            if(!banks[i] %in% c("Ban", "BanIce")) 
-            mod.res[[bin.names[k]]][!pred.in] <- NA
+            if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
@@ -826,7 +817,7 @@ for(i in 1:len)
       # Results are only saved if the option 'run.full' is chosen
       if(INLA == 'run.full') 
       {
-        save(mod.res,proj,mesh,pred.in,field,
+        save(mod.res,proj,mesh,pred.in,
              file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
       } # end if(save.INLA ==T) 
       
@@ -848,6 +839,26 @@ for(i in 1:len)
         #spatial.maps <- s.maps
       } # end if(INLA == 'load') 
       
+      if(banks[i] %in% c("Ban", "BanIce"))
+      {
+        ban.poly.clip <- read.csv(paste0(direct, "Data/Maps/approved/Other_Borders/BanqDomain_OffshorePlots_Feb2019.csv"))
+        names(ban.poly.clip) <- c("POS", "PID", "X", "Y") 
+        ban.poly.clip$SID <- ban.poly.clip$PID
+        ban.poly.clip$PID <- 1
+        ban.poly.clip <- as.PolySet(ban.poly.clip,projection="LL")
+        ban.poly.clip.sp <- PolySet2SpatialPolygons(ban.poly.clip)
+        
+        bound2 <- inla.sp2segment(ban.poly.clip.sp)
+        simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
+        pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+        
+        # this is the clipping step for all banks except Ban
+        #if(!banks[i] %in% c("Ban", "BanIce")) 
+        seed.n.spatial.maps <- names(mod.res)
+        for (k in 1:length(seed.n.spatial.maps)) {
+          mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+        }
+      }
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
       # This plots the spatial maps requested, need this m loop so we can plot only the figures requested for spatial plots (needed to avoid plotting
@@ -1166,6 +1177,7 @@ for(i in 1:len)
             if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
           } # end if(!is.null(mod.res[[maps.to.make[m]]])) 
           if(!banks[i] %in% c("Ban", "BanIce")) plot(bound.poly.surv.sp,add=T,lwd=2)
+          if(banks[i] %in% c("Ban", "BanIce")) plot(ban.poly.clip.sp,add=T,lwd=2)
           if(banks[i] %in% c("Ban", "BanIce")) maps::map.scale(x = -59.55, y=43.97,relwidth = 0.15,ratio=F)
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
