@@ -53,12 +53,12 @@
 ###############################################################################################################
 
 survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", areas,  mw.par='annual',user.bins = NULL) {
-
+  browser()
   if(!bk=="Sab") print("You wound up in survey.dat.restrat even though your bank shouldn't be restratified. How did you get here? 
                         Please return to SurveySummary_data.r")
   if(bk=="Sab"){
     # load the PEDstrata package, note this is a locally developed package not available from R repositories
-    require(PEDstrata)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
+    require(BIOSurvey2)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
     require(survey)     || stop("survey package required please install package and try again")
     require(splancs)    || stop("splancs package required please install package and try again")
     # This is silly, but for the below code to work we need to increase the RS/CS by 5
@@ -77,6 +77,13 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # Create strata object for PEDstrata package, includes Strata and number of towable units in that strata.
     # I know Strata and strata.id are the same, but Domainestimates.R uses both columns, and I'm rolling with the punches here.
     HSIstrata.obj <- data.frame(Strata=areas[,1], strata.id=areas[,1], NH=areas[,2], startyear=areas[,3])[order(areas[,1]),]
+    
+    if(!length(unique(HSIstrata.obj$startyear))==2){
+      print("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
+  or you have to re-write this to accommmodate more than 1 restratification. Sorry that you have to go through that, cuz even doing this much was hard.
+  Take a walk to clear your mind and prepare yourself for some coding!")
+    }
+    
     if(length(unique(HSIstrata.obj$startyear))==2){
       strata.obj <- HSIstrata.obj[HSIstrata.obj$startyear == min(unique(HSIstrata.obj$startyear)),]
       domain.obj <- HSIstrata.obj[HSIstrata.obj$startyear == max(unique(HSIstrata.obj$startyear)),]
@@ -92,12 +99,6 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # need to change the names of strata.obj and domain.obj
     names(strata.obj)[1] <- "STRATA.ID.OLD"
     names(domain.obj)[1] <- "STRATA.ID.NEW"
-    
-    if(!length(unique(HSIstrata.obj$startyear))==2){
-      print("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
-  or you have to re-write this to accommmodate more than 1 restratification. Sorry that you have to go through that, cuz even doing this much was hard.
-  Take a walk to clear your mind and prepare yourself for some coding!")
-    }
     
     # Output the object to screen and determine the number of towable units for this bank.
     print(strata.obj)
@@ -525,7 +526,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, Domain.obj=Domain.obj, bin.names = bnames,user.bins = user.bins, bankpertow=bankpertow))
 
     model.dat
-    
+  
   }# end if(bk=="Sab")
   
   # Write a file with strata tow assignments just for fun:
