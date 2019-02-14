@@ -155,8 +155,19 @@ for(i in 1:num.banks)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
     if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
-      
-    #get the deg dec minutes coordinates too
+    
+    # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
+    # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
+    # This was done manually using the CSV and script below.
+    # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
+    # And emails in Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification
+    if(bnk=="Sab" & yr ==2019) {
+      tows2019edited <- read.csv(paste0(direct, "/Data/Survey_data/2019/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab_edited.csv"))
+      towlst[[i]]$Tows$X <- tows2019edited$X[!tows2019edited$STRATA %in% "extra"]
+      towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
+    }
+    
+      #get the deg dec minutes coordinates too
     if(!bnk == "Ger")  {
       writetows <- towlst[[i]]$Tows
       if(add.extras==T) {
@@ -191,13 +202,7 @@ for(i in 1:num.banks)
   	  
   	  # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
   	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
-  	  # For some reason I can't figure out Sable is overplotting the medium strata on top of the high and very high, this is my hack to fix....
-  	  if(bnk == "Sab")
-  	  {
-  	    surv.poly[[i]] <- surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),]
-  	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==4,],col=polydata[[i]]$col[polydata[[i]]$PID==4],border=NA)
-  	    addPolys(surv.poly[[i]][surv.poly[[i]]$PID==5,],col=polydata[[i]]$col[polydata[[i]]$PID==5],border=NA)
-  	  }
+  	  
   	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
 
   	  # So what do we want to do with the points, first plots the station numbers
