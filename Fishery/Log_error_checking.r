@@ -348,7 +348,7 @@ for(i in 1:num.trips)
     
     for(n in 1:nrow(trip.log))
     {
-      #browser()
+      # Get the nafo area from the log
       nafo.area <- trip.log$nafo[n]
       if(!is.na(nafo.area))
       {
@@ -364,19 +364,17 @@ for(i in 1:num.trips)
         nafo.loc <- nafo.reg[nafo.reg$id  ==sp.slot,]
         # Then we need to match on the level that the nafo.area is, this is a little different, but
         # basically if our watch is flagged as in the wrong NAFO area then we keep it.
-        if(nrow(gDisjoint(trip.log[n,],nafo.loc,byid=T)) ==1) tmp <- trip.log[n,]
-        if(nrow(tmp) == 1) os.nafo[[as.character(n)]] <- cbind(tmp@data,tmp@coords)
-        
+        if(gDisjoint(trip.log[n,],nafo.loc,byid=T)) os.nafo[[as.character(n)]] <- cbind(trip.log[n,]@data,trip.log[n,]@coords)
       } # end if(!is.na(nafo.area))
       
     } # end for(n in 1:length(trip.log))
     #browser()
     # Tidy up the os.nafo list...
-    if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
+    #if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
     if(length(os.nafo) >1) os.nafo <- do.call("rbind",os.nafo)
     if(length(os.nafo) == 1) os.nafo <- os.nafo[[1]]
+    if(!is.null(os.nafo)) watches.outside.nafo[[as.character(trip.ids[i])]] <- os.nafo
     
-    watches.outside.nafo[[as.character(trip.ids[i])]] <- os.nafo
     # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
     if(is.null(reg.2.plot)) pr <- data.frame(x = trip.log@bbox[1,],y = trip.log@bbox[2,],proj_sys = proj4string(trip.log))
     # This assumes that you are asking to plot a certain region that pecjector understands (e.g. "GBa","GB","SS", etc) or
@@ -395,7 +393,7 @@ for(i in 1:num.trips)
     plot(trip.log,add=T,pch=19,cex=1)
     if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
 
-    if(nrow(os.nafo) > 0) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
+    if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
 
   } # end if(spatial==T)
