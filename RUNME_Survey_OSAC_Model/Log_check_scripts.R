@@ -6,6 +6,8 @@ log_checks(direct =direct, yrs = 2018 ,
                        un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", export = "fish.dat", repo = "local",
                        bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1,spatial = T)
 
+
+
 # Check in on a vessel
 vessel.check <- log_checks(direct =direct, yrs = 2018 , un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle",
                      bank = NULL ,trips = NULL, dates = NULL, vrnum = 106605 ,tow.time.check = c(3,80),trip.tol = "round",plot.trips = F)

@@ -103,8 +103,6 @@ dat.log <- marfis.log
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
 dat.slip <- marfis.slip
 
-
-
 # If you want to look by trip Number, this would also pull any logs with the trip number missing from that year
 miss.dat <- NULL
 if(!is.null(trips)) 
@@ -122,7 +120,6 @@ if(!is.null(dates))
 
   if(length(dates)>1) dat.log <- dat.log[dat.log$fished %in% ymd(dates[1]):ymd(dates[2]),]
   if(length(dates)==1) dat.log <- dat.log[dat.log$fished %in% ymd(dates),]
-
 } # end if(!is.null(dates)) 
 # If you want to look by vessel,this would also pull any logs with the vrnum missing from that year
 if(!is.null(vrnum)) 
@@ -196,6 +193,8 @@ watches.outside.sa <- NULL
 watches.outside.nafo <- NULL
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
+
+# Run the loop...
 for(i in 1:num.trips)
 {
   #browser()  
@@ -267,7 +266,7 @@ for(i in 1:num.trips)
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/NAFO.zip", temp)
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas/NAFO.zip", temp)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -346,15 +345,37 @@ for(i in 1:num.trips)
     # every watch I'm going to compare the location with the NAFO region in the log, if it doesn't
     # match then we flag it.
     os.nafo <- NULL
+    
     for(n in 1:nrow(trip.log))
     {
+      #browser()
       nafo.area <- trip.log$nafo[n]
-      tmp <- trip.log[which(gDisjoint(trip.log[n,],nafo.subs[[nafo.area]],byid=T)),]
-      if(nrow(tmp) == 1) os.nafo[[as.character(n)]] <- cbind(tmp@data,tmp@coords)
+      if(!is.na(nafo.area))
+      {
+        # So here's some stick handling to get the nafo sub areas to line up, the info is in there...
+        # First we get the right NAFO region (3 vs 4 vs 5)
+        nafo.reg <- nafo.subs[[grep(paste0("area_",substr(nafo.area,1,1)),names(nafo.subs))]]
+        # Next we have to determine what "level of sub area we are looking at, this little line is doing a lot!
+        # But basically is taking the id info from the nafo.reg and picking out the first one that matches what 
+        # we are looking for.  The id's are the internal identifier of the location of the approriate polygon
+        # while the number of characters in the nafo.area object identify the level we want to look at inside the object
+        # We only ever want to return the first polygon as this is the one at the appropriate level to the fishing activity listed.
+        sp.slot <- na.omit(nafo.reg$id[nafo.reg@data[paste0("level_",nchar(nafo.area)-1)] == nafo.area])[1]
+        nafo.loc <- nafo.reg[nafo.reg$id  ==sp.slot,]
+        # Then we need to match on the level that the nafo.area is, this is a little different, but
+        # basically if our watch is flagged as in the wrong NAFO area then we keep it.
+        if(nrow(gDisjoint(trip.log[n,],nafo.loc,byid=T)) ==1) tmp <- trip.log[n,]
+        if(nrow(tmp) == 1) os.nafo[[as.character(n)]] <- cbind(tmp@data,tmp@coords)
+        
+      } # end if(!is.na(nafo.area))
+      
     } # end for(n in 1:length(trip.log))
     #browser()
+    # Tidy up the os.nafo list...
     if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
-    if(nrow(os.nafo) >0) os.nafo <- do.call("rbind",os.nafo)
+    if(length(os.nafo) >1) os.nafo <- do.call("rbind",os.nafo)
+    if(length(os.nafo) == 1) os.nafo <- os.nafo[[1]]
+    
     watches.outside.nafo[[as.character(trip.ids[i])]] <- os.nafo
     # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
     if(is.null(reg.2.plot)) pr <- data.frame(x = trip.log@bbox[1,],y = trip.log@bbox[2,],proj_sys = proj4string(trip.log))
@@ -365,15 +386,16 @@ for(i in 1:num.trips)
     #browser()
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
-      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do")
+      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do",add_nafo = "sub")
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!")
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!",add_nafo = "sub")
       }
     
     plot(trip.log,add=T,pch=19,cex=1)
     if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
-    if(nrow(os.nafo) > 0) plot(os.nafo,add=T,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
+
+    if(nrow(os.nafo) > 0) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
 
   } # end if(spatial==T)
@@ -399,6 +421,7 @@ if(!is.null(weight.mismatch.slips)) weight.slip.wrong <- do.call("rbind",weight.
 #browser()
 
 if(spatial == T) watches.outside.survey.bounds <- do.call("rbind",watches.outside.sa)
+if(spatial == T) watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
 # A list we need for exporting...
 
 
@@ -408,7 +431,8 @@ if(spatial == F) dat.export <- list(log.checks = log.checks,missing.dat = missin
 
 if(spatial == T) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
                                     gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
-                                    tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds)
+                                    tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
+                                    watches.outside.nafo.bounds = watches.outside.nafo.bounds)
 
 # Now I want to make a file name that tells me exactly what I ran, this should be fun!
 if(!is.null(export))

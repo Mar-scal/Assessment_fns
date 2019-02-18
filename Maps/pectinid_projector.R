@@ -283,7 +283,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/nafo.zip", temp)
+        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas/Subareas.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -298,7 +298,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     if(repo == 'local' && !exists("nafo.subs") && add_nafo == "sub")
     {
       # Now if we want the nafo sub-areas we do this...
-      loc <- paste0(direct,"Data/Maps/approved/GIS_layers/NAFO/")
+      loc <- paste0(direct,"Data/Maps/approved/GIS_layers/NAFO/Subareas")
       nafo.subs <- all.layers(loc)
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       for(i in 1:length(nafo.subs)) nafo.subs[[i]] <- spTransform(nafo.subs[[i]],c_sys)
@@ -528,7 +528,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   # Now if these shapefiles aren't already in the global environment but exist within the function put them into the global environment for later use
   if(!exists("eez.all",where=1) && exists("eez.all"))                   assign('eez.all',eez.all,pos=1)
   if(!exists("nafo.divs",where=1) && exists("nafo.divs"))               assign('nafo.divs',nafo.divs,pos=1)
-  if(!exists("nafo.subs",where=1) && exists("nafo.subs"))               assign('nafo.subs',nafo.divs,pos=1)
+  if(!exists("nafo.subs",where=1) && exists("nafo.subs"))               assign('nafo.subs',nafo.subs,pos=1)
   if(!exists("land.all",where=1) && exists("land.all"))                 assign('land.all',land.all,pos=1)
   if(!exists("offshore.spa",where=1) && exists("offshore.spa"))         assign('offshore.spa',offshore.spa,pos=1)
   if(!exists("inshore.spa",where=1) && exists("inshore.spa"))           assign('inshore.spa',inshore.spa,pos=1)
