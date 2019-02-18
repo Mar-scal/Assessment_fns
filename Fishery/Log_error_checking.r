@@ -110,8 +110,6 @@ dat.log$watchtime <- (as.numeric(dat.log$numtow)*dat.log$avgtime)/60
 if(marfis_or_csv=="marfis") dat.slip <- marfis.slip
 if(marfis_or_csv=="csv") dat.slip <- slip.dat
 
-
-
 # If you want to look by trip Number, this would also pull any logs with the trip number missing from that year
 miss.dat <- NULL
 if(!is.null(trips)) 
@@ -129,7 +127,6 @@ if(!is.null(dates))
 
   if(length(dates)>1) dat.log <- dat.log[dat.log$fished %in% ymd(dates[1]):ymd(dates[2]),]
   if(length(dates)==1) dat.log <- dat.log[dat.log$fished %in% ymd(dates),]
-
 } # end if(!is.null(dates)) 
 # If you want to look by vessel,this would also pull any logs with the vrnum missing from that year
 if(!is.null(vrnum)) 
@@ -200,14 +197,16 @@ weight.mismatch.slips <- NULL
 gear.size.mismatch <- NULL
 num.rakes.mismatch <- NULL
 watches.outside.sa <- NULL
-
+watches.outside.nafo <- NULL
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
+
 
 trip.log.all <- list()
 osa.all <- list()
 pr.all <- list()
 if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all <- list()
+
 
 for(i in 1:num.trips)
 {
@@ -264,28 +263,34 @@ for(i in 1:num.trips)
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
-      # This  little all_layers function brings in all the shapefiles we have currently
+      # This  little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
       offshore.spa <- all.layers(temp2)
+      for(i in 1:length(offshore.spa))offshore.spa[[i]] <- spTransform(offshore.spa[[i]],CRS("+init=epsg:4326"))
       # Pop this into the global environment so we don't make it a bunch of times..
       assign('offshore.spa',offshore.spa,pos=1)
       # We also want to bring in the survey strata for the banks with a survey strata
       # Figure out where your tempfiles are stored
-    }
-    # Bring in the boundaries for each area, this has all the areas of interest which is nice!
-    # if(!exists("offshore.survey.boundaries"))
-    # {
-    #   temp <- tempfile()
-    #   # Download this to the temp directory you created above
-    #   download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
-    #   
-    #   # Figure out what this file was saved as
-    #   temp2 <- tempfile()
-    #   # Unzip it
-    #   unzip(zipfile=temp, exdir=temp2)
-    #   # This pulls in all the layers from the above location
-    #   offshore.survey.boundaries <- all.layers(temp2)
-    # } # if(i==1)
-    #browser()
+    } # end  if(!exists("offshore.spa"))
+    
+    if(!exists("nafo.subs"))
+    {
+      #browser()
+      # Figure out where your tempfiles are stored
+      temp <- tempfile()
+      # Download this to the temp directory you created above
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas/NAFO.zip", temp)
+      # Figure out what this file was saved as
+      temp2 <- tempfile()
+      # Unzip it
+      unzip(zipfile=temp, exdir=temp2)
+      # This  little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
+      nafo.subs <- all.layers(temp2)
+      for(i in 1:length(nafo.subs))nafo.subs[[i]] <- spTransform(nafo.subs[[i]],CRS("+init=epsg:4326"))
+       # Pop this into the global environment so we don't make it a bunch of times..
+      assign('nafo.subs',nafo.subs,pos=1)
+      # Figure out where your tempfiles are stored
+    } # end  if(!exists("offshore.spa"))
+
     # Now we want to see if any of the data in the logs falls outside the region we think it is in.
     # For split trips I consider the first bank only, so this will pretty much flag all split trips, which I think is fine!
     trip.area <- na.omit(unique(trip.log$bank))[1]
@@ -303,8 +308,6 @@ for(i in 1:num.trips)
       sfa.visited <- unique(trip.log$sfa)
       num.sfas <- length(sfa.visited)
       osa.spb <- NULL
-      
-
       for(spb in 1:num.sfas)
       {
         trip.tmp <- trip.log[trip.log$sfa == sfa.visited[spb],]
@@ -345,9 +348,44 @@ for(i in 1:num.trips)
       coordinates(trip.log) <- ~ lon + lat
       # project it, logs are all WGS84 as I understand it and Lat Lon
       proj4string(trip.log) <- CRS("+init=epsg:4326")
-      osa <- trip.log[which(gDisjoint(trip.log,offshore.spa[["Sab"]],byid=T)),]
+      osa <- trip.log[which(gDisjoint(trip.log,offshore.spa[[trip.area]],byid=T)),]
       watches.outside.sa[[as.character(trip.ids[i])]] <- cbind(osa@data,osa@coords)
     } # end else which is everywhere outside SPB.
+    
+    # Now I need to do somethign similar for the NAFO sub-regions.  Because I don't want to flag every trip on GBa that
+    # moves between the north and south I'm going to do this the slow way, for
+    # every watch I'm going to compare the location with the NAFO region in the log, if it doesn't
+    # match then we flag it.
+    os.nafo <- NULL
+    
+    for(n in 1:nrow(trip.log))
+    {
+      # Get the nafo area from the log
+      nafo.area <- trip.log$nafo[n]
+      if(!is.na(nafo.area))
+      {
+        # So here's some stick handling to get the nafo sub areas to line up, the info is in there...
+        # First we get the right NAFO region (3 vs 4 vs 5)
+        nafo.reg <- nafo.subs[[grep(paste0("area_",substr(nafo.area,1,1)),names(nafo.subs))]]
+        # Next we have to determine what "level of sub area we are looking at, this little line is doing a lot!
+        # But basically is taking the id info from the nafo.reg and picking out the first one that matches what 
+        # we are looking for.  The id's are the internal identifier of the location of the approriate polygon
+        # while the number of characters in the nafo.area object identify the level we want to look at inside the object
+        # We only ever want to return the first polygon as this is the one at the appropriate level to the fishing activity listed.
+        sp.slot <- na.omit(nafo.reg$id[nafo.reg@data[paste0("level_",nchar(nafo.area)-1)] == nafo.area])[1]
+        nafo.loc <- nafo.reg[nafo.reg$id  ==sp.slot,]
+        # Then we need to match on the level that the nafo.area is, this is a little different, but
+        # basically if our watch is flagged as in the wrong NAFO area then we keep it.
+        if(gDisjoint(trip.log[n,],nafo.loc,byid=T)) os.nafo[[as.character(n)]] <- cbind(trip.log[n,]@data,trip.log[n,]@coords)
+      } # end if(!is.na(nafo.area))
+      
+    } # end for(n in 1:length(trip.log))
+    #browser()
+    # Tidy up the os.nafo list...
+    #if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
+    if(length(os.nafo) >1) os.nafo <- do.call("rbind",os.nafo)
+    if(length(os.nafo) == 1) os.nafo <- os.nafo[[1]]
+    if(!is.null(os.nafo)) watches.outside.nafo[[as.character(trip.ids[i])]] <- os.nafo
     
     # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
     if(is.null(reg.2.plot)) pr <- data.frame(x = trip.log@bbox[1,],y = trip.log@bbox[2,],proj_sys = proj4string(trip.log))
@@ -358,14 +396,16 @@ for(i in 1:num.trips)
     
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
-      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"), plot_package=plot_package)
+      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do", plot_package=plot_package,add_nafo = "sub")
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = paste0(direct,"/Data/Maps/approved/GIS_layers/EEZ"), plot_package=plot_package)
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,,add_nafo = "sub")
       }
     
-    plot(trip.log,add=T,pch=19,cex=0.5)
+    plot(trip.log,add=T,pch=19,cex=1)
     if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
+
+    if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
 
   } # end if(spatial==T)
@@ -403,6 +443,7 @@ if(!is.null(weight.mismatch.slips)) weight.slip.wrong <- do.call("rbind",weight.
 #browser()
 
 if(spatial == T) watches.outside.survey.bounds <- do.call("rbind",watches.outside.sa)
+if(spatial == T) watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
 # A list we need for exporting...
 
 
@@ -412,7 +453,8 @@ if(spatial == F) dat.export <- list(log.checks = log.checks,missing.dat = missin
 
 if(spatial == T) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
                                     gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
-                                    tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds)
+                                    tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
+                                    watches.outside.nafo.bounds = watches.outside.nafo.bounds)
 
 # Now I want to make a file name that tells me exactly what I ran, this should be fun!
 if(!is.null(export))
