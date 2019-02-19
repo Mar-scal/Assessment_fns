@@ -60,7 +60,7 @@
 log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
                     un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
                     bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
-                    reg.2.plot = NULL, shiny = F, plot_package=NULL, marfis_or_csv="marfis"
+                    reg.2.plot = NULL, shiny = F, plot_package="ggplot2", marfis_or_csv="marfis"
                   )
 {
 # Load in the functions needed for this function to run.
@@ -399,7 +399,7 @@ for(i in 1:num.trips)
       pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do", plot_package=plot_package,add_nafo = "sub")
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,,add_nafo = "sub")
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,add_nafo = "sub")
       }
     
     plot(trip.log,add=T,pch=19,cex=1)
@@ -416,10 +416,11 @@ for(i in 1:num.trips)
   trip.log.all[[i]] <- trip.log
   osa.all[[i]] <- osa
   pr.all[[i]] <- pr
-  if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
+  if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
 } # end for(i in 1:num.trips)
 
 # run shiny app?
+#browser()
 if(shiny == T && is.null(reg.2.plot) && plot_package=="ggplot2") {
   source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
   shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
