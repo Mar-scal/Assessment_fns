@@ -60,7 +60,7 @@
 log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
                     un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
                     bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
-                    reg.2.plot = NULL
+                    reg.2.plot = NULL, shiny = F, plot_package="ggplot2", marfis_or_csv="marfis"
                   )
 {
 # Load in the functions needed for this function to run.
@@ -99,9 +99,16 @@ if(is.null(yrs)) yrs <- 2008:as.numeric(format(Sys.Date(),"%Y"))
 # Now bring in the fishery data you want to look at.
 logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,get.marfis = T,export=F,db.lib=db.lib)
 # the marfis data
-dat.log <- marfis.log
+if(marfis_or_csv=="marfis") dat.log <- marfis.log
+if(marfis_or_csv=="csv") dat.log <- new.log.dat
+
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
-dat.slip <- marfis.slip
+
+# extra time check column
+dat.log$watchtime <- (as.numeric(dat.log$numtow)*dat.log$avgtime)/60
+
+if(marfis_or_csv=="marfis") dat.slip <- marfis.slip
+if(marfis_or_csv=="csv") dat.slip <- slip.dat
 
 # If you want to look by trip Number, this would also pull any logs with the trip number missing from that year
 miss.dat <- NULL
@@ -157,8 +164,8 @@ log.checks <- dat.log[remove,]
 
 # If any of the trips have roe-on we want to flag those
 roe.on <- dat.log[dat.log$roeon == "Y",]
-# If the tow time is < 3 or > 80 that's something we want to investigate further.  
-tow.time.outliers <- dat.log[dat.log$avgtime < tow.time.check[1] || dat.log$avgtime > tow.time.check[2] ,]
+# If the tow time is < 3 or > 80 that's something we want to investigate further. Also flagging any watches that are longer than 6h. 
+tow.time.outliers <- dat.log[(dat.log$avgtime < tow.time.check[1] | dat.log$avgtime > tow.time.check[2] | dat.log$watchtime >= 6) & !is.na(dat.log$watchtime),]
 
 # Now before I get into the spatial bit I need to make an automated file name so I can save either/both a pdf or an xlsx
 if(export == T || spatial == T)
@@ -194,7 +201,13 @@ watches.outside.nafo <- NULL
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
 
-# Run the loop...
+
+trip.log.all <- list()
+osa.all <- list()
+pr.all <- list()
+if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all <- list()
+
+
 for(i in 1:num.trips)
 {
   #browser()  
@@ -239,7 +252,6 @@ for(i in 1:num.trips)
   if(spatial==T)
   {
     # First we bring in the shapefiles if we haven't already...
-    
     if(!exists("offshore.spa"))
     {
       #browser()
@@ -381,13 +393,13 @@ for(i in 1:num.trips)
     # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
     if(!is.null(reg.2.plot)) pr <- reg.2.plot
     # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
-    #browser()
+    
     if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
     {
-      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do",add_nafo = "sub")
+      pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do", plot_package=plot_package,add_nafo = "sub")
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!",add_nafo = "sub")
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,add_nafo = "sub")
       }
     
     plot(trip.log,add=T,pch=19,cex=1)
@@ -398,9 +410,22 @@ for(i in 1:num.trips)
 
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i],"  count=",i))
+  dev.off()
+  
+  # for use in shiny
+  trip.log.all[[i]] <- trip.log
+  osa.all[[i]] <- osa
+  pr.all[[i]] <- pr
+  if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
 } # end for(i in 1:num.trips)
-dev.off()
+
+# run shiny app?
 #browser()
+if(shiny == T && is.null(reg.2.plot) && plot_package=="ggplot2") {
+  source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
+  shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
+}
+
 # Missing data is anything that is missing the vrnum, bank, date fished, or trip number
 missing.dat <- NA
 if(!is.null(miss.dat)) missing.dat <- do.call("rbind",miss.dat)

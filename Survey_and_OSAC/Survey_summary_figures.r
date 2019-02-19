@@ -487,6 +487,14 @@ for(i in 1:len)
       
       bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
       
+      if(banks[i] %in% c("Ban", "BanIce")) 
+      {
+        ban.poly.clip <- read.csv(paste0(direct, "Data/Maps/approved/Other_Borders/BanqDomain_OffshorePlots_Feb2019.csv"))
+        names(ban.poly.clip) <- c("POS", "PID", "X", "Y") 
+        ban.poly.clip <- as.PolySet(ban.poly.clip,projection="LL")
+        ban.poly.clip.sp <- PolySet2SpatialPolygons(ban.poly.clip)
+      }
+      
       # This section only needs run if we are running the INLA models
       if(length(grep("run",INLA)) > 0)
       {
@@ -573,7 +581,7 @@ for(i in 1:len)
         # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
         # basically the random deviations for each piece of the mesh.
         formula3 <- y ~ 0 + a0 + f(s, model=spde)
-  
+        
         # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
         if(length(seed.n.spatial.maps) > 0)
         {
@@ -720,7 +728,7 @@ for(i in 1:len)
                                                                             inla.mesh.project(proj, mod$summary.random$s$mean + mod$summary.fixed$mean)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] !="Ban" && banks[i] !="BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid"))
@@ -729,7 +737,6 @@ for(i in 1:len)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
-            # this is the clipping step for all banks except Ban
             if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
@@ -771,9 +778,9 @@ for(i in 1:len)
         } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB")) 
         
         # Only run the models if not loading them....
-        if(length(grep("run",INLA)) > 0)
+        if(length(grep("run",INLA)) > 0 & !(banks[i] %in% c("Ban", "BanIce") & yr<2018))
         {
-        # Now run through each bin...
+          # Now run through each bin...
           for(k in 1:num.bins)
           {
             # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
@@ -789,7 +796,7 @@ for(i in 1:len)
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid") pred.in <- inout(proj$lattice$loc,bound$loc) 
             # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid"))
             {
@@ -798,6 +805,7 @@ for(i in 1:len)
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
             mod.res[[bin.names[k]]] <- inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
+            
             # Get rid of all data outside our plotting area...
             if(!banks[i] %in% c("Ban", "BanIce")) mod.res[[bin.names[k]]][!pred.in] <- NA
             print(k)
@@ -807,10 +815,9 @@ for(i in 1:len)
       print("finished running user bin models")
       # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
       # Results are only saved if the option 'run.full' is chosen
-      
       if(INLA == 'run.full') 
       {
-        save(mod.res,proj,
+        save(mod.res,proj,mesh,pred.in,
              file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
       } # end if(save.INLA ==T) 
       
@@ -832,7 +839,26 @@ for(i in 1:len)
         #spatial.maps <- s.maps
       } # end if(INLA == 'load') 
       
-      
+      if(banks[i] %in% c("Ban", "BanIce"))
+      {
+        ban.poly.clip <- read.csv(paste0(direct, "Data/Maps/approved/Other_Borders/BanqDomain_OffshorePlots_Feb2019.csv"))
+        names(ban.poly.clip) <- c("POS", "PID", "X", "Y") 
+        ban.poly.clip$SID <- ban.poly.clip$PID
+        ban.poly.clip$PID <- 1
+        ban.poly.clip <- as.PolySet(ban.poly.clip,projection="LL")
+        ban.poly.clip.sp <- PolySet2SpatialPolygons(ban.poly.clip)
+        
+        bound2 <- inla.sp2segment(ban.poly.clip.sp)
+        simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
+        pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+        
+        # this is the clipping step for all banks except Ban
+        #if(!banks[i] %in% c("Ban", "BanIce")) 
+        seed.n.spatial.maps <- names(mod.res)
+        for (k in 1:length(seed.n.spatial.maps)) {
+          mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+        }
+      }
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
       ####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps####################### Spatial Maps
       # This plots the spatial maps requested, need this m loop so we can plot only the figures requested for spatial plots (needed to avoid plotting
@@ -861,7 +887,7 @@ for(i in 1:len)
           # This sets up our color ramps and titles for each of the spatial plots
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
             cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
             if(!is.null(colour.bins)){
@@ -1069,7 +1095,7 @@ for(i in 1:len)
           # Now for the user specified SH bins, if they exist...
           if(maps.to.make[m]  %in% bin.names) 
           {
-            base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
+            base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
             cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
             #user-defined colour bins
@@ -1138,11 +1164,11 @@ for(i in 1:len)
           # This is one figure to rule all
           if(!banks[i] =="BanIce") ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
-                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           if(banks[i] == "BanIce") ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1150,8 +1176,9 @@ for(i in 1:len)
             image(list(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]]), axes=F,add=T,breaks = lvls,col=cols)
             if(contour == T) contour(x = proj$x, y=proj$y, z = mod.res[[maps.to.make[m]]], axes=F,add=T,levels = lvls,col="grey",drawlabels=F,lwd=1)
           } # end if(!is.null(mod.res[[maps.to.make[m]]])) 
-          plot(bound.poly.surv.sp,add=T,lwd=2)
-          
+          if(!banks[i] %in% c("Ban", "BanIce")) plot(bound.poly.surv.sp,add=T,lwd=2)
+          if(banks[i] %in% c("Ban", "BanIce")) plot(ban.poly.clip.sp,add=T,lwd=2)
+          if(banks[i] %in% c("Ban", "BanIce")) maps::map.scale(x = -59.55, y=43.97,relwidth = 0.15,ratio=F)
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
 
@@ -1297,11 +1324,12 @@ for(i in 1:len)
   #Do we want to plot the survey?
   if(any(plots %in% "Survey"))
   {
+    
     # For this figure we want full bank names, this is ugly hack but does the trick.
     if(banks[i] %in% c("SPB","Ban", "BanIce", "BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa"))
     {    
     full.names <- data.frame(abrv = c("SPB","Ban","BanIce","Mid","Sab","Ger","BBs","BBn","GBa","GBb","GB"),
-                             full = c("St. Pierre Bank","Banquereau (Sea)","Banquereau (Icelandic)","Middle Bank","Sable Bank","German Bank","Browns Bank South",
+                             full = c("St. Pierre Bank","Banquereau (Sea Scallop)","Banquereau (Icelandic)","Middle Bank","Sable Bank","German Bank","Browns Bank South",
                                       "Browns Bank North","Georges Bank a","Georges Bank b","Georges Bank Spring"))
     
     survey.title <- substitute(bold(paste("Survey (",bank," ",year,")",sep="")),
