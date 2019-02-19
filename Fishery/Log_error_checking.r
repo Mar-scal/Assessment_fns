@@ -200,12 +200,10 @@ watches.outside.sa <- NULL
 watches.outside.nafo <- NULL
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
-
-
 trip.log.all <- list()
 osa.all <- list()
 pr.all <- list()
-if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all <- list()
+if(plot_package=="ggplot2") pect_ggplot.all <- list()
 
 
 for(i in 1:num.trips)
@@ -410,7 +408,7 @@ for(i in 1:num.trips)
 
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i],"  count=",i))
-  dev.off()
+
   
   # for use in shiny
   trip.log.all[[i]] <- trip.log
@@ -418,6 +416,7 @@ for(i in 1:num.trips)
   pr.all[[i]] <- pr
   if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
 } # end for(i in 1:num.trips)
+dev.off()
 
 # run shiny app?
 #browser()
