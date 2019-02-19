@@ -265,7 +265,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       # Now read in the shapefile
       nafo.divs <- all.layers(temp2)
       # Now transform the data to the coordinates we are using.
-      for(i in 1:length(nafo.divs)) nafo.divs <- spTransform(nafo.divs,c_sys)
+      for(i in 1:length(nafo.divs)) nafo.divs <- spTransform(nafo.divs[[i]],c_sys)
 
       
     } # if(repo == 'github' && !exists("nafo.divs"))
