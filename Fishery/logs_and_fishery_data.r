@@ -43,12 +43,13 @@
 
 
 logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
-                          direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle")
+                          direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct=NULL)
 {
+  
   # Set up the directories
   direct.off <- direct
   if(is.null(direct.in)) direct.in <- paste(direct,"Data/Inshore/Logs/Processed/",sep="")
-  source(paste0(direct,"/Assessment_fns/Other_functions/ScallopQuery.R"))
+  if(get.marfis == T) source(paste0(direct,"/Assessment_fns/Other_functions/ScallopQuery.R"))
   require(splancs) || stop("Package splancs cannot be found")
   
   # First get the current year from your computer, need for some of the if/table writing options.
@@ -319,25 +320,28 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
         # Initialize variables and reset the dates to characters
         doc.id <- unique(slip.dat$mdid)
         num.ids <- length(doc.id)
+        slip.dat$sail <- as.character(slip.dat$sail)
         slip.dat$land <- as.character(slip.dat$land)
+        date.sail <- NULL
         date.land <- NULL
         landing <- NULL
         slips <- NULL
         hdr <- NULL
-        
         # Run the for loop to extract the unique date/ID combinations to match the landing totals above
         for(i in 1:num.ids)
-          {
-            date.land[i] <- slip.dat$land[slip.dat$mdid == doc.id[i]][1]
-            landing[i] <- sum(slip.dat$weight[slip.dat$mdid == doc.id[i]],na.rm=T)
-            hdr[i] <- slip.dat$mdid[slip.dat$mdid == doc.id[i]][1]
-          }
+        {
+          date.sail[i] <- slip.dat$sail[slip.dat$mdid == doc.id[i]][1]
+          date.land[i] <- slip.dat$land[slip.dat$mdid == doc.id[i]][1]
+          landing[i] <- sum(slip.dat$weight[slip.dat$mdid == doc.id[i]],na.rm=T)
+          hdr[i] <- slip.dat$mdid[slip.dat$mdid == doc.id[i]][1]
+        }
          
         # convert it back to a date.
+        date.sail <- as.Date(date.sail, "%Y-%m-%d")
         date.land <- as.Date(date.land,"%Y-%m-%d")
      
         # Add in the landing and date landed information into the log dat.
-        new.log.dat<-merge(new.log.dat,data.frame(mdid=hdr,landing,date.land),all=T)
+        new.log.dat<-merge(new.log.dat,data.frame(mdid=hdr,landing,date.sail, date.land),all=T)
         #new.log.dat$date.land <- as.Date(new.log.dat$date.land,"%Y-%m-%d")
         
         # Now I want to add some columns to new.log.dat

@@ -181,7 +181,7 @@ if(preprocessed==F)
   direct <- direct.real
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
+    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con,direct=direct)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -843,7 +843,7 @@ for(j in 1:num.banks)
         #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
         # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data 
         # anywhere at this point so we grab that
-        logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pwd,db.con=db.con,direct.off=direct)
+        logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pw,db.con=db.con,direct=direct)
         # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
         # This should combine without any warnings so don't ignore warnings here.
         fish.dat<-merge(new.log.dat,old.log.dat,all=T)

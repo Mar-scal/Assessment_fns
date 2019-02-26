@@ -52,10 +52,10 @@
 #direct:          Directory to find the functions.  Default is "Y:/Offshore scallop/Assessment/")
 
 
-CPUE.mon <- function(CPUE = "month", bank = "GBBB", year = as.numeric(format(Sys.Date(),"%Y")), fleet = "ALL", boxes=NULL,
+CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.Date(),"%Y")), fleet = "ALL", boxes=NULL,
                      print=F,output=T, export.tables = "F", export.logs="F",months = c(1:12),nafo.div =NULL,obs.vnum = NULL,
-                     obs.land.date = NULL, obs.export=F,un=un.ID,pw=pwd.ID,db.con="ptran",
-                     direct="Y:/Offshore scallop/Assessment/")
+                     obs.land.date = NULL, obs.export=F,un=un.ID,pw=pwd.ID,db.con="ptran",get.marfis=F,
+                     direct=direct)
 {
 
 ########################################################## Section 1 Monthly CPUE calculations ##########################################	
@@ -67,12 +67,11 @@ source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
   
 if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")
 #Source1 source("d:/R/fn/logs_and_fishery_data_DK.r") get data from logs and fish function
-logs_and_fish(loc="offshore",year=year,export=export.logs,un=un,pw=pw,db.con=db.con)
+if(get.marfis == F) logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = F, direct=direct)
+if(get.marfis == T) logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = T, un=un, pw=pw, db.con=db.con, direct=direct)
 # For these monthly calculations we need to know the month fishing occured
 new.log.dat$month <- as.numeric(format(new.log.dat$fished,"%m"))
 
-	  
-	
 # This large section is run if CPUE = "month" or "both", this calculates the monthly CPUE for different Banks.
 if(CPUE == "month" || CPUE == "both")
 {
@@ -100,17 +99,17 @@ if(CPUE == "month" || CPUE == "both")
 	if(fleet == "FT") boats <- fleet_data$ID[fleet_data$Type =="FT"]
 	if(fleet == "WF") boats <- fleet_data$ID[fleet_data$Type =="WF"]
 	if(fleet == "ALL") boats <- fleet_data$ID
-    
+	
 	# Create new objects for the below calculations based upon the bank chosen...
 	# Need to treat GB and BB differently as they are a combo of two banks...
-	if(bank != "GB" && bank != "GBBB" && bank != "BB")
+	if(!is.null(bank) && !bank %in% c("GB", "GBBB", "BB"))
 	{
     nafo1 <- as.character(unique(new.log.dat$nafo[new.log.dat$bank==bank]))
     bank1 <- as.character(unique(new.log.dat$sfa[new.log.dat$bank==bank]))
 	} # end if(bank != "GB")
       	
 	# For Browns Bank we need to be more specific.
-	if(bank == "BB")
+	if(!is.null(bank) && bank == "BB")
   {
     # This works for GB as GBa overlaps the nafo boundaries...
     nafo.t1 <- as.character(unique(new.log.dat$nafo[new.log.dat$bank=="BBn"]))
@@ -120,14 +119,14 @@ if(CPUE == "month" || CPUE == "both")
   } # end if(bank == "GB")
       	
 	# For all of Georges Bank we need to be more specific.
-	if(bank == "GB")
+	if(!is.null(bank) && bank == "GB")
 	{
     # This works for GB as GBa overlaps the nafo boundaries...
     nafo1 <- as.character(unique(new.log.dat$nafo[new.log.dat$bank=="GBa"]))
     bank1 <- c("27A","27B")
 	} # end if(bank == "GB")
 	# For all of Georges Bank we need to be more specific.
-	if(bank == "GBBB")
+	if(!is.null(bank) && bank == "GBBB")
   {
     # This works for GB as GBa overlaps the nafo boundaries...
     nafo.t1 <- as.character(unique(new.log.dat$nafo[new.log.dat$bank=="GBa"]))
@@ -140,13 +139,12 @@ if(CPUE == "month" || CPUE == "both")
   # If we want to select a particular nafo division do so here.  This needs to align with the Bank choice as well, what
   # is produced is the amount landed on bank X nafo division y
   if(is.null(nafo.div) == F) nafo1 <- nafo.div
-    	
+		
   # initialize a couple of the lists we need
   box.list <- NULL # Formerly Table 2
   month.list <- NULL
   box.list.all <- NULL
   old.list <- NULL
-    	
     
   # Loop across all years of interest.	
   for(y in 1:length(year))	
@@ -270,11 +268,13 @@ if(CPUE == "month" || CPUE == "both")
         c <- c + 1 # I need a counter for cases when m is not 1:12...
         # So this selects the nafo region we chose, within the correct fishing year, between the dates for the month of interest
         # for each boat of interest in the fleet.
-        temp  <- new.log.dat[new.log.dat$nafo %in% nafo1 & new.log.dat$sfa %in% bank1 &
+        if(!is.null(bank)) temp  <- new.log.dat[new.log.dat$nafo %in% nafo1 & new.log.dat$sfa %in% bank1 &
                                new.log.dat$month == m & new.log.dat$vrnum %in% boats &
                                new.log.dat$year == year[y] ,]
+        if(is.null(bank)) temp  <- new.log.dat[new.log.dat$nafo %in% nafo1 & 
+                                                  new.log.dat$month == m & new.log.dat$vrnum %in% boats &
+                                                  new.log.dat$year == year[y] ,]
               
-        	    
         # Then we calculate the days each boat is out and then add these all up and you have the number of days the fleet was out                    
         days.by.boat <- tapply(temp$fished,temp$ves,function(x) length(unique(x)))
         dat$days[c] <- sum(days.by.boat,na.rm=T)
@@ -288,14 +288,16 @@ if(CPUE == "month" || CPUE == "both")
          	
         # Catch in lbs then convert to kg and metric tonnes
         dat$lbs[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)))
-        dat$kg[c] <- round(dat$lbs[c] / 2.2046)
-        dat$mt[c] <- round(dat$kg[c] * 0.001)
+        dat$kg[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046)
+        dat$mt[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046 * 0.001)
         
         # Now calculate the various CPUE metrics, kg/hr, kg/(hr-m), kg/(hr-m-crew)
-        dat$kg.h[c] <- round(dat$kg[c] / dat$h[c], 2)
-        dat$kg.hm[c] <- round(dat$kg[c] / dat$hm[c], 2)
-        dat$kg.crhm[c] <- round(dat$kg[c] / dat$crhm[c], 2)	
-        	
+        dat$kg.h[c] <- round(dat$kg[c] / sum(with(temp, numtow * avgtime / 60), na.rm = T), 2)
+        dat$kg.hm[c] <- round(dat$kg[c] / sum(with(temp, slip.dat[match(mdid, slip.dat$mdid),]$gear.ft 
+                                                   * 0.3048 * numrake * numtow * avgtime / 60), na.rm = T), 2)
+        dat$kg.crhm[c] <- round(dat$kg[c] / sum(with(temp, with(slip.dat[match(mdid, slip.dat$mdid),], 
+                                                                gear.ft * 0.3048 * numshuck) * numrake * numtow * avgtime / 60), na.rm = T), 2)	
+        
         # Toss in some other useful id type data. Note that the m subscript on the old.dates is correct...
         dat$month[c] <- old.dates[m]
         dat$bank[c] <-  ifelse(length(unique(temp$bank)) > 0,paste(unique(temp$bank),collapse="-",sep=""),NA)
@@ -311,7 +313,8 @@ if(CPUE == "month" || CPUE == "both")
       dat[length(months)+1,names(dat)%in%avg.names]  <- round(colMeans(dat[1:length(months),names(dat)%in%avg.names],na.rm=T),2)
       # get rownames for the totals too. fill in NA's if no fishing occured in that location that month.
       rownames(dat)[c+1] <- paste("Total",year[y],sep="-")
-      dat$bank[c+1] <- paste(unique(bank1),collapse="-")
+      if(!is.null(bank)) dat$bank[c+1] <- paste(unique(bank1),collapse="-")
+      if(is.null(bank)) dat$bank[c+1] <- NA
       dat$nafo[c+1] <- paste(unique(nafo1),collapse="-")
       dat$month[c+1] <- "Total"
       dat$year[c+1] <- year[y]
@@ -352,10 +355,14 @@ if(CPUE == "month" || CPUE == "both")
           for(m in months)
           {
             c <- c + 1 # I need a counter for cases when m is not 1:12...
-            temp  <- new.log.dat.box[new.log.dat.box$nafo %in% nafo1 & new.log.dat.box$sfa %in% bank1 &
+            if(!is.null(bank)) temp  <- new.log.dat.box[new.log.dat.box$nafo %in% nafo1 & new.log.dat.box$sfa %in% bank1 &
                                      new.log.dat.box$month == m &
                                      new.log.dat.box$vrnum %in% boats & new.log.dat.box$year == year[y],]
               		    
+            if(is.null(bank)) temp  <- new.log.dat.box[new.log.dat.box$nafo %in% nafo1 &
+                                       new.log.dat.box$month == m &
+                                       new.log.dat.box$vrnum %in% boats & new.log.dat.box$year == year[y],]
+            
             # Then we calculate the days each boat is out and then add these all up and you have the number of days the fleet was out                    
             days.by.boat <- tapply(temp$fished,temp$ves,function(x) length(unique(x)))
             dat.box$days[c] <- sum(days.by.boat,na.rm=T)
@@ -394,7 +401,8 @@ if(CPUE == "month" || CPUE == "both")
           # get rownames for the totals too and tidy the columns in which there were no calculcations.
           rownames(dat.box)[c+1] <- paste("Total",year[y],dat.box$ID[1],sep="-")
           dat.box$ID[c+1] <-   as.character(box$ID)[1]
-          dat.box$bank[c+1] <- paste(unique(bank1),collapse="-")
+          if(!is.null(bank)) dat.box$bank[c+1] <- paste(unique(bank1),collapse="-")
+          if(is.null(bank)) dat.box$bank[c+1] <- NA
           dat.box$nafo[c+1] <- paste(unique(nafo1),collapse="-")
           dat.box$month[c+1] <- "Total"
           dat.box$year[c+1] <- year[y]
@@ -409,6 +417,8 @@ if(CPUE == "month" || CPUE == "both")
       } # end if(is.null(boxes) == F)
     }# end if year > 2008
   }# end for(y in 1:length(year))	
+  
+  
   # Let's unravel the box.list into a dataframe, if it exists that is.
   if(is.null(boxes) == F & max(year) > 2008) box.dat <- do.call("rbind",box.list.all)
     	
@@ -425,8 +435,9 @@ if(CPUE == "month" || CPUE == "both")
   if(print==T)
   {
     # First the bank chosen and the non-seedbox data
-    print(bank)
-    print(dat.box)
+    if(!is.null(bank)) print(bank)
+    if(!is.null(nafo1)) print(nafo1)
+    print(dat)
     # if we have seedboxes print all of them as well.
     if(is.null(boxes) == F & max(year) > 2008)
     {
