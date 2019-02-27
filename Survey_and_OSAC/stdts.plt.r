@@ -47,7 +47,7 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
                       height = 8.5, labcx=1.25, ylim, xlim, col=c("blue","red","grey50","orange"), pch=1:length(y), lty=1:length(y),type='o',
                       titl="",cex.mn = 1.2,axis.cx=1,tx.ypos = 5.3, ...)
 {
-	# Do we want to make pdf out plot.
+  # Do we want to make pdf out plot.
   if(graphic=='pdf')pdf("plots/cfindex.pdf", width = width, height = height, pointsize = 14)
 	# Or use an R window
   #if(graphic=="R") windows( width = width, height = height)

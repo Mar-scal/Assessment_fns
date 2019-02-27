@@ -94,7 +94,8 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	# But those change every year, this has been revised to predict on the same location every year.
 	CFyrs<-data.frame(year=yrs,depth=pred.loc[["depth"]],lon=pred.loc[["lon"]],lat=pred.loc[["lat"]])
 	# Now do the prediction
-	CFyrs$CF=predict(CF.fit,CFyrs)
+	CFyrs$CF <- predict(CF.fit,CFyrs, se=T)$fit
+	CFyrs$CFse.fit <- predict(CF.fit, CFyrs, se=T)$se.fit
 	# If we want to make the plot and our model is a glm do this.
 	if(plt == T && model.type=='glm') plot(CF~year,CFyrs,type='o',pch=16)
 	# If we have a gam model and want a plot do this.
