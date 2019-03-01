@@ -1592,7 +1592,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
                          units="in",width = 13,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
-    
+    browser()
     par(mfrow=c(1,2))
     shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = 2,las=1)
     

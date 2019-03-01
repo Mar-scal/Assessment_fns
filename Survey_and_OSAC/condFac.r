@@ -43,7 +43,7 @@
 ###############################################################################################################
 
 condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.loc=NULL,b.par=3,plt=F,
-                  dirct="Y:/Offshore scallop/Assessment/")
+                  dirct="Y:/Offshore scallop/Assessment/", error=T)
 {
 	require(mgcv)  || stop("Install mgcv package needed for gam's")
   #Source1 Load in our missed effects model.
@@ -95,7 +95,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	CFyrs<-data.frame(year=yrs,depth=pred.loc[["depth"]],lon=pred.loc[["lon"]],lat=pred.loc[["lat"]])
 	# Now do the prediction
 	CFyrs$CF <- predict(CF.fit,CFyrs, se=T)$fit
-	CFyrs$CFse.fit <- predict(CF.fit, CFyrs, se=T)$se.fit
+	if(error==T) CFyrs$CFse.fit <- predict(CF.fit, CFyrs, se=T)$se.fit
 	# If we want to make the plot and our model is a glm do this.
 	if(plt == T && model.type=='glm') plot(CF~year,CFyrs,type='o',pch=16)
 	# If we have a gam model and want a plot do this.
@@ -116,6 +116,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
   		if(sum(!unique(pre.dat$year) %in% yrs) > 0) pre.dat$year[!pre.dat$year %in% yrs]<-min(yrs)
   		# Make predictions based on model.
   		pred.dat$CF<- predict(CF.fit,pre.dat)
+  		pred.dat$CFse.fit <- predict(CF.fit,pre.dat, se=T)$se.fit
 	  } # end if(!is.null(pred.dat))
   
 	# return the results to the function calling this.

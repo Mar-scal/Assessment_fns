@@ -45,8 +45,9 @@
 
 stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, mean.line=F,graphic="R",width = 11, 
                       height = 8.5, labcx=1.25, ylim, xlim, col=c("blue","red","grey50","orange"), pch=1:length(y), lty=1:length(y),type='o',
-                      titl="",cex.mn = 1.2,axis.cx=1,tx.ypos = 5.3, ...)
+                      titl="",cex.mn = 1.2,axis.cx=1,tx.ypos = 5.3, error=F, ...)
 {
+  
   # Do we want to make pdf out plot.
   if(graphic=='pdf')pdf("plots/cfindex.pdf", width = width, height = height, pointsize = 14)
 	# Or use an R window
@@ -58,12 +59,14 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	if(missing(xlim))xlim=range(data[x],na.rm=T)
 	if(missing(ylim))ylim=range(data[y],na.rm=T)
 	# Set margins and leave the plot window open
-  par(mar=c(3.6,6,2,2))
+  if(!nchar(titl) > 35) par(mar=c(3.6,6,2,2))
+	if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))
   par(...)
   # Make the plot, using the parameters specified in function call.  
 	plot(unlist(data[x[1]]),unlist(data[y[1]]), type="n", las=1, ylim=ylim, xlim=xlim, ylab="", xlab="", xaxt="n",,yaxt="n",
 	     mgp=c(1,0.5,0), lty=lty[1], pch=pch[1], col=col[1],cex=labcx)
 	points(unlist(data[x[1]]),unlist(data[y[1]]),type=type,lty=lty[1], pch=pch[1], col=col[1],bg=col[1])
+	if(error==T)  segments(unlist(data[x[1]]),unlist(data[y[1]])+1.96*unlist(data$CFse.fit),unlist(data[x[1]]),unlist(data[y[1]])-1.96*unlist(data$CFse.fit),col=col[1])
 	# If there is just 1 name for x, repeat x for all y values.
 	if(length(x)==1)x<-rep(x[1],length(y))
 	# if there is more than 1 y name then add the lines and points to the figure for each x/y combination.
