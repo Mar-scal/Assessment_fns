@@ -559,8 +559,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         r <- setValues(r, t(matrix(bathy.sp@data$layer, nrow=dim[1], ncol=dim[2])))
         bathy_f <- data.frame(rasterToPoints(r))
         bathy_f <- bathy_f[bathy_f$x>xlim[1] & bathy_f$x <xlim[2] & bathy_f$y>ylim[1] & bathy_f$y<ylim[2],]
-        pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), 
-                                                  breaks=pretty(bathy_f$layer, min.n=2), colour="grey")
+        pect_ggplot <- pect_ggplot + geom_contour(data=bathy_f, aes(x, y, z=layer), colour="grey")
       }
     }   
     
@@ -597,8 +596,17 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     }
     
     if(!is.null(add_nafo)){
-      if(add_nafo == T) {
-        nafo_f <- fortify(nafo.divs)
+      if(add_nafo == "main") {
+        nafo_f <- fortify(nafo.divs$Divisions)
+        pect_ggplot <- pect_ggplot + geom_path(data=nafo_f, aes(x=long, y=lat, group=group))
+      }
+      if(add_nafo == "sub") {
+        nafo_f<-NULL
+        for(i in 1:length(nafo.subs)){
+          nafo_s <- fortify(nafo.subs[[i]])
+          nafo_s$name <- names(nafo.subs)[i]
+          nafo_f <- rbind(nafo_f, nafo_s)
+        }
         pect_ggplot <- pect_ggplot + geom_path(data=nafo_f, aes(x=long, y=lat, group=group))
       }
     }

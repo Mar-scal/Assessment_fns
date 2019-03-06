@@ -101,5 +101,3 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
     }
   }
 }
-
-compare_logs(old_log, new_log, check_all="VR_NUMBER")
