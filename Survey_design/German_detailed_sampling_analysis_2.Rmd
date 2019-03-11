@@ -438,24 +438,24 @@ otherbanks <- function(mwger_0, shfger_0, bank, direct){
   shfger_0$protocol[shfger_0$year<2010] <- "old"
   shfger_0$protocol[shfger_0$year>2009] <- "new"
   
-  png(paste0(direct, "2019/Presentations/Special_industry_presentations/German Condition/", bank, "/SHF_gear_detailed_mwger_0_GBa_protocol.png"), width = 13,height = 8.75,res=420, units="in")
-  ggplot() + geom_histogram(data=mwger_0, aes(sh), binwidth=5) + facet_wrap(~protocol, nrow=2) +
+  png(paste0("C:/Users/keyserf/Desktop/German Condition/", bank, "/SHF_gear_detailed_mwger_0_protocol.png"), width = 13,height = 8.75,res=420, units="in")
+  print(ggplot() + geom_histogram(data=mwger_0, aes(sh), binwidth=5) + facet_wrap(~protocol, nrow=2) +
     theme_bw() + 
     theme(panel.grid=element_blank()) +
     scale_x_continuous(limits = c(0,200), breaks=seq(0,200, 10), labels=seq(0,200,10), expand=c(0,0)) +
-    ylab("Frequency")
+    ylab("Frequency"))
   dev.off()
   
   shfger_0_melt <- melt(shfger_0, id.vars=c("ID","year", "protocol", "cruise", "bank", "tow", "lon", "lat"), measure.vars = dput(paste0("h", seq(5,200,5))))
   
   shfger_0_melt$sh <- as.numeric(gsub(x=shfger_0_melt$variable, "h", ""))
   
-  png(paste0(direct, "2019/Presentations/Special_industry_presentations/German Condition/", bank, "/SHF_gear_general_shfger_0_GBa_protocol.png"), width = 13,height = 8.75,res=420, units="in")
-  ggplot() + geom_histogram(data=shfger_0_melt, aes(sh, value), stat="identity", binwidth=5) + facet_wrap(~protocol, nrow=2) +
+  png(paste0("C:/Users/keyserf/Desktop/German Condition/", bank, "/SHF_gear_general_shfger_0_protocol.png"), width = 13,height = 8.75,res=420, units="in")
+  print(ggplot() + geom_histogram(data=shfger_0_melt, aes(sh, value), stat="identity", binwidth=5) + facet_wrap(~protocol, nrow=2) +
     theme_bw() + 
     theme(panel.grid=element_blank())+
     scale_x_continuous(breaks=seq(0,200, 10), labels=seq(0,200,10), limits=c(0,200), expand=c(0,0)) +
-    ylab("Frequency")
+    ylab("Frequency"))
   dev.off()
   
   shfger_0_sum <- ddply(.data=shfger_0_melt, .(year, sh),
@@ -470,30 +470,30 @@ otherbanks <- function(mwger_0, shfger_0, bank, direct){
   
   joined <- join(shfger_0_exp, mwger_0[,c("year", "sh", "type")], type="full")
   
-  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/Density_detailed_general_year.png"), width = 13,height = 8.75,res=420, units="in")
-  ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+  png(paste0("C:/Users/keyserf/Desktop/German Condition/", bank, "/Density_detailed_general_year.png"), width = 13,height = 8.75,res=420, units="in")
+  print(ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
                           aes(sh, fill=type, colour=type), alpha=0.1) +
     facet_wrap(~year) +
     theme_bw() + theme(panel.grid=element_blank()) +
     ggtitle("SHFs >55mm") +
-    scale_x_continuous(breaks=seq(60,200,10))
+    scale_x_continuous(breaks=seq(60,200,10)))
   dev.off()
   
-  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/Density_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
-  ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+  png(paste0("C:/Users/keyserf/Desktop/German Condition/", bank, "/Density_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+  print(ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
                           aes(sh, fill=type, colour=type), alpha=0.1) +
     #facet_wrap(~year) +
     theme_bw() + theme(panel.grid=element_blank()) +
     ggtitle("SHFs >55mm") +
-    scale_x_continuous(breaks=seq(60,200,10))
+    scale_x_continuous(breaks=seq(60,200,10)))
   dev.off()
   
-  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/histogram_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
-  ggplot() + geom_histogram(data=joined[joined$sh>55,], aes(sh, fill=type), binwidth=5) +
+  png(paste0("C:/Users/keyserf/Desktop/German Condition/", bank, "/histogram_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+  print(ggplot() + geom_histogram(data=joined[joined$sh>55,], aes(sh, fill=type), binwidth=5) +
     facet_wrap(~type, nrow=2, scales="free_y") +
     theme_bw() + theme(panel.grid=element_blank()) +
     scale_x_continuous(breaks=seq(60,200,10)) +
-    ggtitle("SHFs >55mm")
+    ggtitle("SHFs >55mm"))
 dev.off()
 }
 
