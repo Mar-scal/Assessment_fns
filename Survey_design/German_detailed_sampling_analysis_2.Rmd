@@ -1,0 +1,521 @@
+---
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+# Impact of Sampling Protocol on Condition Modelling
+## German Bank case study
+
+```{r, message=F, include=F}
+direct <- "Y:/Offshore scallop/Assessment/"
+mwger <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Ger/mw_Data.csv"))
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Ger/mw_Data_inclCommercial.csv"))
+
+shfger <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Ger/Survey1985-2018.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Ger/Survey1985-2018_inclCommercial.csv"))
+
+# load("C:/Documents/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results_GermanSurveyOnly.RData")
+# HtWt.fit <- cf.data$Ger$HtWt.fit
+# 
+# load("C:/Documents/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results_GermanInclCommercial.RData")
+# HtWt.fit_0 <- cf.data$Ger$HtWt.fit
+# 
+# direct = "C:/Documents/Offshore scallop/Assessment/"
+
+require(ggplot2)
+require(plyr)
+require(dplyr)
+require(reshape2)
+require(pander)
+require(lme4)
+require(grid)
+require(gridExtra)
+require(sp)
+require(rgdal)
+require(maptools)
+require(raster)
+require(rgeos)
+require(fields)
+
+```
+
+```{r, include=F, warning=F, message=F}
+### create multiple versions of the CF-TS figure with different subsets of data
+### this requires models with different data subsets
+testplot <- function(mwdat, shfger) {
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.lme.r")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/condFac.R")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.plt1.R")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/stdts.plt.R")
+
+  mwdat$ID <- as.character(mwdat$ID)
+  condmod <- condFac(na.omit(mwdat),shfger,model.type='gam_f',dirct=direct)
+  
+  mwdat$sh <- mwdat$sh/100
+
+  mwshmod <- shwt.lme(mwdat, random.effect='ID', b.par=3, verbose = T)
+    condmod$CFyrs <- join(condmod$CFyrs, data.frame(year=1985:2018), type="right")
+    
+  cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
+  
+  # par(mfrow=c(1,2))
+  # shwt.plt1(mwshmod,lw=3,ht=10,wd=12,cx=1.5,cex.mn = 2,las=1, titl = "MW-SH Relationship (Ger-2018)", axis.cx = 1, yl=c(0,90), xl=c(.60,1.90))
+  # stdts.plt(condmod$CFyrs,y=c('CF'),pch=c(23),col=c('blue'),ylab=cf.lab,
+  #           mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,
+  #           titl = "Condition factor time series (Ger)",cex.mn=2,tx.ypos=4, error=T)
+
+  list(mwshmod=mwshmod, condmod=condmod)
+
+}
+
+data="mwger_0"
+full <- testplot(mwger_0, shfger_0)
+old <- testplot(mwger_0[mwger_0$year<2008,], shfger_0)
+new <- testplot(mwger_0[mwger_0$year>2007,], shfger_0)
+big <- testplot(mwger_0[mwger_0$sh>89,], shfger_0)
+big_new <- testplot(mwger_0[mwger_0$sh>89 & mwger_0$year>2009,], shfger_0)
+```
+
+### Change in MWSH relationship
+```{r, message=F, warning=F, echo=F}
+MWSH_temp <- rbind(
+      data.frame(old$mwshmod$data, pred=old$mwshmod$data$sh^old$mwshmod$B * old$mwshmod$A, run="old"), 
+      data.frame(new$mwshmod$data, pred=new$mwshmod$data$sh^new$mwshmod$B * new$mwshmod$A, run="new"))
+
+MWSH_size <- rbind(
+      data.frame(big$mwshmod$data, pred=big$mwshmod$data$sh^big$mwshmod$B * big$mwshmod$A, run="big"),
+      data.frame(big_new$mwshmod$data, pred=big_new$mwshmod$data$sh^big_new$mwshmod$B * big_new$mwshmod$A, run="big_new"),
+      data.frame(old$mwshmod$data, pred=old$mwshmod$data$sh^old$mwshmod$B * old$mwshmod$A, run="old"), 
+      data.frame(new$mwshmod$data, pred=new$mwshmod$data$sh^new$mwshmod$B * new$mwshmod$A, run="new"))
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH shift_temp_", data, ".png"), height=6, width=6, units="in", res=490)
+ggplot() + geom_line(data=MWSH_temp, aes(sh*100, pred, colour=run, linetype=run)) +
+  theme_bw() + theme(panel.grid=element_blank())+
+  ylab("Meat Weight (g)") +
+  xlab("Shell Height (mm)") +
+  scale_colour_manual(name="Time series", labels=c("\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)"), values=c("blue", "red")) +
+  scale_linetype_discrete(name="Time series", labels=c("\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)")) +
+  scale_x_continuous(limits=c(55,200), breaks = seq(60, 200, 20), expand = c(0.01,0)) +
+  scale_y_continuous(breaks = seq(0, 80, 10), expand=expand_scale(mult=c(0.05,0.1)))
+#dev.off() 
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH shift_size_", data, ".png"), height=6, width=6, units="in", res=490)
+ggplot() + geom_line(data=MWSH_size[MWSH_size$run %in% c("big", "big_new"),], aes(sh*100, pred, colour=run, linetype=run)) +
+  theme_bw() + theme(panel.grid=element_blank())+
+   ylab("Meat Weight (g)") +
+  xlab("Shell Height (mm)") +
+  scale_colour_manual(name="Data group", labels=c("\n>89, all years\n", ">89, 2008+"), values=c("black", "blue")) +
+  scale_linetype_discrete(name="Data group", labels=c("\n>89, all years\n", ">89, 2008+"))
+#dev.off()
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH shift_size_temp_", data, ".png"), height=6, width=6, units="in", res=490)
+ggplot() + geom_line(data=MWSH_size[!MWSH_size$run %in% c("big_new"),], aes(sh*100, pred, colour=run, linetype=run)) +
+  theme_bw() + theme(panel.grid=element_blank())+
+   ylab("Meat Weight (g)") +
+  xlab("Shell Height (mm)") +
+  scale_colour_manual(name="Data group", labels=c("\n>89mm, all years\n", "\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)\n"), values=c("black", "blue", "red")) +
+  scale_linetype_discrete(name="Data group", labels=c("\n>89mm, all years\n", "\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)\n"))
+#dev.off()
+
+```
+
+### Change in condition model estimate error through time
+```{r, message=F,warning=F,  echo=F}
+CFyrs_temp <- rbind(#data.frame(full$condmod$CFyrs, run="full"), 
+      data.frame(old$condmod$CFyrs, run="old"), 
+      data.frame(new$condmod$CFyrs, run="new")#, 
+      #data.frame(big$condmod$CFyrs, run="big"), 
+      #data.frame(big_new$condmod$CFyrs, run="big_new")
+      )
+
+CFyrs_size <- rbind(#data.frame(full$condmod$CFyrs, run="full"), 
+      #data.frame(old$condmod$CFyrs, run="old"), 
+      #data.frame(new$condmod$CFyrs, run="new")#, 
+      data.frame(big$condmod$CFyrs, run="big"), 
+      data.frame(big_new$condmod$CFyrs, run="big_new"))
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/Precision ts_", data, ".png"), height=6, width=8.5, units="in", res=490)
+ggplot() + geom_point(data=CFyrs_temp, aes(year, CFse.fit, colour=run, shape=run)) +
+  geom_line(data=CFyrs_temp, aes(year, CFse.fit, colour=run)) +
+  theme_bw() + theme(panel.grid = element_blank())+
+  geom_smooth(data=CFyrs_temp, aes(year, CFse.fit), method="lm", colour="black", lty="dashed", se=F) +
+  ylab("Estimate uncertainty") +
+  xlab("Year") +
+  scale_colour_manual(name="Time series", labels=c("\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)"), values=c("blue", "red"))+
+  scale_shape_discrete(name="Time series", labels=c("\nBefore 2008\n(unlined gear)\n", "2008+\n(lined gear)"))
+#dev.off()
+```
+
+### What if we pretend that we kept using unlined gear? 
+```{r, echo=F, message=F, warning=F, fig.width=15, fig.height=8}
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH_above89mm_", data, ".png"), width = 13,height = 8.75,res=420, units="in")
+cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
+par(mfrow=c(1,2))
+shwt.plt1(big$mwshmod,lw=3,ht=10,wd=12,cx=1.5,cex.mn = 2,las=1, titl = "MW-SH Relationship\n(Standardized, >89mm)", axis.cx = 1, yl=c(0,90), xl=c(.60,1.90))
+stdts.plt(big$condmod$CFyrs,y=c('CF'),pch=c(23),col=c('black'),ylab=cf.lab,
+          mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,
+          titl = "Condition factor time series\n(Standardized, >89mm)",cex.mn=2,tx.ypos=4, error=T)
+#dev.off()
+```
+
+### Statistical test of before and after 2008
+```{r}
+big$condmod$CFyrs$time[big$condmod$CFyrs$year <2008] <- "before"
+big$condmod$CFyrs$time[big$condmod$CFyrs$year >2007] <- "after"
+
+summary(lm(data=big$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=big$condmod$CFyrs, CF ~ time))
+
+full$condmod$CFyrs$time[big$condmod$CFyrs$year <2008] <- "before"
+full$condmod$CFyrs$time[big$condmod$CFyrs$year >2007] <- "after"
+
+
+summary(lm(data=full$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=full$condmod$CFyrs, CF ~ time))
+
+```
+
+### Senescence 1
+```{r}
+all_130 <- testplot(mwger_0[mwger_0$sh <130,], shfger_0)
+all_89130 <- testplot(mwger_0[mwger_0$sh <130 & mwger_0$sh >89,], shfger_0)
+all_89150 <- testplot(mwger_0[mwger_0$sh <150 & mwger_0$sh >89,], shfger_0)
+all_89120 <- testplot(mwger_0[mwger_0$sh <120 & mwger_0$sh >89,], shfger_0)
+
+sen <- c(150,140,130,120)
+
+for(i in sen){
+  data=paste0("sen_", i)
+  obj <- testplot(mwger_0[mwger_0$sh>89 & mwger_0$sh < i,], shfger_0)
+  assign(paste0("sen_", i), obj)
+}
+
+MWSH_temp_sen <- rbind(
+  data.frame(sen_120$mwshmod$data, pred=sen_120$mwshmod$data$sh^sen_120$mwshmod$B * sen_120$mwshmod$A, run="89-120mm"),
+  data.frame(sen_130$mwshmod$data, pred=sen_130$mwshmod$data$sh^sen_130$mwshmod$B * sen_130$mwshmod$A, run="89-130mm"),
+  data.frame(sen_140$mwshmod$data, pred=sen_140$mwshmod$data$sh^sen_140$mwshmod$B * sen_140$mwshmod$A, run="89-140mm"),
+  data.frame(sen_150$mwshmod$data, pred=sen_150$mwshmod$data$sh^sen_150$mwshmod$B * sen_150$mwshmod$A, run="89-150mm"))
+
+data="sen"
+#png(paste0("Y:/Offshore scallop/Assessment/2019/Presentations/Special_industry_presentations/German condition/MWSH shift_temp_", data, ".png"), height=6, width=6, units="in", res=490)
+ggplot() + geom_line(data=MWSH_temp_sen, aes(sh*100, pred, colour=run, linetype=run)) +
+  theme_bw() + theme(panel.grid=element_blank())+
+  ylab("Meat Weight (g)") +
+  xlab("Shell Height (mm)") +
+  scale_colour_discrete(name="Size limits") +
+  scale_linetype_discrete(name="Size limits") +
+  scale_x_continuous(limits=c(55,200), breaks = seq(60, 200, 20), expand = c(0.01,0)) +
+  scale_y_continuous(breaks = seq(0, 80, 10), expand=expand_scale(mult=c(0.05,0.1)))
+#dev.off()
+
+all_130$condmod$CFyrs$time[all_130$condmod$CFyrs$year <2008] <- "before"
+all_130$condmod$CFyrs$time[all_130$condmod$CFyrs$year >2007] <- "after"
+summary(lm(data=all_130$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=all_130$condmod$CFyrs, CF ~ time))
+
+all_89130$condmod$CFyrs$time[all_89130$condmod$CFyrs$year <2008] <- "before"
+all_89130$condmod$CFyrs$time[all_89130$condmod$CFyrs$year >2007] <- "after"
+summary(lm(data=all_89130$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=all_89130$condmod$CFyrs, CF ~ time))
+
+all_89150$condmod$CFyrs$time[all_89150$condmod$CFyrs$year <2008] <- "before"
+all_89150$condmod$CFyrs$time[all_89150$condmod$CFyrs$year >2007] <- "after"
+summary(lm(data=all_89150$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=all_89150$condmod$CFyrs, CF ~ time))
+
+all_89120$condmod$CFyrs$time[all_89120$condmod$CFyrs$year <2008] <- "before"
+all_89120$condmod$CFyrs$time[all_89120$condmod$CFyrs$year >2007] <- "after"
+summary(lm(data=all_89120$condmod$CFyrs, CF ~ time, weights = 1/CFse.fit))
+summary(lm(data=all_89120$condmod$CFyrs, CF ~ time))
+
+data="mwger_0"
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH_89-130_", data, ".png"), width = 13,height = 8.75,res=420, units="in")
+cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
+par(mfrow=c(1,2))
+shwt.plt1(all_89130$mwshmod,lw=3,ht=10,wd=12,cx=1.5,cex.mn = 2,las=1, titl = "MW-SH Relationship\n(Standardized, 89-130mm)", axis.cx = 1, yl=c(0,90), xl=c(.60,1.90))
+stdts.plt(all_89130$condmod$CFyrs,y=c('CF'),pch=c(23),col=c('black'),ylab=cf.lab,
+          mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,
+          titl = "Condition factor time series\n(Standardized, 89-130mm)",cex.mn=2,tx.ypos=4, error=T)
+#dev.off()
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/MWSH_89-150_", data, ".png"), width = 13,height = 8.75,res=420, units="in")
+cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
+par(mfrow=c(1,2))
+shwt.plt1(all_89150$mwshmod,lw=3,ht=10,wd=12,cx=1.5,cex.mn = 2,las=1, titl = "MW-SH Relationship\n(Standardized, 89-150mm)", axis.cx = 1, yl=c(0,90), xl=c(.60,1.90))
+stdts.plt(all_89150$condmod$CFyrs,y=c('CF'),pch=c(23),col=c('black'),ylab=cf.lab,
+          mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,
+          titl = "Condition factor time series\n(Standardized, 89-150mm)",cex.mn=2,tx.ypos=4, error=T)
+#dev.off()
+```
+
+
+## German senescence?
+```{r, echo=F}
+mwger_0$above130 <- mwger_0$sh>129
+mwger_0$above140 <- mwger_0$sh>139
+mwger_0$above150 <- mwger_0$sh>149
+require(plyr)
+
+above130 <- ddply(.data=mwger_0[mwger_0$sh>129,], .(year),
+                  summarise,
+                  above130 = length(ID))
+above140 <- ddply(.data=mwger_0[mwger_0$sh>139,], .(year),
+                  summarise,
+                  above140 = length(ID))
+above150 <- ddply(.data=mwger_0[mwger_0$sh>149,], .(year),
+                  summarise,
+                  above150 = length(ID))
+total <- ddply(.data=mwger_0, .(year),
+               summarise,
+               total=length(ID))
+prop_large <- join(join(join(total, above130, type="left"), above140, type="left"), above150, type="left")
+
+prop_large$prop130 <- prop_large$above130/prop_large$total
+prop_large$prop140 <- prop_large$above140/prop_large$total
+prop_large$prop150 <- prop_large$above150/prop_large$total
+
+prop_large_melt <- reshape2::melt(data=prop_large[, c("year", "total",
+                                                      "prop130", "prop140", "prop150")],
+                                  id.vars=c("year", "total"))
+
+prop_large_melt$value[is.na(prop_large_melt$value)] <- 0
+
+prop_large_melt[prop_large_melt$year==2018,]
+mwger_0$sh[mwger_0$year==2018]
+hist(mwger_0$sh[mwger_0$year==2018])
+mean(mwger_0$sh[mwger_0$year==2018])
+median(mwger_0$sh[mwger_0$year==2018])
+require(ggplot2)
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/proportion sampled large.png"), width = 8,height = 6,res=420, units="in")
+ggplot() + geom_line(data=prop_large_melt, aes(year, value, colour=variable)) +
+  geom_point(data=prop_large_melt, aes(year, value, colour=variable, shape=variable)) +
+  geom_smooth(data=prop_large_melt, aes(year, value, colour=variable), method="lm", se=F, lty="dashed") +
+  theme_bw() +
+  theme(panel.grid=element_blank()) +
+  ylim(0,1) +
+  ylab("Proportion of sampled scallops") +
+  scale_colour_discrete(name="", labels=c("130mm+", "140mm+", "150mm+")) +
+  scale_shape_discrete(name="", labels=c("130mm+", "140mm+", "150mm+")) +
+  scale_x_continuous(breaks=seq(1985, 2018, 2)) +
+  ggtitle("German Bank detailed sampling")
+#dev.off()
+
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Ger/Survey1985-2018_inclCommercial.csv"))
+
+shfger_0$above130 <- rowSums(shfger_0[,dput(paste0("h", seq(130, 200, 5)))])
+shfger_0$above140 <- rowSums(shfger_0[,dput(paste0("h", seq(140, 200, 5)))])
+shfger_0$above150 <- rowSums(shfger_0[,dput(paste0("h", seq(150, 200, 5)))])
+
+above130 <- ddply(.data=shfger_0, .(year),
+                  summarise,
+                  above130 = sum(above130))
+above140 <- ddply(.data=shfger_0, .(year),
+                  summarise,
+                  above140 = sum(above140))
+above150 <- ddply(.data=shfger_0, .(year),
+                  summarise,
+                  above150 = sum(above150))
+
+total <- ddply(.data=shfger_0, .(year),
+               summarise,
+               total=sum(tot))
+
+prop_large_sh <- join(join(join(total, above130, type="left"), above140, type="left"), above150, type="left")
+
+prop_large_sh$prop130 <- prop_large_sh$above130/prop_large_sh$total
+prop_large_sh$prop140 <- prop_large_sh$above140/prop_large_sh$total
+prop_large_sh$prop150 <- prop_large_sh$above150/prop_large_sh$total
+
+prop_large_sh_melt <- reshape2::melt(data=prop_large_sh[, c("year", "total",
+                                                            "prop130", "prop140", "prop150")],
+                                     id.vars=c("year", "total"))
+
+prop_large_sh_melt$value[is.na(prop_large_sh_melt$value)] <- 0
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/proportion sampled large_allcatch.png"), width = 8,height = 6,res=420, units="in")
+ggplot() + geom_line(data=prop_large_sh_melt, aes(year, value, colour=variable)) +
+  geom_point(data=prop_large_sh_melt, aes(year, value, colour=variable, shape=variable)) +
+  geom_smooth(data=prop_large_sh_melt, aes(year, value, colour=variable), method="lm", se=F, lty="dashed") +
+  theme_bw() +
+  theme(panel.grid=element_blank()) +
+  ylim(0,0.5) +
+  ylab("Proportion of sampled scallops") +
+  scale_colour_discrete(name="", labels=c("130mm+", "140mm+", "150mm+")) +
+  scale_shape_discrete(name="", labels=c("130mm+", "140mm+", "150mm+")) +
+  scale_x_continuous(breaks=seq(1985, 2018, 2)) +
+  ggtitle("German Bank - all survey catch")
+#dev.off()
+
+
+prop_large_melt$type <- "detailed"
+prop_large_sh_melt$type <- "general"
+
+props <- join(prop_large_melt, prop_large_sh_melt, type="full")
+
+ggplot() + geom_line(data=props, aes(year, value, colour=type)) +
+  facet_wrap(~variable) +
+  theme_bw() +
+  theme(panel.grid=element_blank())
+
+```
+
+### comparing lined and unlined SHF unsampled and sampled tows
+```{r, echo=F}
+head(mwger_0)
+
+mwger_0$gear[mwger_0$year<2008] <- "unlined"
+mwger_0$gear[mwger_0$year>2007] <- "lined"
+shfger_0$gear[shfger_0$year<2008] <- "unlined"
+shfger_0$gear[shfger_0$year>2007] <- "lined"
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/SHF_gear_detailed_mwger_0.png"), width = 13,height = 8.75,res=420, units="in")
+ggplot() + geom_histogram(data=mwger_0, aes(sh), binwidth=5) + facet_wrap(~gear, nrow=2) +
+  theme_bw() + 
+  theme(panel.grid=element_blank()) +
+  scale_x_continuous(limits = c(0,200), breaks=seq(0,200, 10), labels=seq(0,200,10), expand=c(0,0))
+#dev.off()
+
+shfger_0_melt <- melt(shfger_0, id.vars=c("ID","year","gear", "cruise", "bank", "tow", "lon", "lat"), measure.vars = dput(paste0("h", seq(5,200,5))))
+
+shfger_0_melt$sh <- as.numeric(gsub(x=shfger_0_melt$variable, "h", ""))
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/SHF_gear_general_shfger_0.png"), width = 13,height = 8.75,res=420, units="in")
+ggplot() + geom_histogram(data=shfger_0_melt, aes(sh, value), stat="identity", binwidth=5) + facet_wrap(~gear, nrow=2) +
+  theme_bw() + 
+  theme(panel.grid=element_blank())+
+  scale_x_continuous(limits = c(0,200), breaks=seq(0,200, 10), labels=seq(0,200,10), expand=c(0,0))
+#dev.off()
+
+shfger_0_sum <- ddply(.data=shfger_0_melt, .(year, sh),
+                      summarize,
+                      total=sum(value),
+                      type="general")
+
+shfger_0_exp<- data.frame(sh=rep(shfger_0_sum$sh, round(shfger_0_sum$total)), year=rep(shfger_0_sum$year, round(shfger_0_sum$total)))
+
+shfger_0_exp$type="general"
+mwger_0$type="detailed"
+
+joined <- join(shfger_0_exp, mwger_0[,c("year", "sh", "type")], type="full")
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/Density_detailed_general_year.png"), width = 13,height = 8.75,res=420, units="in")
+ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+                      aes(sh, fill=type, colour=type), alpha=0.1) +
+   facet_wrap(~year) +
+   theme_bw() + theme(panel.grid=element_blank()) +
+  ggtitle("SHFs >55mm") +
+  scale_x_continuous(breaks=seq(60,200,10))
+#dev.off()
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/Density_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+                      aes(sh, fill=type, colour=type), alpha=0.1) +
+   #facet_wrap(~year) +
+   theme_bw() + theme(panel.grid=element_blank()) +
+  ggtitle("SHFs >55mm") +
+  scale_x_continuous(breaks=seq(60,200,10))
+#dev.off()
+
+#png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/histogram_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+ggplot() + geom_histogram(data=joined[joined$sh>55,], aes(sh, fill=type), binwidth=5) +
+  facet_wrap(~type, nrow=2, scales="free_y") +
+   theme_bw() + theme(panel.grid=element_blank()) +
+  scale_x_continuous(breaks=seq(60,200,10)) +
+  ggtitle("SHFs >55mm")
+#dev.off()
+
+```
+
+### checking other banks too
+```{r, echo=F}
+otherbanks <- function(mwger_0, shfger_0, bank, direct){
+  
+  head(mwger_0)
+  
+  mwger_0$protocol[mwger_0$year<2010] <- "old"
+  mwger_0$protocol[mwger_0$year>2009] <- "new"
+  shfger_0$protocol[shfger_0$year<2010] <- "old"
+  shfger_0$protocol[shfger_0$year>2009] <- "new"
+  
+  png(paste0(direct, "2019/Presentations/Special_industry_presentations/German Condition/", bank, "/SHF_gear_detailed_mwger_0_GBa_protocol.png"), width = 13,height = 8.75,res=420, units="in")
+  ggplot() + geom_histogram(data=mwger_0, aes(sh), binwidth=5) + facet_wrap(~protocol, nrow=2) +
+    theme_bw() + 
+    theme(panel.grid=element_blank()) +
+    scale_x_continuous(limits = c(0,200), breaks=seq(0,200, 10), labels=seq(0,200,10), expand=c(0,0)) +
+    ylab("Frequency")
+  dev.off()
+  
+  shfger_0_melt <- melt(shfger_0, id.vars=c("ID","year", "protocol", "cruise", "bank", "tow", "lon", "lat"), measure.vars = dput(paste0("h", seq(5,200,5))))
+  
+  shfger_0_melt$sh <- as.numeric(gsub(x=shfger_0_melt$variable, "h", ""))
+  
+  png(paste0(direct, "2019/Presentations/Special_industry_presentations/German Condition/", bank, "/SHF_gear_general_shfger_0_GBa_protocol.png"), width = 13,height = 8.75,res=420, units="in")
+  ggplot() + geom_histogram(data=shfger_0_melt, aes(sh, value), stat="identity", binwidth=5) + facet_wrap(~protocol, nrow=2) +
+    theme_bw() + 
+    theme(panel.grid=element_blank())+
+    scale_x_continuous(breaks=seq(0,200, 10), labels=seq(0,200,10), limits=c(0,200), expand=c(0,0)) +
+    ylab("Frequency")
+  dev.off()
+  
+  shfger_0_sum <- ddply(.data=shfger_0_melt, .(year, sh),
+                        summarize,
+                        total=sum(value),
+                        type="general")
+  
+  shfger_0_exp<- data.frame(sh=rep(shfger_0_sum$sh, round(shfger_0_sum$total)), year=rep(shfger_0_sum$year, round(shfger_0_sum$total)))
+  
+  shfger_0_exp$type="general"
+  mwger_0$type="detailed"
+  
+  joined <- join(shfger_0_exp, mwger_0[,c("year", "sh", "type")], type="full")
+  
+  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/Density_detailed_general_year.png"), width = 13,height = 8.75,res=420, units="in")
+  ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+                          aes(sh, fill=type, colour=type), alpha=0.1) +
+    facet_wrap(~year) +
+    theme_bw() + theme(panel.grid=element_blank()) +
+    ggtitle("SHFs >55mm") +
+    scale_x_continuous(breaks=seq(60,200,10))
+  dev.off()
+  
+  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/Density_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+  ggplot() + geom_density(data=joined[joined$sh>55 & joined$year>2002,],
+                          aes(sh, fill=type, colour=type), alpha=0.1) +
+    #facet_wrap(~year) +
+    theme_bw() + theme(panel.grid=element_blank()) +
+    ggtitle("SHFs >55mm") +
+    scale_x_continuous(breaks=seq(60,200,10))
+  dev.off()
+  
+  png(paste0(direct, "/2019/Presentations/Special_industry_presentations/German Condition/", bank, "/histogram_detailed_general.png"), width = 13,height = 8.75,res=420, units="in")
+  ggplot() + geom_histogram(data=joined[joined$sh>55,], aes(sh, fill=type), binwidth=5) +
+    facet_wrap(~type, nrow=2, scales="free_y") +
+    theme_bw() + theme(panel.grid=element_blank()) +
+    scale_x_continuous(breaks=seq(60,200,10)) +
+    ggtitle("SHFs >55mm")
+dev.off()
+}
+
+
+direct <- "Y:/Offshore scallop/Assessment/"
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Summer/GBb/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Summer/GBb/Survey1984-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="GBb", direct)
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Summer/GBa/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Summer/GBa/Survey1984-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="GBa", direct)
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/BBn/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/BBn/Survey1991-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="BBn", direct)
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/BBs/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/BBs/Survey1985-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="BBs", direct)
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Mid/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Mid/Survey1985-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="Mid", direct)
+mwger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Sab/mw_Data.csv"))
+shfger_0 <- read.csv(paste0(direct, "Data/Survey_data/2018/Spring/Sab/Survey1986-2018.csv"))
+otherbanks(mwger_0, shfger_0, bank="Sab", direct)
+
+```
