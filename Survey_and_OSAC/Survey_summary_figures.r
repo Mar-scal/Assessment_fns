@@ -1592,7 +1592,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
                          units="in",width = 13,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
-    browser()
+    
     par(mfrow=c(1,2))
     shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = 2,las=1)
     
@@ -2144,6 +2144,10 @@ for(i in 1:len)
               titl = clap.per.ts.title,
               CS=unique(survey.obj[[banks[i]]][[1]]$CS),RS=unique(survey.obj[[banks[i]]][[1]]$RS),
               axis.cx = 1.5)
+    print(banks[i])
+    print(paste0(c("ClapPropLTMpre = ",
+                   "ClapPropLTMrec = ",
+                   "ClapPropLTMcom = "), round(clap.propLTMs, 3)))
     if(fig != "screen") dev.off()                 
   } # end if(any(plots== "clapper-per-ts"))   
   
