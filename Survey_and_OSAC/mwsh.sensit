@@ -1,0 +1,70 @@
+## MWSH Sensitivity Analysis
+
+## Use this function to test the effects of different subsets of MWSH data on the Condition and Biomass Estimates using their variance.
+
+## size.range: lower and upper bounds of size subset for MWSH data. Must enter NA if no number provided. c(89, NA) means keep everything equal to or above 89mm.
+## year.range: lower and upper bounds of year subset for MWSH data. Must enter NA if no number provided. c(NA, 2008) means keep everything equal to or below 2008.
+## bank: matches Survey Summary bank options. Must enter as c(a, b, c, d) (not "all")
+## mwdat: name of dataframe with meat weight data
+## shfdat: name of dataframe with all tow data
+## direct: specify the location of the Assessment_fns folder
+
+
+mwdat <- mwger_0 
+shfdat <- shfger_0
+
+run <- mwsh.sensit(mwdat=mwdat, shfdat=shfdat, bank="Ger", size.range=NULL, year.range=NULL, direct=direct)
+
+mwsh.sensit <- function(mwdat, shfdat, bank, size.range=NULL, direct=direct) {
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.lme.r")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/condFac.R")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.plt1.R")
+  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/stdts.plt.R")
+  
+  if(missing(mwdat) & missing(shfdat)) {
+    print("mwdat and shfdat not specified, using pre-loaded mw.dat.all[[bank]] and bank.dat[[bank]] from Survey Summary RData.")
+    mwdat <- mw.dat.all[[bank]]
+    shfdat <- bank.dat[[bank]]
+  }
+  
+  mwdat$ID <- as.character(mwdat$ID)
+  
+  # subset the data based on the size range
+  if(!is.null(size.range)) {
+    if(is.na(size.range[1])) mwdat <- mwdat[mwdat$sh <= size.range[2],]
+    if(is.na(size.range[2])) mwdat <- mwdat[mwdat$sh >= size.range[1],]
+    if(!is.na(size.range[1]) & !is.na(size.range[2])) mwdat <- mwdat[mwdat$sh >= size.range[1] && mwdat$sh <= size.range[2],]
+  }
+  
+  # subset the data based on the year range
+  if(!is.null(year.range)) {
+    if(is.na(year.range[1])) mwdat <- mwdat[mwdat$year <= year.range[2],]
+    if(is.na(year.range[2])) mwdat <- mwdat[mwdat$year >= year.range[1],]
+    if(!is.na(year.range[1]) & !is.na(year.range[2])) mwdat <- mwdat[mwdat$year >= year.range[1] && mwdat$year <= year.range[2],]
+  }
+    
+  # Run condition model first because we're going to convert sh next.
+  if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
+  if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  
+  # fill in any missing years with NAs
+  condmod$CFyrs <- join(condmod$CFyrs, data.frame(year=min(condmod$CFyrs$year):max(condmod$CFyrs$year)), type="right")
+  
+  
+  
+  
+  # Run mwsh model (same for all banks. this is the one done INSIDE condFac normally)
+  mwdat$sh <- mwdat$sh/100 # convert sh
+  mwshmod <- shwt.lme(mwdat, random.effect='ID', b.par=3, verbose = T)
+
+  # labels for plotting
+  cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
+  
+  # par(mfrow=c(1,2))
+  # shwt.plt1(mwshmod,lw=3,ht=10,wd=12,cx=1.5,cex.mn = 2,las=1, titl = "MW-SH Relationship (Ger-2018)", axis.cx = 1, yl=c(0,90), xl=c(.60,1.90))
+  # stdts.plt(condmod$CFyrs,y=c('CF'),pch=c(23),col=c('blue'),ylab=cf.lab,
+  #           mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,
+  #           titl = "Condition factor time series (Ger)",cex.mn=2,tx.ypos=4, error=T)
+  
+  return(list(mwshmod = mwshmod, condmod=condmod))
+}
