@@ -1,7 +1,7 @@
-## MWSH Sensitivity Analysis
+## MWSH Sensitivity Analysis Functions: mwsh.sensit and mwsh.survey.extract and mwsh.DDmodel.extract
 
+## 1: mwsh.sensit function
 ## Use this function to test the effects of different subsets of MWSH data on the Condition and Biomass Estimates using their variance.
-
 ## sub.size: lower and upper bounds of size subset for MWSH data. Must enter NA if no number provided. c(89, NA) means keep everything equal to or above 89mm.
 ## sub.year: lower and upper bounds of year subset for MWSH data. Must enter NA if no number provided. c(NA, 2008) means keep everything equal to or below 2008.
 ## sub.tows
@@ -16,18 +16,11 @@
 ### need to predict on the dropped data?
 ### propagate the error into the Biomass estimate!
 
-mwdat <- mwger_0 
-shfdat <- shfger_0
-
-run <- mwsh.sensit(mwdat=mwdat, shfdat=shfdat, bank="Ger", plot=T, 
-                   sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                   direct=direct, seed=1234)
-
 mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, plot = T, seed=1234, direct=direct) {
-  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.lme.r")
-  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/condFac.R")
-  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/shwt.plt1.R")
-  source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/stdts.plt.R")
+  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.lme.r"))
+  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/condFac.R"))
+  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.plt1.R"))
+  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/stdts.plt.R"))
   
   if(missing(mwdat) & missing(shfdat)) {
     print("mwdat and shfdat not specified, using pre-loaded mw.dat.all[[bank]] and bank.dat[[bank]] from Survey Summary RData.")
@@ -92,8 +85,15 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
     }
     
   # Run condition model first because we're going to convert sh next.
-  if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
-  if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  # if(pred="all") {
+    if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
+    if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  # }
+  # 
+  # if(pred="dropped") {
+  #   if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
+  #   if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  # }
   
   # fill in any missing years with NAs
   condmod$CFyrs <- join(condmod$CFyrs, data.frame(year=min(condmod$CFyrs$year):max(condmod$CFyrs$year)), type="right")
@@ -103,7 +103,14 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   # Run mwsh model (same for all banks. this is the one done INSIDE condFac normally)
   mwdat$sh <- mwdat$sh/100 # convert sh
   mwshmod <- shwt.lme(mwdat, random.effect='ID', b.par=3, verbose = T)
-
+  
+  # SE from mwshmod is in mwshmod$summary$tTable
+  
+  # # predict MWSH relationship for dropped MWSH data
+  # if(pred=="dropped") {
+  #   run$mwshmod$
+  # }
+  
   if(plot==T) {
     # labels for plotting
     cf.lab <-expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
@@ -119,3 +126,75 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   
   return(list(mwshmod = mwshmod, condmod=condmod))
 }
+
+
+## 2: mwsh.survey.extract function
+## Use this after running survey summary data to extract variance information from survey indices
+## borrows from Survey summary figures functions such as survey.ts() to get SE and CI numbers used in plots
+## nickname: the nickname of the testing_results Rdata file you want to extract values from
+## direct: the directory in which all files are based (e.g. "Y:/Offshore scallop/Assessment/")
+## year: the year of the survey data (folder where testing_results found)
+## bank: the bank of interest
+
+mwsh.survey.extract <- function(nickname, direct, year, bank) {
+
+  # read in data
+  load(paste(direct,"Data/Survey_data/" ,year, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+  
+  # set up naming scheme
+  mn.tmp <- c("I", "IR", "IPR")
+  cv.names <- paste(mn.tmp,".cv",sep="")
+  se.names <- paste(mn.tmp,".se",sep="")
+  
+  ## biomass survey estimate CV's (stratified where applicable) (not kg per tow)
+  CV <- survey.obj[[bank]][[1]][, cv.names]
+  
+  ## biomass survey estimate error bars (not kg per tow)
+  for(i in 1:length(se.names)) survey.obj[[bank]][[1]][,se.names[i]] <- survey.obj[[bank]][[1]][,mn.tmp[i]]*survey.obj[[bank]][[1]][,cv.names[i]]
+  SE <- survey.obj[[bank]][[1]][, se.names]
+  
+  # put them together in a nice little table 
+  var.table <- data.frame(cbind(year=survey.obj[[bank]][[1]]$year, CV, SE))
+  
+  return(var.table) 
+}
+
+
+## 3: mwsh.DDmodel.extract function
+## Use this after running survey summary data to extract variance information from survey indices
+## borrows from Survey summary figures functions such as survey.ts() to get SE and CI numbers used in plots
+## nickname: the nickname of the testing_results Rdata file you want to extract values from
+## direct: the directory in which all files are based (e.g. "Y:/Offshore scallop/Assessment/")
+## year: the year of the model run (folder where Model_results found)
+## bank: the bank of interest
+mwsh.DDmodel.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
+mwsh.DDmodel.extract <- function(nickname, direct, year, bank) {
+  
+  # read in data
+  load(paste(direct,"Data/Model/" ,year, "/", bank, "/Results/Model_testing_results_", nickname, ".Rdata",sep=""))
+  load(paste(direct,"Data/Model/",year,"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
+  
+  # set up naming scheme
+  mn.tmp <- c("I", "IR", "IPR")
+  cv.names <- paste(mn.tmp,".cv",sep="")
+  se.names <- paste(mn.tmp,".se",sep="")
+  
+  ## CI model estimates for FR survey biomass (accounts for catchability)
+  CI.lower.survey <- apply(sweep(DD.out[[bank]]$sims.list$B,2,FUN='*',DD.out[[bank]]$median$q), 2, quantile, 0.025)
+  CI.upper.survey <- apply(sweep(DD.out[[bank]]$sims.list$B,2,FUN='*',DD.out[[bank]]$median$q), 2, quantile, 0.975)
+
+  ## CI model estimates for FR biomass
+  CI.lower.model <- apply(DD.out[[bank]]$sims.list$B.p, 2, quantile, 0.025)
+  CI.upper.model <- apply(DD.out[[bank]]$sims.list$B, 2, quantile, 0.975)
+  
+  ## CI model estimates for FR biomass projection - NOTE this is only for 80% of data, as in biomass.plt.R
+  TACI<-which(DD.out[[bank]]$data$C.p == proj.catch[[bank]] + TACi[[bank]])
+  CI.lower.proj <- quantile(DD.out[[bank]]$sims.list$B.p[,TACI], 0.1)
+  CI.upper.proj <- quantile(DD.out[[bank]]$sims.list$B.p[,TACI], 0.9)
+  
+  # put them together in a nice little table
+  var.table <- data.frame(cbind(year=DD.out[[bank]]$data$year, CI.lower.survey, CI.upper.survey, CI.lower.model, CI.upper.model))
+  
+  return(var.table) 
+}
+

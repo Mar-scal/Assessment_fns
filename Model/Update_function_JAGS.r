@@ -108,7 +108,8 @@ update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.nume
                    #Prediction evalulation options (only used when make.figs =T and at least one of make.pred.eval.figs
                    # and run.pred.eval.model = T)
                    pred.eval.fig.type = "box",pe.years = NULL, pe.iter = NULL,pe.burn= NULL,pe.thin = NULL,pe.chains = NULL ,
-                   un=NULL,pw=NULL,db.con="ptran"
+                   un=NULL,pw=NULL,db.con="ptran",
+                   sensitivity=F, nickname=NULL
                   )
 {
   
@@ -130,23 +131,23 @@ source(paste(direct,"Assessment_fns/Contour/contour.gen.r",sep=""))
 require(R2jags) || stop("You need the R2jags package installed or this ain't gonna work")
 require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
 require(sp)  || stop("You shall not pass until you install the *sp* package... you've been warned...")
-  
+
 #############  Section 1  Compile the data for the banks ######  Section 1  Compile the data for the banks################## 
 #############  Section 1  Compile the data for the banks ######  Section 1  Compile the data for the banks################## 
 #############  Section 1  Compile the data for the banks ######  Section 1  Compile the data for the banks################## 
 # If you have already run section 1 no need to do it again set preprocessed = T
 
-if(preprocessed==F)
+  if(preprocessed==F)
   {
-  direct.real <- direct  
-  # Bring in the survey results for the current year, this also includes the fishery data..
+    direct.real <- direct  
+    # Bring in the survey results for the current year, this also includes the fishery data..
     # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
       # If we have all survey results we preprocess both banks...
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
     } # end if(file.exists(paste(direct,"Data/... == T
-  
+    
     # If we haven't created this file then there are a couple of places to look for the data... Note that we need to do
     # this up here to avoid overwriting the logs/fishery data...
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==F)
@@ -157,7 +158,7 @@ if(preprocessed==F)
         # If we have this file of spring data load it...
         #if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData"))==T)
         #{
-          load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData",sep="")) 
+        load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData",sep="")) 
         # If we don't load this....
         
       } # if(bank[i] == "BBn")
@@ -175,8 +176,12 @@ if(preprocessed==F)
       {
         stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
       } # if(length(bank) > 1) 
-        
-    }# end if(file.exists(paste(direct,"Data/... == F
+    }  # end if(file.exists(paste(direct,"Data/... == F
+    
+    if(sensitivity == T && !is.null(nickname) &&  use.final==F && final.run== F) {
+      # read in data
+      load(paste(direct,"Data/Survey_data/" ,year, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+    }
   
   direct <- direct.real
   
@@ -303,7 +308,8 @@ if(preprocessed==F)
     } # end for(i in 1:length(bank))
 
     # Save the results so you don't have to do section 1 over and over.
-    save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
+    if(is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
+    if(!is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input_", nickname, ".RData",sep=""))
     print("done pre-processing")
   } # end if(preprocessed == F)
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 
@@ -586,11 +592,17 @@ for(j in 1:num.banks)
            file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
       } # end if(final.run == T) 
       # If you are still testing results the model will save here, 
-      if(final.run == F) 
+      if(final.run == F && is.null(nickname))
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
              file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+      } # if(final.run == F) 
+      if(final.run == F && !is.null(nickname))
+      {
+        save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
+             URP,LRP,proj,bnk,TACi,yrs,j,
+             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
       } # if(final.run == F) 
       
       print("done running model. Results saved in Data/Model/year/bank/Results/")
@@ -676,8 +688,10 @@ for(j in 1:num.banks)
     neff[[bnk]] <- range(DD.out[[bnk]]$summary[,9])
 
 
-    save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
+    if(is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
          file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
+    if(!is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
+                               file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
 
 
     print("done running diagnostics")

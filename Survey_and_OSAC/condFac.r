@@ -104,7 +104,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 		  par(mfrow=c(2,2))
 		  plot(CF.fit,T,F,T)
 	  } # end if(plt == T && model.type!='glm')
-	
+
 	# If we want to make predictions on some new data...
 	if(!is.null(pred.dat) ==T)
 	  {

@@ -88,7 +88,7 @@
 
 survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
                         surveys = "all", survey.year= NULL,preprocessed = F,un.ID=un.ID,pwd.ID=pwd.ID,db.con="ptran",
-                        season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T, nickname=NULL)
+                        season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T, mwsh.test = F, nickname=NULL)
 {  
   ##############################################################################################################
   ################################### SECTION 1 SECTION 1 SECTION 1 ############################################
@@ -705,6 +705,15 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       # data this is like far more complex still than the really allows for.
       # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
       cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
+      
+      browser()
+      if(mwsh.test == T) {
+        source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+        mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
+                                sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
+                                direct=direct, seed=1234)
+        cf.data[[bnk]] <- mwshtest$condmod
+      }
     } # end if(bnk %in% c("Mid", "Ban"))
     
     if(!bank.4.spatial %in% c("Mid", "Ban"))
@@ -747,6 +756,14 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct)
     }
     
+    if(mwsh.test == T) {
+      source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+      mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
+                              sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
+                              direct=direct, seed=1234)
+      cf.data[[bnk]] <- mwshtest$condmod
+    }
+    
     # Because of the lined survey on German we want to differentiate between the lined and unlined CF data
     if(bank.4.spatial == "Ger")
     {
@@ -756,11 +773,11 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       cf.data[[bnk]]$CFyrs$CF2[cf.data[[bnk]]$CFyrs$year > 2007] <- cf.data[[bnk]]$CFyrs$CF[cf.data[[bnk]]$CFyrs$year>2007]
       cf.data[[bnk]]$CFyrs$CF[cf.data[[bnk]]$CFyrs$year > 2007] <- NA
     } # end if(bnk == "Ger")
-    
+   
     print("condFac done")
     
     # Fill the years without any data with NA's (this helps with plotting data.). Appended NA rows are fine (no need to be interspersed)
-    cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
+    if(mwsh.test == F) cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
     
     # Output the predictions for the bank
     surv.dat[[bnk]] <- cf.data[[bnk]]$pred.dat
@@ -1055,7 +1072,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       survey.obj[[bnk]][[1]]$clappers<-clap.survey.obj[[bnk]][[1]]$N
       survey.obj[[bnk]][[1]]$clappersR<-clap.survey.obj[[bnk]][[1]]$NR
       
-    } # end if(bnk != "Ger" && bnk != "Mid")
+    } # end if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban")
     
     # Mostly due to GB, but I want to have the CS and RS for each year of the calculations here...
     survey.obj[[bnk]][[1]]$CS <- CS
