@@ -1,22 +1,34 @@
-## MWSH Sensitivity Analysis Functions: mwsh.sensit and mwsh.survey.extract and mwsh.DDmodel.extract
+## MWSH Sensitivity Analysis Functions: 
+## mwsh.sensit()
+## mwsh.survey.extract()
+## mwsh.DDmodel.extract()
+
+## Use these three functions, along with Survey_Summary_Data and Update_function_JAGS to run sensitivity analyses 
+## on our survey and model outputs related to variations in the MWSH model/sampling protocol. 
 
 ## 1: mwsh.sensit function
 ## Use this function to test the effects of different subsets of MWSH data on the Condition and Biomass Estimates using their variance.
 ## sub.size: lower and upper bounds of size subset for MWSH data. Must enter NA if no number provided. c(89, NA) means keep everything equal to or above 89mm.
 ## sub.year: lower and upper bounds of year subset for MWSH data. Must enter NA if no number provided. c(NA, 2008) means keep everything equal to or below 2008.
-## sub.tows
-## sub.samples
+## sub.tows: proportion of tows to randomly exclude from the MWSH model
+## sub.samples: proportion of samples to randomly exlcude from the MWSH model
 ## bank: matches Survey Summary bank options. Must enter as c(a, b, c, d) (not "all")
 ## mwdat: name of dataframe with meat weight data
 ## shfdat: name of dataframe with all tow data
 ## direct: specify the location of the Assessment_fns folder
+## ** Note if dropping tows via sub.tows or sub.samples, it doesn't seem to matter whether you predict on only the excluded tows, or if you predict on the entire dataset
+## ** The point is that the model itself was built with a reduced sample size, and reduced sample size should mean increased uncertainty. We want to know just how much it increases. 
 
-### drop 20% of tows - done
-### drop 20% of samples from all tows - done
-### need to predict on the dropped data?
-### propagate the error into the Biomass estimate!
+# examples
+# runfull <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, direct="C:/Documents/Offshore scallop/Assessment/")
+# rundropped <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, sub.tows=0.20, direct="C:/Documents/Offshore scallop/Assessment/")
 
-mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, plot = T, seed=1234, direct=direct) {
+# outputs:
+# mwshmod and condmod objects
+# suggestion: compare condmod$CFyrs$CFse.fit between runs (error bars on the CF time series plot. how do they change with diff data subsets?)
+
+mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
+                        plot = T, seed=1234, direct=direct) {
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.lme.r"))
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/condFac.R"))
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.plt1.R"))
@@ -32,6 +44,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   print(dim(mwdat))
   
   mwdat$ID <- as.character(mwdat$ID)
+  shfdat$ID <- paste0(shfdat$cruise, ".", shfdat$tow)
   
   # drop a proportion of the tows. the un-used tows will be used as a prediction dataset later.
   if(!is.null(sub.tows)) {
@@ -84,16 +97,10 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
     print(dim(mwdat))
     }
     
-  # Run condition model first because we're going to convert sh next.
-  # if(pred="all") {
-    if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
-    if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
-  # }
-  # 
-  # if(pred="dropped") {
-  #   if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
-  #   if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
-  # }
+  # Run condition model first because we're going to convert sh next. CFs are predicted for entire tow dataset
+  if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
+  if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+
   
   # fill in any missing years with NAs
   condmod$CFyrs <- join(condmod$CFyrs, data.frame(year=min(condmod$CFyrs$year):max(condmod$CFyrs$year)), type="right")
@@ -105,7 +112,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   mwshmod <- shwt.lme(mwdat, random.effect='ID', b.par=3, verbose = T)
   
   # SE from mwshmod is in mwshmod$summary$tTable
-  
+  # 
   # # predict MWSH relationship for dropped MWSH data
   # if(pred=="dropped") {
   #   run$mwshmod$
@@ -129,13 +136,14 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
 
 
 ## 2: mwsh.survey.extract function
-## Use this after running survey summary data to extract variance information from survey indices
+## Use this after running survey summary data with sensitivity=T to extract variance information from survey indices
 ## borrows from Survey summary figures functions such as survey.ts() to get SE and CI numbers used in plots
 ## nickname: the nickname of the testing_results Rdata file you want to extract values from
 ## direct: the directory in which all files are based (e.g. "Y:/Offshore scallop/Assessment/")
 ## year: the year of the survey data (folder where testing_results found)
 ## bank: the bank of interest
-
+# example: 
+# mwsh.survey.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
 mwsh.survey.extract <- function(nickname, direct, year, bank) {
 
   # read in data
@@ -161,13 +169,15 @@ mwsh.survey.extract <- function(nickname, direct, year, bank) {
 
 
 ## 3: mwsh.DDmodel.extract function
-## Use this after running survey summary data to extract variance information from survey indices
-## borrows from Survey summary figures functions such as survey.ts() to get SE and CI numbers used in plots
-## nickname: the nickname of the testing_results Rdata file you want to extract values from
+## Use this after running Update_function_JAGS to extract variance information from model estimates
+## borrows from Update_function_JAGS functions such as biomass.plt() and fit.plt() to get CI numbers used in plots
+## nickname: the nickname of the Model_testing_results Rdata file you want to extract values from
 ## direct: the directory in which all files are based (e.g. "Y:/Offshore scallop/Assessment/")
-## year: the year of the model run (folder where Model_results found)
+## year: the year of the model run (folder where Model_results found (not survey year))
 ## bank: the bank of interest
-mwsh.DDmodel.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
+# example: 
+# mwsh.DDmodel.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
+
 mwsh.DDmodel.extract <- function(nickname, direct, year, bank) {
   
   # read in data
