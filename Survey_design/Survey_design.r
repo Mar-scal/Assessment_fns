@@ -236,7 +236,7 @@ for(i in 1:num.banks)
   	    }
   	  }
   	  if(cables==T){
-  	    cables <- readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
+  	    cables <- rgdal::readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
   	    lines(cables, col="red", lty="dashed")
   	  }
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
