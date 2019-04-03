@@ -58,7 +58,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
     print(dim(mwdat))
   }
   
-  # drop a proportion of the tows. the un-used tows will be used as a prediction dataset later.
+  # drop a proportion of the samples the un-used samples will be used as a prediction dataset later.
   if(!is.null(sub.samples)) {
     subs <- NULL
     nonsubs <- NULL

@@ -109,7 +109,7 @@ update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.nume
                    # and run.pred.eval.model = T)
                    pred.eval.fig.type = "box",pe.years = NULL, pe.iter = NULL,pe.burn= NULL,pe.thin = NULL,pe.chains = NULL ,
                    un=NULL,pw=NULL,db.con="ptran",
-                   sensitivity=F, nickname=NULL
+                   mwsh.test=F, nickname
                   )
 {
   
@@ -178,7 +178,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       } # if(length(bank) > 1) 
     }  # end if(file.exists(paste(direct,"Data/... == F
     
-    if(sensitivity == T && !is.null(nickname) &&  use.final==F && final.run== F) {
+    if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
       # read in data
       load(paste(direct,"Data/Survey_data/" ,year, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
     }

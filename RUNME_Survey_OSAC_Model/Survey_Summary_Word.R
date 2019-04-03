@@ -436,7 +436,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year]),
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
-                       LTM=NA)
+                       LTM=c(median(surv.Clap.Rand[[banks[i]]]$clap.propPre[!surv.Clap.Rand[[banks[i]]]$year == max(surv.Clap.Rand[[banks[i]]]$year)], na.rm=T)
+                         
+                       ))
     }
     
     if(banks[i] %in% "BBs"){
