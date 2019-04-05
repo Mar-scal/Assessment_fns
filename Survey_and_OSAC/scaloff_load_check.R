@@ -242,10 +242,24 @@ Check the MGT_AREA_CD values for the following tows:")
       print(plot.list)
       dev.off()
     }
-    
-    
   }
 
+  
+  
+####################### Height frequency checks
+  
+  if(hf==TRUE){
+  
+    # plot the raw HF distributions by tow (one tow per pdf page)
+    ggplot() + geom_histogram(data=hfs, aes(BIN_ID, LIVE_QTY_BASKET), stat="identity") + 
+      facet_wrap(~TOW_NUM, scales="free") + theme_bw() + theme(panel.grid=element_blank())
+    # ^^ still to do
+    
+    # plot max tow size per bin, 
+    
+    
+      
+    }
 
   
 }
