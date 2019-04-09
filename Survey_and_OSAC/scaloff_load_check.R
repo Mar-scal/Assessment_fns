@@ -250,15 +250,41 @@ Check the MGT_AREA_CD values for the following tows:")
   
   if(hf==TRUE){
   
+    longhfs <- melt(hfs,
+                    measure.vars = c("LIVE_QTY_BASKET", 
+                                     "LIVE_QTY_BUCKET",
+                                     "DEAD_QTY_BASKET",
+                                     "DEAD_QTY_BUCKET"),
+                    id.vars = c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NUM", 
+                                "SPECIES_ID", "BIN_ID"))
+    longhfs <- longhfs[!is.na(longhfs$CRUISE),]
+    
     # plot the raw HF distributions by tow (one tow per pdf page)
-    ggplot() + geom_histogram(data=hfs, aes(BIN_ID, LIVE_QTY_BASKET), stat="identity") + 
-      facet_wrap(~TOW_NUM, scales="free") + theme_bw() + theme(panel.grid=element_blank())
-    # ^^ still to do
+    ## plot tows to PDF
+    plotnum <- seq(1,length(unique(longhfs$TOW_NUM)), 4)
+    for(i in 1:length(plotnum)){
+      p <- ggplot() + geom_histogram(data=longhfs[longhfs$TOW_NUM %in% c(unique(longhfs$TOW_NUM)[plotnum[i]], 
+                                                                         unique(longhfs$TOW_NUM)[plotnum[i]+1],
+                                                                         unique(longhfs$TOW_NUM)[plotnum[i]+2],
+                                                                         unique(longhfs$TOW_NUM)[plotnum[i]+3]),], aes(BIN_ID, value), stat="identity") + 
+        facet_grid(TOW_NUM~variable, scales="free_y")+
+        theme_bw() + theme(panel.grid=element_blank()) +
+        ggtitle("Number per bin, by tow (4 tows per page)")
+      plot.list[[i]] <- p
+    }
+    if(!is.null(nickname)) {
+      pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks_", nickname, ".pdf"),onefile=T,width=22,height=12)
+      print(plot.list)
+      dev.off()
+    }
+    if(!is.null(nickname)) {
+      pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
+      print(plot.list)
+      dev.off()
+    }
     
-    # plot max tow size per bin, 
     
     
-      
     }
 
   
