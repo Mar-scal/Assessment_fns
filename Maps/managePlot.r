@@ -15,10 +15,11 @@
 ##  6:  add.color:  Add color to the shelf polygons (T/F), defaults to F
 ##  7:  manage.colors:  Choose colors for the polygons, defaults to pastel.colors(n=64, seed=2 from RPMG package
 #   8:  direct:  The working directory.  default = "Y:/Offshore scallop/Assessment/Assessment_fns/"
+#   9:  language: default is "en", for french put "fr"
 # rm(list=ls(all=T))
 managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=F,plot.EEZ=F,plot.color=F,
                      manage.colors = pastel.colors(n=60,seed=2),manage.cex = 0.7, 
-                     direct = "Y:/Offshore scallop/Assessment/")
+                     direct = "Y:/Offshore scallop/Assessment/", language="en")
 {
   # Load the necesasry librarys
   require(PBSmapping)|| stop("Install PBSmapping Package")
@@ -60,9 +61,12 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
     
     # Put the right title on plot
     
-    if(bounds == "offshore") title("Offshore Management Boundaries")
-    if(bounds == "inshore")  title("Inshore Management Boundaries")
-    if(bounds == "all")      title("Regional Management Boundaries")
+    if(bounds == "offshore" & language=="en") title("Offshore Management Boundaries")
+    if(bounds == "offshore" & language=="fr") title("Offshore Management Boundaries")
+    if(bounds == "inshore" & language=="en")  title("Inshore Management Boundaries")
+    if(bounds == "inshore" & language=="fr")  title("Inshore Management Boundaries")
+    if(bounds == "all" & language=="en")      title("Regional Management Boundaries")
+    if(bounds == "all" & language=="fr")      title("Regional Management Boundaries")
   } # end if(plot.add==F)  
 
   
@@ -91,7 +95,12 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
         # Find the centre of each SFA
         centres <- calcCentroid(offshore,rollup=1)
         # Grab the corresponding label ID's
-        labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+        if(language =="en") labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+        if(language =="fr") {
+          labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+         ## need some kind of join here with new french names? 
+        }
+        
         # Put them together
         offshore.labels <- merge(centres,labs)
         attr(offshore.labels,"projection") <- "LL"
@@ -111,6 +120,11 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
           names(common.names)
           # change names and attributes so 
           colnames(common.names) <- c("PID","X","Y","label")
+          
+          if(language == 'fr'){
+            # use a join to add french names?
+          }
+          
           attr(common.names,"projection") <- "LL"
           # Define and create PBS objects to draw arrows to for Georges A and B banks
           g.arrows <- rbind(c(2,1,-65,41.2),c(2,2,-65.9,41.4),c(1,1,-65,41.7),c(1,2,-65.9,41.9))

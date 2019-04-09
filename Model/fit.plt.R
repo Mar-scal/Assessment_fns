@@ -37,11 +37,12 @@
 #12:  path:         Path to save if producing a pdf, default = ""
 #13:  wd:           The width of the figure, default = 8.5 
 #14:  ht:           The height of the figure, default = 11
+#15:  language:     default is english ("en"), for french put "fr"
 
 #
 ###############################################################################################################
 
-fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='screen',ymaxB,ymaxR,alpha=0.05,path='',wd=8.5,ht=11)
+fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='screen',ymaxB,ymaxR,alpha=0.05,path='',wd=8.5,ht=11, language="en")
 {
 
   # Fit plots
@@ -74,8 +75,10 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # Add tick marks to the yaxis on right side
   axis(4, lab = F, tcl = -0.3)
   # Add the appropriate y axis label
-  if(Iadj!=1)mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1)mtext("Survey Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="en")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="en")mtext("Survey Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="fr")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Survey Biomass", 2, 3.5, cex = 1.25)
   # If plotting credible intervals these are them.  Note they are 1-alpha/2 CI's, defaults to 95%.
   if(CI==T)
   {
@@ -107,8 +110,10 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
        ylab = "", las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   axis(4, lab = F, tcl = -0.3)
   # Add the appropriate y axis label
-  if(Iadj!=1)mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1)mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="en")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="en")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="fr")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
   # If we asked for credbile limits plot them.
   if(CI==T)
   {
@@ -138,7 +143,8 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   	plot(years, (as.numeric(data.out$median$B[1:length(years)])*data.out$median$qU)/Uadj, type = 'l', lwd=2, ylim = c(0, ymax), ylab = "", 
   	     las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   	axis(4, lab = F, tcl = -0.3)
-  	mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
+  	if(language=="en") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
+  	if(language=="fr") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
   	#DK Note: I have removed the confidence intervals around the CPUE data as they are not correct.  It's something we need to
   	# revisit going forward.
   	#if(CI==T)
