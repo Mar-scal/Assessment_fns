@@ -113,7 +113,7 @@ update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.nume
                    # and run.pred.eval.model = T)
                    pred.eval.fig.type = "box",pe.years = NULL, pe.iter = NULL,pe.burn= NULL,pe.thin = NULL,pe.chains = NULL ,
                    un=NULL,pw=NULL,db.con="ptran",
-                   mwsh.test=F, nickname, language="en"
+                   mwsh.test=F, nickname=NULL, language="en"
                   )
 {
   
@@ -719,9 +719,9 @@ for(j in 1:num.banks)
       ##exploitaiton time series
       exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
       #dev.off()
+      
       # model biomass fit to survey
-      if(language=="en") fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T)
-      if(language=="fr") fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language="fr")
+      fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
       # diagnostic plot
       diag.plt(DD.out[[bnk]], years = yrs[[bnk]],graphic=fig,path=plotsGo)
       
@@ -841,43 +841,36 @@ for(j in 1:num.banks)
       if(bnk != "GBa")
       {
         # If it's BBn, we have a y-axis maximum that we want to use (bm.max)
-        if(bnk=="BBn" & language=="en") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
-                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
-        if(bnk=="BBn" & language=="fr") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
-                                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language="fr")
+        if(bnk=="BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
+                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
         # If it's a GBa subarea (i.e. not BBn and not GBa), we rely on biomass.plt to assign the y-axis maximum based on the upper credible limit,
         # we also don't have a TAC for the subareas
-        if(bnk!= "BBn" & language=="en") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
-                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL)
-        if(bnk!= "BBn" & langauge=="fr") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
-                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL, language="fr")
+        if(bnk!= "BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
+                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL, language=language)
       } # end if(bnk == "BBn")
-      
+
       if(bnk == "GBa")
       {
-        if(language=="en") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
-                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max)
-        if(language=="fr") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
-                                       URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max,language="fr")
-        
+        biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
+                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
       } # end if(bnk == "GBa")
-    
+
       # Only make these figures for GBa or BBn
       if(bnk %in% c("GBa","BBn"))
       {
         #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
-        # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data 
+        # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data
         # anywhere at this point so we grab that
         logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pw,db.con=db.con,direct=direct)
-        # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
+        # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.
         # This should combine without any warnings so don't ignore warnings here.
         fish.dat<-merge(new.log.dat,old.log.dat,all=T)
         fish.dat$ID<-1:nrow(fish.dat)
         # Being lazy we get the data for each bank We are just looking for the annual values here so nothing fancy needed...
 
-        dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
-        if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr") 	
-        
+        dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr")
+        if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,period = "calyr")
+
         if(fig== "screen") windows(8.5,8.5)
         if(fig == "pdf") pdf(paste(plotsGo,"TAC_landings.pdf",sep=""),width=8.5,height=8.5)
         if(fig == "png") png(paste(plotsGo,"TAC_landings.png",sep=""),width=8.5,height=8.5,res=920,units="in")
@@ -890,7 +883,7 @@ for(j in 1:num.banks)
         points(dat$catch~dat$year,  type='h',pch=15,lwd=16,lend=3,col="grey50")
         lines(subset(manage.dat,year %in% dat$year & bank ==bnk)$TAC~dat$year,lwd=2,col="blue")
         if(bnk == "GBa" & language=="en") legend("topright","TAC",title="Georges Bank A",bty="n",col="blue",lwd=2)
-        if(bnk == "GBa" & language=="fr") legend("topright","TAC",title="Georges Bank A",bty="n",col="blue",lwd=2)
+        if(bnk == "GBa" & language=="fr") legend("topright","TAC",title="Georges \u00ABA\u00BB",bty="n",col="blue",lwd=2)
         if(bnk == "BBn" & language=="en")
         {
           legend("topright","TAC",title="Browns Bank North",bty="n",col="blue",lwd=2)
@@ -898,11 +891,11 @@ for(j in 1:num.banks)
         }
         if(bnk == "BBn" & language=="fr")
         {
-          legend("topright","TAC",title="Browns Bank North",bty="n",col="blue",lwd=2)
-          mtext(side=2,"Landings (meat, t)",line=3.3,cex=1.5)
+          legend("topright","TAC",title="Nord du banc de Brown",bty="n",col="blue",lwd=2)
+          mtext(side=2,"D\u{E9}barquements (tonnes de chair)",line=3.3,cex=1.5)
         }
-        
-        
+
+
         # Now GBb
         if(bnk=="GBa" & language=="en")
         {
@@ -922,11 +915,11 @@ for(j in 1:num.banks)
           abline(h=0)
           points(dat1$catch~dat1$year,  type='h',pch=15,lwd=16,lend=3,col="grey50")
           lines(subset(manage.dat,year %in% dat1$year & bank =="GBb")$TAC~dat1$year,lwd=2,col="blue")
-          legend("topright","TAC",title="Georges Bank B",bty="n",col="blue",lwd=2)
-          mtext(side=2,"Landings (meat, t)",line=3.3,adj=2,cex=1.5)
-        } # end if(bnk=")
-        # Turn off the plot device if making a pdf.
-        if(fig!="screen") dev.off()
+          legend("topright","TAC",title="Georges \u00ABB\u00BB",bty="n",col="blue",lwd=2)
+          mtext(side=2, "D\u{E9}barquements (tonnes de chair)",line=3.3,adj=-9,cex=1.5)
+        }
+      # Turn off the plot device if making a pdf.
+      if(fig!="screen") dev.off()
 
   
       #############  FINALLY I WANT TO MAKE AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
@@ -934,10 +927,8 @@ for(j in 1:num.banks)
       if(fig== "screen") windows(11,8.5)
       if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=11,height=8.5)
       if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=11,height=8.5,res=920,units="in")
-      if(language=="en") ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
-                                      direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR")
-      if(language=="fr") ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
-                                      direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language="fr")
+      ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
+                                      direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
       # Turn off the plot device if making a pdf.
       if(fig != "screen") dev.off()
       } # end if(bnk %in% c("GBa","BBn"))

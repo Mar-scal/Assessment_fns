@@ -74,11 +74,12 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
        mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   # Add tick marks to the yaxis on right side
   axis(4, lab = F, tcl = -0.3)
+  
   # Add the appropriate y axis label
   if(Iadj!=1 & language=="en")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
   if(Iadj==1 & language=="en")mtext("Survey Biomass", 2, 3.5, cex = 1.25)
   if(Iadj!=1 & language=="fr")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="fr")mtext("Survey Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Biomasse (relev\u00E9)", 2, 3.5, cex = 1.25)
   # If plotting credible intervals these are them.  Note they are 1-alpha/2 CI's, defaults to 95%.
   if(CI==T)
   {
@@ -113,7 +114,7 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   if(Iadj!=1 & language=="en")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
   if(Iadj==1 & language=="en")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
   if(Iadj!=1 & language=="fr")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="fr")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Biomasse des recrues (relev\u00E9)", 2, 3.5, cex = 1.25)
   # If we asked for credbile limits plot them.
   if(CI==T)
   {
@@ -144,7 +145,7 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   	     las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   	axis(4, lab = F, tcl = -0.3)
   	if(language=="en") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
-  	if(language=="fr") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
+  	if(language=="fr") mtext("Prises commerciales par\nunité d’effort (kg/km)", 2, 2.5, cex = 1.25)
   	#DK Note: I have removed the confidence intervals around the CPUE data as they are not correct.  It's something we need to
   	# revisit going forward.
   	#if(CI==T)
