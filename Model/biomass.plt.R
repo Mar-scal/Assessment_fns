@@ -86,7 +86,7 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   if(missing(out.data2)==T)
   {
     # Either tonnes or kilo-tonnes
-  	if(kt==T & language=="en")mtext("Fully-Recruited Biomass (kt)", 2, 3, cex=1.2)
+  	if(kt==T & language=="en") mtext("Fully-Recruited Biomass (kt)", 2, 3, cex=1.2)
     if(kt==F & language=="en") mtext("Fully-Recruited Biomass (t)", 2, 3, cex=1.2)
     if(kt==T & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (kt)", 2, 3, cex=1.2)
     if(kt==F & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (t)", 2, 3, cex=1.2)

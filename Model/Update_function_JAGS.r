@@ -714,11 +714,11 @@ for(j in 1:num.banks)
     if(make.diag.figs == T)
     {
       # posterior densities for model parameters
-      post.plt(DD.out[[bnk]],DDpriors[[bnk]],years=yrs[[bnk]], graphic=fig,multi=T,path=plotsGo)
-      #dev.off()
-      ##exploitaiton time series
-      exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
-      #dev.off()
+      # post.plt(DD.out[[bnk]],DDpriors[[bnk]],years=yrs[[bnk]], graphic=fig,multi=T,path=plotsGo)
+      # dev.off()
+      # #exploitaiton time series
+      # exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
+      # dev.off()
       
       # model biomass fit to survey
       fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
