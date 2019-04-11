@@ -143,7 +143,7 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   	plot(years, (as.numeric(data.out$median$B[1:length(years)])*data.out$median$qU)/Uadj, type = 'l', lwd=2, ylim = c(0, ymax), ylab = "", 
   	     las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   	axis(4, lab = F, tcl = -0.3)
-  	browser()
+  	
   	if(language=="en") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
   	if(language=="fr") mtext("Prises commerciales par\n unit\u00E9 d’effort (kg/hm) ", 2, 2.5, cex = 1.25)
   	#DK Note: I have removed the confidence intervals around the CPUE data as they are not correct.  It's something we need to
