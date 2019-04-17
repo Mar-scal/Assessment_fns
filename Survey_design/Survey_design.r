@@ -194,8 +194,7 @@ for(i in 1:num.banks)
   	# Now if you want to make the plots do all of this.
   	if(plot == T)
   	{
-  	 browser()
-  	   # Where do yo want the plot to go?
+  	  # Where do yo want the plot to go?
   	  if(fig=="screen") windows(11,8.5)
   	  if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
   	                        height = 8.5,bg = "transparent")
@@ -211,6 +210,10 @@ for(i in 1:num.banks)
   	  if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  # This just plots the points
   	  if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	  # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
+  	  # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
+  	  # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
+  	  
   	  # This does both, if it doesn't look pretty change the x.adj and y.adj options
   	  if(point.style == "both" ) 
   	  {
