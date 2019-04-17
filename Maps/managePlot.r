@@ -25,7 +25,6 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
   require(PBSmapping)|| stop("Install PBSmapping Package")
   require(RPMG)|| stop("Install RPMG Package")
   
-  
 ######################## Section 1 - Stand alone plot settings, only used if plot.add=F  ########################
   
   # If we want a standalone plot for the bathymetry start with this

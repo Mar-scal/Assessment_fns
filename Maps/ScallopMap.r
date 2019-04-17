@@ -383,9 +383,9 @@ ScallopMap<-function(area='custom',
    # end should not overwrite previous layers.
    if(plot.boundries ==T) 
      {
-      #Source2 source(paste(direct,"Maps/managePlot.r",sep=""))
+      #Source2 source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep=""))
        managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-                plot.color = bound.color,direct=direct,manage.colors = manage.colors, language=language)
+                plot.color = bound.color,direct=direct,manage.colors = manage.colors)
       } # end if(plot.strata==T)
 
   if(plot.bathy==T)
@@ -402,7 +402,7 @@ ScallopMap<-function(area='custom',
   {
     #Source2 source(paste(direct,"Maps/managePlot.r",sep=""))
     managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-               plot.color = F,direct=direct,manage.colors=manage.colors, language=language)
+               plot.color = F,direct=direct,manage.colors=manage.colors)
   } # end if(plot.strata==T)
   
   if(plot.strata==T && plot.boundries==T)

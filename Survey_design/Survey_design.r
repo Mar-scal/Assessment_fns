@@ -60,11 +60,12 @@
 # ger.rep:       Number of German repeat stations to assign. Default is 20 stations, but you can add more to be used as backup repeats
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
 #                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
+# language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -193,7 +194,8 @@ for(i in 1:num.banks)
   	# Now if you want to make the plots do all of this.
   	if(plot == T)
   	{
-  	  # Where do yo want the plot to go?
+  	 browser()
+  	   # Where do yo want the plot to go?
   	  if(fig=="screen") windows(11,8.5)
   	  if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
   	                        height = 8.5,bg = "transparent")
@@ -254,9 +256,9 @@ for(i in 1:num.banks)
   	  {
   	    # This looks closely at GBa south.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
   	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2)
@@ -296,9 +298,9 @@ for(i in 1:num.banks)
   	    
   	    # This looks closely at GBa Northwest
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2)
@@ -340,9 +342,9 @@ for(i in 1:num.banks)
   	    
   	    # And this looks closely at GBa in the Northeast.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2)
