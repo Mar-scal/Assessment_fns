@@ -1,7 +1,9 @@
-### scaloff_check
-### Script to run pre-loading checks on xlsx templates prior to loading to scaloff database
+### scaloff_bank_check
 
-scaloff_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
+### Script to run pre-loading checks on xlsx templates prior to loading to scaloff database
+### This is run to check data WITHIN a single bank.
+
+scaloff_bank_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
               type="xlsx", 
               cruise, bank, survey_name, nickname=NULL) {
   
@@ -9,6 +11,9 @@ scaloff_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/As
   require(readxl) || stop("Make sure you have readxl package installed to run this")
   require(plyr) || stop("Make sure you have plyr package installed to run this")
   require(geosphere) || stop("Make sure you have geosphere package installed to run this")
+  require(rgeos) || stop("Make sure you have rgeos package installed to run this")
+  require(ggplot2) || stop("Make sure you have rgeos package installed to run this")
+  require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   
   ### other functions
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
@@ -100,6 +105,14 @@ Check the MGT_AREA_CD values for the following tows:")
     if(any(is.na(dmy(tows$TOW_DATE, quiet=T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
       message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
       print(data.frame(tows[which(is.na(dmy(tows$TOW_DATE, quiet = T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+    }
+    
+    # The subsampling amount is less than or equal to total amount:
+    if(any((tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)`) |
+           (tows$`No. Buckets Sampled` > tows$`Total Buckets`))) {
+      message("\nThe following tows have more basket KG or buckets sampled than the totals")
+      print(data.frame(tows[(tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)`) |
+                            (tows$`No. Buckets Sampled` > tows$`Total Buckets`),]))
     }
     
     # check format of coordinates
@@ -272,19 +285,18 @@ Check the MGT_AREA_CD values for the following tows:")
         ggtitle("Number per bin, by tow (4 tows per page)")
       plot.list[[i]] <- p
     }
+    
     if(!is.null(nickname)) {
       pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks_", nickname, ".pdf"),onefile=T,width=22,height=12)
       print(plot.list)
       dev.off()
     }
-    if(!is.null(nickname)) {
+    if(is.null(nickname)) {
       pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
       print(plot.list)
       dev.off()
     }
-    
-    
-    
+
     }
 
   
