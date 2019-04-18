@@ -485,10 +485,11 @@ if(bnk == "Ger")
   
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
-    
+
     # Rename and tidy up the data
     Ger.tow.lst$Tows$new.tows$STRATA="new"
     Ger.tow.lst$Tows$repeated.tows$STRATA="repeated"
+    Ger.tow.lst$Tows$repeated.tows$EIDlastyear <- Ger.tow.lst$Tows$repeated.tows$EID - 1000
     # any repeated tows above 20 get flagged as repeated-backup
     # pull all OTHER repeats as backups and plot/list separately
     names(lastyearstows) <- c("tow", "X", "Y", "stratum")
@@ -502,8 +503,13 @@ if(bnk == "Ger")
     names(Ger.repeat.backups)[which(names(Ger.repeat.backups)=="tow")] <- "EID"
     Ger.repeat.backups$EID <- Ger.repeat.backups$EID + 2000
     Ger.tow.lst$Tows$backup.repeats <- Ger.repeat.backups
+    Ger.tow.lst$Tows$backup.repeats$EIDlastyear <- Ger.tow.lst$Tows$backup.repeats$EID - 2000
     #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
-    Ger.tow.dat<-do.call("rbind",Ger.tow.lst$Tows)
+    Ger.tow.dat<- rbind(Ger.tow.lst$Tows$new.tows, 
+                        Ger.tow.lst$Tows$repeated.tows[,c("EID", "X", "Y", "Poly.ID", "STRATA")],
+                        Ger.tow.lst$Tows$backup.repeats[,c("EID", "X", "Y", "Poly.ID", "STRATA")])
+    Ger.tow.dat.rep<- rbind(Ger.tow.lst$Tows$repeated.tows,
+                        Ger.tow.lst$Tows$backup.repeats)
     
     # Get degree decimal minutes
     Ger.tow.dat$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$X, format = "deg.min"), 4)
@@ -513,7 +519,7 @@ if(bnk == "Ger")
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {
       write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
-      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
     }
     # Plot this bad boy up if you want to do such things
     if(plot==T)
