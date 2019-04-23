@@ -3,7 +3,7 @@
 ### Script to run pre-loading checks on xlsx templates prior to loading to scaloff database
 ### This is run to check data WITHIN a single bank.
 
-scaloff_bank_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
+scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
               type="xlsx", 
               cruise, bank, survey_name, nickname=NULL) {
   
@@ -58,6 +58,7 @@ scaloff_bank_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scall
       message("\nThere are non-numeric values in TOW_NO column. Check the following:")
       print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[grep(x=tows$TOW_NO, pattern = "([[:digit:]])")],]))
       tows$TOW_NO <- as.numeric(as.character(tows$TOW_NO))
+      
     }
     
     # tow_no must be unique within the survey
@@ -72,6 +73,7 @@ scaloff_bank_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scall
     if(tow_no_unique$numberoftows>tow_no_unique$numberofuniquetows) {
       message("\nThere are more tows than there are unique tow_no's. One or more of the following tows may be mislabelled:")
       print(data.frame(tows[tows$TOW_NO == names(which(table(tows$TOW_NO)>1)),]))
+      
     }
     
     # Are there gaps in tow numbers? If so, print the tows before and after the gap. 
@@ -80,31 +82,73 @@ scaloff_bank_check(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scall
       missing <- seq(tow_no_unique$mintownum, tow_no_unique$maxtownum, 1)[which(!seq(tow_no_unique$mintownum, tow_no_unique$maxtownum, 1) %in% tows$TOW_NO)]
       show <- sort(c(missing-1, missing+1))
       print(data.frame(tows[tows$TOW_NO %in% show,]))
+      
     }
     
     # Check mgt_area_cd. Must correspond to area_cd of the associated Survey. AREA_CD isn't in tow template, so let's just make sure MGT_AREA_CD is one of the following:
-    if(any(!tows$MGT_AREA_CD %in% c("GBa", "GBb", "Ger", "BBn", "BBs", "Mid", "Sab", "SPB", "Ban"))){
+    if(any(!unique(tows$MGT_AREA_CD) %in% c("GBa", "GBb", "Ger", "BBn", "BBs", "Mid", "Sab", "SPB", "Ban"))){
       message("\nThere are values in MGT_AREA_CD that are not contained in the validation table. The data cannot be loaded to the DB like this.
 Check the MGT_AREA_CD values for the following tows:")
       print(data.frame(tows[!tows$MGT_AREA_CD %in% c("GBa", "GBb", "Ger", "BBn", "BBs", "Mid", "Sab", "SPB", "Ban"),]))
+      
+    }
+    
+    # Make sure that MGT_AREA_CD matches survey name
+    if(unique(tows$MGT_AREA_CD) %in% c("Sab", "Mid", "Ger", "Ban")) {
+      mgt_matches_survey <- grep(x=tolower(tows$SURVEY_NAME), pattern=unique(tolower(tows$MGT_AREA_CD)))
+      if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
+        message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
+        print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[mgt_matches_survey],]))
+        
+      }
+    }
+    
+    if(unique(tows$MGT_AREA_CD) %in% c("BBn", "BBs")) {
+      mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern="BB")
+      if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
+        message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
+        print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[mgt_matches_survey],]))
+        
+      }
+    }
+    
+    if(unique(tows$MGT_AREA_CD) %in% c("GBa", "GBb")) {
+      mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern=paste0("GB", year, ".2"))
+      if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
+        message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
+        print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[mgt_matches_survey],]))
+        
+      }
+    }
+    
+    if(unique(tows$MGT_AREA_CD) %in% c("GB")) {
+      mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern=paste0("GB", year, ".1"))
+      if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
+        message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
+        print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[mgt_matches_survey],]))
+        
+      }
     }
     
     # check depth. Must be between 20 and 200.
     if(any(tows$DEPTH_F < 20 | tows$DEPTH_F > 200)){
       message("\nThere are values in DEPTH_F that are less than 20 or greater than 200. Check DEPTH_F for the following tows:")
       print(data.frame(tows[tows$DEPTH_F < 20 | tows$DEPTH_F > 200,]))
+      
     }
     
     # check tow date. It can be NULL, but the DB will produce a warning. Let's flag any nulls or iffy values here first. 
     if(any(is.null(tows$TOW_DATE) | is.na(tows$TOW_DATE))) {
       message("\nThe following tows are missing a TOW_DATE. The DB will accept this, so make sure it's what you want!")
       print(data.frame(tows[is.null(tows$TOW_DATE) | is.na(tows$TOW_DATE),]))
+      
     }
     
     # these tow dates might not be formatted correctly:
     if(any(is.na(dmy(tows$TOW_DATE, quiet=T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
       message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
       print(data.frame(tows[which(is.na(dmy(tows$TOW_DATE, quiet = T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+      
     }
     
     # The subsampling amount is less than or equal to total amount:
@@ -113,6 +157,7 @@ Check the MGT_AREA_CD values for the following tows:")
       message("\nThe following tows have more basket KG or buckets sampled than the totals")
       print(data.frame(tows[(tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)`) |
                             (tows$`No. Buckets Sampled` > tows$`Total Buckets`),]))
+      
     }
     
     # check format of coordinates
@@ -125,6 +170,7 @@ Check the MGT_AREA_CD values for the following tows:")
         tows[!tows$END_LAT %in% tows$END_LAT[grep(x=tows$END_LAT, pattern = "([[:digit:]])")],]
       )))
       tows[,c("START_LAT","START_LON", "END_LAT", "END_LON")] <- apply(tows[,c("START_LAT","START_LON", "END_LAT", "END_LON")], 2, function(x) as.numeric(as.character(x)))
+      
     }
     
     # check values in coordinates
@@ -132,11 +178,13 @@ Check the MGT_AREA_CD values for the following tows:")
       any(tows[,c("START_LAT","END_LAT")] > 4730 | tows[,c("START_LAT", "END_LAT")] < 4100, na.rm=T)){
       message("\nThere are values in the latitude columns that are outside the bounds. Check the following:")
       print(data.frame(tows[tows$START_LAT > 4730 | tows$END_LAT > 4730 | tows$START_LAT < 4100 | tows$END_LAT < 4100,]))
+      
     }
     if(is.numeric(tows$START_LAT) & is.numeric(tows$START_LON) & is.numeric(tows$END_LAT) & is.numeric(tows$END_LON) &
       any(tows[,c("START_LON","END_LON")] > -5500 | tows[,c("START_LON", "END_LON")] < -6700, na.rm=T)){
       message("\nThere are values in the longitude columns that are outside the bounds. Check the following:")
       print(data.frame(tows[tows$START_LON > -5500 | tows$END_LON > -5500 | tows$START_LON < -6700 | tows$END_LON < -6700,]))
+      
     }
     
     # spatial check coordinates relative to mgt_area_cd shapefile. Make plots. This is adapted from check.tows.spatial.R which is used for Inshore Survey. 
@@ -152,6 +200,7 @@ Check the MGT_AREA_CD values for the following tows:")
     if(any(tows_con$dist.calc > 2000 | tows_con$dist.calc < 500)) {
       message("\nThere are some tows longer than 2km or shorter than 500m. Check their coordinates:")
       print(data.frame(tows_con[!is.na(tows_con$dist.calc) & (tows_con$dist.calc > 2000 | tows_con$dist.calc < 500),]))
+      
     }
     
     # grab the authoritative management area polygons file. 
@@ -187,8 +236,8 @@ Check the MGT_AREA_CD values for the following tows:")
       area.true <- subset(test, X1=="TRUE", select=c("TOW_NO", "AREA_ID"))
       area.test <- rbind(area.test, area.true)
     }
-    area.test <- join(tows_con, area.test, type="full")
-    area.test <- join(area.test, unique(area[,c("label", "AREA_ID")]), type="left")
+    area.test <- join(tows_con, area.test, type="full", by="TOW_NO")
+    area.test <- join(area.test, unique(area[,c("label", "AREA_ID")]), type="left", by="AREA_ID")
     
     # by end location
     area.test.end <- NULL
@@ -211,13 +260,14 @@ Check the MGT_AREA_CD values for the following tows:")
       area.true <- subset(test, X1=="TRUE", select=c("TOW_NO", "AREA_ID"))
       area.test.end <- rbind(area.test.end, area.true)
     }
-    area.test.end <- join(tows_con, area.test.end, type="full")
-    area.test.end <- join(area.test.end, unique(area[,c("label", "AREA_ID")]), type="left")
+    area.test.end <- join(tows_con, area.test.end, type="full", by="TOW_NO")
+    area.test.end <- join(area.test.end, unique(area[,c("label", "AREA_ID")]), type="left", by="AREA_ID")
   
     colnames(area.test)[which(names(area.test) == "label")] <- "bank.start"
     colnames(area.test.end)[which(names(area.test.end) == "label")] <- "bank.end"
     
-    area.test.both <- join(area.test[,-which(names(area.test) == "AREA_ID")], area.test.end[,-which(names(area.test.end) == "AREA_ID")], type="left")
+    area.test.both <- join(area.test[,-which(names(area.test) == "AREA_ID")], area.test.end[,-which(names(area.test.end) == "AREA_ID")], type="left", 
+                           by=c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "START_LAT", "START_LON", "END_LAT", "END_LON", "dist.calc"))
     area.test.both$bank.start[is.na(area.test.both$bank.start)] <- "FALSE"
     area.test.both$bank.end[is.na(area.test.both$bank.end)] <- "FALSE"
     
@@ -225,6 +275,7 @@ Check the MGT_AREA_CD values for the following tows:")
     if(any(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE)) {
       message("\nThe following tows are outside the management area boundary (or cross the line):")
       print(area.test.both[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE,])
+      
     }
     
     area.test.both$flag[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE] <- "flag"

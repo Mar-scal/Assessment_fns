@@ -4,7 +4,7 @@
 ### This is run to check data across surveys/banks within a single CRUISE.
 
 scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
-              type="xlsx", 
+              type="csv", 
               cruise, season, nickname=NULL) {
   
   ### packages
@@ -67,20 +67,61 @@ scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
       bank <- banks[i]
       
       if(tow==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile))){
-        tows[[bank]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile))
+        tows[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile))
+        tows[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile)
       }
       if(hf==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile))) {
-        hfs[[bank]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile))
+        hfs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile))
+        hfs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile)
         }
       if(mwsh==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile))) {
-        mwshs[[bank]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile))
+        mwshs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile))
+        mwshs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile)
       }
     }
   }
   
+  message("Check to make sure the right files were read into R.")
+  
+  message("Loaded the following tow files:")
+  print(sapply(tows, "[[", 2))
+  
+  message("Loaded the following HF files:")
+  print(sapply(hfs, "[[", 2))
+  
+  message("Loaded the following MWSH files:")
+  print(sapply(mwshs, "[[", 2))
 
-  ### keep at this. it's reading in files from the different banks nicely now! maybe get it to print which banks it found, and which files it's reading for each bank?
+  # check for number of tows by survey name, and area by survey name
+  for(i in 1:length(banks)){
+    message("Survey names by area (number of tows):")
+    print(table(tows[[i]][[1]]$SURVEY_NAME, tows[[i]][[1]]$MGT_AREA_CD))
+    
+    message("Survey names by tow type ID (number of tows):")
+    print(table(tows[[i]][[1]]$SURVEY_NAME, tows[[i]][[1]]$TOW_TYPE_ID))
+  }
   
   # then make it check tow numbers between banks
+  # are there any duplicate tow numbers within the same survey name (on different banks)
+  tow_survey <- NULL
+  for(i in 1:length(names(tows))){
+    tow_surveys <- data.frame(CRUISE=tows[[i]][[1]]$CRUISE,
+               SURVEY_NAME=tows[[i]][[1]]$SURVEY_NAME, 
+               MGT_AREA_CD=tows[[i]][[1]]$MGT_AREA_CD,
+               TOW_NO=tows[[i]][[1]]$TOW_NO,
+               TOW_DATE=tows[[i]][[1]]$TOW_DATE,
+               TOW_TYPE_ID=tows[[i]][[1]]$TOW_TYPE_ID)
+    tow_survey <- rbind(tow_survey, tow_surveys)
+  }
   
+  if(any(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME) > 1)) {
+    message("Tow numbers duplicated within survey!!! Very Important Error!! Review and edit the following tow numbers:")
+    tow_survey_check <- data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))
+    names(tow_survey_check) <- c("TOW_NO", "SURVEY_NAME", "Freq")
+    tow_survey_check$conflicting_banks <- paste(unique(tow_survey$MGT_AREA_CD[tow_survey$SURVEY_NAME %in% 
+                                                                                      tow_survey_check$SURVEY_NAME && 
+                                                                                      tow_survey$TOW_NO %in% 
+                                                                                      tow_survey_check$TOW_NO]), collapse="/")
+    print(tow_survey_check[tow_survey_check$Freq > 1,])
+  }
 }
