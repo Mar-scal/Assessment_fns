@@ -14,6 +14,8 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   require(rgeos) || stop("Make sure you have rgeos package installed to run this")
   require(ggplot2) || stop("Make sure you have rgeos package installed to run this")
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
+  require(lubridate) || stop("Make sure you have lubridate package installed to run this")
+  require(sp) || stop("Make sure you have sp package installed to run this")
   
   ### other functions
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
@@ -268,29 +270,31 @@ Check the MGT_AREA_CD values for the following tows:")
     
     area.test.both <- join(area.test[,-which(names(area.test) == "AREA_ID")], area.test.end[,-which(names(area.test.end) == "AREA_ID")], type="left", 
                            by=c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "START_LAT", "START_LON", "END_LAT", "END_LON", "dist.calc"))
+    area.test.both$bank.start <- as.character(area.test.both$bank.start)
+    area.test.both$bank.end <- as.character(area.test.both$bank.end)
     area.test.both$bank.start[is.na(area.test.both$bank.start)] <- "FALSE"
     area.test.both$bank.end[is.na(area.test.both$bank.end)] <- "FALSE"
     
     ## these ones cross a management area line or are outside the management area boundary
-    if(any(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE)) {
+    if(any(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE")) {
       message("\nThe following tows are outside the management area boundary (or cross the line):")
-      print(area.test.both[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE,])
+      print(area.test.both[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE",])
       
     }
     
-    area.test.both$flag[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE] <- "flag"
-    area.test.both$flag[!(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == FALSE | area.test.both$bank.start == FALSE)] <- "ok"
+    area.test.both$flag[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE"] <- "flag"
+    area.test.both$flag[!(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE")] <- "ok"
     
     plot.list <- NULL
     ## plot tows to PDF
     for(i in unique(area$AREA_ID)){
-      p <- ggplot() + geom_polygon(data=area[area$AREA_ID==i,], aes(X, Y, group=SID), fill=NA, colour="black") +
-        geom_text(data=area_lab[area_lab$AREA_ID==i,], aes(LONGITUDE, LATITUDE, label=label), size=4, colour="blue") +
+      p <- ggplot() + geom_polygon(data=area[area$AREA_ID==i,], aes(X, Y, group=SID), fill=NA, colour="black", na.rm = T) +
+        geom_text(data=area_lab[area_lab$AREA_ID==i,], aes(LONGITUDE, LATITUDE, label=label), size=4, colour="blue", na.rm = T) +
         coord_map() + 
         theme_bw() + theme(panel.grid=element_blank()) +
-        geom_segment(data=area.test.both, aes(x=START_LON, xend=END_LON, y=START_LAT, yend=END_LAT, colour=flag), lwd=1) +
+        geom_segment(data=area.test.both, aes(x=START_LON, xend=END_LON, y=START_LAT, yend=END_LAT, colour=flag), lwd=1, na.rm = T) +
         #scale_colour_manual(values=c("black", "white")) +
-        geom_text(data=tows_con, aes(START_LON, START_LAT, label=TOW_NO), size=3) +
+        geom_text(data=tows_con, aes(START_LON, START_LAT, label=TOW_NO), size=3, na.rm = T) +
         xlim(min(area[area$AREA_ID %in% i,]$X), max(area[area$AREA_ID %in% i,]$X)) +
         ylim(min(area[area$AREA_ID %in% i,]$Y)-0.05, max(area[area$AREA_ID %in% i,]$Y)+0.05)
       plot.list[[i]] <- p
@@ -327,10 +331,11 @@ Check the MGT_AREA_CD values for the following tows:")
     ## plot tows to PDF
     plotnum <- seq(1,length(unique(longhfs$TOW_NUM)), 4)
     for(i in 1:length(plotnum)){
-      p <- ggplot() + geom_histogram(data=longhfs[longhfs$TOW_NUM %in% c(unique(longhfs$TOW_NUM)[plotnum[i]], 
+      p <- ggplot() + geom_col(data=longhfs[longhfs$TOW_NUM %in% c(unique(longhfs$TOW_NUM)[plotnum[i]], 
                                                                          unique(longhfs$TOW_NUM)[plotnum[i]+1],
                                                                          unique(longhfs$TOW_NUM)[plotnum[i]+2],
-                                                                         unique(longhfs$TOW_NUM)[plotnum[i]+3]),], aes(BIN_ID, value), stat="identity") + 
+                                                                         unique(longhfs$TOW_NUM)[plotnum[i]+3]),], 
+                                     aes(BIN_ID, value), na.rm = T) + 
         facet_grid(TOW_NUM~variable, scales="free_y")+
         theme_bw() + theme(panel.grid=element_blank()) +
         ggtitle("Number per bin, by tow (4 tows per page)")
@@ -350,5 +355,31 @@ Check the MGT_AREA_CD values for the following tows:")
 
     }
 
+####################### Detailed sampling checks
+  if(mwsh==TRUE){
   
+    plot.list <- NULL
+    for(i in 1:length(unique(mwshs$TOW_NUM))){
+      p <- ggplot() + 
+        geom_smooth(data=mwshs[mwshs$TOW_NUM %in% unique(mwshs$TOW_NUM)[i],],
+                    aes(SHELL_HEIGHT, WET_MEAT_WGT), na.rm = T, method="glm", method.args = list(family=gaussian(link="log")))+
+        geom_text(data=mwshs[mwshs$TOW_NUM %in% unique(mwshs$TOW_NUM)[i],],
+                               aes(SHELL_HEIGHT, WET_MEAT_WGT, label=SCALLOP_NUM), na.rm = T) +
+        theme_bw() + theme(panel.grid=element_blank()) +
+        ggtitle("MWSH relationship by tow (numbers are SCALLOP_NUM)") 
+      plot.list[[i]] <- p
+    }
+
+    if(!is.null(nickname)) {
+      pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/MWSH_checks_", nickname, ".pdf"),onefile=T,width=15,height=12)
+      print(plot.list)
+      dev.off()
+    }
+    if(is.null(nickname)) {
+      pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/MWSH_checks.pdf"),onefile=T,width=15,height=12)
+      print(plot.list)
+      dev.off()
+    }
+    
+  }
 }

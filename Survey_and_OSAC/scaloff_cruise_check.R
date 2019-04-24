@@ -3,9 +3,9 @@
 ### Script to run pre-loading checks on xlsx templates prior to loading to scaloff database
 ### This is run to check data across surveys/banks within a single CRUISE.
 
-scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
-              type="csv", 
-              cruise, season, nickname=NULL) {
+scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, 
+                                 year, direct="Y:/Offshore scallop/Assessment/",
+                                 type="csv", cruise, season, nickname=NULL) {
   
   ### packages
   require(readxl) || stop("Make sure you have readxl package installed to run this")
@@ -29,58 +29,89 @@ scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
   if(season=="both") {
     banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
   }
-  # 
-  # ### load the data
-  # ## from the xlsx template:
-  # if(type=="xlsx"){
-  #   if(!is.null(nickname)) {
-  #     if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tow.template", "_", nickname, ".xlsx"))
-  #     if(hf==TRUE) hfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template", "_", nickname, ".xlsx"))
-  #     if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template", "_", nickname, ".xlsx"))
-  #   }
-  #   
-  #   if(is.null(nickname)) {
-  #     if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tow.template.xlsx"))
-  #     if(hf==TRUE) hf <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template.xlsx"))
-  #     if(mwsh==TRUE) mwsh <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template.xlsx"))
-  #   }
-  # }
   
-  ## from a csv:
   tows<-list()
   hfs<-list()
   mwshs<-list()
-  for(i in 1:length(unique(banks))){
-    if(type=="csv"){
-      files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/"))
-      towfile <- files[grep(files, pattern="tows")][grep(files[grep(files, pattern="tows")], pattern=".csv")]
-      mwshfile <- files[grep(files, pattern="mwsh")][grep(files[grep(files, pattern="mwsh")], pattern=".csv")]
-      hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".csv")]
-      if(length(towfile) > 1 | length(mwshfile) > 1 | length(hffile) > 1) {
-        message(paste0("\nThere are multiple files of the same type (tow/mwsh/hf). Check the following files in the folder: \n", 
-                       direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i]))
-        if(length(towfile) > 1) print(towfile)
-        if(length(mwshfile) > 1) print(mwshfile)
-        if(length(hffile) > 1) print(hffile)
-      }
-      
-      bank <- banks[i]
-      
-      if(tow==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile))){
-        tows[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile))
-        tows[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", towfile)
-      }
-      if(hf==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile))) {
-        hfs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile))
-        hfs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", hffile)
+
+      for(j in 1:length(cruise)) {
+        ## from an xlsx:
+        if(type=="xlsx"){
+          for(i in 1:length(unique(banks))){
+            files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
+            towfile <- files[grep(files, pattern="tows")][grep(files[grep(files, pattern="tows")], pattern=".xlsx")]
+            mwshfile <- files[grep(files, pattern="mwsh")][grep(files[grep(files, pattern="mwsh")], pattern=".xlsx")]
+            hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".xlsx")]
+            if(length(towfile) > 1 | length(mwshfile) > 1 | length(hffile) > 1) {
+              message(paste0("\nThere are multiple files of the same type (tow/mwsh/hf). Check the following files in the folder: \n", 
+                             direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i]))
+              if(length(towfile) > 1) print(towfile)
+              if(length(mwshfile) > 1) print(mwshfile)
+              if(length(hffile) > 1) print(hffile)
+            }
+            
+            bank <- banks[i]
+            
+            if(tow==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile))){
+              tows[[bank]][[1]] <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile))
+              tows[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile)
+            }
+            if(hf==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile))) {
+              hfs[[bank]][[1]] <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile))
+              hfs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile)
+            }
+            if(mwsh==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile))) {
+              mwshs[[bank]][[1]] <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile))
+              mwshs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile)
+            }
+          }
         }
-      if(mwsh==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile))) {
-        mwshs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile))
-        mwshs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", banks[i], "/", mwshfile)
+        
+    ## from a csv:
+        if(type=="csv"){
+          for(i in 1:length(unique(banks))){
+            files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
+            towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".csv")]
+            mwshfile <- files[grep(files, pattern="mwsh")][grep(files[grep(files, pattern="mwsh")], pattern=".csv")]
+            hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".csv")]
+            # bring in the extras if they are in separate CSVs
+            extrahffile <- hffile[grep(hffile, pattern="extra")]
+            extratowfile <- towfile[grep(towfile, pattern="extra")]
+            if(length(extratowfile)>0) towfile <- towfile[towfile != extratowfile]
+            if(length(extrahffile)>0) hffile <- hffile[hffile != extrahffile]
+            
+            if(length(towfile) > 1 | length(mwshfile) > 1 | length(hffile) > 1) {
+              message(paste0("\nThere are multiple files of the same type (tow/mwsh/hf). Check the following files in the folder: \n", 
+                             direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i]))
+              if(length(towfile) > 1) print(towfile)
+              if(length(mwshfile) > 1) print(mwshfile)
+              if(length(hffile) > 1) print(hffile)
+            }
+            
+            bank <- banks[i]
+            
+            if(tow==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile))){
+              tows[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile))
+              # append the extras if they exist:
+              if(length(extratowfile)>0) tows[[bank]][[1]] <- rbind(tows[[bank]][[1]], data.frame(read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", extratowfile))))
+              tows[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", towfile)
+              if(length(extratowfile)>0) tows[[bank]][[2]] <- c(tows[[bank]][[2]],  paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", extratowfile))
+            }
+            if(hf==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile))) {
+              hfs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile))
+              # append the extras if they exist:
+              if(length(extrahffile)>0) hfs[[bank]][[1]] <- rbind(hfs[[bank]][[1]], data.frame(read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", extrahffile))))
+              hfs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", hffile)
+              if(length(extratowfile)>0) hfs[[bank]][[2]] <- c(hfs[[bank]][[2]],  paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", extrahffile))
+            }
+            if(mwsh==TRUE & file.exists(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile))) {
+              mwshs[[bank]][[1]] <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile))
+              mwshs[[bank]][[2]] <- paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/", mwshfile)
+            }
+          }
+        }
+        
       }
-    }
-  }
-  
   message("Check to make sure the right files were read into R.")
   
   message("Loaded the following tow files:")
@@ -93,14 +124,15 @@ scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
   print(sapply(mwshs, "[[", 2))
 
   # check for number of tows by survey name, and area by survey name
-  for(i in 1:length(banks)){
-    message("Survey names by area (number of tows):")
+  for(i in 1:length(names(tows))){
+
+    message(paste0("Survey names by area (number of tows) in ", names(tows[i]), " tow file:"))
     print(table(tows[[i]][[1]]$SURVEY_NAME, tows[[i]][[1]]$MGT_AREA_CD))
     
-    message("Survey names by tow type ID (number of tows):")
+    message(paste0("Survey names by tow type ID (number of tows) in ", names(tows[i]), " tow file:"))
     print(table(tows[[i]][[1]]$SURVEY_NAME, tows[[i]][[1]]$TOW_TYPE_ID))
   }
-  
+
   # then make it check tow numbers between banks
   # are there any duplicate tow numbers within the same survey name (on different banks)
   tow_survey <- NULL
@@ -115,13 +147,21 @@ scaloff_cruise_check(tow=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
   }
   
   if(any(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME) > 1)) {
-    message("Tow numbers duplicated within survey!!! Very Important Error!! Review and edit the following tow numbers:")
+    message("Tow numbers duplicated within survey!!! Very Important Error!!\nIf only one bank is listed in the banks column, that means there are duplicate tows labelled with the same MGT_AREA_CD.\nIf there are multiple banks in the banks column, there are duplicate tows within the same SURVEY_NAME,\nbut with different MGT_AREA_CD.\nReview and edit the following tow numbers:")
     tow_survey_check <- data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))
     names(tow_survey_check) <- c("TOW_NO", "SURVEY_NAME", "Freq")
-    tow_survey_check$conflicting_banks <- paste(unique(tow_survey$MGT_AREA_CD[tow_survey$SURVEY_NAME %in% 
-                                                                                      tow_survey_check$SURVEY_NAME && 
-                                                                                      tow_survey$TOW_NO %in% 
-                                                                                      tow_survey_check$TOW_NO]), collapse="/")
-    print(tow_survey_check[tow_survey_check$Freq > 1,])
+    tow_survey_check$TOW_NO <- as.numeric(as.character(tow_survey_check$TOW_NO))
+    conflicting_banks <- join(tow_survey[,c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_NO")], tow_survey_check, type="left", by=c("SURVEY_NAME", "TOW_NO"))
+    conflicting_banks <- ddply(.data=conflicting_banks[conflicting_banks$Freq > 1 & !is.na(conflicting_banks$Freq),],
+                               .(CRUISE, SURVEY_NAME, TOW_NO, Freq),
+                               summarize,
+                               banks = paste(unique(MGT_AREA_CD), collapse="/"))
+
+    print(conflicting_banks)
+  }
+  
+  if(length(unique(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq)) == 2 && 
+     max(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq) == 1) {
+    message("Successfully passed duplicate tow check without any issues. Yay!")
   }
 }
