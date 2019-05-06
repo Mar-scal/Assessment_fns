@@ -24,15 +24,21 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   ## from the xlsx template:
   if(type=="xlsx"){
     if(!is.null(nickname)) {
-      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tow.template", "_", nickname, ".xlsx"))
+      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tows.template", "_", nickname, ".xlsx"))
       if(hf==TRUE) hfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template", "_", nickname, ".xlsx"))
       if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template", "_", nickname, ".xlsx"))
+      if(bank=="Ban" && tow==TRUE) icetow <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icetows.template", "_", nickname, ".xlsx"))
+      if(bank=="Ban" && hf==TRUE) icehfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icehf.template", "_", nickname, ".xlsx"))
+      if(bank=="Ban" && mwsh==TRUE) icemwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icemwsh.template", "_", nickname, ".xlsx"))
     }
     
     if(is.null(nickname)) {
-      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tow.template.xlsx"))
+      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tows.template.xlsx"))
       if(hf==TRUE) hf <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template.xlsx"))
       if(mwsh==TRUE) mwsh <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template.xlsx"))
+      if(bank=="Ban" && tow==TRUE) icetow <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icetows.template.xlsx"))
+      if(bank=="Ban" && hf==TRUE) icehfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icehf.template.xlsx"))
+      if(bank=="Ban" && mwsh==TRUE) icemwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icemwsh.template.xlsx"))
     }
   }
   
@@ -40,13 +46,19 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   if(type=="csv"){
     if(!is.null(nickname)) {
       if(tow==TRUE) tows <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "tows_", nickname, ".csv"))
-      if(hf==TRUE) hfs <- read(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "hf_", nickname, ".csv"))
-      if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "mwsh_", nickname, ".csv"))
+      if(hf==TRUE) hfs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "hf_", nickname, ".csv"))
+      if(mwsh==TRUE) mwshs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "mwsh_", nickname, ".csv"))
+      if(bank=="Ban" && tow==TRUE) icetow <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icetows_", nickname, ".csv"))
+      if(bank=="Ban" && hf==TRUE) icehfs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icehf_", nickname, ".csv"))
+      if(bank=="Ban" && mwsh==TRUE) icemwshs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icemwsh_", nickname, ".csv"))
     }
     if(is.null(nickname)) {
       if(tow==TRUE) tows <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "tows.csv"))
       if(hf==TRUE) hfs <- read(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "hf.csv"))
       if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "mwsh.csv"))
+      if(bank=="Ban" && tow==TRUE) icetow <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icetows.csv"))
+      if(bank=="Ban" && hf==TRUE) icehfs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icehf.csv"))
+      if(bank=="Ban" && mwsh==TRUE) icemwshs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "icemwsh.csv"))
     }
   }
   

@@ -176,9 +176,9 @@ for(i in 1:num.banks)
         extras$STRATA <- "extra"
         writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID", "STRATA")])
       }
-      writetows$lon.deg.min <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
-      writetows$lat.deg.min <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
-      writetows <- writetows[, c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA")]
+      writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
+      writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
+      writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "STRATA")]
     }
     
 	  # if you want to save the tow lists you can export them to csv's.
@@ -277,8 +277,8 @@ for(i in 1:num.banks)
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both") 
 
@@ -289,8 +289,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	        labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
@@ -313,14 +313,15 @@ for(i in 1:num.banks)
   	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	    
   	    if(point.style == "both") 
   	    {
   	      points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both") 
 
@@ -332,8 +333,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	       labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	       labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
@@ -363,8 +364,8 @@ for(i in 1:num.banks)
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both" ) 
 
@@ -374,8 +375,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	        labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
