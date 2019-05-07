@@ -1,4 +1,4 @@
-lines_to_poly <- function(direct=direct, folder=folder, file=file,
+lines_to_poly <- function(direct=direct, folder=folder, file=file, splitlayers=T,
                           saveas=NULL) {
   shp <- readOGR(dsn = paste0(direct, folder, file), layer = paste0(gsub(x=file, pattern=".shp", replacement="", fixed=T)))
   if(class(shp) == "SpatialLinesDataFrame"){
@@ -15,10 +15,19 @@ lines_to_poly <- function(direct=direct, folder=folder, file=file,
       windows()
       print(plot(shp[i,], col="blue"))
     }
-
-    if(!is.null(saveas)) writeOGR(obj = shp, dsn = paste0(direct, file, saveas), layer = paste0(gsub(x=saveas, pattern=".shp", replacement="", fixed=T)),
-                                  driver="ESRI Shapefile")
     
+    if(!is.null(saveas) & splitlayers==F) writeOGR(obj = shp, dsn = paste0(direct, file, saveas), layer = paste0(gsub(x=saveas, pattern=".shp", replacement="", fixed=T)),
+                                                   driver="ESRI Shapefile")
+    
+    if(!is.null(saveas) & splitlayers==T) {
+      for(i in 1:length(shp$ID)) {
+        saveas_ID <- gsub(x = saveas, pattern = ".shp", replacement = paste0("_", i, ".shp"))
+        writeOGR(obj = shp, dsn = paste0(direct, folder, saveas_ID), layer = paste0(gsub(x=saveas_ID, pattern=".shp", replacement="", fixed=T)),
+                 driver="ESRI Shapefile")
+      }
+      
+    }
+    return(shp)
   }
 }
 
