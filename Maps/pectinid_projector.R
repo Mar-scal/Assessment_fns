@@ -563,10 +563,31 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       }
     }   
     
+    if(!is.null(add_sfas)) {
+      if((add_sfas == "inshore" | add_sfas == "all")) {
+        inshore.spa_f <- NULL
+        for(i in 1:length(inshore.spa)){
+          # ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+          # crs(ext) <- crs(inshore.spa[[i]])
+          # inshore.spa_ext <- gIntersection(inshore.spa[[i]], ext, byid=T)
+          inshore.spa_f[[i]] <- fortify(inshore.spa[[i]])
+          pect_ggplot <- pect_ggplot + geom_path(data=inshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+        }
+      }
+      
+      if(add_sfas == "offshore" | add_sfas == "all") {
+        offshore.spa_f <- NULL
+        offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
+        pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+      }
+    }
+    
     if(!is.null(add_land)){
       if(add_land == T) {
-        land_f <- fortify(land.sp)
-        land_f <- land_f[land_f$long>xlim[1] & land_f$long <xlim[2] & land_f$lat>ylim[1] & land_f$lat<ylim[2],]
+        ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+        crs(ext) <- crs(land.sp)
+        land.sp.int <- gIntersection(land.sp, ext, byid=T)
+        land_f <- fortify(land.sp.int)
         if(dim(land_f)[1]>0) {
           land_f$order <- 1:nrow(land_f)
           pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
@@ -579,19 +600,6 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         eez_f<- SpatialLinesDataFrame(eez, data = data.frame(ID = 1))
         eez_f <- fortify(eez_f)
         pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group))
-      }
-    }
-
-    if(!is.null(add_sfas)) {
-      if((add_sfas == "inshore" | add_sfas == "all")) {
-        inshore.spa_f <- NULL
-        #inshore.spa_f[[i]] <- fortify()
-        #pect_ggplot <- pect_ggplot + geom_polygon(data=inshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
-      }
-      if(add_sfas == "offshore" | add_sfas == "all") {
-        offshore.spa_f <- NULL
-        offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
-        pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
       }
     }
     
