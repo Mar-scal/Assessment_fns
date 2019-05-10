@@ -577,8 +577,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       
       if(add_sfas == "offshore" | add_sfas == "all") {
         offshore.spa_f <- NULL
-        offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
-        pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+        offshore.spa <- offshore.spa[which(names(offshore.spa) %in% c("GBa", "GBb"))]
+        for(i in 1:length(offshore.spa)){
+          offshore.spa_f[[i]] <- fortify(offshore.spa[[i]])
+          pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f[[i]], aes(x=long, y=lat, group=group), fill=NA, colour="black")
+        }
       }
     }
     
