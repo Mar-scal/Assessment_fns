@@ -1,11 +1,11 @@
 # Log error checking script, you run this script to check whatever logs you want from marfis
 
 direct <- "D:/r/"
-direct <- "C:/Documents/Offshore scallop/Assessment/"
+direct <- "D:/Documents/Offshore scallop/Assessment/"
 source(paste(direct,"Assessment_fns/Fishery/log_error_checking.r",sep="")) #logs_and_fish is function call
-log_checks(direct =direct, yrs = 2018 , 
+log_checks(direct =direct, yrs = 2019 , 
            un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", export = "fish.dat", repo = "local",
-           bank = "GBb" ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1,
+           bank = "GBa" ,trips = 481709, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1,
            spatial = T, shiny=T)
 
 

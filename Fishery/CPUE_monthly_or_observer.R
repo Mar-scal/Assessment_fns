@@ -623,7 +623,6 @@ if(CPUE == "obs" || CPUE == "both")
 
   } # end if(is.null(obs.vnum) ==T || is.null(obs.land.date) ==T)
     
-    browser()
   if(is.null(obs.vnum) == F && is.null(obs.land.date) ==F)
   {
     # Don't forget we want to subset this by nafo area too... something like... & new.log.dat$nafo =="5ZEJ"
