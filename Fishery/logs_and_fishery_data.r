@@ -683,7 +683,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     slip.SQL$bank[slip.SQL$sfa=="3PS"]<-"SPB"
     slip.SQL$bank[slip.SQL$sfa%in% c(10,11,12)]<-"SPB"
     
-      if(max(yr) != current.year)
+      if(max(yr) != current.year & ex.marfis ==T)
         {
           #Write7
           write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log",min(yr),"-",max(yr),
@@ -694,7 +694,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
         } # END if(yr[i] != current.year)       
       
       # if data are from this year more specific information on how current the data are should be included.
-      if(max(yr) == current.year)
+      if(max(yr) == current.year & ex.marfis ==T)
         {
           #Write9
           write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log_",min(yr),"-",
