@@ -6,7 +6,9 @@
 scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
                                type="xlsx", 
                                cruise, bank, survey_name, nickname=NULL) {
-  
+  icetow <- NULL
+  icehfs <- NULL
+  icemwshs <- NULL
   ### packages
   require(readxl) || stop("Make sure you have readxl package installed to run this")
   require(plyr) || stop("Make sure you have plyr package installed to run this")
@@ -19,20 +21,33 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   
   ### other functions
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
-  
+
   ### load the data
   ## from the xlsx template:
   if(type=="xlsx"){
     if(!is.null(nickname)) {
-      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tows.template", "_", nickname, ".xlsx"))
-      if(hf==TRUE) hfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template", "_", nickname, ".xlsx"))
-      if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template", "_", nickname, ".xlsx"))
-      if(bank=="Ban" && tow==TRUE) icetow <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icetows.template", "_", nickname, ".xlsx"))
-      if(bank=="Ban" && hf==TRUE) icehfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icehf.template", "_", nickname, ".xlsx"))
-      if(bank=="Ban" && mwsh==TRUE) icemwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.icemwsh.template", "_", nickname, ".xlsx"))
+      if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/OS.scallop.tow", nickname, ".xlsx"))
+      if(hf==TRUE) hfs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/OS.scallop.hf", nickname, ".xlsx"))
+      if(mwsh==TRUE) mwshs <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/OS.scallop.meat.shell", nickname, ".xlsx"))
+      if(bank=="Ban" && tow==TRUE) {
+        icetow <- tows[tows$SPECIES_ID=="2 - Iceland scallop",]
+        tows <- tows[tows$SPECIES_ID=="1 - Sea scallop",]
+        if(!dim(icetow)[1] == dim(tows)[1] | !dim(icetow)[2] == dim(tows)[2]) message("icemtows dimensions different from tows. Ok?")
+      }
+      if(bank=="Ban" && hf==TRUE) {
+        icehfs <- hfs[hfs$SPECIES_ID=="2 - Iceland scallop",]
+        hfs <- hfs[hfs$SPECIES_ID=="1 - Sea scallop",]
+        if(!dim(icehfs)[1] == dim(hfs)[1] | !dim(icehfs)[2] == dim(hfs)[2]) message("icehfs dimensions different from hfs. Ok?")
+      }
+      if(bank=="Ban" && mwsh==TRUE) {
+        icemwshs <- mwshs[mwshs$SPECIES_ID=="2 - Iceland scallop",]
+        mwshs <- mwshs[mwshs$SPECIES_ID=="1 - Sea scallop",]
+        if(!dim(icemwshs)[1] == dim(mwshs)[1] | !dim(icemwshs)[2] == dim(mwshs)[2]) message("icemwshs dimensions different from mwshs. Ok?")
+      }
     }
-    
+      
     if(is.null(nickname)) {
+      stop("fix the paths first")
       if(tow==TRUE) tows <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.tows.template.xlsx"))
       if(hf==TRUE) hf <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.hf.template.xlsx"))
       if(mwsh==TRUE) mwsh <- read_excel(paste0(direct, "Data/Survey_data/", year, "/Database loading/OS.scallop.meat.shell.template.xlsx"))
@@ -45,6 +60,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   ## from a csv:
   if(type=="csv"){
     if(!is.null(nickname)) {
+      message("Are you sure you want to use CSVs? The loader templates are XLSX files... would be better to check those directly! Also, these file paths probably need to be updated.")
       if(tow==TRUE) tows <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "tows_", nickname, ".csv"))
       if(hf==TRUE) hfs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "hf_", nickname, ".csv"))
       if(mwsh==TRUE) mwshs <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/", survey_name, "mwsh_", nickname, ".csv"))
@@ -68,7 +84,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   ### check tow data
   if(tow==TRUE) {
     
-    towchecks <- function(tows){
+    towchecks <- function(tows, icetow=NULL){
       
       print("Are there empty rows at the bottom of the Tow dataframe? If so, go back to your spreadsheet and delete empty rows.")
       print(tail(tows))
@@ -139,7 +155,7 @@ Check the MGT_AREA_CD values for the following tows:")
       if(unique(tows$MGT_AREA_CD) %in% c("GBa", "GBb")) {
         mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern=paste0("GB", year, ".2"))
         if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
-          message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
+          message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME (this is fine if it's GB spring survey):")
           print(data.frame(tows[!tows$TOW_NO %in% tows$TOW_NO[mgt_matches_survey],]))
           
         }
@@ -169,21 +185,21 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(is.na(dmy(tows$TOW_DATE, quiet=T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
+      if(any(is.na(ymd(tows$TOW_DATE, quiet=T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
         message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
-        print(data.frame(tows[which(is.na(dmy(tows$TOW_DATE, quiet = T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+        print(data.frame(tows[which(is.na(ymd(tows$TOW_DATE, quiet = T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
         
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
+      if(any(!month(ymd(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
         message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy. Currently, it appears that the month is not typical (e.g. it should be spring or summer)")
-        print(data.frame(tows[which(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+        print(data.frame(tows[which(!month(ymd(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
       }
       
       # The subsampling amount is less than or equal to total amount:
-      if(any((tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)`) |
-             (tows$`No. Buckets Sampled` > tows$`Total Buckets`))) {
+      if(any((tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)` & !is.na(tows$`Total Basket Wgt (kg)`)) |
+             (tows$`No. Buckets Sampled` > tows$`Total Buckets` & !is.na(tows$`Total Buckets`)))) {
         message("\nThe following tows have more basket KG or buckets sampled than the totals")
         print(data.frame(tows[(tows$`Basket Wgt Sampled (kg)`> tows$`Total Basket Wgt (kg)`) |
                                 (tows$`No. Buckets Sampled` > tows$`Total Buckets`),]))
@@ -210,9 +226,9 @@ Check the MGT_AREA_CD values for the following tows:")
         
       }
       if(is.numeric(tows$START_LAT) & is.numeric(tows$START_LON) & is.numeric(tows$END_LAT) & is.numeric(tows$END_LON) &
-         any(tows[,c("START_LON","END_LON")] > -5500 | tows[,c("START_LON", "END_LON")] < -6700, na.rm=T)){
+         any(tows[,c("START_LON","END_LON")] > -5500 | tows[,c("START_LON", "END_LON")] < -6705, na.rm=T)){
         message("\nThere are values in the longitude columns that are outside the bounds. Check the following:")
-        print(data.frame(tows[tows$START_LON > -5500 | tows$END_LON > -5500 | tows$START_LON < -6700 | tows$END_LON < -6700,]))
+        print(data.frame(tows[tows$START_LON > -5500 | tows$END_LON > -5500 | tows$START_LON < -6705 | tows$END_LON < -6705,]))
         
       }
       
@@ -238,6 +254,9 @@ Check the MGT_AREA_CD values for the following tows:")
       area <- read.csv(paste0(direct, "Data/Maps/approved/Survey/survey_boundary_polygons.csv"))
       area <- area[!(area$startyear==1900 & area$label=="Sab"),] 
       
+      if(bank=="GB") area <- area[!area$label %in% c("GBa", "GBb"),]
+      if(!bank=="GB") area <- area[!area$label %in% c("GB"),]
+      
       area$AREA_ID <- as.numeric(as.factor(area$label))
       
       # this creates strata labels
@@ -248,9 +267,10 @@ Check the MGT_AREA_CD values for the following tows:")
       
       # based on start location first, then by end location. compare them to determine if they cross an area line.
       area.test <- NULL
+      
       for(i in unique(area$AREA_ID)){
         
-        points <- SpatialPoints(matrix(c(tows_con$START_LON, tows_con$START_LAT), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+        points <- SpatialPoints(matrix(c(tows_con$START_LON_DD, tows_con$START_LAT_DD), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
         
         coord_list <- split(area[area$AREA_ID %in% i, c("X", "Y", "AREA_ID")], area[area$AREA_ID %in% i,]$SID)
         coord_list <- lapply(coord_list, function(x) { x["AREA_ID"] <- NULL; x })
@@ -274,7 +294,7 @@ Check the MGT_AREA_CD values for the following tows:")
       area.test.end <- NULL
       for(i in unique(area$AREA_ID)){
         
-        points <- SpatialPoints(matrix(c(tows_con$END_LON, tows_con$END_LAT), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
+        points <- SpatialPoints(matrix(c(tows_con$END_LON_DD, tows_con$END_LAT_DD), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
         
         coord_list <- split(area[area$AREA_ID %in% i, c("X", "Y", "AREA_ID")], area[area$AREA_ID %in% i,]$SID)
         coord_list <- lapply(coord_list, function(x) { x["AREA_ID"] <- NULL; x })
@@ -313,46 +333,53 @@ Check the MGT_AREA_CD values for the following tows:")
       
       area.test.both$flag[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE"] <- "flag"
       area.test.both$flag[!(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE")] <- "ok"
+      colnames(area.test.both) <- make.unique(names(area.test.both))
       
       plot.list <- NULL
       ## plot tows to PDF
       for(i in unique(area$AREA_ID)){
-        p <- ggplot() + geom_polygon(data=area[area$AREA_ID==i,], aes(X, Y, group=SID), fill=NA, colour="black", na.rm = T) +
-          geom_text(data=area_lab[area_lab$AREA_ID==i,], aes(LONGITUDE, LATITUDE, label=label), size=4, colour="blue", na.rm = T) +
-          coord_map() + 
-          theme_bw() + theme(panel.grid=element_blank()) +
-          geom_segment(data=area.test.both, aes(x=START_LON, xend=END_LON, y=START_LAT, yend=END_LAT, colour=flag), lwd=1, na.rm = T) +
-          #scale_colour_manual(values=c("black", "white")) +
-          geom_text(data=tows_con, aes(START_LON, START_LAT, label=TOW_NO), size=3, na.rm = T) +
-          xlim(min(area[area$AREA_ID %in% i,]$X), max(area[area$AREA_ID %in% i,]$X)) +
-          ylim(min(area[area$AREA_ID %in% i,]$Y)-0.05, max(area[area$AREA_ID %in% i,]$Y)+0.05)
+          p <- ggplot() + geom_polygon(data=area[area$AREA_ID==i,], aes(X, Y, group=SID), fill=NA, colour="black", na.rm = T) +
+            geom_text(data=area_lab[area_lab$AREA_ID==i,], aes(LONGITUDE, LATITUDE, label=label), size=4, colour="blue", na.rm = T) +
+            coord_map() + 
+            theme_bw() + theme(panel.grid=element_blank()) +
+            geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, colour=flag), lwd=1, na.rm = T) +
+            #scale_colour_manual(values=c("black", "white")) +
+            geom_text(data=tows_con, aes(START_LON_DD, START_LAT_DD, label=TOW_NO), size=3, na.rm = T) +
+            xlim(min(area[area$AREA_ID %in% i,]$X), max(area[area$AREA_ID %in% i,]$X)) +
+            ylim(min(area[area$AREA_ID %in% i,]$Y)-0.05, max(area[area$AREA_ID %in% i,]$Y)+0.05)
         plot.list[[i]] <- p
       }
       
       if(!is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/spatial_checks_", nickname, ".pdf"),onefile=T,width=22,height=12)
+        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
       }
-      if(!is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/spatial_checks.pdf"),onefile=T,width=22,height=12)
+      if(is.null(nickname)) {
+        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks.pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
+      }
+      
+      if(!is.null(icetow)) {
+        if(unique(icetow$SPECIES_ID) == "2 - Iceland scallop"){
+        test <- dim(icetow)[1] == dim(join(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "TOW_TYPE_ID")], icetow[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO")], type="full"))[1]
+        if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
+        }
       }
     }
     
-    towchecks(tow)
-    
-    if(!missing(icetow)) towchecks(icetow)
+    # run checks only on tow data if it's all sea scallops, otherwise, compare sea scallop tow metadata to icelandic scallop metadata
+    if(is.null(icetow)) towchecks(tows=tows)
+    if(!is.null(icetow)) towchecks(tows=tows, icetow=icetow)
   }
   
-  
-  
+
   ####################### Height frequency checks
   
   if(hf==TRUE){
     
-    hfchecks <- function(hfs){
+    hfchecks <- function(hfs=hfs){
       
       print("Are there empty rows at the bottom of the HF dataframe? If so, go back to your spreadsheet and delete empty rows.")
       print(tail(hfs))
@@ -384,12 +411,13 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       if(!is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks_", nickname, ".pdf"),onefile=T,width=22,height=12)
+        if(!unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
+        if(unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks_ice", nickname, ".pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
       }
       if(is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
+        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
       }
@@ -402,23 +430,23 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(is.na(dmy(hfs$TOW_DATE, quiet=T)) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE))) {
+      if(any(is.na(ymd(hfs$TOW_DATE, quiet=T)) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE))) {
         message("\nThe following hfs have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
-        print(data.frame(hfs[which(is.na(dmy(hfs$TOW_DATE, quiet=T)) && !is.na(hfs$TOW_DATE) && !is.null(hfs$TOW_DATE)),]))
+        print(data.frame(hfs[which(is.na(ymd(hfs$TOW_DATE, quiet=T)) && !is.na(hfs$TOW_DATE) && !is.null(hfs$TOW_DATE)),]))
         
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(!month(dmy(hfs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE))) {
+      if(any(!month(ymd(hfs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE))) {
         message("\nThe following hfs have dates that may not be formatted correctly. They should look like dd/mm/yyyy. Currently, it appears that the month is not typical (e.g. it should be spring or summer)")
-        print(data.frame(hfs[which(!month(dmy(hfs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE)),]))
+        print(data.frame(hfs[which(!month(ymd(hfs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(hfs$TOW_DATE) & !is.null(hfs$TOW_DATE)),]))
       }
       
     }
     
     hfchecks(hfs)
   
-    if(!missing(icehfs)) hfchecks(icehfs)
+    if(!is.null(icehfs)) hfchecks(icehfs)
     
     
   }
@@ -441,17 +469,18 @@ Check the MGT_AREA_CD values for the following tows:")
           geom_text(data=mwshs[mwshs$TOW_NUM %in% unique(mwshs$TOW_NUM)[i],],
                     aes(SHELL_HEIGHT, WET_MEAT_WGT, label=SCALLOP_NUM), na.rm = T) +
           theme_bw() + theme(panel.grid=element_blank()) +
-          ggtitle("MWSH relationship by tow (numbers are SCALLOP_NUM)") 
+          ggtitle(paste0("Tow ", unique(mwshs$TOW_NUM)[i], "- MWSH relationship by tow (numbers are SCALLOP_NUM)")) 
         plot.list[[i]] <- p
       }
       
       if(!is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/MWSH_checks_", nickname, ".pdf"),onefile=T,width=15,height=12)
+        if(!unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks", nickname, ".pdf"),onefile=T,width=15,height=12)
+        if(unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks_ice", nickname, ".pdf"),onefile=T,width=15,height=12)
         print(plot.list)
         dev.off()
       }
       if(is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/MWSH_checks.pdf"),onefile=T,width=15,height=12)
+        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks.pdf"),onefile=T,width=15,height=12)
         print(plot.list)
         dev.off()
       }
@@ -464,20 +493,20 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(is.na(dmy(mwshs$TOW_DATE, quiet=T)) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE))) {
+      if(any(is.na(ymd(mwshs$TOW_DATE, quiet=T)) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE))) {
         message("\nThe following mwshs have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
-        print(data.frame(mwshs[which(is.na(dmy(mwshs$TOW_DATE, quiet = T)) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE)),]))
+        print(data.frame(mwshs[which(is.na(ymd(mwshs$TOW_DATE, quiet = T)) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE)),]))
         
       }
       
       # these tow dates might not be formatted correctly:
-      if(any(!month(dmy(mwshs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE))) {
+      if(any(!month(ymd(mwshs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE))) {
         message("\nThe following mwshs have dates that may not be formatted correctly. They should look like dd/mm/yyyy. Currently, it appears that the month is not typical (e.g. it should be spring or summer)")
-        print(data.frame(mwshs[which(!month(dmy(mwshs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE)),]))
+        print(data.frame(mwshs[which(!month(ymd(mwshs$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(mwshs$TOW_DATE) & !is.null(mwshs$TOW_DATE)),]))
       }
     }
     mwshchecks(mwshs)
     
-    if(!missing(icemwshs)) mwshchecks(icemwshs)
+    if(!is.null(icemwshs)) mwshchecks(icemwshs)
   }
 }

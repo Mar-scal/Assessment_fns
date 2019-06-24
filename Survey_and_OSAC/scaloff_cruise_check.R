@@ -5,7 +5,7 @@
 
 scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, 
                                  year, direct="Y:/Offshore scallop/Assessment/",
-                                 type="csv", cruise, season, nickname=NULL) {
+                                 type="xlsx", cruise, season, nickname=NULL) {
   
   ### packages
   require(readxl) || stop("Make sure you have readxl package installed to run this")
@@ -39,8 +39,8 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
     if(type=="xlsx"){
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
-        towfile <- files[grep(files, pattern="tows")][grep(files[grep(files, pattern="tows")], pattern=".xlsx")]
-        mwshfile <- files[grep(files, pattern="mwsh")][grep(files[grep(files, pattern="mwsh")], pattern=".xlsx")]
+        towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".xlsx")]
+        mwshfile <- files[grep(files, pattern="meat")][grep(files[grep(files, pattern="meat")], pattern=".xlsx")]
         hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".xlsx")]
         if(length(towfile) > 1 | length(mwshfile) > 1 | length(hffile) > 1) {
           message(paste0("\nThere are multiple files of the same type (tow/mwsh/hf). Check the following files in the folder: \n", 
@@ -69,10 +69,11 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
     
     ## from a csv:
     if(type=="csv"){
+      message("Are you sure you want to use CSVs? The new loader files are XLSX, and it would be best to check those directly!")
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
         towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".csv")]
-        mwshfile <- files[grep(files, pattern="mwsh")][grep(files[grep(files, pattern="mwsh")], pattern=".csv")]
+        mwshfile <- files[grep(files, pattern="meat")][grep(files[grep(files, pattern="meat")], pattern=".csv")]
         hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".csv")]
         # bring in the extras or icelandic if they are in separate CSVs
         extrahffile <- hffile[grep(hffile, pattern="extra")]
@@ -178,9 +179,12 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
                                      MGT_AREA_CD=tows[[i]][[1]]$MGT_AREA_CD,
                                      TOW_NO=tows[[i]][[1]]$TOW_NO,
                                      TOW_DATE=tows[[i]][[1]]$TOW_DATE,
-                                     TOW_TYPE_ID=tows[[i]][[1]]$TOW_TYPE_ID))
+                                     TOW_TYPE_ID=tows[[i]][[1]]$TOW_TYPE_ID,
+                                     SPECIES_ID=tows[[i]][[1]]$SPECIES_ID))
     tow_survey <- rbind(tow_survey, tow_surveys)
   }
+  
+  tow_survey <- tow_survey[tow_survey$SPECIES_ID=="1 - Sea scallop",]
   
   tow_survey_tab <- data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))
   
@@ -194,8 +198,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
                                       .(CRUISE, SURVEY_NAME, TOW_NO, Freq),
                                       summarize,
                                       banks = paste(unique(MGT_AREA_CD), collapse="/"))
-    conflicting_banks <- rbind(conflicting_banks_nonban, conflicting_banks_ban)
-    print(conflicting_banks)
+    print(conflicting_banks[conflicting_banks$Freq > 1,])
   }
 
 if(length(unique(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq)) == 2 & 
