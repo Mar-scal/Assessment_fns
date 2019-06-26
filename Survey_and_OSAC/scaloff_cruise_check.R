@@ -37,6 +37,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   for(j in 1:length(cruise)) {
     ## from an xlsx:
     if(type=="xlsx"){
+      message("STOP! Please re-consider using CSVs instead of XLSX files. You should have created CSVs because of date formatting issues between users with XLSX files.")
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
         towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".xlsx")]
@@ -69,7 +70,6 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
     
     ## from a csv:
     if(type=="csv"){
-      message("Are you sure you want to use CSVs? The new loader files are XLSX, and it would be best to check those directly!")
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
         towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".csv")]
