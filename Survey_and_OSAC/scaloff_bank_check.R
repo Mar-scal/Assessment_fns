@@ -491,10 +491,10 @@ Check the MGT_AREA_CD values for the following tows:")
       ## compare to tow file. Make sure the number of baskets and buckets matches between files.
       names(tows)[grep(x=names(tows), "TOW_NO")] <- "TOW_NUM"
       comparehf <- join(hfs, tows, type="left")
-    browser()
+    
       ## make sure all tow metadata matches between files
       if(any(is.na(comparehf$TOW_TYPE_ID))) {
-        message("Something in the tow metadata doesn't match between the tow and hf files.")
+        message("Something in the tow metadata doesn't match between the tow and hf files. Check date formats, survey name, cruise name, etc.")
         mismatch <- unique(comparehf[is.na(comparehf$TOW_TYPE_ID),]$TOW_NUM)
         # try the tow dates
         if(any(!unique(hfs[hfs$TOW_NUM %in% mismatch,]$TOW_DATE) == tows[tows$TOW_NUM %in% mismatch,]$TOW_DATE)){

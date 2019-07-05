@@ -45,7 +45,7 @@
 logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
                           direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct=NULL)
 {
-  
+ 
   # Set up the directories
   direct.off <- direct
   if(is.null(direct.in)) direct.in <- paste(direct,"Data/Inshore/Logs/Processed/",sep="")

@@ -706,8 +706,9 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
       cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
       
-      browser()
+      
       if(mwsh.test == T) {
+        browser()
         source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
         mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                 sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
@@ -757,6 +758,8 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     }
     
     if(mwsh.test == T) {
+      
+      browser()
       source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
       mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                               sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
