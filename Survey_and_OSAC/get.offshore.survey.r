@@ -39,7 +39,7 @@
 ### currently standardized live shell height frequency
 
 # DK August 20, 2015, function call altered so DB credentials are entered directly into function call.
-get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/")
+get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/", ...)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	
@@ -58,13 +58,18 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Jessica has new views for these calls, ,all this prorating is not necessary anymore as she's taken care of it in SQL
   # Key is to import those tables and send it out of this file looking identical!  
   ######################################################################################################################
+  db <- "HUMF" ### CHANGE HUMF TO SCALOFF!!!
+  message("reminder that this is pulling data from HUMF views, not production SCALOFF")
   
   #qu.strata <- "select * from SCALOFF.OSSTRATA"
-  # DK Oct 29, 2015, don't need tow data either, we don't ever use it....
-  qu.dead <- "select * from SCALOFF.OSDEADRES_VW"
-  qu.live <- "select * from SCALOFF.OSLIVERES_VW"
-  qu.sample <- "select * from SCALOFF.OSSAMPLES_VW"
-  #qu.tow <- "select * from SCALOFF.OSTOWS"
+  # DK Oct 29, 2015, don't need tow data either, we don't ever use it.... 
+  qu.dead <- paste0("select * from ", db, ".OSDEADRES_SS_VW")
+  qu.live <- paste0("select * from ", db, ".OSLIVERES_SS_VW")
+  qu.sample <- paste0("select * from ", db, ".OSSAMPLES_SS_VW")
+  qu.dead.ice <- paste0("select * from ", db, ".OSDEADRES_ICE_VW")
+  qu.live.ice <- paste0("select * from ", db, ".OSLIVERES_ICE_VW")
+  qu.sample.ice <- paste0("select * from ", db, ".OSSAMPLES_ICE_VW")
+  #qu.tow <- "select * from HUMF.OSTOWS"
   
   
   
@@ -74,9 +79,22 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   dead <- dbGetQuery(chan, qu.dead)
   live <- dbGetQuery(chan, qu.live)
   samp <- dbGetQuery(chan, qu.sample)
+  deadice <- dbGetQuery(chan, qu.dead.ice)
+  liveice <- dbGetQuery(chan, qu.live.ice)
+  sampice <- dbGetQuery(chan, qu.sample.ice)
   #tow <- sqlQuery(chan, qu.tow)
   dbDisconnect(chan)
   
+  dead$species <- "seascallop"
+  live$species <- "seascallop"
+  samp$species <- "seascallop"
+  deadice$species <- "icelandic"
+  liveice$species <- "icelandic"
+  sampice$species <- "icelandic"
+  
+  dead <- rbind(dead, deadice)
+  live <- rbind(live, liveice)
+  samp <- rbind(samp, sampice)
   
   ## FIRST UP DEAL WITH THE SHELL HEIGHT FREQUENCY DATA
   # Add the "state" of the scallop to the dead/live objects before combining
@@ -108,7 +126,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   
   # Now rearrange the data and select a subset that will be used elsewhere
   choose <- c("YEAR","CRUISE","MGT_AREA_CD","TOW_DATE","TOW_NO","STRATA_ID","slat","slon","elat","elon","depth",
-              "state",paste('BIN',seq(0,195,5),sep='_'),"TOW_TYPE_ID","BOTTOM_TEMP")
+              "state",paste('BIN',seq(0,195,5),sep='_'),"TOW_TYPE_ID","BOTTOM_TEMP", "species")
   SHF <- SHF[,choose]
   # This is not the same size as the object exported from the old get.offshore.survey, but it is the same size as
   # what is needed for SurveySummary, if this is used elsewere the above subset is where it needs changed.
@@ -117,8 +135,8 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   ### Next up we make the position object, this is very simple.
   # This is formatted so that it matches the output from previous year's survey data
   pos=subset(all,state=="live",c('MGT_AREA_CD','TOW_NO','START_LAT','START_LON','END_LAT','END_LON','DEPTH_F',
-                                 'YEAR','lon','lat','depth',"TOW_DATE"))
-  names(pos) <- c("bank","tow","slat","slon","elat","elon","depth.f","year", "lon", "lat", "depth","TOW_DATE")
+                                 'YEAR','lon','lat','depth',"TOW_DATE", "species"))
+  names(pos) <- c("bank","tow","slat","slon","elat","elon","depth.f","year", "lon", "lat", "depth","TOW_DATE", "species")
   
   
   ## FINALLY DEAL WITH THE SHELL HEIGHT FREQUENCY DATA
@@ -145,6 +163,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Industry report
   if(industry.report == T)
   {
+    message("Make sure this worked properly for Ban and BanIce")
     # Combine the live and dead data into a summary for Pre-recruits through to fully-recruited.
     ind.rep<-with(live,data.frame(YEAR=format(TOW_DATE,"%Y"),BANK=MGT_AREA_CD,TOW_NO,START_LAT,START_LON,END_LAT,END_LON,DEPTH_F,
                                 preL=rowSums(live[,which(names(live)=="BIN_0"):which(names(live)=="BIN_65")]),
@@ -162,7 +181,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Note that I have added in STRATA_ID, I belive this eventually should be what we use for strata and will make the "lon" and "lat" columns redundant
   # I have also removed "TOW_SEQ" as it is never used in SurveySummary, if we need it I will have to check back here!
   choose.samp <- c('MGT_AREA_CD','TOW_NO','START_LAT','START_LON','END_LAT','END_LON','DEPTH_F','YEAR','lon',
-                   'lat','depth','CRUISE','SCALLOP_NUM','WET_MEAT_WGT','SHELL_HEIGHT','STRATA_ID','TOW_DATE')
+                   'lat','depth','CRUISE','SCALLOP_NUM','WET_MEAT_WGT','SHELL_HEIGHT','STRATA_ID','TOW_DATE', "species")
   
   MWs <- samp[,choose.samp]
   
