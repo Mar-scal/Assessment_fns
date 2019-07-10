@@ -138,7 +138,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        keep.full.GB=F, nickname=NULL)
 { 
  
-   tmp.dir <- direct ; tmp.season <- season # I need this so that the directory isn't overwritten when I load the below...
+   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
   if(season == "testing") 
   {
@@ -150,6 +150,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
                                        "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
       season <- tmp.season 
+      yr <- tmp.yr
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
   
@@ -2109,10 +2110,11 @@ for(i in 1:len)
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # end if(banks[i] = "Sab")
-    
+  
     if(banks[i] == "Ger" || banks[i] == "Mid" || banks[i] == "Ban" || banks[i] == "BanIce" || banks[i] == "GB")
     {
-      yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
+      # if(!banks[i] == "BanIce") yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
+      # if(banks[i] == "BanIce") yrs <- 2012
       survey.ts(clap.survey.obj[[banks[i]]][[1]],Bank=bank[i],pdf=F,axis.cx = 1.5, 
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3, years=yrs,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
@@ -2126,7 +2128,7 @@ for(i in 1:len)
   
   #####  Clapper % time series      #####  Clapper % time series#####  Clapper % time series
   #####  Clapper % time series #####  Clapper % time series #####  Clapper % time series      
-  
+
   if(any(plots== "clapper-per-ts"))
   {
     clap.per.ts.title <- substitute(bold(paste("Clapper time series (% dead ",bank,")",sep="")),
@@ -2139,11 +2141,21 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_per_ts.png",sep=""),units="in",width = 8.5, 
                          height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_per_ts.pdf",sep=""),width = 8.5, height = 11)
-    yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
-    Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
-              titl = clap.per.ts.title,
-              CS=unique(survey.obj[[banks[i]]][[1]]$CS),RS=unique(survey.obj[[banks[i]]][[1]]$RS),
-              axis.cx = 1.5)
+    #if(!banks[[i]]=="BanIce") {
+      yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
+      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
+                titl = clap.per.ts.title,
+                CS=survey.obj[[banks[i]]][[1]]$CS[survey.obj[[banks[i]]][[1]]$year==yr], RS=survey.obj[[banks[i]]][[1]]$RS[survey.obj[[banks[i]]][[1]]$year==yr],
+                axis.cx = 1.5)
+     # }
+    # if(banks[[i]]=="BanIce") {
+    #   yrs <- 2012
+    #   message("using surv.Clap instead of surv.Clap.Rand for BanIce")
+    #   Clap3.plt(surv.Clap[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
+    #             titl = clap.per.ts.title,
+    #             CS=unique(survey.obj[[banks[i]]][[1]]$CS),RS=unique(survey.obj[[banks[i]]][[1]]$RS),
+    #             axis.cx = 1.5)
+    #   }
     print(banks[i])
     print(paste0(c("ClapPropLTMpre = ",
                    "ClapPropLTMrec = ",
@@ -2168,8 +2180,8 @@ for(i in 1:len)
       if(fig == "pdf") pdf(paste(plot.dir,"SH_MW_CF_ts.pdf",sep=""),width = 8.5,height = 11)
       par(mfrow=c(3,1),omi=c(0.3,0.6,0.3,0.2))
       yrs <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
-      yrs2 <-min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
-      yrs <- min(yrs,yrs2):max(yrs,yrs2)
+      # yrs2 <-min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
+      # yrs <- min(yrs,yrs2):max(yrs,yrs2)
       # This fills the missing years with NA's so the plot looks better...
       tmp <- as.data.frame(cbind(yrs,matrix(NA,nrow=length(yrs),ncol=ncol(survey.obj[[banks[i]]][[1]][,-1]))))
       tmp[tmp$yrs %in% survey.obj[[banks[i]]][[1]]$year,2:ncol(survey.obj[[banks[i]]][[1]])] <- survey.obj[[banks[i]]][[1]][,-1]
@@ -2201,7 +2213,7 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"breakdown-",(yr),".png",sep=""),units="in",
                          width = 11,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 11,height = 8.5)
-    if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% banks[i])$MC_reg
+    if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% gsub(x=banks[i], "Ice", ""))$MC_reg
     if(banks[i] %in% spat.name) mc <- subset(fish.reg, year == yr & Bank %in% unique(spat.names$bank[spat.names$label == banks[i]]))$MC_reg
     if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
     if(banks[i] != "Ger") 

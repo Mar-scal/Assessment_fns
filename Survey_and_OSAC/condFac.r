@@ -62,6 +62,12 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
     pred.loc[["depth"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$depth,na.rm=T)
     pred.loc[["lat"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$lat,na.rm=T)
     pred.loc[["lon"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$lon,na.rm=T)
+    if(all(unique(wgt.dat$year)>2015) | all(unique(wgt.dat$year)< 2005)) {
+      message("wgt.dat years are not between 2005 and 2015, use max year instead (e.g. for BanIce)")
+      pred.loc[["depth"]] <- mean(subset(wgt.dat, year ==max(wgt.dat$year))$depth,na.rm=T)
+      pred.loc[["lat"]] <- mean(subset(wgt.dat, year==max(wgt.dat$year))$lat,na.rm=T)
+      pred.loc[["lon"]] <- mean(subset(wgt.dat, year==max(wgt.dat$year))$lon,na.rm=T)
+    }
     
   } # end if(pred.loc == NULL)
 
@@ -80,7 +86,8 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 
 	# Predict condition factor over bank using one of 5 models.
 	# This model assumes CF varies only with depth and year, Gaussian and linear relationship, no random effects (year might be best treated as such)
-	if(model.type=='glm')CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)
+	if(model.type=='glm' & length(unique(CF.data$year))>1)CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)
+	if(model.type=='glm' & length(unique(CF.data$year))==1)CF.fit<-glm(CF~depth,data=CF.data)
 	# Here we fit has both depth and year fit as thin plate regression splines, Gaussian family and identity link.
 	if(model.type=='gam_d')CF.fit<-gam(CF~s(depth)+s(year),data=CF.data)
 	# gam_s has location (lat/lon), depth, and year fit as thin plate regression splines, Gaussian family and identity link.
