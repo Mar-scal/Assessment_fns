@@ -296,7 +296,7 @@ Check the MGT_AREA_CD values for the following tows:")
       if(is.numeric(tows$START_LAT) & is.numeric(tows$START_LON) & is.numeric(tows$END_LAT) & is.numeric(tows$END_LON) &
          any(tows[,c("START_LON","END_LON")] > -5500 | tows[,c("START_LON", "END_LON")] < -6710, na.rm=T)){
         message("\nThere are values in the longitude columns that are outside the bounds. Check the following:")
-        print(data.frame(tows[tows$START_LON > -5500 | tows$END_LON > -5500 | tows$START_LON < -6710 | tows$END_LON < -6705,]))
+        print(data.frame(tows[tows$START_LON > -5500 | tows$END_LON > -5500 | tows$START_LON < -6710 | tows$END_LON < -6710,]))
         
       }
       
