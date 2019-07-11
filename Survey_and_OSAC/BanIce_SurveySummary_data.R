@@ -9,12 +9,17 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
                                       meatweightdata_2012 = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                       positionsdata_2012=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
                                       commercialsampling=commercialsampling, BanIceSurvey_new=NULL,
-                                      BanIceMW_new=NULL){
+                                      BanIceMW_new=NULL, bins=NULL, RS=NULL, CS=NULL, survey.bound.polys=NULL, survey.detail.polys=NULL){
   
   require(plyr)
   bnk <- "BanIce"
   bank.4.spatial <- "BanIce"
 
+  # Now we can set up our more detailed SHF bins as well
+  if(bins == "bank_default")bin <- c(50,70,RS[length(RS)],CS[length(CS)],120) 
+  # If you have specified the bins then do this...
+  if(bins != "bank_default") bin <- bins 
+  
   #Initialize some variables
   bank.dat <- NULL
   strata.mis.match <- NULL
@@ -78,13 +83,8 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   detail.poly.surv <- subset(survey.detail.polys,label=="Ban")
   attr(detail.poly.surv,"projection")<-"LL"
   
-  # Get the strata areas.
-  strata.areas <- subset(survey.info,label=="Ban",select =c("Strata_ID","towable_area","startyear"))
-  #Read25 read removed... Get all the details of the survey strata
-  surv.info <- subset(survey.info,label== "Ban")
-  
   # Save the survey strata table so we have it for later, this is mostly needed for when we have user defined areas carved out.
-  survey.strata.table[[bnk]] <- surv.info
+  survey.strata.table[[bnk]] <- NULL
   detail.surv.poly[[bnk]] <- detail.poly.surv
   bound.surv.poly[[bnk]]<- bound.poly.surv
   
@@ -145,7 +145,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # now run the model for the current year
   SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[mw.dm$year==yr,],random.effect='tow',b.par=3)
   
-  # change name of depth.f column?
+  # depth.f to metres?
   if("depth.f" %in% names(mw.dat.all[[bnk]])) mw.dat.all[[bnk]]$depth[is.na(mw.dat.all[[bnk]]$depth)] <- mw.dat.all[[bnk]]$depth.f[is.na(mw.dat.all[[bnk]]$depth)] * 1.8288
   
   mw.dat.all[[bnk]]$ID <-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
@@ -193,7 +193,8 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # Make predictions based on model.
   pred.dat <- bank.dat[[bnk]]
   pred.dat$CF<- predict(CF.fit,pre.dat)
-  
+  pred.dat$CF[pred.dat$year==2006] <- NA
+  message("Note: there was no detailed sampling of icelandic scallops in 2006, and we're not going to predict a value for it.")
   cf.data[[bnk]] <- list(CFyrs=CFyrs,CF.data=CF.data, HtWt.fit=HtWt.fit, CF.fit=CF.fit,pred.dat=pred.dat)	
   
   cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)

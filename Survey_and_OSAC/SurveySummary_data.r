@@ -388,7 +388,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
   # Create a new column that ID's the Bank-Survey combo...
   # Make all the GB spring data just GB as we don't differentiate it here.
   all.surv.dat$bank[all.surv.dat$bank %in% c("GBa","GBb","GB") & all.surv.dat$survey == "spring"] <- "GB"
-  # Incorporated BanIcespring and Banspring in January 2019 to prep for potential 2019 survey.
+  # Incorporated BanIcespring and Banspring in January/July 2019 to prep for potential 2019 survey.
   all.surv.dat$bank[all.surv.dat$bank %in% "Ban" & all.surv.dat$species=="icelandic"] <- "BanIce"
   all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
   # Remove GBsummer data are ambiguous as to whether they are from GBa or GBb so remove them too...
@@ -457,7 +457,9 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       BanIce <- BanIce_SurveySummary_data(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
                                           meatweightdata_2012 = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                           positionsdata_2012=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
-                                          commercialsampling=commercialsampling, BanIceSurvey_new=BanIceSurvey_new, BanIceMW_new=BanIceMW_new)
+                                          commercialsampling=commercialsampling, BanIceSurvey_new=BanIceSurvey_new, BanIceMW_new=BanIceMW_new, 
+                                          bins="bank_default", RS= size.cats$RS[size.cats$Bank == "Ban"],CS = size.cats$CS[size.cats$Bank == "Ban"], 
+                                          survey.bound.polys=survey.bound.polys, survey.detail.polys=survey.detail.polys)
 
       bank.dat[["BanIce"]] <- BanIce$bank.dat
       SpatHtWt.fit[["BanIce"]] <- BanIce$SpatHtWt.fit
