@@ -203,28 +203,31 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     
     surv_tows_samp_hf$prorated_number[is.na(surv_tows_samp_hf$prorated_number)] <- 0
     
-    industryreport_l <- ddply(.data=surv_tows_samp_hf, .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE, indreport_bin),
+    industryreport_l <- ddply(.data=surv_tows_samp_hf[!is.na(surv_tows_samp_hf$LIVECODE),], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE, indreport_bin),
                             summarize,
                             total_in_bin=sum(prorated_number))
     
-    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1,], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
+    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1,], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
                                          summarize,
-                                         catchbaskets=unique(round((unique(TOTAL)/30) *4, 0)/4))
+                                         catchbaskets=TOTAL) #unique(round((unique(TOTAL)/30) *4, 0)/4))
     
-    industryreport_l <- join(industryreport_l, industryreport_catchbaskets[!is.na(industryreport_catchbaskets$catchbaskets),], type="left")
+    industryreport_l <- join(industryreport_l, unique(industryreport_catchbaskets[!is.na(industryreport_catchbaskets$LIVECODE),]), type="left")
     
-    industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
+    industryreport_l$catchbaskets[is.na(industryreport_l$catchbaskets)] <- 0
+    
+    industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + TOW_TYPE_ID + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
     
     industryreport$YEAR <- yr
     
-    industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
+    industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
     
     industryreport <- industryreport[!is.na(industryreport$catchbaskets),]
     
     industryreport[is.na(industryreport)] <- 0
 
     # And make the CSV...
-    write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/IndustryReport_", Sys.Date(), ".csv",sep=""),row.names=F)
+    write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)
+    
   }# End if(industry.report = T)
   
   # Note that I have added in STRATA_ID, I belive this eventually should be what we use for strata and will make the "lon" and "lat" columns redundant
@@ -234,5 +237,6 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   
   MWs <- samp[,choose.samp]
   
-  list(SHF=SHF,MWs=MWs,pos=pos)
+  if(industry.report==F) list(SHF=SHF,MWs=MWs,pos=pos)
+  if(industry.report==T) list(SHF=SHF,MWs=MWs,pos=pos, industryreport=industryreport)
 } # End get.offshore.survey DK version.

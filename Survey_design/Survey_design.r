@@ -126,9 +126,10 @@ for(i in 1:num.banks)
     extras$lat.deg.min <- round(convert.dd.dddd(x = extras$Y, format = "deg.min"), 4)
     extras <- extras[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "bank")]
   } # end if(add.extras == T)
+  
   # Grab any seedboxes that were closed during the current year.
-  sb <- subset(seedboxes,Bank == bnk & Open >= ymd(paste(yr,"-01-01",sep="")))
-  if(bnk == "GB") sb <- subset(seedboxes,Bank == "GBa" & Open >= ymd(paste(yr,"-01-01",sep="")))
+  sb <- subset(seedboxes,Bank == bnk & Active=="Yes") #Open >= ymd(paste(yr,"-01-01",sep="")))
+  if(bnk == "GB") sb <- subset(seedboxes,Bank == "GBa" & Active=="Yes") # >= ymd(paste(yr,"-01-01",sep="")))
   # Now for the banks that have survey strata we get the allocation.
   if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
   {
@@ -155,12 +156,14 @@ for(i in 1:num.banks)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
-    if(bnk == "GBa" & year==2019) {
+   
+     if(bnk == "GBa" & yr==2019) {
       # manually shift 3 stations in 2019:
       towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
-      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.408, 42.097)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
-      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.076, 42.071)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
     }
   
     # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
