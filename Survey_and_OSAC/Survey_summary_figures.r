@@ -630,6 +630,7 @@ for(i in 1:len)
             
             if(seed.n.spatial.maps[k] == "FR-spatial") 
             {
+              
               # This is the stack for the INLA model
               stk <- inla.stack(tag="est",data=list(y = tmp.dat$com, link=1L),
                                 effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
@@ -888,6 +889,7 @@ for(i in 1:len)
           # This sets up our color ramps and titles for each of the spatial plots
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
+            
             base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
             cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))

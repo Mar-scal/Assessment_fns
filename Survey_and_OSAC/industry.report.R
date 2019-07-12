@@ -4,7 +4,7 @@ source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.r",sep="
 cruise="LE09"
 yr=2019
 
-indreport <- get.offshore.survey(direct=direct, cruise="LE09", yr=2019, industry.report = T)
+indreport <- get.offshore.survey(direct=direct, cruise="LE09", yr=2019, industry.report = T, un = "scaloff", pw="fgb256k")
 
 industryreport <- indreport$industryreport
 

@@ -48,7 +48,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
 
   ### DK:  I believe I need this, but maybe not?
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
-  
+
   #DK August 20, 2015 Note: Need this to open the channel, we need to get one more view, or more general access to the OSTOWS table
   # so that the .rProfile method works, for now the workaround would be to put the general (admin?) un/pw into your rprofile...
   # DK revised April 2018 to ROracle
@@ -58,8 +58,8 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Jessica has new views for these calls, ,all this prorating is not necessary anymore as she's taken care of it in SQL
   # Key is to import those tables and send it out of this file looking identical!  
   ######################################################################################################################
-  db <- "HUMF" ### CHANGE HUMF TO SCALOFF!!!
-  message("reminder that this is pulling data from HUMF views, not production SCALOFF")
+  db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
+  #message("reminder that this is pulling data from HUMF views, not production SCALOFF")
   
   #qu.strata <- "select * from SCALOFF.OSSTRATA"
   # DK Oct 29, 2015, don't need tow data either, we don't ever use it.... 
@@ -88,9 +88,9 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   dead$species <- "seascallop"
   live$species <- "seascallop"
   samp$species <- "seascallop"
-  deadice$species <- "icelandic"
-  liveice$species <- "icelandic"
-  sampice$species <- "icelandic"
+  if(dim(deadice)[1] >0) deadice$species <- "icelandic"
+  if(dim(liveice)[1] >0) liveice$species <- "icelandic"
+  if(dim(sampice)[1] >0) sampice$species <- "icelandic"
   
   dead <- rbind(dead, deadice)
   live <- rbind(live, liveice)
@@ -163,6 +163,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Industry report
   if(industry.report == T)
   {
+    
     ### read in OSSURVEYS, OSTOWS and OSHFREQ_SAMPLES
     chan <-dbConnect(dbDriver("Oracle"),username=un, password=pw,db.con)
     
@@ -170,8 +171,8 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     # Jessica has new views for these calls, ,all this prorating is not necessary anymore as she's taken care of it in SQL
     # Key is to import those tables and send it out of this file looking identical!  
     ######################################################################################################################
-    db <- "HUMF" ### CHANGE HUMF TO SCALOFF!!!
-    message("reminder that this is pulling data from HUMF views, not production SCALOFF")
+    db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
+    #message("reminder that this is pulling data from HUMF views, not production SCALOFF")
     
     #qu.strata <- "select * from SCALOFF.OSSTRATA"
     # DK Oct 29, 2015, don't need tow data either, we don't ever use it.... 
@@ -192,6 +193,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     dbDisconnect(chan)
     
     surv_tows <- join(qu.tows, qu.surveys, type="left", by="SURVEY_SEQ")
+    surv_tows <- rbind(data.frame(surv_tows, LIVECODE="L"), data.frame(surv_tows, LIVECODE="D"))
     surv_tows_samp <- join(surv_tows, qu.hfreq, type="full", by="TOW_SEQ")
     surv_tows_samp_hf <- join(surv_tows_samp, qu.heightfreq, type="full", by="HFREQ_SAMPLE_SEQ")
     
@@ -209,11 +211,9 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     
     industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1,], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
                                          summarize,
-                                         catchbaskets=TOTAL) #unique(round((unique(TOTAL)/30) *4, 0)/4))
+                                         catchbaskets=unique(round((unique(TOTAL)/30) *4, 0)/4))
     
     industryreport_l <- join(industryreport_l, unique(industryreport_catchbaskets[!is.na(industryreport_catchbaskets$LIVECODE),]), type="left")
-    
-    industryreport_l$catchbaskets[is.na(industryreport_l$catchbaskets)] <- 0
     
     industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + TOW_TYPE_ID + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
     
