@@ -131,7 +131,6 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # This is not the same size as the object exported from the old get.offshore.survey, but it is the same size as
   # what is needed for SurveySummary, if this is used elsewere the above subset is where it needs changed.
   
-  
   ### Next up we make the position object, this is very simple.
   # This is formatted so that it matches the output from previous year's survey data
   pos=subset(all,state=="live",c('MGT_AREA_CD','TOW_NO','START_LAT','START_LON','END_LAT','END_LON','DEPTH_F',
@@ -163,7 +162,6 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Industry report
   if(industry.report == T)
   {
-    
     ### read in OSSURVEYS, OSTOWS and OSHFREQ_SAMPLES
     chan <-dbConnect(dbDriver("Oracle"),username=un, password=pw,db.con)
     
@@ -193,9 +191,9 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     dbDisconnect(chan)
     
     surv_tows <- join(qu.tows, qu.surveys, type="left", by="SURVEY_SEQ")
-    surv_tows <- rbind(data.frame(surv_tows, LIVECODE="L"), data.frame(surv_tows, LIVECODE="D"))
-    surv_tows_samp <- join(surv_tows, qu.hfreq, type="full", by="TOW_SEQ")
-    surv_tows_samp_hf <- join(surv_tows_samp, qu.heightfreq, type="full", by="HFREQ_SAMPLE_SEQ")
+    # surv_tows <- rbind(data.frame(surv_tows, LIVECODE="L"), data.frame(surv_tows, LIVECODE="D"))
+    surv_tows_samp <- join(surv_tows, qu.hfreq, type="left", by="TOW_SEQ")
+    surv_tows_samp_hf <- join(surv_tows_samp, qu.heightfreq, type="left", by="HFREQ_SAMPLE_SEQ")
     
     surv_tows_samp_hf$indreport_bin[surv_tows_samp_hf$BIN_ID <70] <- "0-70"
     surv_tows_samp_hf$indreport_bin[surv_tows_samp_hf$BIN_ID >65 & surv_tows_samp_hf$BIN_ID <100] <- "70-100"
@@ -219,9 +217,10 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     
     industryreport$YEAR <- yr
     
-    industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
+    # add the empty tows back in
+    industryreport <- join(industryreport, unique(surv_tows_samp[, c("SURVEY_NAME", "MGT_AREA_CD", "TOW_NO", "TOW_TYPE_ID", "START_LAT", "START_LON", "END_LAT", "END_LON", "DEPTH_F","SPECIES_ID")]), type="full")
     
-    industryreport <- industryreport[!is.na(industryreport$catchbaskets),]
+    industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
     
     industryreport[is.na(industryreport)] <- 0
 
@@ -237,6 +236,6 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   
   MWs <- samp[,choose.samp]
   
-  if(industry.report==F) list(SHF=SHF,MWs=MWs,pos=pos)
-  if(industry.report==T) list(SHF=SHF,MWs=MWs,pos=pos, industryreport=industryreport)
+  if(industry.report==F) return(list(SHF=SHF,MWs=MWs,pos=pos))
+  if(industry.report==T) return(list(SHF=SHF,MWs=MWs,pos=pos, industryreport=industryreport))
 } # End get.offshore.survey DK version.

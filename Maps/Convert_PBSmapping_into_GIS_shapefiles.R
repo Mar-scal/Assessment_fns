@@ -12,9 +12,10 @@
 #               and will use that as the layer names.  You can also specify the column name in the data that you want to use as your name.
 #6 save.loc:    The location you want to save the shapefiles to.  This is specified as a directory only, each layer will get placed into this
 #               directory as a series of files (i.e. GIS shapefiles.)
+#7 env.object:  Would you rather save the object to your R environment, instead of saving to a file? (T or F)
 
 
-pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc)
+pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc, env.object=F)
 {
 
 options(stringsAsFactors = F)
@@ -92,7 +93,8 @@ for(i in 1:length(layer.name))
   
   # Now you can save this wonderful Spatial data frame into something that any old GIS program can read.
   
-  writeOGR(dat.sdf,save.loc,driver = "ESRI Shapefile",layer =layer.name[i])
+  if(env.object==F) writeOGR(dat.sdf,save.loc,driver = "ESRI Shapefile",layer =layer.name[i])
+  if(env.object==T) return(dat.sdf)
   
 } # end for(i in 1:length(layer.name))
 

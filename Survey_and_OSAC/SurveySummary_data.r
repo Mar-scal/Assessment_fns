@@ -245,10 +245,11 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     #Source6 source("fn/get.offshore.survey.r") Get the data directly from SQL
     SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)
     # subset by yr to cut off data past specified yr
+    
     SurvDB$SHF <- SurvDB$SHF[SurvDB$SHF$YEAR < (yr+1),]
     SurvDB$MWs <- SurvDB$MWs[SurvDB$MWs$YEAR < (yr+1),]
     SurvDB$pos <- SurvDB$pos[SurvDB$pos$year < (yr+1),]
-    
+
     # SurvDB$SHF$bank[SurvDB$SHF$bank == "Ban" & SurvDB$SHF$species == "icelandic"] <- "BanIce"
     # SurvDB$MWs$bank[SurvDB$MWs$bank == "Ban" & SurvDB$MWs$species == "icelandic"] <- "BanIce"
     # SurvDB$pos$bank[SurvDB$pos$bank == "Ban" & SurvDB$pos$species == "icelandic"] <- "BanIce"
