@@ -13,9 +13,10 @@
 #6 save.loc:    The location you want to save the shapefiles to.  This is specified as a directory only, each layer will get placed into this
 #               directory as a series of files (i.e. GIS shapefiles.)
 #7 env.object:  Would you rather save the object to your R environment, instead of saving to a file? (T or F)
+#8 spdf:        Do you want a SpatialPolygonsDataFrame object? (T) Or just a SpatialPolygons object (F)
 
 
-pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc, env.object=F)
+pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc, env.object=F, spdf=T)
 {
 
 options(stringsAsFactors = F)
@@ -32,7 +33,8 @@ require(mapdata)|| stop("You need mapdata, thanks!")
 
 # Here is our data of interest.
 #
-dat <- read.csv(dat)
+if(any(grepl(x=dat, pattern="csv"))==T) dat <- read.csv(dat)
+
 # For PBS mapping to know what these are the lat and lon columns need to be called Y and X respectively, if you haven't done this spit out a warning
 
 if(length(which(names(dat) %in% c("X","Y"))) < 2) stop("You need to rename your lat and lon columns to 'X' and 'Y' for this to work.")
@@ -60,12 +62,11 @@ if(c_sys == "UTM19") c_sys <- "+init=epsg:32619"
 if(c_sys == "UTM20") c_sys <- "+init=epsg:32620"
 # if you know your shit you can just directly use the datum that your data is right away, but needs set up in this CRS friendly format ("+init=epsg:####)
 
-
 # now in case the data has repeated PID's in it we need to do this slightly clumsily...
 tmp <- NULL
+dat.sdf <- NULL
 for(i in 1:length(layer.name))
 {
-  #browser()
   subs <- which(dat[,names(dat) == layer.names] == layer.name[i])
   tmp <- dat[subs,]
   tmp <- as.PolySet(tmp,projection = proj) # The proj can be "LL", "UTM", or "NULL".
@@ -77,26 +78,36 @@ for(i in 1:length(layer.name))
   # the PolySet2Spatial... assumes a coordinate system based on the data provided (LL data gets WGS84), here you assume you know better
   proj4string(dat.sp) <- CRS(c_sys) # This will spit out a warning, but that's o.k. based on above comment, I'm assuming you know what you are doing...
   
-  # Now this puppy won't be a spatial dataframe, if we want a spatial dataframe we need to add a dummy variable to this...
-  # Create a dataframe and display rownames
+  # for a spatialpolygons object
+  if(spdf==F) dat.sdf <- dat.sp
   
-  # Now replace each of the slots in the spatial data frame with a counter from 1:j
-  if(type == "polygon") for(j in 1:length(slot(dat.sp, "polygons"))) slot(slot(dat.sp, "polygons")[[j]], "ID") <- as.character(j)
-  if(type == "lines") for(j in 1:length(slot(dat.sp, "lines"))) slot(slot(dat.sp, "lines")[[j]], "ID")  <-  as.character(j)
-  
-  # Create dataframe with correct rownames
-  dat.sp.df <- data.frame(ID=1:length(dat.sp), row.names = as.character(1:length(dat.sp)))
-  
-  # Try coersion again and check class
-  if(type == "lines") dat.sdf <- SpatialLinesDataFrame(dat.sp, dat.sp.df)
-  if(type == "polygon") dat.sdf <- SpatialPolygonsDataFrame(dat.sp, dat.sp.df)
+  # For a spatialpolygonsdataframe
+  if(spdf==T){
+    
+    # Now this puppy won't be a spatial dataframe, if we want a spatial dataframe we need to add a dummy variable to this...
+    # Create a dataframe and display rownames
+    
+    # Now replace each of the slots in the spatial data frame with a counter from 1:j
+    if(type == "polygon") for(j in 1:length(slot(dat.sp, "polygons"))) slot(slot(dat.sp, "polygons")[[j]], "ID") <- as.character(j)
+    if(type == "lines") for(j in 1:length(slot(dat.sp, "lines"))) slot(slot(dat.sp, "lines")[[j]], "ID")  <-  as.character(j)
+    
+    # Create dataframe with correct rownames
+    dat.sp.df <- data.frame(ID=1:length(dat.sp), row.names = as.character(1:length(dat.sp)))
+    
+    # Try coersion again and check class
+    if(type == "lines") dat.sdf <- SpatialLinesDataFrame(dat.sp, dat.sp.df)
+    if(type == "polygon") dat.sdf <- SpatialPolygonsDataFrame(dat.sp, dat.sp.df)
+    
+  }
   
   # Now you can save this wonderful Spatial data frame into something that any old GIS program can read.
   
   if(env.object==F) writeOGR(dat.sdf,save.loc,driver = "ESRI Shapefile",layer =layer.name[i])
+  
   if(env.object==T) return(dat.sdf)
   
 } # end for(i in 1:length(layer.name))
+
 
 
 }
