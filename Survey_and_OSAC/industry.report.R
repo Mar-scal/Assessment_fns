@@ -34,3 +34,8 @@ for(i in 1:length(unique(industryreport$MGT_AREA_CD))){
 }
 
 sum(df[[1]]$total) + sum(df[[2]]$total) + sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
+
+industryreport$lon <- convert.dd.dddd(industryreport$START_LON)
+industryreport$lat <- convert.dd.dddd(industryreport$START_LAT)
+ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="BBn",], aes(lon,lat, label=TOW_NO)) + coord_map()
+

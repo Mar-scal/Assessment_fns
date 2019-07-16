@@ -152,6 +152,16 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       season <- tmp.season 
       yr <- tmp.yr
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
+    # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
+    if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
+    {
+      # This loads last years Survey object results.
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_resultsFINAL.Rdata",sep=""), )  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 173 to pull in last year's Survey summary object for the GB MWSH plot.")
+      survey.obj.last <- survey.obj
+    } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    season <- tmp.season 
+    yr <- tmp.yr
   } # end if(season == "testing") 
   
   if(season == "both") 
@@ -162,22 +172,28 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
   } # end if(season == "both") 
-  
+   season <- tmp.season 
+   yr <- tmp.yr
   if(season == "spring") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_object.Rdata",sep=""))  
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_resultsFINAL.Rdata",sep=""), )  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 173 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    season <- tmp.season 
+    yr <- tmp.yr
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_spring_results.Rdata' gets created, Thanks eh!!") # end if/else file.
   } # end if(season == "spring") 
+   season <- tmp.season 
+   yr <- tmp.yr
   if(season == "summer") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
@@ -1571,7 +1587,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
   if(any(plots == "MW-SH"))
   {
-    
+    browser()
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                              list(year=as.character(yr),bank=banks[i]))
     CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),
@@ -1648,7 +1664,7 @@ for(i in 1:len)
         abline(h=mean(survey.obj[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
       }
       
-      if(season=="spring")
+      if(season=="spring"|season=="testing")
       {
         # Added in case R is treating year as a factor... 
         if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
@@ -2108,8 +2124,8 @@ for(i in 1:len)
     if(banks[i] == "Sab")
     {
       yrs <- min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T)
-      survey.ts(clap.survey.obj[[banks[i]]][[1]], min(clap.survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,
-                Bank=bank[i],pdf=F, years=yrs,axis.cx = 1.5,
+      survey.ts(clap.survey.obj[[banks[i]]][[1]],
+                Bank=bank[i],pdf=F, years=yrs, axis.cx = 1.5, type="N",
                 titl = clap.abund.ts.title,add.title=T, cx.mn=3,areas=surv.info$towable_area,
                 ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
     } # end if(banks[i] = "Sab")
