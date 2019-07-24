@@ -207,11 +207,11 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
                             summarize,
                             total_in_bin=sum(prorated_number))
     
-    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1,], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
+    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1 & surv_tows_samp_hf$LIVECODE=="L",], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
                                          summarize,
                                          catchbaskets=unique(round((unique(TOTAL)/30) *4, 0)/4))
     
-    industryreport_l <- join(industryreport_l, unique(industryreport_catchbaskets[!is.na(industryreport_catchbaskets$LIVECODE),]), type="left")
+    industryreport_l <- join(industryreport_l, industryreport_catchbaskets, type="left")
     
     industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + TOW_TYPE_ID + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
     
@@ -223,7 +223,9 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
     
     industryreport[is.na(industryreport)] <- 0
-
+    
+    industryreport <- aggregate(cbind(catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`) ~ ., data=industryreport, sum)
+      
     # And make the CSV...
     write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)
     

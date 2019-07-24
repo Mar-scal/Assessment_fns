@@ -29,6 +29,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   highlights <- NULL
   sizes <- NULL
   for (i in 1:length(banks)){
+    
+    if(banks[i] %in% "BBs") lastyear <- year-2
+    if(!banks[i] %in% c("BBs", "Ban", "BanIce")) lastyear <- year-1
+    if(banks[i] %in% c("Ban", "BanIce")) lastyear <- 2012
+    
     size<-NULL
     size$RS <- survey.obj[banks[i]][[1]]$model.dat$RS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
     size$CS <- survey.obj[banks[i]][[1]]$model.dat$CS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
@@ -55,16 +60,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     # number per tow
     if(banks[i] %in% c("Mid", "GB", "Ger","Ban", "BanIce")){
       NPR_current <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year]
-      NPR_prev <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year-1]
+      NPR_prev <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==lastyear]
       NR_current <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==year]
-      NR_prev <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==year-1]
+      NR_prev <- SS.summary[banks[i]][[1]]$NR[SS.summary[banks[i]][[1]]$year==lastyear]
       N_current <- SS.summary[banks[i]][[1]]$N[SS.summary[banks[i]][[1]]$year==year]
-      N_prev <- SS.summary[banks[i]][[1]]$N[SS.summary[banks[i]][[1]]$year==year-1]
+      N_prev <- SS.summary[banks[i]][[1]]$N[SS.summary[banks[i]][[1]]$year==lastyear]
       NPR_LTM <- median(SS.summary[banks[i]][[1]]$NPR, na.rm=T)
       NR_LTM <- median(SS.summary[banks[i]][[1]]$NR, na.rm=T)
       N_LTM <- median(SS.summary[banks[i]][[1]]$N, na.rm=T)
       
-      if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==year-1,])[1]==0){
+      if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
@@ -73,16 +78,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       NR_current <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      NR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      NR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       N_current <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      N_prev <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      N_prev <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       NPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NPR, na.rm=T)
       NR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NR, na.rm=T)
       N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
       
-      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==year-1,])[1]==0){
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
@@ -92,16 +97,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     # BBs is only surveyed every other year, so change years to year-2
     if(banks[i] %in% c("BBs")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       NR_current <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      NR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      NR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       N_current <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      N_prev <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      N_prev <- survey.obj[banks[i]][[1]]$bankpertow$N[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       NPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NPR, na.rm=T)
       NR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NR, na.rm=T)
       N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
       
-      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==year-2,])[1]==0){
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
@@ -136,16 +141,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     # biomass per tow
     if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
       IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]
-      IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year-1]
+      IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==lastyear]
       IR_current <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year]
-      IR_prev <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year-1]
+      IR_prev <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==lastyear]
       I_current <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==year]
-      I_prev <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==year-1]
+      I_prev <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==lastyear]
       IPR_LTM <- median(SS.summary[banks[i]][[1]]$IPR, na.rm=T)
       IR_LTM <- median(SS.summary[banks[i]][[1]]$IR, na.rm=T)
       I_LTM <- median(SS.summary[banks[i]][[1]]$I, na.rm=T)
       
-      if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==year-1,])[1]==0){
+      if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
@@ -154,16 +159,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
       IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year-1]
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
       
-      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==year-1,])[1]==0){
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
@@ -172,16 +177,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(banks[i] %in% c("BBs")){
       IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year-2]
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
       
-      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==year-2,])[1]==0){
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
@@ -224,49 +229,49 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
     
     if(!banks[i] == "BBs"){
-      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-1, 14:53], 2, mean)
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
     if(banks[i] == "BBs"){
-      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year-2, 14:53], 2, mean)
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
     
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
-    if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-1])
-    if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year-2])
+    if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
+    if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
     PR3Q <- round(summary(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
-                                                                   surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
-                                                                                           surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
+                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
 
     maxRtow <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])
-    if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-1])
-    if(banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year-2])
+    if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear])
+    if(banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear])
     R3Q <- round(summary(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
-                                                                  surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+                                                                  surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
-                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
+                                                                                          surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     maxCtow <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])
-    if(!banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-1])
-    if(banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year-2])
+    if(!banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear])
+    if(banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear])
     C3Q <- round(summary(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
-                                                                  surv.Rand[banks[i]][[1]]$year==year-1]) - 1)
+                                                                  surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
-                                                                                          surv.Rand[banks[i]][[1]]$year==year-2]) - 1)
+                                                                                          surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     print('check1')
     
     if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
@@ -302,7 +307,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       names(cfdat) <- c("year", "CF")
     }
     
-    if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]>0){
+    if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]>0){
     
       cf_ltm <- mean(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
     
@@ -310,10 +315,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                 "spatialCF",
                                 "minCF", 
                                 "maxCF"), 
-                     lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year-1],
-                                mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-1]),
-                                min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-1]),
-                                max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-1])),
+                     lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
+                                mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear])),
                      thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
                                 mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                 min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
@@ -329,10 +334,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   "spatialCF",
                                   "minCF", 
                                   "maxCF"), 
-                       lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year-2],
-                                  mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2]),
-                                  min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2]),
-                                  max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year-2])),
+                       lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
+                                  mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                  min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                  max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear])),
                        thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
                                   mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
@@ -340,7 +345,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                        LTM=cf_ltm)
     }
     print('check2')
-    # if(dim(cfdat[cfdat$year==year-1 & !is.na(cfdat$year),])[1]==0){
+    # if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]==0){
     #   
     #   cf <- data.frame(variable=c("CF",
     #                               "spatialCF",
@@ -424,12 +429,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!banks[i] %in% "BBs"){
     clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
                                   "PRpercentclap", "Rpercentclap", "Cpercentclap"),
-                       lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-1],
-                                  clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-1],
-                                  clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-1],
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year-1]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year-1]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year-1])),
+                       lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                  clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                  clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
+                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==lastyear])),
                        thisyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
@@ -444,12 +449,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(banks[i] %in% "BBs"){
       clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
                                     "PRpercentclap", "Rpercentclap", "Cpercentclap"),
-                         lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-2],
-                                    clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-2],
-                                    clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year-2],
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year-2]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year-2]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year-2])),
+                         lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                    clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                    clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
+                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==lastyear])),
                          thisyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
@@ -479,11 +484,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       boxy <- seedbox.obj[[banks[i]]][[1]]
       
       SeedPR_current <- boxy$model.dat$NPR[boxy$model.dat$year==year]
-      SeedPR_prev <- boxy$model.dat$NPR[boxy$model.dat$year==year-1]
+      SeedPR_prev <- boxy$model.dat$NPR[boxy$model.dat$year==lastyear]
       SeedR_current <- boxy$model.dat$NR[boxy$model.dat$year==year]
-      SeedR_prev <- boxy$model.dat$NR[boxy$model.dat$year==year-1]
+      SeedR_prev <- boxy$model.dat$NR[boxy$model.dat$year==lastyear]
       Seed_current <- boxy$model.dat$N[boxy$model.dat$year==year]
-      Seed_prev <- boxy$model.dat$N[boxy$model.dat$year==year-1]
+      Seed_prev <- boxy$model.dat$N[boxy$model.dat$year==lastyear]
       
       seedPT <- data.frame(variable=c("SeedNPR", "SeedNR", "SeedN"), 
                             lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev),
@@ -506,11 +511,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       seedPT$bank <- banks[i]
       
       bmSeedPR_current <- boxy$model.dat$IPR[boxy$model.dat$year==year]
-      bmSeedPR_prev <- boxy$model.dat$IPR[boxy$model.dat$year==year-1]
+      bmSeedPR_prev <- boxy$model.dat$IPR[boxy$model.dat$year==lastyear]
       bmSeedR_current <- boxy$model.dat$IR[boxy$model.dat$year==year]
-      bmSeedR_prev <- boxy$model.dat$IR[boxy$model.dat$year==year-1]
+      bmSeedR_prev <- boxy$model.dat$IR[boxy$model.dat$year==lastyear]
       bmSeed_current <- boxy$model.dat$I[boxy$model.dat$year==year]
-      bmSeed_prev <- boxy$model.dat$I[boxy$model.dat$year==year-1]
+      bmSeed_prev <- boxy$model.dat$I[boxy$model.dat$year==lastyear]
       
       bmseedPT <- data.frame(variable=c("SeedIPR", "SeedIR", "SeedI"), 
                            lastyear=c(bmSeedPR_prev, bmSeedR_prev, bmSeed_prev),
@@ -531,7 +536,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                  "other"))))
       bmseedPT$nearLTM <- NA
       bmseedPT$bank <- banks[i]
-      browser()
+      
       highlights <- rbind(highlights, seedPT)
       highlights <- rbind(highlights, bmseedPT)
     }

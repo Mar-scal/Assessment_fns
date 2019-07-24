@@ -260,6 +260,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if("BanIcespring" %in% surveys) {
      BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
      BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
+     message("Note: the pre/rec/com estimates in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data) are WRONG and are based on incorrect bins.\nWe will recalculate these later in this function.")
     }
     
     ### This grabs the data directly from the database and makes it it's own object, works for now
@@ -340,6 +341,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     ssn <- season
     bins.tmp <- bins
     test <- testing
+    mwsh <-mwsh.test
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
@@ -364,6 +366,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     season <- ssn
     bins <- bins.tmp
     testing <- test
+    mwsh.test <-mwsh
   } # end if(preprocessed == T) 
   
   
@@ -448,9 +451,10 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
   
   for(i in 1:num.surveys)
   {
+
     # first things first, if you're dealing with Icelandic scallops from Banquereau, go to the one-off script:
     if("BanIcespring" %in% surveys[i]){
-      message("Running BanIce survey summary in BanIce_SurveySummary_data.R since BanIce 2012 is in flat files.")
+      message("Running BanIce survey summary in BanIce_SurveySummary_data.R since BanIce 2006 and 2012 is in flat files.")
       BanIceSurvey_new <- all.surv.dat[all.surv.dat$year>2012 & all.surv.dat$bank=="BanIce",]
       BanIceMW_new <- MW.dat.new[MW.dat.new$year>2012 & MW.dat.new$bank=="BanIce",]
       
@@ -458,7 +462,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       BanIce <- BanIce_SurveySummary_data(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
                                           meatweightdata_2012 = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                           positionsdata_2012=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
-                                          commercialsampling=commercialsampling, BanIceSurvey_new=BanIceSurvey_new, BanIceMW_new=BanIceMW_new, 
+                                          commercialsampling=commercialsampling, BanIceSurvey_new=BanIceSurvey_new, BanIceMW_new=BanIceMW_new, mwsh.test.ban = mwsh.test,
                                           bins="bank_default", RS= size.cats$RS[size.cats$Bank == "Ban"],CS = size.cats$CS[size.cats$Bank == "Ban"], 
                                           survey.bound.polys=survey.bound.polys, survey.detail.polys=survey.detail.polys)
 
@@ -485,6 +489,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       
       bnk <- "BanIce"
       bank.4.spatial <- "BanIce"
+      bank.dat[["BanIce"]]$survey <- "Spring"
 
     }
     if(!"BanIcespring" %in% surveys[i]){
@@ -698,7 +703,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # just in case there are still remnant Commercial sampling station 0 tows that we need to get rid of (e.g. if you have pre-processed = T and are using an RData created before Jan2019 edits):
     if(commercialsampling==F) MW.dat <- MW.dat[!MW.dat$tow==0,]
     
-    
     # here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
     # then we export it as a csv. NOTE: FK added Ban here
     if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -737,7 +741,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
         browser()
         source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
         mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
-                                sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
+                                sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
                                 direct=direct, seed=1234)
         cf.data[[bnk]] <- mwshtest$condmod
       }
@@ -788,11 +792,11 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       browser()
       source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
       mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
-                              sub.size=c(NA,130), sub.year=NULL, sub.tows=0.20, sub.samples=NULL, 
+                              sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
                               direct=direct, seed=1234)
       cf.data[[bnk]] <- mwshtest$condmod
     }
-    
+
     # Because of the lined survey on German we want to differentiate between the lined and unlined CF data
     if(bank.4.spatial == "Ger")
     {

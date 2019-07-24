@@ -829,6 +829,28 @@ for(i in 1:len)
             print(k)
           } # End for(k in 1:num.bins)
         } #end if(length(grep("run",INLA)) > 0)
+        
+        if(banks[i] %in% c("Ban", "BanIce"))
+        {
+          ban.poly.clip <- read.csv(paste0(direct, "Data/Maps/approved/Other_Borders/BanqDomain_OffshorePlots_Feb2019.csv"))
+          names(ban.poly.clip) <- c("POS", "PID", "X", "Y") 
+          ban.poly.clip$SID <- ban.poly.clip$PID
+          ban.poly.clip$PID <- 1
+          ban.poly.clip <- as.PolySet(ban.poly.clip,projection="LL")
+          ban.poly.clip.sp <- PolySet2SpatialPolygons(ban.poly.clip)
+          
+          bound2 <- inla.sp2segment(ban.poly.clip.sp)
+          simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
+          pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+          
+          # this is the clipping step for all banks except Ban
+          #if(!banks[i] %in% c("Ban", "BanIce")) 
+          seed.n.spatial.maps <- names(mod.res)
+          for (k in 1:length(seed.n.spatial.maps)) {
+            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+          }
+        }
+        
       }# end i if(any(plots == "user.SH.bins") || length(grep("run",INLA)) > 0)
       print("finished running user bin models")
       # Now here we can save the results of all INLA runs for each bank rather than having to run these everytime which can be rather slow
@@ -950,7 +972,7 @@ for(i in 1:len)
             # And the legend title
             leg.title <- N.tow.lab
           } # end if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial") 
-          
+          browser()
           # Now for the condition factor
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
@@ -978,7 +1000,7 @@ for(i in 1:len)
           if(maps.to.make[m]  %in% c("MC-spatial"))
           {
             # The color ramps for MC
-            base.lvls <- c(seq(0,50,5),1000)
+            base.lvls <- c(-1000, seq(0,50,5),1500)
             cols <- viridis(length(base.lvls)-1,alpha=0.7,begin=0,end=1)
             # Get the levels correct            
             min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
@@ -1587,7 +1609,7 @@ for(i in 1:len)
 ####################################  MWSH and CF Time series plot #################################### 
   if(any(plots == "MW-SH"))
   {
-    browser()
+    
     MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                              list(year=as.character(yr),bank=banks[i]))
     CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),

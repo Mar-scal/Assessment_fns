@@ -18,8 +18,9 @@ library(viridis) # for colors...
 require(RColorBrewer)
 
 # Load the survey data.  If you've compiled all the surveys use this...
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
-#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
+#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
+#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_SCALOFF_LE09.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
@@ -27,11 +28,12 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
-bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn","Ger","Sab","Mid","GB",#"BBs", 
-         "GBa", "GBb")
-bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
-bnk <- "GB"
+# bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
+# bnk <- c("BBn","Ger","Sab","Mid","GB", "Ban", "BanIce") #"BBs", 
+#          "GBa", "GBb")
+# bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
+# bnk <- "GB"
+bnk <- "Ger"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
 
@@ -49,8 +51,8 @@ for(i in 1:length(bnk))
     if(dir.exists(paste(direct,yr,sep="")) ==F) dir.create(paste(direct,yr,sep=""))
     if(dir.exists(paste(direct,yr,"/Presentations",sep="")) ==F) dir.create(paste(direct,yr,"/Presentations",sep=""))
     if(dir.exists(paste(direct,yr,"/Presentations/Survey_summary",sep="")) ==F) dir.create(paste(direct,yr,"/Presentations/Survey_summary",sep=""))
-    if(dir.exists(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24",sep="")) ==F) dir.create(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24",sep=""))
-    dir.create(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],sep=""))
+    if(dir.exists(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",sep="")) ==F) dir.create(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",sep=""))
+    dir.create(paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],sep=""))
   } # end if(dir.exists(plot.dir)==F)
   
 # Grab the survey data if it exists
@@ -91,12 +93,13 @@ print("1")
 # Get the columns with the shell height frequencies.
 cols <- which(names(bank.clap)=="h5"):which(names(bank.clap)=="h200")
 # And the MW data for each shelf.
-bank.mw <- subset(mw.dat.all[[bnk[i]]],year==yr)
+bank.mw <-mw.dat.all[[bnk[i]]][mw.dat.all[[bnk[i]]]$year==yr,]
+if(bnk[i] == "BanIce") bank.mw <- MW.dat.new[MW.dat.new$bank=="BanIce" & MW.dat.new$year==yr,]
 bank.mw$CF_samp <- bank.mw$wmw/(bank.mw$sh/100)^3
 
 # Check out the Clappers by "real" CF from the bank.mw...
 # This gets the mean CF for each tow and adds that to the data 
-tmp<- tapply(bank.mw$CF_samp,bank.mw$tow,mean)
+tmp<- tapply(bank.mw$CF_samp, bank.mw$tow,mean)
 cf.data <- as.data.frame(1:length(tmp))
 cf.data$tow <- as.numeric(names(tmp))
 cf.data$cf <- as.numeric(tmp)
@@ -130,7 +133,7 @@ dev.off()
 print("2")
 
 # Look at Condition factor from each tow, any stand out higher or low?
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/CF_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(11,8.5)
 plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,bank.live$tow,cex=0.5)
@@ -142,7 +145,7 @@ dev.off()
 
 
 # Look at Condition factor from each tow but label as depth, any stand out higher or low?
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/CF_by_tow and_depth.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow and_depth.pdf",sep=""),width=11,height=8.5)
 #windows(11,8.5)
 plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,round(bank.live$depth),cex=0.5)
@@ -155,7 +158,7 @@ dev.off()
 # Let's look at some clapper trends if we have the data...
 if(is.null(bank.clap$clap.prop)==F)
 {
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_tow and_depth.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_tow and_depth.pdf",sep=""),
     width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
@@ -187,7 +190,7 @@ axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
 dev.off()
 
 print("3")
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
 plot(1:length(bank.clap$clap.prop),bank.clap$clap.prop,xaxt="n",xlab="tow ID",
@@ -219,7 +222,7 @@ dev.off()
 
 
 ############
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_depth.pdf",sep=""),width=8.5,height=11)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_depth.pdf",sep=""),width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
 plot(bank.clap$depth,bank.clap$clap.prop,
@@ -274,7 +277,7 @@ dev.off()
 
 
 ############
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_total_abundance.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_total_abundance.pdf",sep=""),
     width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
@@ -330,7 +333,7 @@ dev.off()
 
 # This one is a little funny, just be sure the data frames are aligned, which they should be
 #############
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_fully_recruited_abundance.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_fully_recruited_abundance.pdf",sep=""),
     width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
@@ -430,7 +433,7 @@ dev.off()
 
 # This one is a little funny, just be sure the data frames are aligned, which they should be
 #############
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_by_pre_recruit_abundance.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_pre_recruit_abundance.pdf",sep=""),
     width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
@@ -531,7 +534,7 @@ dev.off()
 } # end if(is.null(bank.clap$clap.prop)==F)
 
 ### Now I'd also like to look at total number of clappers as well (biomass being less interesting)...
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clapper_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clapper_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
 plot(1:length(bank.clap$tot),bank.clap$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
@@ -563,7 +566,7 @@ dev.off()
 print("7")
 
 # Now lets look at biomass and abundance trends by tow
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Numbers_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
 plot(1:length(bank.live$tot),bank.live$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
@@ -593,7 +596,7 @@ axis(1,at=seq(5,length(bank.live$pre),by=5),labels = c(bank.live$tow[seq(5,lengt
 dev.off()
 
 # Now for the biomass
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Biomass_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_tow.pdf",sep=""),width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
 plot(1:length(bank.live$tot.bm),bank.live$tot.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
@@ -625,14 +628,14 @@ dev.off()
 # Look at the average shell height and meat weight of fully recruited individuals from each tow.
 
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Mean_indy_sh_and_mw.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Mean_indy_sh_and_mw.pdf",sep=""),width=11,height=8.5)
 #windows(11,8.5)
 par(mfrow=c(2,1),mar=c(2,4,1,1))
 plot(1:length(bank.live$l.bar),bank.live$l.bar,xaxt="n",xlab="tow ID", ylab="Mean SH (mm)",
      bty="L",pch=20,type="n",ylim=c(min(bank.live$l.bar,na.rm=T),max(bank.live$l.bar,na.rm=T)))
 text(1:length(bank.live$tow),bank.live$l.bar,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$l.bar,na.rm=T),"Shell Height (mm)")
-title("Mean Shell Height and Meat Weigth by tow (Fully Recruited)")
+title("Mean Shell Height and Meat Weight by tow (Fully Recruited)")
 axis(1,at=seq(5,length(bank.live$l.bar),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 abline(h=mean(bank.live$l.bar,na.rm=T),lwd=2,lty=2,col="blue")
 
@@ -646,7 +649,7 @@ dev.off()
 
 # Lets plot CF, Meat Weigth and Shell height by depth.
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/MW_and_SH_and_CF_by_depth.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MW_and_SH_and_CF_by_depth.pdf",sep=""),
     width=11,height=8.5)
 #windows(8.5,11)
 par(mfrow=c(3,1),mar=c(2,4,1,1))
@@ -679,7 +682,7 @@ print("8")
 
 ### spatial numbers by tow
 baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/PRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -732,7 +735,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in%
 dev.off()
 
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Recspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -783,7 +786,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 dev.off()
 
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/FRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -836,7 +839,7 @@ dev.off()
 print("9")
 ### spatial biomass by tow
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/PRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -888,7 +891,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 dev.off()
 
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Recspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -939,7 +942,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 dev.off()
 
 
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/FRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
@@ -994,7 +997,7 @@ print("10")
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
   plots <- c("PRspatial", "Recspatial", "FRspatial")
   for(j in 1:length(plots)){
-    pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/", plots[j], "_box_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
+    pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_numbers_by_tow.pdf",sep=""),width=11,height=8.5)
     if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
     {
       ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1036,7 +1039,7 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("G
   }
   
   for(j in 1:length(plots)){
-    pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/", plots[j], "_box_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
+    pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_biomass_by_tow.pdf",sep=""),width=11,height=8.5)
     if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
     {
       ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1079,7 +1082,7 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("G
 print("11")
 
 ############## Note that On this figure some true zero's will get a very small value so they can be plotted.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Abundance_by_depth.pdf",sep=""),width=8.5,height=11)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Abundance_by_depth.pdf",sep=""),width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
 plot(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
@@ -1173,7 +1176,7 @@ dev.off()
 
 
 ############### Note that On this figure some true zero's will get a very small value so they can be plotted.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Biomass_by_depth.pdf",sep=""),width=8.5,height=11)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_depth.pdf",sep=""),width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
 plot(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
@@ -1272,7 +1275,7 @@ dev.off()
 baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
 #plot(1:10,col=baths[9],type="o")
 # Nice plot of the GBa tow locations with accompanying survey data.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/tow_locations.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations.pdf",sep=""),width=11,height=8.5)
 #windows(11,8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
 {
@@ -1314,7 +1317,7 @@ dev.off()
 
 ############
 # Here's the Raw CF data by tow.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/CF_samples_by_tow_or_depth.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_samples_by_tow_or_depth.pdf",sep=""),
     width=15,height=8.5)
 #windows(15,8.5)
 par(mfrow=c(2,1),mar=c(2,7,2,1))
@@ -1337,7 +1340,7 @@ dev.off()
 
 ############
 # Here's the MW data by tow and depth
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/MW_by_tow_and_depth.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MW_by_tow_and_depth.pdf",sep=""),
     width=15,height=8.5)
 #windows(15,8.5)
 par(mfrow=c(2,1),mar=c(2,7,2,1))
@@ -1360,7 +1363,7 @@ axis(1,at = 1:length(unique(bank.mw$depth)),labels = round(sort(unique(bank.mw$d
 
 ############
 # Here's the MW data by tow and depth
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/SH_by_tow_and_depth.pdf",sep=""),
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/SH_by_tow_and_depth.pdf",sep=""),
    width=15,height=8.5)
 #windows(15,8.5)
 par(mfrow=c(2,1),mar=c(2,7,2,1))
@@ -1384,7 +1387,7 @@ dev.off()
 
 
 # Now for the clappers by CF, any indication low CF is associated with High clapper numbers.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Clappers_vs_CF.pdf",sep=""),width=8.5,height=11)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_vs_CF.pdf",sep=""),width=8.5,height=11)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(4,7,1,1))
 plot(cf.dat$clap.prop~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
@@ -1450,7 +1453,7 @@ rownames(SH.depth.table) <- paste("SH:",SH.depth.table$Depth)
 rownames(MC.depth.table) <- paste("MC:",MC.depth.table$Depth)
 
 Depth.table <- rbind(CF.depth.table,MW.depth.table,MC.depth.table,SH.depth.table)
-write.csv(Depth.table,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/Depth_table.csv",sep=""))
+write.csv(Depth.table,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Depth_table.csv",sep=""))
 
 
 ### Now grab the abundance data averages for the bank in N/tow or kg/tow
@@ -1486,7 +1489,7 @@ if(bnk[i] %in% c("Ger","Mid","GB"))
 } # end if(bnk[i] %in% c("Ger","Mid","GB"))
 
 
-write.csv(df,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/N_BM_and_Clap.csv",sep=""))
+write.csv(df,paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/N_BM_and_Clap.csv",sep=""))
 
 
 } # end for i loop.
@@ -1563,7 +1566,7 @@ ranges <- apply(bank.live,2,range,na.rm=T)
 # 2014 SHF
 bank.live<- subset(live.dat[[2]],year==2014)
 bank.clap<- subset(clap.dat[[2]],year==2014)
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/SHF_2014.pdf",sep=""),onefile=T,width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/SHF_2014.pdf",sep=""),onefile=T,width=11,height=8.5)
 par(mfrow=c(1,2))
 for(j in seq(1,length(bank.live[,1])))
 {
@@ -1590,7 +1593,7 @@ dev.off()
 # Set up a color palette I can see for isobaths... 
 baths <- brewer.pal(length(seq(40,140,by=10)),"Blues")
 # Nice plot of the GBa tow locations with accompanying survey data.
-pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/Oct24/",bnk[i],"/tow_locations_2014.pdf",sep=""),width=11,height=8.5)
+pdf(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations_2014.pdf",sep=""),width=11,height=8.5)
 #windows(11,8.5)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
 {
@@ -1628,3 +1631,144 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
 } # end if(is.null(bank.survey.info) ==F)
 dev.off()
 ############
+
+
+
+###################################################################################################################################################
+############ Checking for bias caused by German rake loss in 2019 survey. Tows 401-412 were with German Rake, tows 412+ were Georges rake
+###################################################################################################################################################
+lined.dat$rake[lined.dat$year == 2018] <- "German rake"
+lined.dat$rake[lined.dat$year == 2019 & lined.dat$tow %in% 401:411] <- "German rake"
+lined.dat$rake[lined.dat$year == 2019 & !lined.dat$tow %in% 401:411] <- "Georges rake"
+
+ggplot() + geom_text(data=lined.dat[lined.dat$year %in% 2018:2019,],
+                      aes(lon, lat, colour=rake, label=tow)) + facet_wrap(~year) + theme_bw() + theme(panel.grid=element_blank())
+
+lastyear <- unique(lined.dat[lined.dat$year %in% 2018, c("tow", "lon", "lat")])
+names(lastyear) <- c("oldtow", "lon", "lat")
+thisyear <- unique(lined.dat[lined.dat$year %in% 2019, c("tow", "lon", "lat")])
+
+# compare outer SW corner tows from 2018 and 2019
+# compare inner SW corner tows from 2018 and 2019
+
+# start by making a bounding box for the SW corner
+bbox <- c(-66.75, -66.125,  43.0, 43.2)
+
+outerpoly <- cbind(c(-66.625, -66.125, -66.125, -66.625), c(43.25, 43.1, 43.0, 43.0))
+innerpoly <- cbind(c(-66.625, -66.125, -66.125, -66.625), c(43.25, 43.25, 43.1, 43.25))
+names(innerpoly) <- c("X", "Y")
+names(outerpoly) <- c("X", "Y")
+data <- data.frame(id=1)
+
+innerpoly_sp <- SpatialPolygonsDataFrame(SpatialPolygons(list(Polygons(list(Polygon(innerpoly)), 1)), proj4string=CRS("+init=epsg:4326")), data)
+outerpoly_sp <- SpatialPolygonsDataFrame(SpatialPolygons(list(Polygons(list(Polygon(outerpoly)), 1)), proj4string=CRS("+init=epsg:4326")), data)
+
+points <- lined.dat[lined.dat$year %in% 2018:2019, c("year", "tow", "lon", "lat")]
+points$ID <- paste0(points$year, ".", points$tow)
+points_sp <- SpatialPointsDataFrame(coords = cbind(points$lon, points$lat), data = points,
+                               proj4string = CRS("+init=epsg:4326"))
+require(rgeos)
+int_inner <- intersect(points_sp, innerpoly_sp)
+int_outer <- intersect(points_sp, outerpoly_sp)
+int_inner <- data.frame(int_inner)
+int_outer <- data.frame(int_outer)
+
+points$int[points$ID %in% int_inner$ID] <- "inner"
+points$int[points$ID %in% int_outer$ID] <- "outer"
+points$int[is.na(points$int)] <- "other"
+
+points <- join(lined.dat[lined.dat$year %in% 2018:2019,], points, type="full")
+points$int <- factor(points$int, levels=c("inner", "outer", "other"))
+
+map <- ggplot() + 
+  #geom_text(data=points,aes(lon, lat, colour=int, label=tow)) + facet_wrap(~year) + theme_bw() + theme(panel.grid=element_blank()) +
+  geom_point(data=points,aes(lon, lat, colour=rake)) + facet_wrap(~year) + theme_bw() + theme(panel.grid=element_blank()) +
+  geom_polygon(data=as.data.frame(innerpoly), aes(V1, V2), fill=NA, colour="black") +
+  scale_colour_manual(values=c("orange", "blue"), name="Rake type") +
+  #scale_shape_manual(values=c(15,16, 4)) +
+  geom_polygon(data=as.data.frame(outerpoly), aes(V1, V2), fill="grey", colour="black", alpha=0.2) +
+  annotate(geom="text", x=-66.125, y=43.25, label="Inner", hjust=1.05, vjust=1.5) +
+  annotate(geom="text", x=-66.625, y=43, label="Outer", hjust=-0.05, vjust=-0.5) +
+  theme(legend.position="bottom") +
+  ggtitle("German Bank survey stations") +
+  ylab("Latitude") +
+  xlab("Longitude")
+
+
+sw_melt <- melt(points[!is.na(points$int),], measure.vars = paste0("h", seq(5,200,5)))
+sw_melt$variable <- gsub(x=sw_melt$variable, pattern="h", "")
+sw_melt$variable <- as.numeric(as.character(sw_melt$variable))
+
+# all tows in SW corner
+all <- ggplot() + geom_bar(data=sw_melt[!sw_melt$int == "other",], aes(x=variable, y=value), stat = "identity") + 
+  facet_wrap(~year, nrow=2) +
+  theme_bw() + theme(panel.grid=element_blank()) +
+  geom_vline(data=sw_melt, aes(xintercept=95), linetype="dashed")+
+  geom_vline(data=sw_melt, aes(xintercept=105), linetype="dashed") +
+  scale_x_continuous(breaks=seq(0, 200, 10)) +
+  ggtitle("All tows in SW corner of German") +
+  ylab("Number of scallops") +
+  xlab("Size bin (5mm)")
+
+# all tows in inner SW corner
+inner <- ggplot() + geom_bar(data=sw_melt[sw_melt$int=="inner",], aes(x=variable, y=value, fill=rake), stat = "identity") + 
+  facet_wrap(~year, nrow=2) +
+  theme_bw() + theme(panel.grid=element_blank()) +
+  geom_vline(data=sw_melt[sw_melt$int=="inner",], aes(xintercept=95), linetype="dashed")+
+  geom_vline(data=sw_melt[sw_melt$int=="inner",], aes(xintercept=105), linetype="dashed") +
+  scale_x_continuous(breaks=seq(0, 200, 10)) +
+  scale_fill_manual(values=c("orange", "blue"), name="Rake type") +
+  ggtitle("All tows in inner SW corner of German") +
+  theme(legend.position="bottom")+
+  ylab("Number of scallops") +
+  xlab("Size bin (5mm)")
+
+# all tows in outer SW corner
+outer <- ggplot() + geom_bar(data=sw_melt[sw_melt$int=="outer",], aes(x=variable, y=value, fill=rake), stat = "identity") + 
+  facet_wrap(~year, nrow=2) +
+  theme_bw() + theme(panel.grid=element_blank()) +
+  geom_vline(data=sw_melt[sw_melt$int=="outer",], aes(xintercept=95), linetype="dashed")+
+  geom_vline(data=sw_melt[sw_melt$int=="outer",], aes(xintercept=105), linetype="dashed") +
+  scale_fill_manual(values=c("blue"), name="Rake type") +
+  scale_x_continuous(breaks=seq(0, 200, 10)) +
+  ggtitle("All tows in outer SW corner of German") +
+  theme(legend.position="bottom") +
+  ylab("Number of scallops") +
+  xlab("Size bin (5mm)")
+
+
+library(ggplot2)
+library(gridExtra)
+library(grid)
+
+grid_arrange_shared_legend <- function(..., ncol = length(list(...)), nrow = 1, position = c("bottom", "right")) {
+  
+  plots <- list(...)
+  position <- match.arg(position)
+  g <- ggplotGrob(plots[[1]] + theme(legend.position = position))$grobs
+  legend <- g[[which(sapply(g, function(x) x$name) == "guide-box")]]
+  lheight <- sum(legend$height)
+  lwidth <- sum(legend$width)
+  gl <- lapply(plots, function(x) x + theme(legend.position="none"))
+  gl <- c(gl, ncol = ncol, nrow = nrow)
+  
+  combined <- switch(position,
+                     "bottom" = arrangeGrob(do.call(arrangeGrob, gl),
+                                            legend,
+                                            ncol = 1,
+                                            heights = unit.c(unit(1, "npc") - lheight, lheight)),
+                     "right" = arrangeGrob(do.call(arrangeGrob, gl),
+                                           legend,
+                                           ncol = 2,
+                                           widths = unit.c(unit(1, "npc") - lwidth, lwidth)))
+  
+  grid.newpage()
+  grid.draw(combined)
+  
+  # return gtable invisibly
+  invisible(combined)
+  
+}
+png(paste0(direct, "/2019/Presentations/Survey_summary/test_figures/Ger/Rake_assessment.png"), height=8, width=14, units="in", res=400)
+grid_arrange_shared_legend(map, all, inner, outer, ncol=2, nrow=2, position="right")
+dev.off()

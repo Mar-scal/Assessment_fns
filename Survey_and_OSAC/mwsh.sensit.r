@@ -33,7 +33,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/condFac.R"))
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.plt1.R"))
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/stdts.plt.R"))
-  
+  browser()
   if(missing(mwdat) & missing(shfdat)) {
     print("mwdat and shfdat not specified, using pre-loaded mw.dat.all[[bank]] and bank.dat[[bank]] from Survey Summary RData.")
     mwdat <- mw.dat.all[[bank]]
@@ -98,8 +98,8 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
     }
     
   # Run condition model first because we're going to convert sh next. CFs are predicted for entire tow dataset
-  if(bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
-  if(!bank %in% c("Mid", "Ban", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  if(bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
+  if(!bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
 
   
   # fill in any missing years with NAs
