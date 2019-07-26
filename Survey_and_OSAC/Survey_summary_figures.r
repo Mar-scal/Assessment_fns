@@ -558,6 +558,7 @@ for(i in 1:len)
         
         # Convert the sp boundary object to a mesh boundary for INLA.
         bound <- inla.sp2segment(bound.poly.surv.sp.buff)
+        bound2 <- inla.sp2segment(bound.poly.surv.sp)
         xyl <- rbind(x=range(bound$loc[,1]), y=range(bound$loc[,2])) # get the xy ranges of our survey extent.
         
         # This is how the mesh and A matrix are constructed
@@ -754,12 +755,12 @@ for(i in 1:len)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
             
-            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound2$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid", "Ban", "BanIce"))
             {
-              simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
+              simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
@@ -825,11 +826,11 @@ for(i in 1:len)
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound2$loc) 
             # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid", "Ban", "BanIce"))
             {
-              simplemesh <- inla.mesh.2d(boundary = bound,max.edge = 1e9)
+              simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
