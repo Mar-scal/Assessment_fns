@@ -133,7 +133,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = "all" ,
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F, offsets="default",
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F,# offsets="default",
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
 { 
@@ -453,15 +453,15 @@ for(i in 1:len)
       # defaults worked nicely for the 2018 survey so hopefully will work in most other years, but no guarantees! Before the default offsets were established in 
       # summer 2018 (after spring survey summary), GB was assigned 0.35 and the rest were all 0.15. If INLA plots have changed slightly since spring 2018,
       # this is likely why!
-      if(offsets == "default")
-      {
-        if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
-        if(banks[i] %in% c("Ban", "BanIce")) offset = 0.25
-        if(banks[i] %in% c("Sab")) offset = 0.1
-        if(banks[i] %in% c("GBa","GBb")) offset = 0.1
-        if(banks[i] %in% c("GB")) offset = 0.35
-      }# end if(offsets == "default")
-      if(offsets != "default") offset <- offsets[i]
+      # if(offsets == "default")
+      # {
+      #   if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
+      #   if(banks[i] %in% c("Ban", "BanIce")) offset = 0.25
+      #   if(banks[i] %in% c("Sab")) offset = 0.1
+      #   if(banks[i] %in% c("GBa","GBb")) offset = 0.1
+      #   if(banks[i] %in% c("GB")) offset = 0.35
+      # }# end if(offsets == "default")
+      # if(offsets != "default") offset <- offsets[i]
       
       
       # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
@@ -553,8 +553,11 @@ for(i in 1:len)
            
         } # end if(banks[i] %in% c("GBa","GBb") 
         
+        # buffer bound.poly.surv.sp
+        bound.poly.surv.sp.buff <- gBuffer(bound.poly.surv.sp, width = 10/60)
+        
         # Convert the sp boundary object to a mesh boundary for INLA.
-        bound <- inla.sp2segment(bound.poly.surv.sp)
+        bound <- inla.sp2segment(bound.poly.surv.sp.buff)
         xyl <- rbind(x=range(bound$loc[,1]), y=range(bound$loc[,2])) # get the xy ranges of our survey extent.
         
         # This is how the mesh and A matrix are constructed
@@ -562,9 +565,11 @@ for(i in 1:len)
         #  should cover our entire survey area.
         cat("ALERT!  I'm building the mesh for",banks[i], "if this hangs here please try using a different offset for this bank.. \n")
         
-        if(banks[i] != "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.03,0.075), offset=offset)
-        if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, max.edge=c(0.04,0.075), offset=offset)
-        #windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp,add=T,lwd=2)
+        if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.03))
+        if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.04))
+        if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.05))
+        if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.075))
+        windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
         A <- inla.spde.make.A(mesh, loc)
