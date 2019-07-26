@@ -156,8 +156,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_resultsFINAL.Rdata",sep=""), )  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 173 to pull in last year's Survey summary object for the GB MWSH plot.")
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""), )  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 

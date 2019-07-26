@@ -211,7 +211,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     #Source1 source("fn/import.survey.data.r")
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
-    
+    # Import 2006 for BanIce data, then we'll remove back to 2000 in a few lines.
     survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,dirc=direct)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
     
