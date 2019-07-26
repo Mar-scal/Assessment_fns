@@ -168,7 +168,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
       
-      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==lastyear,])[1]==0){
+      if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA

@@ -142,26 +142,29 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   # Load the appropriate data.
   if(season == "testing") 
   {
-    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T ||
-       file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))==T) 
-    {                   
-      if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
-                                     "/Survey_summary_output/testing_results.Rdata",sep=""))
-      if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
-                                       "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
-      season <- tmp.season 
-      yr <- tmp.yr
-    } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
+    season <- tmp.season 
+    yr <- tmp.yr
+    
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""), )  
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""))  
       if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 
     yr <- tmp.yr
+    # THEN bring in this year's file:
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T ||
+       file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))==T) 
+    {                   
+      if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
+                                       "/Survey_summary_output/testing_results.Rdata",sep=""))
+      if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
+                                        "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+      
+    } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
   
   if(season == "both") 
@@ -180,8 +183,8 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_resultsFINAL.Rdata",sep=""), )  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 173 to pull in last year's Survey summary object for the GB MWSH plot.")
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""), )  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 
