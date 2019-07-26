@@ -570,8 +570,8 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # Get the  bank survey boundary polygon when we are dealing with the entire bank
     if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
     {
-      if(bnk=="BanIce") bound.poly.surv <- subset(survey.bound.polys,label=="Ban")
-      if(!bnk=="BanIce") bound.poly.surv <- subset(survey.bound.polys,label==bnk)
+      if(bnk=="BanIce") bound.poly.surv <- subset(survey.bound.polys,label=="Ban" & startyear == max(survey.bound.polys$startyear[survey.bound.polys$label=="Ban"]))
+      if(!bnk=="BanIce") bound.poly.surv <- subset(survey.bound.polys,label==bnk & startyear == max(survey.bound.polys$startyear[survey.bound.polys$label==bnk]))
       attr(bound.poly.surv,"projection")<-"LL"
       
       #Read4 Read drooped #Detailed Survey polygons
