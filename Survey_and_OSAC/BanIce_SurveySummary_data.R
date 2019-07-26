@@ -65,7 +65,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   bank.dat[[bnk]] <- subset(bank.dat[[bnk]] , year %in% years)
 
   ########## SPATIAL ######################
-  browser()
+  
   # Set up the survey polys
   bound.poly.surv <- subset(survey.bound.polys,label=="Ban" & startyear == max(survey.bound.polys$startyear[survey.bound.polys$label=="Ban"])) 
   attr(bound.poly.surv,"projection")<-"LL" 

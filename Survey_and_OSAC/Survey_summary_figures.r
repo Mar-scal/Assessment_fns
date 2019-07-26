@@ -278,7 +278,8 @@ cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
 
 # add an entry into the run log
-runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+if(!file.exists(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
+if(file.exists(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
 runlog <- runlog[, !names(runlog) %in% "X"]
 rundate <- as.character(Sys.time())
 runfunction <- "figures"
