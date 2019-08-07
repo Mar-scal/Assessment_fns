@@ -22,32 +22,30 @@
 
 ### May 16, 2016 added options for calling the database which I should have had in before...
 # Arguments
-# 1 direct:     The root directory to work from  Default = "Y:/Offshore scallop/Assessment", 
-# 2 yrs:        The year(s0) you want to check, needs to be 2008 onwards or it'll break. Default is NULL which will pull everything form 2008 to current year
-#   repo:       Where are you getting the functions and the GIS layers from.  Default is 'github' whic pulls in the latest from Github
+# direct:       The root directory to work from  Default = "Y:/Offshore scallop/Assessment", 
+# yrs:          The year(s0) you want to check, needs to be 2008 onwards or it'll break. Default is NULL which will pull everything form 2008 to current year
+# marfis:       Do you want to check the marfis log or the local logs.  T/F, default is T which checks the marfis logs, if checking the local logs
+#               set to F.  NOTE that this will check the logs associated with what you set "direct" to be!!!
+# repo:         Where are you getting the functions and the GIS layers from.  Default is 'github' whic pulls in the latest from Github
 #               while 'local' searches for the function in a subdirectory of your direct call above
-#32 db.con:     The database to connect to.  Default ="ptran",
-#33 un:         Your username to connect to SQL database.  Default = un.ID
-#34 pw:         Your password to connect to SQL database.  Default = pwd.ID
-#   db.lib:     Do you want to use "ROracle" (the default) or "RODBC", the old way
-#   bank:       The bank you are interested in checking, can be one, multiple, or all banks at once.  Default = NULL which will use all data, to select
+# db.con:       The database to connect to.  Default ="ptran",
+# un:           Your username to connect to SQL database.  Default = un.ID
+# pw:           Your password to connect to SQL database.  Default = pwd.ID
+# db.lib:       Do you want to use "ROracle" (the default) or "RODBC", the old way
+# bank:         The bank you are interested in checking, can be one, multiple, or all banks at once.  Default = NULL which will use all data, to select
 #               a bank you need to use the 3 digit codes (e.g. "GBa","BBn",)
-#   trips:      Do you want to just look at specfic trips.  Default is NULL (looks at everything for the year)
-
-#   dates:      Do you want to just look for trips that fished within a certain range.  Default is NULL. 
+# trips:        Do you want to just look at specfic trips.  Default is NULL (looks at everything for the year)
+# dates:        Do you want to just look for trips that fished within a certain range.  Default is NULL. 
 #               For one day enter like: dates="YYYY-MM-DD"
 #               For a date range enter as: dates=c("YYYY-MM-DD", "YYYY-MM-DD") where the first date is the beginning and the second date is the end of the range.
-#   tow.time.check:   What is the range of tow times you want to check.  default = c(3,80) which will flag tow times < 3 and > 80.
-#   trip.tol:   What is the tolerance you want for comparing the slip weights with the trip weights from the logs.  Options include
+# tow.time:     What is the range of tow times you want to check.  default = c(3,80) which will flag tow times < 3 and > 80.
+# trip.tol:     What is the tolerance you want for comparing the slip weights with the trip weights from the logs.  Options include
 #               a: 'exact' which will flag trips that aren't exact matches, this may flag a lot of trips that are only off due to rounding error
 #               b:  enter a numeric value to search for trips in which the weight of the logs and slips differ by given amount.  For example
 #                   trip.tol = 100 will flag trips in which the difference between the sum of the slip and sum of the trip weight is > 100 lbs.
 #                   Default is 1 lb which is pretty much equivalent to rounding to the nearest whole number.
-#   plot.trips  Do you want to make spatial plots of the trips.  T/F, default = T.
-#   export      Do you want to export the results to a xlsx spreadsheet.  Default is NULL which doesn't export anything.
-#               export = "fish.dat" will put a file in the Assessment/yr/log_Checks/ folder with a name that attempts to
-#               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
-#   reg.2.plot  A few options here, the default is NULL.  What this does is to create a zoomed in plot focused on a bounding box around the
+# spatial       Do you want to make spatial plots of the trips.  T/F, default = T.
+# reg.2.plot    A few options here, the default is NULL.  What this does is to create a zoomed in plot focused on a bounding box around the
 #               points in each tow.  If you want to plot a bank or a region just put that here, see pecjector for 
 #               region names that work (e.g. "GBa","GBb", "SS", "BOF", etc) if you want to plot a specific area
 #               you can enter the coordinates and the projection system, likely you'll never need to mess with the projection system
@@ -55,12 +53,17 @@
 #               data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
 #               Note that for mutiple trips the NULL option will zoom in on each trip, whereas the non-NULL option will plot the
 #               same region for every trip.
+# shiny         Do you want to run the interactive shiny app to visually assess the logs you have identified.  T/F, default = T   
+# export        Do you want to export the results to a xlsx spreadsheet.  Default is NULL which doesn't export anything.
+#               export = "fish.dat" will put a file in the Assessment/yr/log_Checks/ folder with a name that attempts to
+#               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
 ###############################################################################################################
 
-log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , repo = "github",
-                    un=NULL,pw=NULL,db.con="ptran",db.lib = "ROracle", export = NULL,
-                    bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time.check = c(3,80),trip.tol = 1 ,spatial = T,
-                    reg.2.plot = NULL, shiny = F, plot_package=NULL, marfis_or_csv="marfis"
+log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , marfis=T, repo = "github",
+                       db.con="ptran",un=NULL,pw=NULL,db.lib = "ROracle", 
+                       bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time = c(3,80),trip.tol = 1 ,
+                       spatial = T,reg.2.plot = NULL, shiny = T, export = NULL
+                       
                   )
 {
 # Load in the functions needed for this function to run.
@@ -89,6 +92,8 @@ require(openxlsx)|| stop(" You need the openxlsx package if you want to export t
 require(rgdal)
 options(stringsAsFactors = F)
 
+# If we are running the shiny app we want to set the plot_package to be "ggplot2", otherwise we set it to NULL which is just base graphics
+plot_package <- ifelse(shiny == T,"ggplot2","NULL")
 # We want to bring in the vessel information
 fleet.dat <- read.csv(paste0(direct,"Data/Offshore_Fleet.csv"))
 # Now we want to look at the portion of the fleet we have Gear size and number of rakes
@@ -97,18 +102,18 @@ fleet.dat <- fleet.dat[!is.na(fleet.dat$num_rakes),]
 # If you didn't specify years we pick all years from 2008 to current (this won't work before 2008!)
 if(is.null(yrs)) yrs <- 2008:as.numeric(format(Sys.Date(),"%Y"))
 # Now bring in the fishery data you want to look at.
-logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,get.marfis = T,export=F,db.lib=db.lib)
+logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,get.marfis = marfis,export=F,db.lib=db.lib)
 # the marfis data
-if(marfis_or_csv=="marfis") dat.log <- marfis.log
-if(marfis_or_csv=="csv") dat.log <- new.log.dat
+if(marfis==T) dat.log <- marfis.log
+if(marfis==F) dat.log <- new.log.dat
 
 dat.log$avgtime <- as.numeric(dat.log$avgtime)
 
 # extra time check column
 dat.log$watchtime <- (as.numeric(dat.log$numtow)*dat.log$avgtime)/60
 
-if(marfis_or_csv=="marfis") dat.slip <- marfis.slip
-if(marfis_or_csv=="csv") dat.slip <- slip.dat
+if(marfis==T) dat.slip <- marfis.slip
+if(marfis==F) dat.slip <- slip.dat
 
 # If you want to look by trip Number, this would also pull any logs with the trip number missing from that year
 miss.dat <- NULL
@@ -165,7 +170,7 @@ log.checks <- dat.log[remove,]
 # If any of the trips have roe-on we want to flag those
 roe.on <- dat.log[dat.log$roeon == "Y",]
 # If the tow time is < 3 or > 80 that's something we want to investigate further. Also flagging any watches that are longer than 6h. 
-tow.time.outliers <- dat.log[(dat.log$avgtime < tow.time.check[1] | dat.log$avgtime > tow.time.check[2] | dat.log$watchtime >= 6) & !is.na(dat.log$watchtime),]
+tow.time.outliers <- dat.log[(dat.log$avgtime < tow.time[1] | dat.log$avgtime > tow.time[2] | dat.log$watchtime >= 6) & !is.na(dat.log$watchtime),]
 
 # Now before I get into the spatial bit I need to make an automated file name so I can save either/both a pdf or an xlsx
 if(!is.null(export) || spatial == T)
@@ -178,7 +183,7 @@ if(!is.null(export) || spatial == T)
     if(!is.null(dates)) date.name <- paste0("_",paste(dates,collapse = "_"))
     if(is.null(vrnum)) vr.num <- ""
     if(!is.null(vrnum)) vr.num <- paste0("_",paste(vrnum,collapse = "_"))
-    t.name <- paste(tow.time.check,collapse = "_")
+    t.name <- paste(tow.time,collapse = "_")
     # Now make the file name
     if(spatial == F) f.name <- paste0(direct,max(yrs),"/Log_checks/Log_check",bank.name,trip.name,date.name,vr.num,
                                       "_avg_tow_time_range_",t.name,"_slip_vs_log_weight_tol_",trip.tol)
@@ -200,12 +205,10 @@ watches.outside.sa <- NULL
 watches.outside.nafo <- NULL
 # If makeing spatial plots crack open the pdf
 if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
-
-
 trip.log.all <- list()
 osa.all <- list()
 pr.all <- list()
-if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all <- list()
+if(shiny ==T) pect_ggplot.all <- list()
 
 
 for(i in 1:num.trips)
@@ -399,7 +402,7 @@ for(i in 1:num.trips)
       pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do", plot_package=plot_package,add_nafo = "sub")
     } 
     else {
-      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,,add_nafo = "sub")
+      pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,add_nafo = "sub")
       }
     
     plot(trip.log,add=T,pch=19,cex=1)
@@ -418,13 +421,13 @@ for(i in 1:num.trips)
     pr.all[[i]] <- pr
     if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
   }
-} # end for(i in 1:num.trips)
 
-# run shiny app?
-if(shiny == T && is.null(reg.2.plot) && plot_package=="ggplot2") {
-  source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
-  shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
-}
+} # end for(i in 1:num.trips)
+dev.off()
+
+# if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
+if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
+
 
 # Missing data is anything that is missing the vrnum, bank, date fished, or trip number
 missing.dat <- NA
@@ -457,6 +460,7 @@ if(spatial == T) dat.export <- list(log.checks = log.checks,missing.dat = missin
                                     tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
                                     watches.outside.nafo.bounds = watches.outside.nafo.bounds)
 
+#browser()
 # Now I want to make a file name that tells me exactly what I ran, this should be fun!
 if(!is.null(export))
 {
@@ -464,7 +468,14 @@ if(!is.null(export))
   if(export != "fish.dat") write.xlsx(dat.export,export)
   # If you want an automated file name the name gets created up top so it is available for the pdf figure.
   if(export == "fish.dat") write.xlsx(dat.export,paste0(f.name,".xlsx"))
-return(dat.export)
+  # Print the results to the screen and assign them to the global environment for a quick look 
+  print(dat.export)
+  assign('dat.export',dat.export,pos=1)
 } # end if(!is.null(export))
   
+if(shiny == T && is.null(reg.2.plot)) {
+  source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
+  shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
+}
+
 } # end function
