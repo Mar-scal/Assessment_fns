@@ -31,6 +31,8 @@
 # Oct 2018:     Updated to enable plotting of small user defined sub-areas.
 # Nov 2018:     Created colour.bins option which allows you to specify the colour ramp on INLA spatial plots. Revisit this in June 2019 to figure out appropriate bins for spring banks.
 #               Created keep.full.GB option which allows you to create INLA spatial maps for ALL of GB, not just GBa and GBb separately. 
+# Aug 2019:     Various updates, see github, included moving models to negative binomials for abundance spatial figures, and tidying up seedboxes
+               
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -112,17 +114,21 @@
 #                               special monitoring boxes (i.e. the "Starbox on Sable).  Regular seeedbox results will typically be 
 #                               saved as subset of the bank.
 # 11: contour:  Add a contour line around the spatial plots to help delinate them.  T/F, default = F
+# 12: plt.bath  If you want to plot the bathymetry on the plots, this can be slow for the USGS data so if just trying to take a quick look at the
+#               figures set this to false for quicker rendering...
+# 13: sub.area Do you want to make plots of the user specfied sub areas.  T/F, default = T
+# 14: colour.bins Do you want to specify some colour bins for the PR-spatial, Rec-Spatial and FR-spatial plots? Default is NULL, but if you want bins, put in a vector 
+#               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000). Max bin must exceed max INLA estimate for any tow in plot.
+# 15. keep.full.GB Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
+
+##### Removed options
+# We had an offset, but it was buggering up the INLA mesh so we deleted that
 # 12: offsets:  The offset for the INLA figures, there is apparently a bug within INLA which results in the mesh calculations "hanging" with some
 #               combinations for the mesh calculations, if the mesh for an area isn't calculating try changing this.  For 2018 the "default" offsets by bank 
 #               were BBn =0.12;  BBs = 0.12;  Ger = 0.12; Mid = 0.12; Sab = 0.10, GBb = 0.15; GBa = 0.15; GB = 0.35.  This should be set to "default", if these
 #               are added manually the there needs to be 1 entry for each bank you are plotting, e.g. if wanting to change from the default settings and plotting
 #               just a couple of banks, let's say BBn and Mid, you would need to have this be something like offsets = c(0.15,0.13)
-# 13: plt.bath  If you want to plot the bathymetry on the plots, this can be slow for the USGS data so if just trying to take a quick look at the
-#               figures set this to false for quicker rendering...
-# 14: sub.area Do you want to make plots of the user specfied sub areas.  T/F, default = T
-# 15: colour.bins Do you want to specify some colour bins for the PR-spatial, Rec-Spatial and FR-spatial plots? Default is NULL, but if you want bins, put in a vector 
-#               of 13 bins like this: c(0,5,10,50,100,200,300,500,700,1000,2000,5000,10000). Max bin must exceed max INLA estimate for any tow in plot.
-# 16. keep.full.GB Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
+#
 
 ###############################################################################################################
 
@@ -133,7 +139,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        banks = "all" ,
                        s.res = "low",add.scale = F, 
                        direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F,# offsets="default",
+                       add.title = T,fig="screen",season="both",INLA = "run" ,contour =F,
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
 { 
@@ -142,8 +148,10 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   # Load the appropriate data.
   if(season == "testing") 
   {
+    # Some temporary assignments so we can load in old data without overwritting more important crap
     season <- tmp.season 
     yr <- tmp.yr
+    dir.temp <- direct
     
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
@@ -153,6 +161,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    direct <- dir.temp
     season <- tmp.season 
     yr <- tmp.yr
     # THEN bring in this year's file:
@@ -453,22 +462,7 @@ for(i in 1:len)
       if(any(s.res == "high")) s.res <- c(250,250)
       if(any(s.res == "low")) s.res <- c(25,25)
       
-      # The offset for the INLA mesh needs to be specified, these are tricky as some combinations of offsets can lead to the script hanging, the
-      # defaults worked nicely for the 2018 survey so hopefully will work in most other years, but no guarantees! Before the default offsets were established in 
-      # summer 2018 (after spring survey summary), GB was assigned 0.35 and the rest were all 0.15. If INLA plots have changed slightly since spring 2018,
-      # this is likely why!
-      # if(offsets == "default")
-      # {
-      #   if(banks[i] %in% c("BBn","BBs","Ger","Mid")) offset = 0.12
-      #   if(banks[i] %in% c("Ban", "BanIce")) offset = 0.25
-      #   if(banks[i] %in% c("Sab")) offset = 0.1
-      #   if(banks[i] %in% c("GBa","GBb")) offset = 0.1
-      #   if(banks[i] %in% c("GB")) offset = 0.35
-      # }# end if(offsets == "default")
-      # if(offsets != "default") offset <- offsets[i]
-      
-      
-      # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
+       # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
       if(banks[i] == "Mid")  
       {
         bound.poly.surv <- rbind(c(1,	1,	1,	-60.78,	44.68),
@@ -557,23 +551,23 @@ for(i in 1:len)
            
         } # end if(banks[i] %in% c("GBa","GBb") 
         
-        # buffer bound.poly.surv.sp
+        # buffer bound.poly.surv.sp so that we are not predicting along the edge of the survey area
+        # we had used offset previously for this but it caused issues with developing the mesh so this was our revised solution.
         bound.poly.surv.sp.buff <- gBuffer(bound.poly.surv.sp, width = 10/60)
         
-        # Convert the sp boundary object to a mesh boundary for INLA.
-        bound <- inla.sp2segment(bound.poly.surv.sp.buff)
-        bound2 <- inla.sp2segment(bound.poly.surv.sp)
-        xyl <- rbind(x=range(bound$loc[,1]), y=range(bound$loc[,2])) # get the xy ranges of our survey extent.
+        # Convert the sp boundary object to a mesh boundary for INLA. 
+        bound.buff <- inla.sp2segment(bound.poly.surv.sp.buff)
+        bound.no.buff <- inla.sp2segment(bound.poly.surv.sp)
+        xyl <- rbind(x=range(bound.buff$loc[,1]), y=range(bound.buff$loc[,2])) # get the xy ranges of our extent.
         
         # This is how the mesh and A matrix are constructed
-        # Build the mesh, for our purposes I'm hopeful this should do the trick, the offset makes the area a bit larger so the main predictions 
-        #  should cover our entire survey area.
+        # Build the mesh, for our purposes I'm hopeful this should do the trick, should cover our entire survey area.
         cat("ALERT!  I'm building the mesh for",banks[i], "if this hangs here please try using a different offset for this bank.. \n")
         
-        if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.03))
-        if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.04))
-        if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.05))
-        if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound, max.edge=c(0.075))
+        if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.03))
+        if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.04))
+        if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.05))
+        if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.075))
         windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
@@ -594,8 +588,8 @@ for(i in 1:len)
                                     prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                                     prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
         }
-        ## All of our abundance spatial plots are counts, so for our simple purposes a poisson is o.k.
-        family1 = "poisson"
+        ## All of our abundance spatial plots are counts, moving to a negative binomial model
+        family1 = "nbinomial"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
         # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
@@ -759,12 +753,12 @@ for(i in 1:len)
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
             
-            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound2$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound.no.buff$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
             if(banks[i] %in% c("Sab","Mid", "Ban", "BanIce"))
             {
-              simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
+              simplemesh <- inla.mesh.2d(boundary = bound.no.buff,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
@@ -830,11 +824,11 @@ for(i in 1:len)
             proj <- inla.mesh.projector(mesh,xlim=xyl[1, ], ylim=xyl[2,],dims = s.res) # 500 x 500 gives very fine results but is slow.        
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
-            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound2$loc) 
+            if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound.no.buff$loc) 
             # For Sable we need to do this b/c of the holes in the bank.
             if(banks[i] %in% c("Sab","Mid", "Ban", "BanIce"))
             {
-              simplemesh <- inla.mesh.2d(boundary = bound2,max.edge = 1e9)
+              simplemesh <- inla.mesh.2d(boundary = bound.no.buff,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
             # Then make a matrix of the correct dimension
@@ -1440,7 +1434,8 @@ for(i in 1:len)
                                       length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
                                       ")",sep="")),title="Tow type",
              pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA, cex = 1.2, pt.cex = 1.2)
-      sb2 <- seedboxes[which(grepl(seedboxes$ID, pattern="C4") | grepl(seedboxes$ID, pattern="C5") | grepl(seedboxes$ID, pattern="C6") |grepl(seedboxes$ID, pattern="C7")),]
+      # Generalized code so it would work long term.  Pulling out all seedboxes that were closed at any point during the current year.
+      sb2 <- seedboxes[which(year(seedboxes$Open) >= yr),]
       addPolys(as.PolySet(sb2, projection = "LL"),lty=2,lwd=2)
     } # end if(banks[i] %in% c("GBa","BBn"))
     
@@ -1600,6 +1595,9 @@ for(i in 1:len)
     if(add.title == F) MWSH.title <- ""
     if(add.title == F) CF.ts.title <- ""
     
+    # Because name of BanIce is longer than other banks I added this so the figure title doesn't go off screen.
+    cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
+    
     ############
     #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
     if(fig == "screen") windows(15,8)
@@ -1607,14 +1605,16 @@ for(i in 1:len)
                          units="in",width = 13,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
     
+    
     par(mfrow=c(1,2))
-    shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = 2,las=1)
+    shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
     
     # now the condition factor figure..
     if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")
     {
+
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=2)
+                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
     }
     
     # DK Note that German is still calculated the "old way" using the cf.data at a specific location
@@ -1623,14 +1623,14 @@ for(i in 1:len)
     if(banks[i] == "Ger")
     {
       stdts.plt(cf.data[[banks[i]]]$CFyrs,y=c('CF','CF2'),pch=c(23,24),col=c('blue','red'),ylab=cf.lab,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=2,tx.ypos=4)
+                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=cap.size,tx.ypos=4)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     }
     # Have to add in the CF for May into the data
     if(banks[i] == "GBa")
     {
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=2,las=1)
+                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
       if(season=="both")
       {
         points(survey.obj[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
@@ -1652,7 +1652,7 @@ for(i in 1:len)
     if(banks[i] == "GB")
     {
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=22,ylab=cf.lab,col="red",lty=2,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=2,las=1)
+                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
       if(season=="both")
       {
         points(survey.obj[["GBa"]][[1]]$year+0.25,survey.obj[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
@@ -2213,7 +2213,6 @@ for(i in 1:len)
   }  # end if(any(plots== "SH-MW-CF-ts"))
   
   
-  
   ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB
   ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB  
   
@@ -2541,6 +2540,11 @@ for(i in 1:len)
         if(add.title == T)  title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2)
         if(fig != "screen") dev.off()
         
+        
+        # If all of the seedbox tows are within a strata than we do this so we have the proj for the seedbox stashed 
+        if(any(is.na(surv.seed$Strata_ID))==F) proj.sb <- proj
+        
+        
         # Next the spatial abundance figures.
         # First I will re-run the INLA if any of the seedbox tows from the most recent year are found to be outside the survey area, 
         # this is mostly here to deal with the Starbox on Sable, but could impact other seedbox if for some reason they are
@@ -2552,19 +2556,24 @@ for(i in 1:len)
         
         if(any(is.na(surv.seed$Strata_ID))==T)
         {
-          mod.res <- NULL
+          #mod.res <- NULL
           # Now set up the INLA for this seedbox...
           bound.poly.surv.sp.sb <- PolySet2SpatialPolygons(as.PolySet(this.box,projection="LL"))
+          bound.poly.surv.sp.sb.buff <- gBuffer(bound.poly.surv.sp.sb, width = 3/60)
+          
           loc.sb <- cbind(surv.seed$lon[surv.seed$year == yr],
                        surv.seed$lat[surv.seed$year == yr])
+          
+          bound.sb.buff <- inla.sp2segment(bound.poly.surv.sp.sb.buff)
+          bound.sb.no.buff <- inla.sp2segment(bound.poly.surv.sp.sb)
           # Build the mesh, for our purposes I'm hopeful this should do the trick.
-          mesh.sb <- inla.mesh.2d(loc.sb, max.edge=c(0.1), cutoff=0.001,
-                               boundary = inla.sp2segment(bound.poly.surv.sp.sb))
-          # plot(mesh)
-          #plot(mesh.cf)
+          mesh.sb <- inla.mesh.2d(loc.sb, max.edge=c(0.03),boundary = bound.sb.buff)
+
+          # plot(mesh.sb)
           A.sb <- inla.spde.make.A(mesh.sb, loc.sb)
-          ## All of our spatial plots are counts, so for our simple purposes a poisson is o.k.
-          family1 = "poisson"
+          ## All of our spatial plots are counts, but the poisson should have enough variability to handle these
+          ## so in 2019 DK moved to the negative binomial.
+          family1 = "nbinomial"
           # We can just make the one spde object for all of these as well.
           spde.sb <- inla.spde2.pcmatern(mesh.sb,    
                                       prior.sigma=c(1,0.5),
@@ -2592,9 +2601,14 @@ for(i in 1:len)
               mod.res.tmp<- exp(mod$summary.random$s$mean+mod$summary.fixed$mean)
               
               # This projects our mesh
-              proj <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = c(500, 500))
+              
+              proj.sb <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = s.res)
               # this makes a big matrix with the values in the proper locations
-              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj, mod.res.tmp)
+              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj.sb, mod.res.tmp)
+              # Now remove the crap from outside the box boundary.
+              pred.in <- inout(proj.sb$lattice$loc,bound.sb.no.buff$loc) 
+              mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+              
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")   
             
             if(seed.n.spatial.maps[k] == "Rec-spatial")        
@@ -2610,9 +2624,12 @@ for(i in 1:len)
               mod.res.tmp<- exp(mod$summary.random$s$mean+mod$summary.fixed$mean)
               
               # This projects our mesh
-              proj <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = c(500, 500))
+              proj.sb <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = s.res)
               # this makes a big matrix with the values in the proper locations
-              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj, mod.res.tmp)
+              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj.sb, mod.res.tmp)
+              pred.in <- inout(proj.sb$lattice$loc,bound.sb.no.buff$loc) 
+              mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+              
               
             } # end if(seed.n.spatial.maps[k] == "Rec-spatial") 
             
@@ -2629,10 +2646,14 @@ for(i in 1:len)
               mod.res.tmp<- exp(mod$summary.random$s$mean+mod$summary.fixed$mean)
               
               # This projects our mesh
-              proj <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = c(500, 500))
+              proj.sb <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = s.res)
               # this makes a big matrix with the values in the proper locations
-              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj, mod.res.tmp)
+              mod.res[[seed.n.spatial.maps[k]]] <- inla.mesh.project(proj.sb, mod.res.tmp)
+              pred.in <- inout(proj.sb$lattice$loc,bound.sb.no.buff$loc) 
+              mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+              
             } # end if(seed.n.spatial.maps[k] == "FR-spatial")
+            
             # End the loop for getting all the data needed for a bank for the spatial maps.
           } # end for(k in 1:length(seed.n.spatial.maps))
       }  # end if(any(is.na(surv.seed$Strata_ID))==T)
@@ -2678,9 +2699,9 @@ for(i in 1:len)
             
             # Add the contours
             #if(dim(surv.seed==0){
-            if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-            if(b == 2) image(list(x = proj$x, y=proj$y, z = mod.res[["Rec-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
-            if(b == 3) image(list(x = proj$x, y=proj$y, z = mod.res[["FR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+            if(b == 1) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["PR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+            if(b == 2) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["Rec-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
+            if(b == 3) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["FR-spatial"]]), axes=F,add=T,breaks = lvls,col=cols)
             #}
             #Add the rest of the crap to the plot.
             addPolys(this.box,lty=2,lwd=2)
@@ -2718,127 +2739,130 @@ for(i in 1:len)
           if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
           if(fig != "screen") dev.off()
         } # end if(dim(surv.seed[surv.seed$year==yr,])>0)
+        
         ########### Now add the CF, MC, and Clapper figures for inside any of the seedboxes that exist, all of these must exist for this to plot.
-        if(!is.null(mod.res[["Clap-spatial"]]) & !is.null(mod.res[["CF-spatial"]]) & !is.null(mod.res[["MC-spatial"]]))
-        {
-          # Next the CF/MC/Clapper plots as necessary.
-          if(fig == "png") png(paste(plot.dir,box.names[j],"-spatial_CF-MC-Clap.png",sep=""),units="in",
-                               width = 11, height = 8.5,res=420,bg = "transparent")
-          if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-spatial_CF-MC-Clap.pdf",sep=""),
-                               width = 11, height = 8.5)
-          if(fig == "screen") windows(11,8.5)
-          
-          par(mfrow=c(2,2),omi=c(0.1,0.2,0.5,0.5),xpd=F)
-          
-          # Loop through each size category
-          for(b in 1:3) 
-          {
-            # Get the title for each panel...
-            if(b ==1) 
-            {
-              base.lvls <- c(0,5,8,10,12,14,16,18,50)
-              cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
-              # Get the levels correct            
-              min.lvl <- max(which(base.lvls <= min(mod.res[["CF-spatial"]],na.rm=T)))
-              max.lvl <- min(which(base.lvls >= max(mod.res[["CF-spatial"]],na.rm=T)))
-              lvls <- base.lvls[min.lvl:max.lvl]
-              cf.cols <- cols[min.lvl:(max.lvl-1)]
-              ifelse(max(lvls) == max(base.lvls),  cf.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                                                paste(lvls[length(lvls)-1],'+',sep='')),
-                     cf.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                  paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
-              fig.title <- cf.title.seed
-            } # end if(b==1)
-            
-            if(b ==2) 
-            {
-              # The color ramps for MC
-              base.lvls <- c(seq(0,50,5),1000)
-              cols <- viridis(length(base.lvls)-1,alpha=0.7,begin=0,end=1)
-              # Get the levels correct            
-              min.lvl <- max(which(base.lvls <= min(mod.res[["MC-spatial"]],na.rm=T)))
-              max.lvl <- min(which(base.lvls >= max(mod.res[["MC-spatial"]],na.rm=T)))
-              lvls <- base.lvls[min.lvl:max.lvl]
-              mc.cols <- cols[min.lvl:(max.lvl-1)]
-              ifelse(max(lvls) == max(base.lvls),  mc.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                                                paste(lvls[length(lvls)-1],'+',sep='')),
-                     mc.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                  paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
-              fig.title <- mc.title.seed 
-            } # end if(b==2)
-            
-            if(b ==3)
-            {
-              # The color ramp for Clapper proportion
-              base.lvls=c(0,5,10,15,20,50,100)
-              cols <- rev(plasma(length(base.lvls)-1,alpha=0.7))
-              # Get the levels correct            
-              min.lvl <- max(which(base.lvls <= min(mod.res[["Clap-spatial"]],na.rm=T)))
-              max.lvl <- min(which(base.lvls >= max(mod.res[["Clap-spatial"]],na.rm=T)))
-              lvls <- base.lvls[1:max.lvl]
-              clap.cols <- cols[min.lvl:(max.lvl-1)]
-              ifelse(max(lvls) == max(base.lvls),  clap.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                                                  paste(lvls[length(lvls)-1],'+',sep='')),
-                     clap.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
-                                    paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
-              fig.title <- clap.title.seed
-            }# end if(b==3)
-            
-            # Make the map
-            ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
-                       title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = add.scale)
-
-            # Add the contours
-            if(b == 1) image(list(x = proj$x, y=proj$y, z = mod.res[["CF-spatial"]]), axes=F,add=T,breaks = lvls,col=cf.cols)
-            if(b == 2) image(list(x = proj$x, y=proj$y, z = mod.res[["MC-spatial"]]), axes=F,add=T,breaks = lvls,col=mc.cols)
-            if(b == 3) image(list(x = proj$x, y=proj$y, z = mod.res[["Clap-spatial"]]), axes=F,add=T,breaks = lvls,col=clap.cols)
-            
-            #Add the rest of the crap to the plot.
-            addPolys(this.box,lty=2,lwd=2)
-            # Add the regular survey tows.
-            points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
-            # Add the exploratory survey tows
-            points(slat~slon,surv.seed,subset=year==yr&state =='live' & random%in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.3)
-            if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=1.3) # add the repeat tows.
-          } # end for(b in 1:3)
-          
-          # Now add the legend.
-          par(xpd=T)
-          plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
-          legend("topleft",cf.lvls,fill=cf.cols,border="black",pch=c(rep(NA,length(cf.lvls))),title = cf.lab,title.adj = 0.2,
-                 pt.bg = c(rep(NA,length(cf.lvls))),bg=NA,bty="n")
-          
-          legend("top",mc.lvls,fill=mc.cols,border="black",pch=c(rep(NA,length(mc.lvls))),title = mc.lab,title.adj = 0.2,
-                 pt.bg = c(rep(NA,length(mc.lvls))),bg=NA,bty="n")
-          
-          legend("bottomleft",clap.lvls,fill=clap.cols,border="black",pch=c(rep(NA,length(clap.lvls))),title = "% Dead",title.adj = 0.2,
-                 pt.bg = c(rep(NA,length(clap.lvls))),bg=NA,bty="n")
-          
-          if(banks[i] != "GB")
-          {
-          legend("bottomright",pch=c(20,24), pt.bg = c("black","darkorange"), title="Tow type",inset=0.01,
-                 legend = c(paste('regular (n =',
-                                  length(subset(surv.seed,year==yr & state=='live'& random==1)$ID),")",sep=""),
-                            paste('exploratory (n =',
-                                  length(subset(surv.seed,year==yr & state=='live'& random %in%  c(0,2,4,5))$ID),")",sep="")),
-                 bg=NA,box.col=NA,bty="n")
-          
-        } # end if(banks[i] != "GB")
-        if(banks[i] == "GB")
-        {
-          legend("bottomright",legend = c(paste('exploratory (n =',
-                                            length(unique(subset(surv.seed,year==yr & random %in% c(2,4,5))$tow)),")",sep=""),
-                                      paste('repeated (n =',length(unique(subset(surv.seed,year==yr & 
-                                                                                   random==3)$tow)),")", sep="")),title="Tow type",
-                 pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
-        } # # end if(banks[i] == "GB")
-          if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
-          if(fig != "screen") dev.off()
+        ### We never use this so I am mothballing it.  Becaues we don't hae the Clap-spatial inside the surv.seed object it can break
+        ### so would need a decet overhaul to have this working properly across the board, for the moment we have better things to do!
+        # if(!is.null(mod.res[["Clap-spatial"]]) & !is.null(mod.res[["CF-spatial"]]) & !is.null(mod.res[["MC-spatial"]]))
+        # {
+        #   # Next the CF/MC/Clapper plots as necessary.
+        #   if(fig == "png") png(paste(plot.dir,box.names[j],"-spatial_CF-MC-Clap.png",sep=""),units="in",
+        #                        width = 11, height = 8.5,res=420,bg = "transparent")
+        #   if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-spatial_CF-MC-Clap.pdf",sep=""),
+        #                        width = 11, height = 8.5)
+        #   if(fig == "screen") windows(11,8.5)
+        #   
+        #   par(mfrow=c(2,2),omi=c(0.1,0.2,0.5,0.5),xpd=F)
+        #   
+        #   # Loop through each size category
+        #   for(b in 1:3) 
+        #   {
+        #     # Get the title for each panel...
+        #     if(b ==1) 
+        #     {
+        #       base.lvls <- c(0,5,8,10,12,14,16,18,50)
+        #       cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
+        #       # Get the levels correct            
+        #       min.lvl <- max(which(base.lvls <= min(mod.res[["CF-spatial"]],na.rm=T)))
+        #       max.lvl <- min(which(base.lvls >= max(mod.res[["CF-spatial"]],na.rm=T)))
+        #       lvls <- base.lvls[min.lvl:max.lvl]
+        #       cf.cols <- cols[min.lvl:(max.lvl-1)]
+        #       ifelse(max(lvls) == max(base.lvls),  cf.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                                                         paste(lvls[length(lvls)-1],'+',sep='')),
+        #              cf.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                           paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+        #       fig.title <- cf.title.seed
+        #     } # end if(b==1)
+        #     
+        #     if(b ==2) 
+        #     {
+        #       # The color ramps for MC
+        #       base.lvls <- c(seq(0,50,5),1000)
+        #       cols <- viridis(length(base.lvls)-1,alpha=0.7,begin=0,end=1)
+        #       # Get the levels correct            
+        #       min.lvl <- max(which(base.lvls <= min(mod.res[["MC-spatial"]],na.rm=T)))
+        #       max.lvl <- min(which(base.lvls >= max(mod.res[["MC-spatial"]],na.rm=T)))
+        #       lvls <- base.lvls[min.lvl:max.lvl]
+        #       mc.cols <- cols[min.lvl:(max.lvl-1)]
+        #       ifelse(max(lvls) == max(base.lvls),  mc.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                                                         paste(lvls[length(lvls)-1],'+',sep='')),
+        #              mc.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                           paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+        #       fig.title <- mc.title.seed 
+        #     } # end if(b==2)
+        #     
+        #     if(b ==3)
+        #     {
+        #       # The color ramp for Clapper proportion
+        #       base.lvls=c(0,5,10,15,20,50,100)
+        #       cols <- rev(plasma(length(base.lvls)-1,alpha=0.7))
+        #       # Get the levels correct            
+        #       min.lvl <- max(which(base.lvls <= min(mod.res[["Clap-spatial"]],na.rm=T)))
+        #       max.lvl <- min(which(base.lvls >= max(mod.res[["Clap-spatial"]],na.rm=T)))
+        #       lvls <- base.lvls[1:max.lvl]
+        #       clap.cols <- cols[min.lvl:(max.lvl-1)]
+        #       ifelse(max(lvls) == max(base.lvls),  clap.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                                                           paste(lvls[length(lvls)-1],'+',sep='')),
+        #              clap.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+        #                             paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+        #       fig.title <- clap.title.seed
+        #     }# end if(b==3)
+        #     
+        #     # Make the map
+        #     ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
+        #                isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+        #                title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = add.scale)
+        # 
+        #     # Add the contours
+        #     if(b == 1) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["CF-spatial"]]), axes=F,add=T,breaks = lvls,col=cf.cols)
+        #     if(b == 2) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["MC-spatial"]]), axes=F,add=T,breaks = lvls,col=mc.cols)
+        #     if(b == 3) image(list(x = proj.sb$x, y=proj.sb$y, z = mod.res[["Clap-spatial"]]), axes=F,add=T,breaks = lvls,col=clap.cols)
+        #     
+        #     #Add the rest of the crap to the plot.
+        #     addPolys(this.box,lty=2,lwd=2)
+        #     # Add the regular survey tows.
+        #     points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
+        #     # Add the exploratory survey tows
+        #     points(slat~slon,surv.seed,subset=year==yr&state =='live' & random%in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.3)
+        #     if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=1.3) # add the repeat tows.
+        #   } # end for(b in 1:3)
+        #   
+        #   # Now add the legend.
+        #   par(xpd=T)
+        #   plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
+        #   legend("topleft",cf.lvls,fill=cf.cols,border="black",pch=c(rep(NA,length(cf.lvls))),title = cf.lab,title.adj = 0.2,
+        #          pt.bg = c(rep(NA,length(cf.lvls))),bg=NA,bty="n")
+        #   
+        #   legend("top",mc.lvls,fill=mc.cols,border="black",pch=c(rep(NA,length(mc.lvls))),title = mc.lab,title.adj = 0.2,
+        #          pt.bg = c(rep(NA,length(mc.lvls))),bg=NA,bty="n")
+        #   
+        #   legend("bottomleft",clap.lvls,fill=clap.cols,border="black",pch=c(rep(NA,length(clap.lvls))),title = "% Dead",title.adj = 0.2,
+        #          pt.bg = c(rep(NA,length(clap.lvls))),bg=NA,bty="n")
+        #   
+        #   if(banks[i] != "GB")
+        #   {
+        #   legend("bottomright",pch=c(20,24), pt.bg = c("black","darkorange"), title="Tow type",inset=0.01,
+        #          legend = c(paste('regular (n =',
+        #                           length(subset(surv.seed,year==yr & state=='live'& random==1)$ID),")",sep=""),
+        #                     paste('exploratory (n =',
+        #                           length(subset(surv.seed,year==yr & state=='live'& random %in%  c(0,2,4,5))$ID),")",sep="")),
+        #          bg=NA,box.col=NA,bty="n")
+        #   
+        # } # end if(banks[i] != "GB")
+        # if(banks[i] == "GB")
+        # {
+        #   legend("bottomright",legend = c(paste('exploratory (n =',
+        #                                     length(unique(subset(surv.seed,year==yr & random %in% c(2,4,5))$tow)),")",sep=""),
+        #                               paste('repeated (n =',length(unique(subset(surv.seed,year==yr & 
+        #                                                                            random==3)$tow)),")", sep="")),title="Tow type",
+        #          pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
+        # } # # end if(banks[i] == "GB")
+        #   if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)
+        #   if(fig != "screen") dev.off()
           
           
         } # end for(j in 1:n.box)
-      } # end !is.null(mod.res[["Clap-spatial"]]) &....    
+      #} # end !is.null(mod.res[["Clap-spatial"]]) &....    
     } # end (if nrow(sb))
   } # end the if(any(plots) %in% "seedboxes")
   
