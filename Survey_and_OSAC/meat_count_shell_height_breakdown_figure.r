@@ -91,7 +91,8 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
 	# Now we add the lines to connect to our MC regulation
 	for(i in 1:length(mc))
 	{
-	    #Set up a dataframe
+	  
+	   #Set up a dataframe
 	  cntdt <- data.frame(x=c(vec[which(count==min(count[count>mc[i]],na.rm=T))],
 		                      vec[which(count==max(count[count<mc[i]],na.rm=T))])+2.5,y=c(min(count[count>mc[i]],na.rm=T),
 		                                                                                  max(count[count<mc[i]],na.rm=T)))

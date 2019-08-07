@@ -410,16 +410,18 @@ for(i in 1:num.trips)
 
     if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
     title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
-
+    dev.off()
   } # end if(spatial==T)
   print(paste0("Trip ID:",trip.ids[i],"  count=",i))
-
   
-  # for use in shiny
-  trip.log.all[[i]] <- trip.log
-  osa.all[[i]] <- osa
-  pr.all[[i]] <- pr
-  if(shiny == T) pect_ggplot.all[[i]] <- pect_ggplot
+  if(shiny == T){
+    # for use in shiny
+    trip.log.all[[i]] <- trip.log
+    osa.all[[i]] <- osa
+    pr.all[[i]] <- pr
+    if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
+  }
+
 } # end for(i in 1:num.trips)
 dev.off()
 

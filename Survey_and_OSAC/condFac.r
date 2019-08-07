@@ -43,7 +43,7 @@
 ###############################################################################################################
 
 condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.loc=NULL,b.par=3,plt=F,
-                  dirct="Y:/Offshore scallop/Assessment/")
+                  dirct="Y:/Offshore scallop/Assessment/", error=T)
 {
 	require(mgcv)  || stop("Install mgcv package needed for gam's")
   #Source1 Load in our missed effects model.
@@ -62,6 +62,12 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
     pred.loc[["depth"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$depth,na.rm=T)
     pred.loc[["lat"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$lat,na.rm=T)
     pred.loc[["lon"]] <- mean(subset(wgt.dat, year >=2005 & year <2015)$lon,na.rm=T)
+    if(all(unique(wgt.dat$year)>2015) | all(unique(wgt.dat$year)< 2005)) {
+      message("wgt.dat years are not between 2005 and 2015, use max year instead (e.g. for BanIce)")
+      pred.loc[["depth"]] <- mean(subset(wgt.dat, year ==max(wgt.dat$year))$depth,na.rm=T)
+      pred.loc[["lat"]] <- mean(subset(wgt.dat, year==max(wgt.dat$year))$lat,na.rm=T)
+      pred.loc[["lon"]] <- mean(subset(wgt.dat, year==max(wgt.dat$year))$lon,na.rm=T)
+    }
     
   } # end if(pred.loc == NULL)
 
@@ -80,7 +86,8 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 
 	# Predict condition factor over bank using one of 5 models.
 	# This model assumes CF varies only with depth and year, Gaussian and linear relationship, no random effects (year might be best treated as such)
-	if(model.type=='glm')CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)
+	if(model.type=='glm' & length(unique(CF.data$year))>1)CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)
+	if(model.type=='glm' & length(unique(CF.data$year))==1)CF.fit<-glm(CF~depth,data=CF.data)
 	# Here we fit has both depth and year fit as thin plate regression splines, Gaussian family and identity link.
 	if(model.type=='gam_d')CF.fit<-gam(CF~s(depth)+s(year),data=CF.data)
 	# gam_s has location (lat/lon), depth, and year fit as thin plate regression splines, Gaussian family and identity link.
@@ -94,7 +101,8 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	# But those change every year, this has been revised to predict on the same location every year.
 	CFyrs<-data.frame(year=yrs,depth=pred.loc[["depth"]],lon=pred.loc[["lon"]],lat=pred.loc[["lat"]])
 	# Now do the prediction
-	CFyrs$CF=predict(CF.fit,CFyrs)
+	CFyrs$CF <- predict(CF.fit,CFyrs, se=T)$fit
+	if(error==T) CFyrs$CFse.fit <- predict(CF.fit, CFyrs, se=T)$se.fit
 	# If we want to make the plot and our model is a glm do this.
 	if(plt == T && model.type=='glm') plot(CF~year,CFyrs,type='o',pch=16)
 	# If we have a gam model and want a plot do this.
@@ -103,7 +111,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 		  par(mfrow=c(2,2))
 		  plot(CF.fit,T,F,T)
 	  } # end if(plt == T && model.type!='glm')
-	
+
 	# If we want to make predictions on some new data...
 	if(!is.null(pred.dat) ==T)
 	  {
@@ -115,6 +123,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
   		if(sum(!unique(pre.dat$year) %in% yrs) > 0) pre.dat$year[!pre.dat$year %in% yrs]<-min(yrs)
   		# Make predictions based on model.
   		pred.dat$CF<- predict(CF.fit,pre.dat)
+  		pred.dat$CFse.fit <- predict(CF.fit,pre.dat, se=T)$se.fit
 	  } # end if(!is.null(pred.dat))
   
 	# return the results to the function calling this.

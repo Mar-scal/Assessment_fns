@@ -6,14 +6,20 @@
 ### commercial sampling: should commercial samples be included (T or F)
 
 BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
-                                      meatweightdata = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
-                                      positionsdata=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
-                                      commercialsampling=commercialsampling){
+                                      meatweightdata_2012 = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
+                                      positionsdata_2012=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
+                                      commercialsampling=commercialsampling, BanIceSurvey_new=NULL, mwsh.test.ban=F,
+                                      BanIceMW_new=NULL, bins=NULL, RS=NULL, CS=NULL, survey.bound.polys=NULL, survey.detail.polys=NULL){
   
   require(plyr)
-   bnk <- "BanIce"
+  bnk <- "BanIce"
   bank.4.spatial <- "BanIce"
 
+  # Now we can set up our more detailed SHF bins as well
+  if(bins == "bank_default") bin <- c(50,70,RS[length(RS)],CS[length(CS)],120) 
+  # If you have specified the bins then do this...
+  if(bins != "bank_default") bin <- bins 
+  
   #Initialize some variables
   bank.dat <- NULL
   strata.mis.match <- NULL
@@ -42,44 +48,34 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   bound.surv.poly <- NULL
   
   # put surveydata into bank.dat. Note, this may already contain calculated values.
-  bank.dat[[bnk]] <- surveydata 
+  bank.dat[[bnk]] <- surveydata
+  
+  #bring over more recent data from Pre-processing in survey summary data script
+  if(yr>2012){
+    bynames <- names(bank.dat[[bnk]])[which(names(bank.dat[[bnk]]) %in% names(BanIceSurvey_new))]
+    bank.dat[[bnk]] <- plyr::join(bank.dat[[bnk]], BanIceSurvey_new, type="full", by=bynames)
+  }
+ 
   
   # Get the appropriate sizes for recruits and commercial size
   RS <- 75
   CS <- 80
-  if(is.null(survey.year)==F) 
-    yr <- survey.year
-  if(is.null(survey.year)==T) 
-    yr <- max(bank.dat[[bnk]]$year,na.rm=T)
+  if(is.null(survey.year)==F) yr <- survey.year
   years <- 1985:yr # same as Mid and German. 
   bank.dat[[bnk]] <- subset(bank.dat[[bnk]] , year %in% years)
-  
-  # Now we can set up our more detailed SHF bins as well
-  if(bins == "bank_default")
-  {
-    bin <- c(50,70,RS[length(RS)],CS[length(CS)],120) 
-  }# end if{bins == "bank_default"}
-  # If you have specified the bins then do this...
-  if(bins != "bank_default") bin <- bins 
-  
-  
+
   ########## SPATIAL ######################
   
   # Set up the survey polys
-  bound.poly.surv <- subset(survey.bound.polys,label=="Ban") 
-  attr(bound.poly.surv,"projection")<-"LL"
+  bound.poly.surv <- subset(survey.bound.polys,label=="Ban" & startyear == max(survey.bound.polys$startyear[survey.bound.polys$label=="Ban"])) 
+  attr(bound.poly.surv,"projection")<-"LL" 
   
   #Read4 Read drooped #Detailed Survey polygons
   detail.poly.surv <- subset(survey.detail.polys,label=="Ban")
   attr(detail.poly.surv,"projection")<-"LL"
   
-  # Get the strata areas.
-  strata.areas <- subset(survey.info,label=="Ban",select =c("Strata_ID","towable_area","startyear"))
-  #Read25 read removed... Get all the details of the survey strata
-  surv.info <- subset(survey.info,label== "Ban")
-  
   # Save the survey strata table so we have it for later, this is mostly needed for when we have user defined areas carved out.
-  survey.strata.table[[bnk]] <- surv.info
+  survey.strata.table[[bnk]] <- NULL
   detail.surv.poly[[bnk]] <- detail.poly.surv
   bound.surv.poly[[bnk]]<- bound.poly.surv
   
@@ -90,12 +86,12 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   ############# SAMPLING DATA #####################
   
   # Bring in new meat weight data
-  if(!is.null(meatweightdata)) 
-    meatweightdata <- read.csv(meatweightdata)
+  if(!is.null(meatweightdata_2012)) 
+    meatweightdata <- read.csv(meatweightdata_2012)
   
   # Bring in new positional data
-  if(!is.null(positionsdata)) 
-    positionsdata <- read.csv(positionsdata)  
+  if(!is.null(positionsdata_2012)) 
+    positionsdata <- read.csv(positionsdata_2012)  
   
   # Subset for BanIce
   if(length(unique(meatweightdata$bank)) > 1) {
@@ -107,12 +103,20 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   
   # Join MW and position data
   if(!is.null(positionsdata)) 
-    mw.dm <- join(meatweightdata, positionsdata, type="left")
+    bynames <- names(meatweightdata)[which(names(meatweightdata) %in% names(positionsdata))]
+    mw.dm <- plyr::join(meatweightdata, positionsdata, type="left", by=bynames)
   
   # Join MW data with SHF data to get lat/lon
   if(!is.null(positionsdata)) 
-    mw.dm <- join(mw.dm, bank.dat[[bnk]][,c("year", "tow", "lon", "lat")], type="left")
+    bynames <- names(mw.dm)[which(names(mw.dm) %in% names(unique(bank.dat[[bnk]][bank.dat[[bnk]]$year <= 2012,c("year", "tow", "lon", "lat")])))]
+    mw.dm <- plyr::join(mw.dm, unique(bank.dat[[bnk]][bank.dat[[bnk]]$year <= 2012,c("year", "tow", "lon", "lat")]), type="left", by=bynames)
   
+  if(yr>2012){
+    BanIceMW_new$year <- as.numeric(BanIceMW_new$year)
+    bynames <- names(mw.dm)[which(names(mw.dm) %in% names(BanIceMW_new))]
+    mw.dm <- plyr::join(mw.dm, BanIceMW_new, type="full", by=bynames)
+    
+  }
   # mw.dm contains all years.
   
   ################ current year MW-SH model ################
@@ -126,13 +130,14 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   if(commercialsampling==F) 
     mw.dm <- subset(mw.dm, tow>0)
   
-  # now run the model for this year
-  SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[mw.dm$year==yr,],random.effect='tow',b.par=3)
-  
+  # move the full data (all years) to mw.dat.all
   mw.dat.all[[bnk]] <- mw.dm
 
-  # change name of depth.f column?
-  if("depth.f" %in% names(mw.dat.all[[bnk]])) names(mw.dat.all[[bnk]])[which(names(mw.dat.all[[bnk]]) == "depth.f")] <- "depth"
+  # now run the model for the current year
+  SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[mw.dm$year==yr,],random.effect='tow',b.par=3)
+  
+  # depth.f to metres?
+  if("depth.f" %in% names(mw.dat.all[[bnk]])) mw.dat.all[[bnk]]$depth <- mw.dat.all[[bnk]]$depth.f * 1.8288
   
   mw.dat.all[[bnk]]$ID <-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
   
@@ -151,7 +156,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   pred.loc[["lat"]] <- mean(subset(mw.dat.all[[bnk]], year >=2005 & year <2015)$lat,na.rm=T)
   pred.loc[["lon"]] <- mean(subset(mw.dat.all[[bnk]], year >=2005 & year <2015)$lon,na.rm=T)
   
-  # now run the model for this year
+  # now run the model to predict condition for all years using the model that includes this year's data
   HtWt.fit[[bnk]] <- shwt.lme(mw.dat.all[[bnk]],random.effect='ID',b.par=3, verbose=F)
   
   # Merge the raw data with the model fit, just keep the first sample for each tow in which we have multiple samples.
@@ -163,31 +168,46 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # This model assumes CF varies only with depth and year, Gaussian and linear relationship, no random effects (year might be best treated as such)
   if(length(unique(CF.data$year))>1) 
     CF.fit<-glm(CF~depth+as.factor(year),data=CF.data)
-  if(length(unique(CF.data$year))==1) 
+  if(length(unique(CF.data$year))==1) {
     CF.fit<-glm(CF~depth,data=CF.data)
+    message("careful, condition is being modelled with only one year of data")
+  }
   
   # Make a new object to build predictions from, previously we were using predictions for mean data for our data
   # But those change every year, this has been revised to predict on the same location every year.
   CFyrs<-data.frame(year=yrs,depth=pred.loc[["depth"]],lon=pred.loc[["lon"]],lat=pred.loc[["lat"]])
   # Now do the prediction
   CFyrs$CF=predict(CF.fit,CFyrs)
+
   
   # Give object a new name
-  pre.dat<-as.data.frame(bank.dat[[bnk]])
-  # Make sure we have data for a year, if we don't put in the minimum year as the year.
-  if(sum(!unique(pre.dat$year) %in% yrs) > 0) pre.dat$year[!pre.dat$year %in% yrs]<-min(yrs)
-  # Make predictions based on model.
-  pred.dat <- bank.dat[[bnk]]
-  pred.dat$CF<- predict(CF.fit,pre.dat)
+  message("Note: there was no detailed sampling of icelandic scallops in 2006, and we're not going to predict a value for it.")
+  pre.dat<-as.data.frame(bank.dat[[bnk]][bank.dat[[bnk]]$year > 2006,])
   
+  # Make predictions based on model.
+  pred.dat <- bank.dat[[bnk]][bank.dat[[bnk]]$year > 2006,]
+  pred.dat$CF<- predict(CF.fit,pre.dat)
+  if(any(pred.dat$CF <0, na.rm=T)) message("You have negative condition factor predictions. Maybe you should re-think your model?")
   cf.data[[bnk]] <- list(CFyrs=CFyrs,CF.data=CF.data, HtWt.fit=HtWt.fit, CF.fit=CF.fit,pred.dat=pred.dat)	
   
   cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
   
+  if(mwsh.test.ban == T) {
+    browser()
+    source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+    mwsh.test.dat <- mw.dat.all[[bnk]]
+    mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
+    mwshtest <- mwsh.sensit(mwdat=na.omit(mwsh.test.dat[, !names(mwsh.test.dat) %in% c("month", "species")]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
+                            sub.size=NULL, sub.year=c(NA, 2012), sub.tows=NULL, sub.samples=NULL, 
+                            direct=direct, seed=1234)
+    cf.data[[bnk]] <- mwshtest$condmod
+  }
+  
   # Output the predictions for the bank
   surv.dat[[bnk]] <- cf.data[[bnk]]$pred.dat
+  surv.dat[[bnk]] <- join(bank.dat[[bnk]][bank.dat[[bnk]]$year==2006,], surv.dat[[bnk]], type="full", by=names(bank.dat[[bnk]][bank.dat[[bnk]]$year==2006,]))
   # Pull out the ID and condition factor
-  tmp.dat<-subset(cf.data[[bnk]]$CF.data,select=c("ID","CF"))
+  tmp.dat<- cf.data[[bnk]]$CF.data[, c("ID","CF")]
   # Rename CF to CFh
   names(tmp.dat)[2]<-"CFh"
   # merge the two data sets, keeping all x values
@@ -232,7 +252,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   surv.Clap[[bnk]]$clap.prop[is.na(surv.Clap[[bnk]]$clap.prop)]<-0
   
   
-  ########### Make survey.obj for Ban (mimicing Middle bank method) ###########################
+  ########### Make survey.obj for Ban (mimicking Middle bank method) ###########################
   
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/simple.surv.R"))
   survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
@@ -257,14 +277,14 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   SHF.summary[[bnk]] <- as.data.frame(cbind(survey.obj[[bnk]][[1]]$year,survey.obj[[bnk]][[2]]$n.yst))
   SHF.summary[[bnk]]$bank <- bank.4.spatial
   
-  CF.current[[bnk]]<-na.omit(merge(unique(subset(surveydata,bank == bnk & year==yr,c('tow','lon','lat'))),
+  CF.current[[bnk]]<-na.omit(merge(unique(subset(bank.dat[[bnk]],bank == bnk & year==yr,c('tow','lon','lat'))),
                                    SpatHtWt.fit[[bnk]]$fit))
   names(CF.current[[bnk]])[4]<-"CF"
   CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
   
   # Meat count per 500g
   CF.current[[bnk]]$meat.count <- 0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
-  
+  if(any(CF.current[[bnk]]$meat.count < 0, na.rm=T)) message("uhoh, you have negative meat counts...")
   
   ############# DO NOT CALCULATE Growth potential because we don't have a VonB for Icelandic scallop! ################
   

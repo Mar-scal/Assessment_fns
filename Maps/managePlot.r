@@ -15,15 +15,15 @@
 ##  6:  add.color:  Add color to the shelf polygons (T/F), defaults to F
 ##  7:  manage.colors:  Choose colors for the polygons, defaults to pastel.colors(n=64, seed=2 from RPMG package
 #   8:  direct:  The working directory.  default = "Y:/Offshore scallop/Assessment/Assessment_fns/"
+#   9:  language: default is "en", for french put "fr"
 # rm(list=ls(all=T))
 managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=F,plot.EEZ=F,plot.color=F,
                      manage.colors = pastel.colors(n=60,seed=2),manage.cex = 0.7, 
-                     direct = "Y:/Offshore scallop/Assessment/")
+                     direct = "Y:/Offshore scallop/Assessment/", language="en")
 {
   # Load the necesasry librarys
   require(PBSmapping)|| stop("Install PBSmapping Package")
   require(RPMG)|| stop("Install RPMG Package")
-  
   
 ######################## Section 1 - Stand alone plot settings, only used if plot.add=F  ########################
   
@@ -60,9 +60,12 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
     
     # Put the right title on plot
     
-    if(bounds == "offshore") title("Offshore Management Boundaries")
-    if(bounds == "inshore")  title("Inshore Management Boundaries")
-    if(bounds == "all")      title("Regional Management Boundaries")
+    if(bounds == "offshore" & language=="en") title("Offshore Management Boundaries")
+    if(bounds == "offshore" & language=="fr") title("Offshore Management Boundaries")
+    if(bounds == "inshore" & language=="en")  title("Inshore Management Boundaries")
+    if(bounds == "inshore" & language=="fr")  title("Inshore Management Boundaries")
+    if(bounds == "all" & language=="en")      title("Regional Management Boundaries")
+    if(bounds == "all" & language=="fr")      title("Regional Management Boundaries")
   } # end if(plot.add==F)  
 
   
@@ -81,17 +84,23 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
       # Draw the offshore polygons as lines (Ass of August 4 2015 these aren't polygons or even close to it)
       # I need to remove any of the new "sub-areas" so the plot doesn't get messy...
       offshore <- offshore[offshore$subarea == "N",]
+      # also remove WEBCA/SFZ since we're not being consistent in showing all closures/MPAs etc
+      offshore <- offshore[!offshore$label %in% c("WEBCA", "SFZ"),]
       if(plot.color == F) addLines(offshore) # Added DK July 31, 2015
       if(plot.color == T) addPolys(offshore,col=manage.colors) # Added DK July 31, 2015
       
-        
       # If we want to add the offshore labels. DK August 2015
       if(area.labels==T)
         {
         # Find the centre of each SFA
         centres <- calcCentroid(offshore,rollup=1)
         # Grab the corresponding label ID's
-        labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+        if(language =="en") labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+        if(language =="fr") {
+          labs<- offshore[c("PID","label")][!duplicated(offshore[c("PID","label")]),]
+          labs$label <- gsub(labs$label, pattern="SFA", replacement="ZPP")
+        }
+        
         # Put them together
         offshore.labels <- merge(centres,labs)
         attr(offshore.labels,"projection") <- "LL"
@@ -111,6 +120,18 @@ managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=
           names(common.names)
           # change names and attributes so 
           colnames(common.names) <- c("PID","X","Y","label")
+          
+          if(language == 'fr'){
+            common.names$label[common.names$label=="German Bank"] <- "Banc German"
+            common.names$label[common.names$label=="Browns North"] <- "\nNord du banc\nde Brown"
+            common.names$label[common.names$label=="Browns South"] <- "Sud de banc\nde Brown"
+            common.names$label[common.names$label=="Georges B"] <- "Georges \u00ABB\u00BB"
+            common.names$label[common.names$label=="Georges A"] <- "Georges \u00ABA\u00BB"
+            common.names$label[common.names$label=="Eastern Scotian Shelf"] <- "Est du plateau n\u00E9o-\u00E9cossais"
+            common.names$label[common.names$label=="Banquereau"] <- "Banquereau"
+            common.names$label[common.names$label=="St. Pierre Bank"] <- "Banc de Saint-Pierre"
+          }
+          
           attr(common.names,"projection") <- "LL"
           # Define and create PBS objects to draw arrows to for Georges A and B banks
           g.arrows <- rbind(c(2,1,-65,41.2),c(2,2,-65.9,41.4),c(1,1,-65,41.7),c(1,2,-65.9,41.9))
