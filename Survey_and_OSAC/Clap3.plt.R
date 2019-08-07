@@ -70,7 +70,12 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	#The pre-recruit time series
 	plot(years,dat$clapsPre, type='o', ylim=yl, ylab="", xlab="", tcl=-0.3,  pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(mean.line==T)  abline(h=median(dat$clapsPre[-length(years)],na.rm = T),lty=2,col=clr[2],lwd=2)
+	if(mean.line==T)  {abline(h=median(dat$clapsPre[-length(years)],na.rm = T),lty=2,col=clr[2],lwd=2)
+	  LTMpre <- median(dat$clapsPre[-length(years)],na.rm = T)
+	  LTMrec <- median(dat$clapsRec[-length(years)],na.rm = T)
+	  LTMcom <- median(dat$clapsCom[-length(years)],na.rm = T)
+	}
+	
 	# Add axis tick marks and label this "pre-recruits".
 	axis(4, lab=F, tcl=-0.3,cex.axis=axis.cx)
 	axis(1,lab=F,cex.axis=axis.cx)
@@ -114,4 +119,7 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	
 	# shut off graphic device and that's all she wrote.
 	if(graphic != "R")dev.off()
+	
+	# Save the LTMs
+	assign("clap.propLTMs", c(LTMpre, LTMrec, LTMcom), pos = 1)
 }	# end function

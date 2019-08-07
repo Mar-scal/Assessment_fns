@@ -39,7 +39,7 @@
 ### currently standardized live shell height frequency
 
 # DK August 20, 2015, function call altered so DB credentials are entered directly into function call.
-get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/")
+get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/", ...)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	
@@ -48,7 +48,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
 
   ### DK:  I believe I need this, but maybe not?
   source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
-  
+
   #DK August 20, 2015 Note: Need this to open the channel, we need to get one more view, or more general access to the OSTOWS table
   # so that the .rProfile method works, for now the workaround would be to put the general (admin?) un/pw into your rprofile...
   # DK revised April 2018 to ROracle
@@ -58,13 +58,18 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Jessica has new views for these calls, ,all this prorating is not necessary anymore as she's taken care of it in SQL
   # Key is to import those tables and send it out of this file looking identical!  
   ######################################################################################################################
+  db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
+  #message("reminder that this is pulling data from HUMF views, not production SCALOFF")
   
   #qu.strata <- "select * from SCALOFF.OSSTRATA"
-  # DK Oct 29, 2015, don't need tow data either, we don't ever use it....
-  qu.dead <- "select * from SCALOFF.OSDEADRES_VW"
-  qu.live <- "select * from SCALOFF.OSLIVERES_VW"
-  qu.sample <- "select * from SCALOFF.OSSAMPLES_VW"
-  #qu.tow <- "select * from SCALOFF.OSTOWS"
+  # DK Oct 29, 2015, don't need tow data either, we don't ever use it.... 
+  qu.dead <- paste0("select * from ", db, ".OSDEADRES_SS_VW")
+  qu.live <- paste0("select * from ", db, ".OSLIVERES_SS_VW")
+  qu.sample <- paste0("select * from ", db, ".OSSAMPLES_SS_VW")
+  qu.dead.ice <- paste0("select * from ", db, ".OSDEADRES_ICE_VW")
+  qu.live.ice <- paste0("select * from ", db, ".OSLIVERES_ICE_VW")
+  qu.sample.ice <- paste0("select * from ", db, ".OSSAMPLES_ICE_VW")
+  #qu.tow <- "select * from HUMF.OSTOWS"
   
   
   
@@ -74,9 +79,22 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   dead <- dbGetQuery(chan, qu.dead)
   live <- dbGetQuery(chan, qu.live)
   samp <- dbGetQuery(chan, qu.sample)
+  deadice <- dbGetQuery(chan, qu.dead.ice)
+  liveice <- dbGetQuery(chan, qu.live.ice)
+  sampice <- dbGetQuery(chan, qu.sample.ice)
   #tow <- sqlQuery(chan, qu.tow)
   dbDisconnect(chan)
   
+  dead$species <- "seascallop"
+  live$species <- "seascallop"
+  samp$species <- "seascallop"
+  if(dim(deadice)[1] >0) deadice$species <- "icelandic"
+  if(dim(liveice)[1] >0) liveice$species <- "icelandic"
+  if(dim(sampice)[1] >0) sampice$species <- "icelandic"
+  
+  dead <- rbind(dead, deadice)
+  live <- rbind(live, liveice)
+  samp <- rbind(samp, sampice)
   
   ## FIRST UP DEAL WITH THE SHELL HEIGHT FREQUENCY DATA
   # Add the "state" of the scallop to the dead/live objects before combining
@@ -108,17 +126,16 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   
   # Now rearrange the data and select a subset that will be used elsewhere
   choose <- c("YEAR","CRUISE","MGT_AREA_CD","TOW_DATE","TOW_NO","STRATA_ID","slat","slon","elat","elon","depth",
-              "state",paste('BIN',seq(0,195,5),sep='_'),"TOW_TYPE_ID","BOTTOM_TEMP")
+              "state",paste('BIN',seq(0,195,5),sep='_'),"TOW_TYPE_ID","BOTTOM_TEMP", "species")
   SHF <- SHF[,choose]
   # This is not the same size as the object exported from the old get.offshore.survey, but it is the same size as
   # what is needed for SurveySummary, if this is used elsewere the above subset is where it needs changed.
   
-  
   ### Next up we make the position object, this is very simple.
   # This is formatted so that it matches the output from previous year's survey data
   pos=subset(all,state=="live",c('MGT_AREA_CD','TOW_NO','START_LAT','START_LON','END_LAT','END_LON','DEPTH_F',
-                                 'YEAR','lon','lat','depth',"TOW_DATE"))
-  names(pos) <- c("bank","tow","slat","slon","elat","elon","depth.f","year", "lon", "lat", "depth","TOW_DATE")
+                                 'YEAR','lon','lat','depth',"TOW_DATE", "species"))
+  names(pos) <- c("bank","tow","slat","slon","elat","elon","depth.f","year", "lon", "lat", "depth","TOW_DATE", "species")
   
   
   ## FINALLY DEAL WITH THE SHELL HEIGHT FREQUENCY DATA
@@ -145,26 +162,82 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Industry report
   if(industry.report == T)
   {
-    # Combine the live and dead data into a summary for Pre-recruits through to fully-recruited.
-    ind.rep<-with(live,data.frame(YEAR=format(TOW_DATE,"%Y"),BANK=MGT_AREA_CD,TOW_NO,START_LAT,START_LON,END_LAT,END_LON,DEPTH_F,
-                                preL=rowSums(live[,which(names(live)=="BIN_0"):which(names(live)=="BIN_65")]),
-                                recL=rowSums(live[,which(names(live)=="BIN_70"):which(names(live)=="BIN_95")]),
-                                comL=rowSums(live[,which(names(live)=="BIN_100"):which(names(live)=="BIN_195")]),                            
-                                preC=rowSums(dead[,which(names(live)=="BIN_0"):which(names(live)=="BIN_65")]),
-                                recC=rowSums(dead[,which(names(live)=="BIN_70"):which(names(live)=="BIN_95")]),
-                                comC=rowSums(dead[,which(names(live)=="BIN_100"):which(names(live)=="BIN_195")])))
-    # Need the year to save it to the right spot.
-    yr <- max(as.numeric(levels(ind.rep$YEAR))[ind.rep$YEAR],na.rm=T)
+    ### read in OSSURVEYS, OSTOWS and OSHFREQ_SAMPLES
+    chan <-dbConnect(dbDriver("Oracle"),username=un, password=pw,db.con)
+    
+    #####################################################################################################################
+    # Jessica has new views for these calls, ,all this prorating is not necessary anymore as she's taken care of it in SQL
+    # Key is to import those tables and send it out of this file looking identical!  
+    ######################################################################################################################
+    db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
+    #message("reminder that this is pulling data from HUMF views, not production SCALOFF")
+    
+    #qu.strata <- "select * from SCALOFF.OSSTRATA"
+    # DK Oct 29, 2015, don't need tow data either, we don't ever use it.... 
+    qu.surveys <- paste0("select * from ", db, ".OSSURVEYS")
+    qu.surveys<- dbGetQuery(chan, qu.surveys)
+    
+    survey_seq <- paste(as.character(unique(qu.surveys[qu.surveys$CRUISE==cruise,]$SURVEY_SEQ)), sep="' '", collapse=", ")
+    qu.tows <- paste0("select * from ", db, ".OSTOWS WHERE SURVEY_SEQ in (", survey_seq, ")")
+    qu.tows<- dbGetQuery(chan, qu.tows)
+    
+    tow_seq <- paste(as.character(unique(qu.tows$TOW_SEQ)), sep="' '", collapse=", ")
+    qu.hfreq <- paste0("select * from ", db, ".OSHFREQSAMPLES WHERE TOW_SEQ in (", tow_seq, ")")
+    qu.hfreq<- dbGetQuery(chan, qu.hfreq)
+    
+    hfreq_seq <- paste(as.character(unique(qu.hfreq$HFREQ_SAMPLE_SEQ)), sep="' '", collapse=", ")
+    qu.heightfreq <- paste0("select * from ", db, ".OSHEIGHTFREQ WHERE HFREQ_SAMPLE_SEQ in (", hfreq_seq, ")")
+    qu.heightfreq<- dbGetQuery(chan, qu.heightfreq)
+    dbDisconnect(chan)
+    
+    surv_tows <- join(qu.tows, qu.surveys, type="left", by="SURVEY_SEQ")
+    # surv_tows <- rbind(data.frame(surv_tows, LIVECODE="L"), data.frame(surv_tows, LIVECODE="D"))
+    surv_tows_samp <- join(surv_tows, qu.hfreq, type="left", by="TOW_SEQ")
+    surv_tows_samp_hf <- join(surv_tows_samp, qu.heightfreq, type="left", by="HFREQ_SAMPLE_SEQ")
+    
+    surv_tows_samp_hf$indreport_bin[surv_tows_samp_hf$BIN_ID <70] <- "0-70"
+    surv_tows_samp_hf$indreport_bin[surv_tows_samp_hf$BIN_ID >65 & surv_tows_samp_hf$BIN_ID <100] <- "70-100"
+    surv_tows_samp_hf$indreport_bin[surv_tows_samp_hf$BIN_ID >95] <- "100+"
+    
+    surv_tows_samp_hf$prorated_number <- surv_tows_samp_hf$NUMBER_IN_BIN / (surv_tows_samp_hf$SAMPLED/surv_tows_samp_hf$TOTAL)
+    
+    surv_tows_samp_hf$prorated_number[is.na(surv_tows_samp_hf$prorated_number)] <- 0
+    
+    industryreport_l <- ddply(.data=surv_tows_samp_hf[!is.na(surv_tows_samp_hf$LIVECODE),], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE, indreport_bin),
+                            summarize,
+                            total_in_bin=sum(prorated_number))
+    
+    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1 & surv_tows_samp_hf$LIVECODE=="L",], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
+                                         summarize,
+                                         catchbaskets=unique(round((unique(TOTAL)/30) *4, 0)/4))
+    
+    industryreport_l <- join(industryreport_l, industryreport_catchbaskets, type="left")
+    
+    industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + TOW_TYPE_ID + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
+    
+    industryreport$YEAR <- yr
+    
+    # add the empty tows back in
+    industryreport <- join(industryreport, unique(surv_tows_samp[, c("SURVEY_NAME", "MGT_AREA_CD", "TOW_NO", "TOW_TYPE_ID", "START_LAT", "START_LON", "END_LAT", "END_LON", "DEPTH_F","SPECIES_ID")]), type="full")
+    
+    industryreport <- select(arrange(industryreport, SURVEY_NAME, SPECIES_ID, TOW_NO), SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`)
+    
+    industryreport[is.na(industryreport)] <- 0
+    
+    industryreport <- aggregate(cbind(catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`) ~ ., data=industryreport, sum)
+      
     # And make the CSV...
-    write.csv(ind.rep,paste(direct,"Data/Survey_data/",yr,"/IndustryReport.csv",sep=""),row.names=F)
+    write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)
+    
   }# End if(industry.report = T)
   
   # Note that I have added in STRATA_ID, I belive this eventually should be what we use for strata and will make the "lon" and "lat" columns redundant
   # I have also removed "TOW_SEQ" as it is never used in SurveySummary, if we need it I will have to check back here!
   choose.samp <- c('MGT_AREA_CD','TOW_NO','START_LAT','START_LON','END_LAT','END_LON','DEPTH_F','YEAR','lon',
-                   'lat','depth','CRUISE','SCALLOP_NUM','WET_MEAT_WGT','SHELL_HEIGHT','STRATA_ID','TOW_DATE')
+                   'lat','depth','CRUISE','SCALLOP_NUM','WET_MEAT_WGT','SHELL_HEIGHT','STRATA_ID','TOW_DATE', "species")
   
   MWs <- samp[,choose.samp]
   
-  list(SHF=SHF,MWs=MWs,pos=pos)
+  if(industry.report==F) return(list(SHF=SHF,MWs=MWs,pos=pos))
+  if(industry.report==T) return(list(SHF=SHF,MWs=MWs,pos=pos, industryreport=industryreport))
 } # End get.offshore.survey DK version.

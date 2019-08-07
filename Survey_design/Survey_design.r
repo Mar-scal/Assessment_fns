@@ -60,11 +60,12 @@
 # ger.rep:       Number of German repeat stations to assign. Default is 20 stations, but you can add more to be used as backup repeats
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
 #                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
+# language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
-                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F)
+                          add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -125,9 +126,10 @@ for(i in 1:num.banks)
     extras$lat.deg.min <- round(convert.dd.dddd(x = extras$Y, format = "deg.min"), 4)
     extras <- extras[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "bank")]
   } # end if(add.extras == T)
+  
   # Grab any seedboxes that were closed during the current year.
-  sb <- subset(seedboxes,Bank == bnk & Open >= ymd(paste(yr,"-01-01",sep="")))
-  if(bnk == "GB") sb <- subset(seedboxes,Bank == "GBa" & Open >= ymd(paste(yr,"-01-01",sep="")))
+  sb <- subset(seedboxes,Bank == bnk & Active=="Yes") #Open >= ymd(paste(yr,"-01-01",sep="")))
+  if(bnk == "GB") sb <- subset(seedboxes,Bank == "GBa" & Active=="Yes") # >= ymd(paste(yr,"-01-01",sep="")))
   # Now for the banks that have survey strata we get the allocation.
   if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
   {
@@ -154,8 +156,16 @@ for(i in 1:num.banks)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
-    if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
-    
+   
+     if(bnk == "GBa" & yr==2019) {
+      # manually shift 3 stations in 2019:
+      towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
+    }
+  
     # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
     # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
     # This was done manually using the CSV and script below.
@@ -175,9 +185,9 @@ for(i in 1:num.banks)
         extras$STRATA <- "extra"
         writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID", "STRATA")])
       }
-      writetows$lon.deg.min <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
-      writetows$lat.deg.min <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
-      writetows <- writetows[, c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA")]
+      writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
+      writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
+      writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "STRATA")]
     }
     
 	  # if you want to save the tow lists you can export them to csv's.
@@ -209,6 +219,10 @@ for(i in 1:num.banks)
   	  if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	  # This just plots the points
   	  if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	  # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
+  	  # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
+  	  # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
+  	  
   	  # This does both, if it doesn't look pretty change the x.adj and y.adj options
   	  if(point.style == "both" ) 
   	  {
@@ -236,7 +250,7 @@ for(i in 1:num.banks)
   	    }
   	  }
   	  if(cables==T){
-  	    cables <- readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
+  	    cables <- rgdal::readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
   	    lines(cables, col="red", lty="dashed")
   	  }
   	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
@@ -254,9 +268,9 @@ for(i in 1:num.banks)
   	  {
   	    # This looks closely at GBa south.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
   	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2)
@@ -272,8 +286,8 @@ for(i in 1:num.banks)
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both") 
 
@@ -284,8 +298,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	        labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
@@ -296,9 +310,9 @@ for(i in 1:num.banks)
   	    
   	    # This looks closely at GBa Northwest
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2)
@@ -308,14 +322,15 @@ for(i in 1:num.banks)
   	    if(point.style == "points") points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
+  	    
   	    if(point.style == "both") 
   	    {
   	      points(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both") 
 
@@ -327,8 +342,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	       labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	       labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
@@ -340,9 +355,9 @@ for(i in 1:num.banks)
   	    
   	    # And this looks closely at GBa in the Northeast.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", 
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".png"),width = 11, units="in", 
   	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2)
@@ -358,8 +373,8 @@ for(i in 1:num.banks)
   	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
   	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
   	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	      labs$X.adj <- labs$X + x.adj*x.range
-  	      labs$Y.adj <- labs$Y + y.adj*y.range
+  	      labs$X.adj <- labs$X + x.adj/2*x.range
+  	      labs$Y.adj <- labs$Y + y.adj/2*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	    } # end if(point.style == "both" ) 
 
@@ -369,8 +384,8 @@ for(i in 1:num.banks)
   	      {
   	        addPoints(extras,pch=24, cex=1,bg="darkorange")
   	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-  	        labs$X.adj <- labs$X + x.adj*x.range
-  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        labs$X.adj <- labs$X + x.adj/2*x.range
+  	        labs$Y.adj <- labs$Y + y.adj/2*y.range
   	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
   	      }
   	    }
@@ -480,10 +495,11 @@ if(bnk == "Ger")
   
     Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
     Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
-    
+
     # Rename and tidy up the data
     Ger.tow.lst$Tows$new.tows$STRATA="new"
     Ger.tow.lst$Tows$repeated.tows$STRATA="repeated"
+    Ger.tow.lst$Tows$repeated.tows$EIDlastyear <- Ger.tow.lst$Tows$repeated.tows$EID - 1000
     # any repeated tows above 20 get flagged as repeated-backup
     # pull all OTHER repeats as backups and plot/list separately
     names(lastyearstows) <- c("tow", "X", "Y", "stratum")
@@ -497,18 +513,28 @@ if(bnk == "Ger")
     names(Ger.repeat.backups)[which(names(Ger.repeat.backups)=="tow")] <- "EID"
     Ger.repeat.backups$EID <- Ger.repeat.backups$EID + 2000
     Ger.tow.lst$Tows$backup.repeats <- Ger.repeat.backups
+    Ger.tow.lst$Tows$backup.repeats$EIDlastyear <- Ger.tow.lst$Tows$backup.repeats$EID - 2000
     #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$Poly.ID[Ger.tow.lst$Tows$repeated.tows$STRATA=="repeated-backup"] <- 3
-    Ger.tow.dat<-do.call("rbind",Ger.tow.lst$Tows)
+    Ger.tow.dat<- rbind(Ger.tow.lst$Tows$new.tows, 
+                        Ger.tow.lst$Tows$repeated.tows[,c("EID", "X", "Y", "Poly.ID", "STRATA")],
+                        Ger.tow.lst$Tows$backup.repeats[,c("EID", "X", "Y", "Poly.ID", "STRATA")])
+    Ger.tow.dat.rep<- rbind(Ger.tow.lst$Tows$repeated.tows,
+                        Ger.tow.lst$Tows$backup.repeats)
     
     # Get degree decimal minutes
     Ger.tow.dat$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$X, format = "deg.min"), 4)
     Ger.tow.dat$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$Y, format = "deg.min"), 4)
     Ger.tow.dat <- Ger.tow.dat[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA")]
     
+    # Get degree decimal minutes (repeat backups)
+    Ger.tow.dat.rep$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$X, format = "deg.min"), 4)
+    Ger.tow.dat.rep$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$Y, format = "deg.min"), 4)
+    Ger.tow.dat.rep <- Ger.tow.dat.rep[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA", "EIDlastyear")]
+    
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {
       write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
-      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
     }
     # Plot this bad boy up if you want to do such things
     if(plot==T)

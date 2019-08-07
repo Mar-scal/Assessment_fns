@@ -53,7 +53,7 @@
 ###############################################################################################################
 
 survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", areas,  mw.par='annual',user.bins = NULL) {
-  browser()
+  
   if(!bk=="Sab") print("You wound up in survey.dat.restrat even though your bank shouldn't be restratified. How did you get here? 
                         Please return to SurveySummary_data.r")
   if(bk=="Sab"){

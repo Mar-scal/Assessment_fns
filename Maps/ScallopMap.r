@@ -117,6 +117,7 @@
 #                 Can also be "LL" (typical of Scallop Unit data), "UTM", or a numerical value
 # add.scale:      Do you want to add a scale to the figure.  T/F, default = F.   
 # Name + defining arguements (and their defaults) for the ScallopMap function
+# language:       default is english ("en"), french is "fr"
 ScallopMap<-function(area='custom',
                      ylim=c(40,46),xlim=c(-68,-55), 
                      plot.strata=F,  plot.bathy=F, plot.boundries=F,  # plot strata, bathymetry, or management boundaries?
@@ -159,7 +160,7 @@ ScallopMap<-function(area='custom',
                      plot.directory = getwd(), filename = "testplot" ,              # Filename and directory of your plot
                      width = 8, height = 8, cex.mn =1,               # WIdth and height of plot, in inches + title magnification
                      dec.deg = T  ,                              # The axes labels, decimal degrees or degree minute seconds
-                     proj = T,add.scale = F,...                  # The projection to use and do you want to add a scale...
+                     proj = T,add.scale = F, language="en",...                  # The projection to use and do you want to add a scale...
                      ) 
 
                      # These arguments were removed from the function 1: plot.lines=T, 2: land.twice = T, color.adj = 100
@@ -277,13 +278,12 @@ ScallopMap<-function(area='custom',
   #  If banks == true add them to plot
 	if(banks)
 	  {
-		
-	  #Read6 Bring in the banks data
+		#Read6 Bring in the banks data
     banks.xy<-read.table(paste(direct,"Data/Maps/approved/Other_Borders/banks.xy",sep=""),header=T) 
     #Read7 This contains labels for the banks + the color to be used for border when ploting
     banks.dat<-read.table(paste(direct,"Data/Maps/approved/Other_Borders/banks.dat",sep=""),header=T,stringsAsFactors = F) 
     attr(banks.xy,"projection")<-"LL" # DK added July 31, 2015
-        
+     
     # add it to our plot.
     addPolys(banks.xy,polyProps=banks.dat)
 	  } # end if(banks){
@@ -383,7 +383,7 @@ ScallopMap<-function(area='custom',
    # end should not overwrite previous layers.
    if(plot.boundries ==T) 
      {
-       #Source2 source(paste(direct,"Maps/managePlot.r",sep=""))
+      #Source2 source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep=""))
        managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
                 plot.color = bound.color,direct=direct,manage.colors = manage.colors)
       } # end if(plot.strata==T)
@@ -646,7 +646,7 @@ ScallopMap<-function(area='custom',
 	# Now custom add the axis labels if not already supplied (this can be done in PlotMap, 
 	# but with the axis altered above this isn't always nice)
 	if(missing(ylab) && dec.deg==T) mtext(side=2,expression("Latitude" ~ group("(", degree,")")),cex=cex,line=4)
-	if(missing(ylab) && dec.deg==F) mtext(side=2,expression("Latitude" ~ group("(", degree,")")),cex=cex,line=7)
+	if(missing(ylab) && dec.deg==F) mtext(side=2,expression("Latitude" ~ group("(", degree,")")),cex=cex,line=4)
 	if(missing(xlab)) mtext(side=1,expression("Longitude" ~ group("(", degree,")")),cex=cex,line=3)
 	
 	if(!missing(ylab) && dec.deg==T) mtext(side=2,ylab,cex=cex,line=4)

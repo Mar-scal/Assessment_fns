@@ -25,7 +25,7 @@
 #shf.dat:   The data of interest
 #years:     The years of interest
 #type:      The type of results of interest.  'N' = default and returns numbers.  'B' returns biomass.  'MC' returns the meat count.
-#           DK Sept 2015 added an argument type="ALL" which calculates N, B and MC, where the MC is calculated as (0.5×N)/BM
+#           DK Sept 2015 added an argument type="ALL" which calculates N, B and MC, where the MC is calculated as (0.5?N)/BM
 #pre.ht:    Maximum size of pre-recruits.  Default = 80, 
 #rec.ht:    Maximum size of recruits.  Default = 100,  
 #htwt.fit:  Height/weight model fit.  Default = NULL
@@ -44,6 +44,7 @@
 surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=NULL, A=htwt.fit$A , user.bins = c(50,70,85,95,110),
                       B=htwt.fit$B, mw.par='fixed',bar.ht='com', mc=33)
 {
+
   # Get the names for the user bins
   bnames <- paste0("bin_lt_",user.bins[1])
   for(i in 1:length(user.bins)+1) 

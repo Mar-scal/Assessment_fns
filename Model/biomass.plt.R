@@ -42,14 +42,15 @@
 #20:  alpha:      The Credible intervals to use.  Default = c(0.05,0.2).  The first term is used for the CI lines on the figure and creates 
 #                 95% confidence intervals.  The second term defines the whiskers for the box plot, 0.2 gives an "80%" boxplot.
 #21:  path:       The path to save the figure if making a pdf.  Default = blank and will plot to the current R directory...
+#22:  language    default is "en" for english, use "fr" if french
 ###############################################################################################################
 
 
 
 biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd=8.5,Rymax,Bymax,TAC,pred=1,kt=T,
-                        refs=c("URP","LRP","zones"),index,URP,LRP,URP2=NULL,LRP2=NULL,out.data2,lab='',alpha=c(0.05,0.2),path='')
+                        refs=c("URP","LRP","zones"),index,URP,LRP,URP2=NULL,LRP2=NULL,out.data2,lab='',alpha=c(0.05,0.2),path='',
+                        language="en")
 {
-  
   # Set up the plot device 
   if(graphic=='pdf') pdf(paste(path,lab,"Biomass.pdf",sep=''), width = wd, height = ht)
   if(graphic=='png') png(paste(path,lab,"Biomass.png",sep=''), width = wd, height = ht,res=920,units="in")
@@ -85,8 +86,10 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   if(missing(out.data2)==T)
   {
     # Either tonnes or kilo-tonnes
-  	if(kt==T)mtext("Fully-Recruited Biomass (kt)", 2, 3, cex=1.2)
-  	else mtext("Fully-Recruited Biomass (t)", 2, 3, cex=1.2)
+  	if(kt==T & language=="en") mtext("Fully-Recruited Biomass (kt)", 2, 3, cex=1.2)
+    if(kt==F & language=="en") mtext("Fully-Recruited Biomass (t)", 2, 3, cex=1.2)
+    if(kt==T & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (kt)", 2, 3, cex=1.2)
+    if(kt==F & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (t)", 2, 3, cex=1.2)
   } # end if(missing(out.data2)==T)
   # Add the alpha credible intervals.
   lines(years, apply(out.data$sims.list$B, 2, quantile, alpha[1]/2), lty = 2)
@@ -105,11 +108,17 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   
   # Add in the labels for the zones
   # Updated the location for these so they don't get in the way of the most recent years, should automatically put them in a nice location.
-  if(is.null(refs) == F)
+  if(is.null(refs) == F & language=="en")
   {
     text(max(years)-5, LRP*0.1, "CRITICAL", col='firebrick1', cex=1.5)
     text(max(years)-5, LRP*1.2, "CAUTIOUS", col='goldenrod1',cex=1.5)
     text(max(years)-5, 0.9*Bymax, "HEALTHY", col='chartreuse2',cex=1.5)
+  } # end if(is.null(refs) == F)
+  if(is.null(refs) == F & language=="fr")
+  {
+    text(max(years)-5, LRP*0.1, "CRITIQUE", col='firebrick1', cex=1.5)
+    text(max(years)-5, LRP*1.2, "PRUDENCE", col='goldenrod1',cex=1.5)
+    text(max(years)-5, 0.9*Bymax, "SANT\u00C9", col='chartreuse2',cex=1.5)
   } # end if(is.null(refs) == F)
   
   # This gets the one year prediction based on the same interim TAC. By default the whiskers here are the 80% whiskers.
@@ -168,8 +177,10 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   if(missing(out.data2)==F)
   {
   	# Add the text to the first figure including one piece of text saying this is figure "a'
-  	if(kt==T)mtext("Fully-Recruited Biomass (kt)", 2, -1, cex=1.2,outer=T)
-  	else mtext("Fully-Recruited Biomass (t)", 2, -1, cex=1.2,outer=T)
+  	if(kt==T & language=="en") mtext("Fully-Recruited Biomass (kt)", 2, -1, cex=1.2,outer=T)
+    if(kt==F & language=="en") mtext("Fully-Recruited Biomass (t)", 2, -1, cex=1.2,outer=T)
+    if(kt==T & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (kt)", 2, -1, cex=1.2,outer=T)
+    if(kt==F & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (t)", 2, -1, cex=1.2,outer=T)
   	text(min(years), Bymax*0.95, "a", cex=1.25)
   	
   	# Now we use the second set of data to do what we did above...
@@ -233,11 +244,17 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   	} # end if("zones"%in%refs)
 
   	# Add in the labels for the zones
-  	if(is.null(refs) == F)
+  	if(is.null(refs) == F  & language=="en")
   	{
   	  text(2011, 100, "CRITICAL", col='firebrick1', cex=1.5)
   	  text(2011, 10000, "CAUTIOUS", col='goldenrod1',cex=1.5)
   	  text(2011, 45000, "HEALTHY", col='chartreuse2',cex=1.5)
+  	} # end if(is.null(refs) == F)
+  	if(is.null(refs) == F & language=="fr")
+  	{
+  	  text(2011, 100, "CRITIQUE", col='firebrick1', cex=1.5)
+  	  text(2011, 10000, "PRUDENCE", col='goldenrod1',cex=1.5)
+  	  text(2011, 45000, "SANT\u00C9", col='chartreuse2',cex=1.5)
   	} # end if(is.null(refs) == F)
   	
   } # end if(missing(out.data2)==F)
@@ -256,13 +273,15 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   	if(kt==T)
   	{
   	  axis(2, pretty(c(0, Rymax)),lab =  pretty(c(0, Rymax))/1000,las=1)
-  	  mtext("Recruit Biomass (kt)", 2, 3, cex=1.2)
+  	  if(language=="en") mtext("Recruit Biomass (kt)", 2, 3, cex=1.2)
+  	  if(language=="fr") mtext("Biomasse des recrues (kt)", 2, 3, cex=1.2)
   	}
   	# Otherwise it is this.
   	if(kt==F)
   	{
   	  axis(2)
-  		mtext("Recruit Biomass (t)", 2, 3, cex=1.2)
+  	  if(language=="en") mtext("Recruit Biomass (t)", 2, 3, cex=1.2)
+  	  if(language=="fr") mtext("Biomasse des recrues (t)", 2, 3, cex=1.2)
   	} #end if(kt==F)
   	
   	lines(years, apply(out.data$sims.list$R, 2, quantile, alpha[1]/2), lty = 2)
