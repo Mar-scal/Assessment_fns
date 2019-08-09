@@ -321,10 +321,14 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     if(type =="B" && log.y == T) axis(2, mgp = c(0.5, 0.7, 0),las=1,cex.axis=axis.cx)
     
     if(log.y == F) axis(4, pretty(c(0,ymax[i]*ys)),lab = F, tcl = -0.3,cex.axis=axis.cx)
+    
+    
+    browser()
+    median.val <- median(shf[!shf$year==max(years),mn.tmp[i]],na.rm=T)
     # Now add the median line, but only for the years we have data, allow the lines to have their own unique color.
-    if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],rep(median(shf[,mn.tmp[i]],na.rm=T),
+    if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],rep(median.val,
                                                                                            length(shf$year[-which(is.na(shf[,mn.tmp[i]]))])),col=clr[3],lty=2,lwd=2)
-    if(any(is.na(shf[,mn.tmp[i]]))==F)  lines(shf$year,rep(median(shf[,mn.tmp[i]],na.rm=T),length(shf$year)),col=clr[3],lty=2,lwd=2)
+    if(any(is.na(shf[,mn.tmp[i]]))==F)  lines(shf$year,rep(median.val,length(shf$year)),col=clr[3],lty=2,lwd=2)
     # now add the points
     
     points(shf$year, shf[,mn.tmp[i]] , type = "o", pch = pch[1], cex=cx, col=clr[1])
@@ -334,9 +338,9 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     {
       points(dat2$year, dat2[,mn.tmp[i]], type = "o", cex=cx,col=clr[2],lty=lty[2],pch=pch[2])
       # add the median line, if statement handling cases with/without NA's, if we have a second line we keep the median line the same clr.
-      if(any(is.na(dat2[,mn.tmp[i]]))==T)  lines(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))],rep(median(dat2[,mn.tmp[i]],na.rm=T),
+      if(any(is.na(dat2[,mn.tmp[i]]))==T)  lines(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))],rep(median(dat2[!dat2$year==max(years),mn.tmp[i]],na.rm=T),
                                                                                                 length(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))])),col=clr[2],lty=2,lwd=2)
-      if(any(is.na(dat2$NPR))==F) lines(dat2$year,rep(median(dat2[,mn.tmp[i]],na.rm=T),length(dat2$year)),col=clr[2],lty=2,lwd=2)
+      if(any(is.na(dat2[,mn.tmp[i]]))==F) lines(dat2$year,rep(median(dat2[!dat2$year==max(years),mn.tmp[i]],na.rm=T),length(dat2$year)),col=clr[2],lty=2,lwd=2)
       
       # Add the se
       if(se == T) segments(dat2$year,dat2[,mn.tmp[i]]+dat2[,se.names[i]],dat2$year,dat2[,mn.tmp[i]]-dat2[,se.names[i]],col=clr[2])

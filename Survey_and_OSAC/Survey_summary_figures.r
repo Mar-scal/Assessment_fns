@@ -354,7 +354,6 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  #browser()
   sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
   
@@ -1614,7 +1613,7 @@ for(i in 1:len)
     {
 
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
+                median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
     }
     
     # DK Note that German is still calculated the "old way" using the cf.data at a specific location
@@ -1623,14 +1622,14 @@ for(i in 1:len)
     if(banks[i] == "Ger")
     {
       stdts.plt(cf.data[[banks[i]]]$CFyrs,y=c('CF','CF2'),pch=c(23,24),col=c('blue','red'),ylab=cf.lab,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=cap.size,tx.ypos=4)
+                median.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=cap.size,tx.ypos=4)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     }
     # Have to add in the CF for May into the data
     if(banks[i] == "GBa")
     {
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
+                median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
       if(season=="both")
       {
         points(survey.obj[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
@@ -1652,7 +1651,7 @@ for(i in 1:len)
     if(banks[i] == "GB")
     {
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=22,ylab=cf.lab,col="red",lty=2,
-                mean.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
+                median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
       if(season=="both")
       {
         points(survey.obj[["GBa"]][[1]]$year+0.25,survey.obj[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
@@ -2154,13 +2153,20 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_per_ts.png",sep=""),units="in",width = 8.5, 
                          height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_per_ts.pdf",sep=""),width = 8.5, height = 11)
-    #if(!banks[[i]]=="BanIce") {
+    if(!banks[[i]]=="Ger") {
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
       Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
                 titl = clap.per.ts.title,
                 CS=survey.obj[[banks[i]]][[1]]$CS[survey.obj[[banks[i]]][[1]]$year==yr], RS=survey.obj[[banks[i]]][[1]]$RS[survey.obj[[banks[i]]][[1]]$year==yr],
                 axis.cx = 1.5)
-     # }
+    }
+    if(banks[[i]]=="Ger") {
+      yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
+      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
+                titl = clap.per.ts.title,
+                CS=lined.survey.obj[[1]]$CS[lined.survey.obj[[1]]$year==yr], RS=lined.survey.obj[[1]]$RS[lined.survey.obj[[1]]$year==yr],
+                axis.cx = 1.5)
+    }
     # if(banks[[i]]=="BanIce") {
     #   yrs <- 2012
     #   message("using surv.Clap instead of surv.Clap.Rand for BanIce")
@@ -2201,11 +2207,11 @@ for(i in 1:len)
       names(tmp) <- names(survey.obj[[banks[i]]][[1]])
       
       stdts.plt(subset(tmp,year %in% yrs),y="l.bar",pch=17,lty=1,ylab="Average\n shell\n height\n (mm)",las=1,
-                mean.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
+                median.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
       stdts.plt(subset(survey.obj[[banks[i]]][[1]],year %in% yrs),y="CF",pch=17,lty=1,las=1, ylab=cf.lab,
-                mean.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
+                median.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
       stdts.plt(subset(tmp,year %in% yrs),y="w.bar",pch=17,lty=1,ylab="Average\n meat\n weight\n(g)",
-                mean.line=T,graphic='none',xlab='',labcx=1.2,las=1,axis.cx=1.2)
+                median.line=T,graphic='none',xlab='',labcx=1.2,las=1,axis.cx=1.2)
       if(add.title ==T) title(paste("Shell height, Condition factor, Meat weight (",banks[i],")",sep=""), cex.main=3,outer=T)
       if(fig != "screen") dev.off()   
     } # end if(banks[i] %in% c("BBn" ,"BBs", "Sab" ,  "GBb", "GBa"))
@@ -2339,6 +2345,10 @@ for(i in 1:len)
         boxy <- seedbox.obj[[banks[i]]][[j]]
         surv.seed <- surv.Live[[banks[i]]][1:nrow(surv.Live[[banks[i]]]) %in% key$EID,]
         
+        # adjust the number of years ago for determine the "previous year" plots (esp. for breakdown plots)
+        if(!(banks[i] == "Sab" && this.box$Common_name == "Starbox")) yrsago <- 1
+        if(banks[i] == "Sab" && this.box$Common_name == "Starbox") yrsago <- 2
+        
         # Titles for the seedbox plots....
         seedbox.bm.title <- substitute(bold(paste(box,"-Biomass time series (",bank,")",sep="")),
                                        list(year=as.character(yr),bank=banks[i],box = fig.box.name[j]))
@@ -2355,7 +2365,7 @@ for(i in 1:len)
         breakdown.title.seed <- substitute(bold(paste("Biomass & Meat Count by Height (",fn,"-",bank,"-",year,")",sep="")),
                                            list(fn = fig.box.name[j],year=as.character(yr),bank=banks[i]))
         last.yr.breakdown.title.seed <- substitute(bold(paste("Biomass & Meat Count by Height (",fn,"-",bank,"-",year,")",sep="")),
-                                                   list(fn = fig.box.name[j],year=as.character(yr-1),bank=banks[i]))
+                                                   list(fn = fig.box.name[j],year=as.character(yr-yrsago),bank=banks[i]))
         cf.title.seed <- substitute(bold(paste("Condition factor (", bank,"-",year,")",sep="")),
                                     list(year=as.character(yr),bank=banks[i]))
         mc.title.seed <- substitute(bold(paste("Meat count (" ,"">=m, " mm " , bank,"-",year,")",sep="")),
@@ -2425,7 +2435,8 @@ for(i in 1:len)
         # What I'm doing is to make the axis for the current and previous year breakdown plot the same
         # as I need to compare these...
         bm<-boxy$shf.dat$w.yst[which(boxy[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
-        bm.last<-boxy$shf.dat$w.yst[which(boxy[[1]]$year==(yr-1)),which(seq(5,200,5) >= 5)]/1000
+        bm.last<-boxy$shf.dat$w.yst[which(boxy[[1]]$year==(yr-yrsago)),which(seq(5,200,5) >= 5)]/1000
+      
         # need to do the same thing for the meat count axis, but this requires us to calculate the meatcounts for each bar first, for both years
         ## this year:
         bmmc<-boxy$shf.dat$w.yst[which(boxy$model.dat$year==yr),which(seq(5,200,5) >= 5)]/1000
@@ -2434,8 +2445,8 @@ for(i in 1:len)
         vec<-seq(0,195,5)
         y2max<-max(countmc[(min(c(RS-15,160),na.rm=T)/5-1):length(vec)],na.rm=T)*1.1
         ## last year
-        bmmc.last<-boxy$shf.dat$w.yst[which(boxy$model.dat$year==yr-1),which(seq(5,200,5) >= 5)]/1000
-        nummc.last<-boxy$shf.dat$n.yst[which(boxy$model.dat$year==yr-1),which(seq(5,200,5) >= 5)]
+        bmmc.last<-boxy$shf.dat$w.yst[which(boxy$model.dat$year==yr-yrsago),which(seq(5,200,5) >= 5)]/1000
+        nummc.last<-boxy$shf.dat$n.yst[which(boxy$model.dat$year==yr-yrsago),which(seq(5,200,5) >= 5)]
         countmc.last=nummc.last/bmmc.last*0.5
         y2max.last<-max(countmc.last[(min(c(RS-15,160),na.rm=T)/5-1):length(vec)],na.rm=T)*1.1
       
@@ -2458,13 +2469,13 @@ for(i in 1:len)
         if(length(bm.last[!is.na(bm.last)]) > 0)
         {
         if(fig == "screen") windows(11,8.5)
-        if(fig == "png") png(paste(plot.dir,box.names[j],"-breakdown",(yr-1),".png",sep=""),units="in",
+        if(fig == "png") png(paste(plot.dir,box.names[j],"-breakdown",(yr-yrsago),".png",sep=""),units="in",
                              width = 11,height = 8.5,res=420,bg = "transparent")
-        if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-breakdown-",(yr-1),".pdf",sep=""),
+        if(fig == "pdf") pdf(paste(plot.dir,box.names[j],"-breakdown-",(yr-yrsago),".pdf",sep=""),
                              width = 11,height = 8.5)
         # To get the ymax the same between succesive years I want to do this...
           if(!ymax %in% "-Inf") {
-            breakdown(boxy,yr=(yr-1),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
+            breakdown(boxy,yr=(yr-yrsago),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
             if(add.title==T) title(last.yr.breakdown.title.seed, cex.main=2,adj=0.35)
           }
           if(fig != "screen") dev.off()   
@@ -2554,7 +2565,7 @@ for(i in 1:len)
         # If any of the Strata_ID's are outside of the survey stratification scheme we will run the spatial plots as
         # local fields using the box data only.
         
-        if(any(is.na(surv.seed$Strata_ID))==T)
+        if(any(is.na(surv.seed$Strata_ID))==T | any(is.na(surv.seed$Strata_ID_new))==T)
         {
           #mod.res <- NULL
           # Now set up the INLA for this seedbox...

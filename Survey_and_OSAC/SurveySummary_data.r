@@ -259,9 +259,9 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     
     ### Do any preprocessing to the BanIce data here
     if("BanIcespring" %in% surveys) {
-     BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
+     BanIceSurvey2012 <- read.csv(paste0(direct, "Data/Survey_data/2012/Spring/BanIceSurvey2012.csv"))
      BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
-     message("Note: the pre/rec/com estimates in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data) are WRONG and are based on incorrect bins.\nWe will recalculate these later in this function.")
+     message("Note: the pre/rec/com estimates and HF data for tow 936 in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data)\nare WRONG and are based on incorrect bins. We will recalculate these later in this function.\nAlso note that BanIce tow 936 HF data was corrected in 2019.\nThe accurate raw HF data are in .../Data/2012/Spring/TE13BanIcehf.csv. NOT IN THE Y:/Alan/... FOLDER\nNOR IN Y:/Offshore scallop/Assessment/2012/r/data FOLDER.")
     }
     
     ### This grabs the data directly from the database and makes it it's own object, works for now
