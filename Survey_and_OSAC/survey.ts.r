@@ -322,8 +322,6 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     
     if(log.y == F) axis(4, pretty(c(0,ymax[i]*ys)),lab = F, tcl = -0.3,cex.axis=axis.cx)
     
-    
-    browser()
     median.val <- median(shf[!shf$year==max(years),mn.tmp[i]],na.rm=T)
     # Now add the median line, but only for the years we have data, allow the lines to have their own unique color.
     if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],rep(median.val,

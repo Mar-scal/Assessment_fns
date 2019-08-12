@@ -53,11 +53,12 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	# Or use an R window
   #if(graphic=="R") windows( width = width, height = height)
 	# Calculate the median of the response variable (y's)
-  mediany<-apply(data[y][-nrow(data[y]),], 2, function(x) median(x, na.rm=T))
+  if(dim(data[y])[2] == 1) mediany <- median(data[y][-nrow(data[y]),], na.rm=T) 
+  if(dim(data[y])[2] == 2) mediany <- apply(data[y][-nrow(data[y]),], 2, function(x) median(x, na.rm=T))
 	print(mediany)
   # Add in xlim/ylim in not specified.
-	if(missing(xlim))xlim=range(data[x],na.rm=T)
-	if(missing(ylim))ylim=range(data[y],na.rm=T)
+	if(missing(xlim)) xlim=range(data[x],na.rm=T)
+	if(missing(ylim)) ylim=range(data[y],na.rm=T)
 	# Set margins and leave the plot window open
   if(!nchar(titl) > 35) par(mar=c(3.6,6,2,2))
 	if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))

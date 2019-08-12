@@ -209,7 +209,7 @@ ScallopMap<-function(area='custom',
 	# These are from offshore ScallopMap.r and I believe we'll need them
   if(area=='West')	   {  ylim=c(43,44.1); 		xlim=c(-62.2,-60.4)	}
   if(area=='Mid')		   { ylim=c(44.2,44.9);	xlim=c(-61.3,-60.1) }
-  if(area=='Ban')		   { ylim=c(43.9,44.8); 	xlim=c(-60.25,-58.5)	}
+  if(area=='Ban')		   { ylim=c(43.9,44.9); 	xlim=c(-60.25,-58.5)	}
   if(area=='Sab-West') { ylim=c(42.8,44.5); 		xlim=c(-62.5,-58.8)	}
   if(area=='Ban-Wide') { ylim=c(43.7,45.2); 	xlim=c(-60.5,-57)	}
   

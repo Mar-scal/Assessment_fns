@@ -1177,7 +1177,7 @@ for(i in 1:len)
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           
-          if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
+          if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,ylim = c()
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
                                               direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
@@ -1203,33 +1203,33 @@ for(i in 1:len)
           # Add the regular survey tows, note this if statement is used to NOT add the following code to these plots...
           if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP-spatial")==F)
           {
-            points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
+            points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
             # In case any of these banks has exploratory tows...
             if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs", "Ban", "BanIce"))  
             {
   
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-                     & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=0.8)
+                     & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=1.2)
               legend("topleft",legend = c(paste('exploratory (n =',
                                                  length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
                                                  ")",sep=""),
                                            paste('regular (n =',
                                                  length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
                                                  ")",sep="")),title="Tow type",
-                     pt.bg = c("darkorange","black"),pch=c(24,20),inset=0.01,bg=NA,box.col=NA)
+                     pt.bg = c("darkorange","black"),pch=c(24,20),inset=0.01,bg=NA,box.col=NA,cex=1.2)
             } # end if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs"))  
             
             if(banks[i] %in% c("GBa"))  
             {
               
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-                     & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=0.8)
+                     & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=1.2)
               legend("bottomright",legend = c(paste('exploratory (n =',
                                                 length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),")",sep=""),
                                               paste('regular (n =',
                                                 length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
                                                 ")",sep="")),title="Tow type",
-                     pt.bg = c("darkorange","black"),pch=c(24,20),inset=0.01,bg=NA,box.col=NA)
+                     pt.bg = c("darkorange","black"),pch=c(24,20),inset=0.01,bg=NA,box.col=NA,cex=1.2)
               
               
             } # end if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs"))  
@@ -1238,9 +1238,9 @@ for(i in 1:len)
             if(banks[i] == "Ger") 
             {
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr &
-                       random==3,pch=22,bg="yellow",cex=0.8)
+                       random==3,pch=22,bg="yellow",cex=1.2)
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr &
-                       random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=0.8)
+                       random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.2)
               
               legend('topleft',legend=
                        c(paste('regular (n =',length(unique(subset(surv.Live[[banks[i]]],year==yr & 
@@ -1249,21 +1249,21 @@ for(i in 1:len)
                                                                       random==3)$tow)),")", sep=""),
                          paste('exploratory (n =',
                                length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,4,5))$tow)),")",sep="")),
-                     pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',cex=1, inset = .02,,bg=NA,box.col=NA)
+                     pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',cex=1, inset = .02,,bg=NA,box.col=NA,cex=1.2)
             } # end if(banks[i] == "Ger") 
             
             # For the banks without exploratory tows we add this legend
             if(banks[i] == "GB") 
             {
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-                     & state =='live' & random%in% c(2,4,5),pch=24,bg="darkorange",cex=0.8)
+                     & state =='live' & random%in% c(2,4,5),pch=24,bg="darkorange",cex=1.2)
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-                     & state =='live' & random==3,pch=22,bg="yellow",cex=0.8)
+                     & state =='live' & random==3,pch=22,bg="yellow",cex=1.2)
               legend("bottomright",legend = c(paste('exploratory (n =',
                                                  length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(2,4,5))$tow)),")",sep=""),
                                            paste('repeated (n =',length(unique(subset(surv.Live[[banks[i]]],year==yr & 
                                                                                         random==3)$tow)),")", sep="")),title="Tow type",
-                     pt.bg = c("darkorange","yellow"),pch=c(24,22),inset=0.01,,bg=NA,box.col=NA)
+                     pt.bg = c("darkorange","yellow"),pch=c(24,22),inset=0.01,,bg=NA,box.col=NA,cex=1.2)
             } # end if(banks[i] == "Sab" || banks[i] == "Mid"|| banks[i] == "BBs" || banks[i] == "Ban"|| banks[i] == "GBb" || banks[i] == "GB") 
      
             
@@ -1273,7 +1273,7 @@ for(i in 1:len)
             {
               legend("bottomleft",leg.lvls,fill=cols,
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.2)
             } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
             
             # For these plots the legend goes like this     
@@ -1281,18 +1281,18 @@ for(i in 1:len)
             {
               legend("bottomleft",leg.lvls,fill=cols,
                      title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                     pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+                     pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.2)
             } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
           } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP.spatial")==F)
           # For condition and meat count we set things up a little bit differently.
           if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
           {
-            points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=0.8)
+            points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=1.2)
             legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
-                   legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA)	
+                   legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA,cex=1.2)	
             legend("bottomleft",leg.lvls,fill=cols,
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
           } # end if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
         
           
@@ -1301,12 +1301,12 @@ for(i in 1:len)
         # For condition and meat count we set things up a little bit differently.
         if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
         {
-          points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=0.8)
+          points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=1.2)
           legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
                  legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA)	
           legend("bottomleft",leg.lvls,fill=cols,
                  title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA)
+                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
         } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
           # Add the survey boxes if they exist.
           if(length(sb[,1]) > 0) {
@@ -2185,7 +2185,7 @@ for(i in 1:len)
   ##### END Clapper % time series      ##### END Clapper % time series##### END Clapper % time series
   ##### END Clapper % time series ##### END Clapper % time series ##### END Clapper % time series      
   
-  
+  browser()
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series             
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series
   
