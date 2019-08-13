@@ -23,7 +23,7 @@
 #Arguments
 #data:        The clapper time series, should include proportion of the three categories.
 #years:       The years to plot.  Default = 1981:2009
-#mean.line:   Add the average over the time series.  (T/F) Default = T
+#median.line:   Add the average over the time series.  (T/F) Default = T
 #graphic:     The plot device type.  Options are 'pdf' or "R", Default = "R"
 #width:       Width of the plot device.  Default = 11
 #height:      Height of the plot device.  Default = 8.5
@@ -38,7 +38,7 @@
 #axis.cx:     Magnification of the axes.  Default = 1
 #clr:         Color of the line/points and color of the median line.  Default = c("blue","darkgrey")
 
-Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, height = 8.5,yl, 
+Clap3.plt <- function(data, years=1981:2009,median.line=T,graphic="R",width = 11, height = 8.5,yl, 
                       data2,ypos=1,add.title = F, cex.mn = 1, titl = "", CS = NULL, RS=NULL,axis.cx=1,clr=c("blue","darkgrey"),...)
 {
 
@@ -70,7 +70,7 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	#The pre-recruit time series
 	plot(years,dat$clapsPre, type='o', ylim=yl, ylab="", xlab="", tcl=-0.3,  pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(mean.line==T)  {abline(h=median(dat$clapsPre[-length(years)],na.rm = T),lty=2,col=clr[2],lwd=2)
+	if(median.line==T)  {abline(h=median(dat$clapsPre[-length(years)],na.rm = T),lty=2,col=clr[2],lwd=2)
 	  LTMpre <- median(dat$clapsPre[-length(years)],na.rm = T)
 	  LTMrec <- median(dat$clapsRec[-length(years)],na.rm = T)
 	  LTMcom <- median(dat$clapsCom[-length(years)],na.rm = T)
@@ -92,7 +92,7 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	# The recruit time series
 	plot(years,dat$clapsRec, type='o', las=1, ylim=yl, ylab="", xlab="", tcl=-0.3,  pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(mean.line==T) abline(h=median(dat$clapsRec[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
+	if(median.line==T) abline(h=median(dat$clapsRec[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
 	# Add axis tick marks and label this "recruits".
 	axis(4, lab=F, tcl=-0.3,cex.axis=axis.cx)
 	axis(1,lab=F,cex.axis=axis.cx)
@@ -106,7 +106,7 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	
 	plot(years,dat$clapsCom, type='o', las=1, ylim=yl, ylab="", xlab="", tcl=-0.3, pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(mean.line)abline(h=median(dat$clapsCom[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
+	if(median.line)abline(h=median(dat$clapsCom[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
 	# Add axis tick marks and label this "fully recruited". Also add y axis lable.
 	axis(4, lab=F, tcl=-0.3,cex.axis=axis.cx)
 	axis(1,cex.axis=axis.cx)
@@ -121,5 +121,5 @@ Clap3.plt <- function(data, years=1981:2009,mean.line=T,graphic="R",width = 11, 
 	if(graphic != "R")dev.off()
 	
 	# Save the LTMs
-	assign("clap.propLTMs", c(LTMpre, LTMrec, LTMcom), pos = 1)
+	if(median.line==T) assign("clap.propLTMs", c(LTMpre, LTMrec, LTMcom), pos = 1)
 }	# end function

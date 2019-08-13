@@ -453,7 +453,7 @@ for(i in 1:len)
   {    
     spatial.maps <- plots[grep("spatial",plots)]
     # If we want spatial maps or seedboxes and/or have user SH.bins (for both of which we will produce all figures automatically.)
-    if((length(spatial.maps > 0) || any(plots %in% c("seedboxes","user.SH.bins"))))
+    if((length(spatial.maps > 0) || any(plots %in% c("seedboxes", "user.SH.bins")))) 
     {
       mod.res <- NULL # This will contain the model results for the spatial figures
       # Set up the resolution for the spatial plots, low is relatively fast, high is quite slow
@@ -557,6 +557,10 @@ for(i in 1:len)
         # Convert the sp boundary object to a mesh boundary for INLA. 
         bound.buff <- inla.sp2segment(bound.poly.surv.sp.buff)
         bound.no.buff <- inla.sp2segment(bound.poly.surv.sp)
+        if(banks[i] == "Sab" & dim(sb)[1] > 0) {
+          bound.w.star <- gUnion(bound.poly.surv.sp, PolySet2SpatialPolygons(as.PolySet(sb, projection = "LL")))
+          bound.no.buff  <- inla.sp2segment(bound.w.star)
+        }
         xyl <- rbind(x=range(bound.buff$loc[,1]), y=range(bound.buff$loc[,2])) # get the xy ranges of our extent.
         
         # This is how the mesh and A matrix are constructed
@@ -1152,7 +1156,6 @@ for(i in 1:len)
           
 
           
-          
           # Don't add the titles?
           if(add.title == F) fig.title <- ""
           # Where to get the bathymetry data, note this overwrites any call in the function above
@@ -1177,7 +1180,7 @@ for(i in 1:len)
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
                      direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           
-          if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,ylim = c()
+          if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
                                               direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
@@ -1196,14 +1199,15 @@ for(i in 1:len)
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
 
-          
+  
           ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
           ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
           ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
           # Add the regular survey tows, note this if statement is used to NOT add the following code to these plots...
-          if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP-spatial")==F)
+         
+           if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP-spatial")==F)
           {
-            points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
+           points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
             # In case any of these banks has exploratory tows...
             if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs", "Ban", "BanIce"))  
             {
@@ -1249,7 +1253,7 @@ for(i in 1:len)
                                                                       random==3)$tow)),")", sep=""),
                          paste('exploratory (n =',
                                length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,4,5))$tow)),")",sep="")),
-                     pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',cex=1, inset = .02,,bg=NA,box.col=NA,cex=1.2)
+                     pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',inset = .02,bg=NA,box.col=NA,cex=1.2)
             } # end if(banks[i] == "Ger") 
             
             # For the banks without exploratory tows we add this legend
@@ -1299,15 +1303,15 @@ for(i in 1:len)
          # } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
         #} # end if(seed.n.spatial.maps[k] != "MC-spatial" && seed.n.spatial.maps[k] != "CF-spatial")
         # For condition and meat count we set things up a little bit differently.
-        if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
-        {
-          points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=1.2)
-          legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
-                 legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA)	
-          legend("bottomleft",leg.lvls,fill=cols,
-                 title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                 pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
-        } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
+        # if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
+        # {
+        #   points(lat~lon,CF.current[[banks[i]]],pch=21,bg='grey50',cex=1.2)
+        #   legend("topleft",pch=c(21), pt.bg = c("grey50"), title="Tow type",
+        #          legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA)	
+        #   legend("bottomleft",leg.lvls,fill=cols,
+        #          title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
+        #          pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
+        # } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
           # Add the survey boxes if they exist.
           if(length(sb[,1]) > 0) {
             sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
@@ -1609,11 +1613,17 @@ for(i in 1:len)
     shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
     
     # now the condition factor figure..
+    # only show the median line if there are more than 3 CF values
     if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")
     {
-
-      stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
-                median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
+      if(length(which(!is.na(survey.obj[[banks[i]]][[1]]$CF))) > 3){
+        stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
+                  median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
+      }
+      if(length(which(!is.na(survey.obj[[banks[i]]][[1]]$CF))) < 4){
+        stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
+                  median.line=F,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
+      }
     }
     
     # DK Note that German is still calculated the "old way" using the cf.data at a specific location
@@ -1666,7 +1676,7 @@ for(i in 1:len)
           survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
         } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
         points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
-        abline(h=mean(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
+        abline(h=median(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
       } # end  if(season=="spring")
       legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))	
       
@@ -1861,11 +1871,11 @@ for(i in 1:len)
     
     
     if(add.title == F) survey.ts.N.title <- ""
-    if(fig == "screen") windows(11,8.5)
+    if(fig == "screen") windows(8.5,11)
     if(fig == "png") png(paste(plot.dir,"/abundance_user_SH_bins_ts.png",sep=""),units="in",
                          width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_user_SH_bins_ts.pdf",sep=""),width = 8.5, height = 11)
-    
+
     par(mfrow=c(1,1))
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "BanIce" && banks[i] != "GB")
     {
@@ -1878,7 +1888,7 @@ for(i in 1:len)
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,ys=1.3,
-                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5,user.bins = user.bins)
+                add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5,user.bins = user.bins, plot.which.bins = c(1,2,3))
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     if(banks[i] == "Mid" || banks[i] == "GB"|| banks[i] == "Ban" || banks[i] == "BanIce")
@@ -1977,8 +1987,9 @@ for(i in 1:len)
         if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 11, height = 8.5)
         shf.years <- survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n) & (yr - survey.obj[[banks[i]]][[1]]$year) <20]
         s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
+        numrows <- length(s.size[!is.na(s.size)])
         shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, rows=3)	# rows=2 allows us to 
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, rows=numrows)	
         if(fig != "screen") dev.off()
       }
     } # end  if(banks[i] != "Ger")
@@ -2153,16 +2164,20 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"Clapper_per_ts.png",sep=""),units="in",width = 8.5, 
                          height = 11,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"Clapper_per_ts.pdf",sep=""),width = 8.5, height = 11)
+    
+    if(length(unique(surv.Clap.Rand[[banks[i]]]$year)) > 3) want.ltm <- T
+    if(length(unique(surv.Clap.Rand[[banks[i]]]$year)) < 4) want.ltm <- F
+    
     if(!banks[[i]]=="Ger") {
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
-      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
+      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, median.line=want.ltm,
                 titl = clap.per.ts.title,
                 CS=survey.obj[[banks[i]]][[1]]$CS[survey.obj[[banks[i]]][[1]]$year==yr], RS=survey.obj[[banks[i]]][[1]]$RS[survey.obj[[banks[i]]][[1]]$year==yr],
                 axis.cx = 1.5)
     }
     if(banks[[i]]=="Ger") {
       yrs <- min(surv.Clap.Rand[[banks[i]]]$year,na.rm=T):max(surv.Clap.Rand[[banks[i]]]$year,na.rm=T)
-      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, mean.line=T,
+      Clap3.plt(surv.Clap.Rand[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, median.line=want.ltm,
                 titl = clap.per.ts.title,
                 CS=lined.survey.obj[[1]]$CS[lined.survey.obj[[1]]$year==yr], RS=lined.survey.obj[[1]]$RS[lined.survey.obj[[1]]$year==yr],
                 axis.cx = 1.5)
@@ -2176,16 +2191,19 @@ for(i in 1:len)
     #             axis.cx = 1.5)
     #   }
     print(banks[i])
-    print(paste0(c("ClapPropLTMpre = ",
+    
+    if(want.ltm==T) {
+      print(paste0(c("ClapPropLTMpre = ",
                    "ClapPropLTMrec = ",
                    "ClapPropLTMcom = "), round(clap.propLTMs, 3)))
+    }
     if(fig != "screen") dev.off()                 
   } # end if(any(plots== "clapper-per-ts"))   
   
   ##### END Clapper % time series      ##### END Clapper % time series##### END Clapper % time series
   ##### END Clapper % time series ##### END Clapper % time series ##### END Clapper % time series      
   
-  browser()
+
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series             
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series
   
@@ -2236,6 +2254,7 @@ for(i in 1:len)
     if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
     if(banks[i] != "Ger") 
     {
+     
       # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
       # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
       # but wanted to look at the 2015 data for example).
@@ -2282,7 +2301,7 @@ for(i in 1:len)
     # I also want to remake the previsou year's breakdown plot, this will go in the current years folder but will
     # be the same y-scale (there is no guarantee that the plot made last year will be, likely it won't).  It's a bit
     # clunky but basically this is the same plot as last year but re-scaled for comparative purposes...
-
+    if(any(!is.na(bm.last))==T) {
       if(fig == "screen") windows(11,8.5)
       if(fig == "png") png(paste(plot.dir,"breakdown-",last.surv.year,".png",sep=""),units="in",
                            width = 11,height = 8.5,res=420,bg = "transparent")
@@ -2303,6 +2322,7 @@ for(i in 1:len)
       }# end if(banks[i] == "Ger") 
       
       if(fig != "screen") dev.off()   
+    }
     
   }  # end iif(any(plots== "breakdown"))
   ############  End Breakdown figures for BBn and GBa############  End Breakdown figures for BBn and GBa############  
@@ -2717,17 +2737,17 @@ for(i in 1:len)
             #Add the rest of the crap to the plot.
             addPolys(this.box,lty=2,lwd=2)
             # Add the regular survey tows.
-            points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.3)
+            points(slat~slon,surv.seed,subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=2)
             # Add the exploratory survey tows
-            points(slat~slon,surv.seed,subset=year==yr&state =='live' & random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.3)
-            if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=1.3) # add the repeat tows.
+            points(slat~slon,surv.seed,subset=year==yr&state =='live' & random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=2)
+            if(banks[i] == "GB") points(slat~slon,surv.seed,subset=year==yr&state =='live' & random==3,pch=22,bg="yellow",cex=2) # add the repeat tows.
           } # end for(b in 1:3)
           
           # Now add the legend.
           par(xpd=T)
           plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
           legend("left",leg.lvls,fill=cols,border="black",pch=c(rep(NA,length(lvls))),title = N.tow.lab,title.adj = 0.2,
-                 pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n")
+                 pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n", cex=1.2)
           
           if(banks[i] != "GB")
           {
@@ -2736,7 +2756,7 @@ for(i in 1:len)
                                     length(subset(surv.seed,year==yr & state=='live'& random==1)$ID),")",sep=""),
                               paste('exploratory (n =',
                                     length(subset(surv.seed,year==yr & state=='live'& random%in% c(0,2,4,5))$ID),")",sep="")),
-                   bg=NA,box.col=NA,bty="n")
+                   bg=NA,box.col=NA,bty="n", cex=1.2)
           } # end if(banks[i] != "GB")
           if(banks[i] == "GB")
           {
@@ -2744,7 +2764,7 @@ for(i in 1:len)
                                                length(unique(subset(surv.seed,year==yr & random%in% c(2,4,5))$tow)),")",sep=""),
                                          paste('repeated (n =',length(unique(subset(surv.seed,year==yr & 
                                                                                       random==3)$tow)),")", sep="")),title="Tow type",
-                   pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA)
+                   pt.bg = c("darkorange","yellow"),pch=c(24,22),bg = NA,inset=0.01,box.col=NA, cex=1.2)
           } # # end if(banks[i] == "GB")
           
           if(add.title == T) title(paste("Seedbox ",fig.box.name[j]," (",banks[i],"-",yr,")",sep=""),cex.main=2,outer=T,line=-0.5)

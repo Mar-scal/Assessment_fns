@@ -309,18 +309,18 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]>0){
     
-      cf_ltm <- mean(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
+      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
     
       cf <- data.frame(variable=c("CF",
                                 "spatialCF",
                                 "minCF", 
                                 "maxCF"), 
                      lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
-                                mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                 min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                 max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear])),
                      thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
-                                mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
+                                median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                 min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                 max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                      LTM=cf_ltm)
@@ -335,11 +335,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                   "minCF", 
                                   "maxCF"), 
                        lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
-                                  mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
+                                  median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear])),
                        thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
-                                  mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
+                                  median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                        LTM=cf_ltm)
