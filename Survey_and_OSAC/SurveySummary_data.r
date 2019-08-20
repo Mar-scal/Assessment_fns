@@ -487,6 +487,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       survey.strata.table[["BanIce"]] <- BanIce$survey.strata.table
       detail.surv.poly[["BanIce"]] <- BanIce$detail.surv.poly
       bound.surv.poly[["BanIce"]] <- BanIce$bound.surv.poly
+      mw.dat.all[["BanIce"]] <- BanIce$mw.dat.all
       
       bnk <- "BanIce"
       bank.4.spatial <- "BanIce"

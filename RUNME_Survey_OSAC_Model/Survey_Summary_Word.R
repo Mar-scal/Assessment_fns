@@ -221,7 +221,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     highlights <- rbind(highlights, abundPT)
     highlights <- rbind(highlights, bmPT)
-    
+    browser()
     # shell height frequencies
     shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, 14:53], 2, mean)
     maxbin <- names(shsummary[shsummary==max(shsummary)])

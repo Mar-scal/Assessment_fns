@@ -559,7 +559,7 @@ for(i in 1:len)
         bound.no.buff <- inla.sp2segment(bound.poly.surv.sp)
         if(banks[i] == "Sab" & dim(sb)[1] > 0) {
           bound.w.star <- gUnion(bound.poly.surv.sp, PolySet2SpatialPolygons(as.PolySet(sb, projection = "LL")))
-          bound.no.buff  <- inla.sp2segment(bound.w.star)
+          bound.no.buff2  <- inla.sp2segment(bound.w.star)
         }
         xyl <- rbind(x=range(bound.buff$loc[,1]), y=range(bound.buff$loc[,2])) # get the xy ranges of our extent.
         
@@ -759,13 +759,31 @@ for(i in 1:len)
             if(banks[i] != "Sab" && banks[i] != "Mid"  && banks[i] != "Ban" && banks[i] != "BanIce") pred.in <- inout(proj$lattice$loc,bound.no.buff$loc) 
             
             # Because there are holes in the survey strata on Sable things are a bit more complex...
-            if(banks[i] %in% c("Sab","Mid", "Ban", "BanIce"))
+            if(banks[i] %in% c("Mid", "Ban", "BanIce"))
             {
               simplemesh <- inla.mesh.2d(boundary = bound.no.buff,max.edge = 1e9)
               pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
             } # end if(banks[i] == "Sab")
       
-            mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+            # handling Sable differently. If the starbox was surveyed then we want to plot the starbox on the INLA abund and biomass plots, but not the MC and CF ones.
+            if(banks[i] %in% "Sab")
+            {
+              simplemesh <- inla.mesh.2d(boundary = bound.no.buff,max.edge = 1e9)
+              pred.in <- inla.mesh.projector(simplemesh,proj$lattice$loc)$proj$ok
+              if(dim(sb)[1] == 0) {mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA} # same as normal
+              if(dim(sb)[1] >0) {
+                simplemesh2 <- inla.mesh.2d(boundary = bound.no.buff2,max.edge = 1e9)
+                pred.in.2 <- inla.mesh.projector(simplemesh2,proj$lattice$loc)$proj$ok
+                if(seed.n.spatial.maps[k] %in% c("MC-spatial", "CF-spatial", "MW-spatial", "MW.GP-spatial", "sH-spatial", "SH.GP-spatial")){
+                  mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
+                }
+                if(!seed.n.spatial.maps[k] %in% c("MC-spatial", "CF-spatial", "MW-spatial", "MW.GP-spatial", "sH-spatial", "SH.GP-spatial", "Clap-spatial")){
+                  mod.res[[seed.n.spatial.maps[k]]][!pred.in.2] <- NA
+                }
+              }
+            } # end if(banks[i] == "Sab")
+            
+            if(!banks[i] =="Sab") mod.res[[seed.n.spatial.maps[k]]][!pred.in] <- NA
             
             # for the Clapper model I need to make sure all the values are < 100...
             if(seed.n.spatial.maps[k] == "Clap-spatial")  mod.res[[seed.n.spatial.maps[k]]][mod.res[[seed.n.spatial.maps[k]]] > 100] <- 100
@@ -1172,9 +1190,9 @@ for(i in 1:len)
           if(fig == "png") png(paste(plot.dir,maps.to.make[m],".png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
           if(fig == "pdf") pdf(paste(plot.dir,maps.to.make[m],".pdf",sep=""),width = 11,height = 8.5,bg = "transparent")
           if(fig == "screen") windows(11,8.5)
-          
-          par(mfrow=c(1,1))
 
+          par(mfrow=c(1,1))
+          
           # This is one figure to rule all
           if(!banks[i] %in% c("BanIce", "Ban")) ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
@@ -1277,7 +1295,7 @@ for(i in 1:len)
             {
               legend("bottomleft",leg.lvls,fill=cols,
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.2)
+                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.4)
             } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
             
             # For these plots the legend goes like this     
@@ -1285,7 +1303,7 @@ for(i in 1:len)
             {
               legend("bottomleft",leg.lvls,fill=cols,
                      title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                     pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.2)
+                     pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA, cex=1.4)
             } # END if(seed.n.spatial.maps[k] %in% c("Pre-recruits", "Recruits", "Fully_Recruited","Clappers"))
           } # end if(maps.to.make[m] %in% c("MC-spatial", "CF-spatial","MW-spatial","MW.GP.spatial")==F)
           # For condition and meat count we set things up a little bit differently.
@@ -1296,7 +1314,7 @@ for(i in 1:len)
                    legend = paste('Detailed Sampling (n =',length(CF.current[[banks[i]]]$tow),")",sep=""), inset=0.01,bg=NA,box.col=NA,cex=1.2)	
             legend("bottomleft",leg.lvls,fill=cols,
                    title=leg.title, title.adj = 0.2,border="black",pch=c(rep(NA,length(lvls))),
-                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
+                   pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.4)
           } # end if(maps.to.make[m] %in% c("CF-spatial","MC-spatial"))
         
           
@@ -1633,7 +1651,7 @@ for(i in 1:len)
     {
       stdts.plt(cf.data[[banks[i]]]$CFyrs,y=c('CF','CF2'),pch=c(23,24),col=c('blue','red'),ylab=cf.lab,
                 median.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=cap.size,tx.ypos=4)
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     }
     # Have to add in the CF for May into the data
     if(banks[i] == "GBa")
@@ -1720,7 +1738,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     
     if(banks[i] == "Mid" || banks[i] == "GB" || banks[i] == "Ban"|| banks[i] == "BanIce")
@@ -1772,7 +1790,7 @@ for(i in 1:len)
                   se=T,
                   pch=c(16, 17),
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+        legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
       }
 
     } # end if(banks[i] == "Sab")
@@ -1816,7 +1834,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,type='B', 
                 dat2=merged.survey.obj,clr=c('blue','red',"blue"),se=T,pch=c(16,17),
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx=1.5)
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     
     # For sable bank (due to restratification)
@@ -1836,7 +1854,7 @@ for(i in 1:len)
                   clr=c('blue',"red","blue"),se=T,pch=c(16, 17),
                   add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
         legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),
-               pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+               pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
       } # end if(yr==2018)
       
     } # end if(banks[i] == "Sab")
@@ -1889,7 +1907,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
                 ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,ys=1.3,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5,user.bins = user.bins, plot.which.bins = c(1,2,3))
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     if(banks[i] == "Mid" || banks[i] == "GB"|| banks[i] == "Ban" || banks[i] == "BanIce")
     {
@@ -1929,7 +1947,7 @@ for(i in 1:len)
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,type='B', 
                 dat2=merged.survey.obj,clr=c('blue','red',"blue"),se=T,pch=c(16,17),ys=1.3,
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx=1.5,user.bins=user.bins)
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.5,lty=c(1,2),col=c("blue","red"),bty="n")
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     if(banks[i] == "Mid"|| banks[i] == "GB" || banks[i] == "Ban" || banks[i] == "BanIce")
     {
@@ -2573,7 +2591,8 @@ for(i in 1:len)
         
         
         # If all of the seedbox tows are within a strata than we do this so we have the proj for the seedbox stashed 
-        if(any(is.na(surv.seed$Strata_ID))==F) proj.sb <- proj
+        #if(any(is.na(surv.seed$Strata_ID))==F) 
+        proj.sb <- proj
         
         
         # Next the spatial abundance figures.
@@ -2585,7 +2604,8 @@ for(i in 1:len)
         # If any of the Strata_ID's are outside of the survey stratification scheme we will run the spatial plots as
         # local fields using the box data only.
         
-        if(any(is.na(surv.seed$Strata_ID))==T | any(is.na(surv.seed$Strata_ID_new))==T)
+        if(length(unique(is.na(surv.seed$Strata_ID)))==1 && is.na(unique(surv.seed$Strata_ID)) |
+           length(unique(is.na(surv.seed$Strata_ID_new)))==1 && is.na(unique(surv.seed$Strata_ID_new)))
         {
           #mod.res <- NULL
           # Now set up the INLA for this seedbox...
@@ -2747,7 +2767,7 @@ for(i in 1:len)
           par(xpd=T)
           plot(1:10,type='n',axes=F,xlab='',ylab='',main="",cex.main=1)
           legend("left",leg.lvls,fill=cols,border="black",pch=c(rep(NA,length(lvls))),title = N.tow.lab,title.adj = 0.2,
-                 pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n", cex=1.2)
+                 pt.bg = c(rep(NA,length(lvls))),bg=NA,bty="n", cex=1.4)
           
           if(banks[i] != "GB")
           {

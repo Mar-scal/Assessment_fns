@@ -62,7 +62,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   # Read2 Get the survey boundary polygons for all banks.
   survey.bound.polys<-read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),
                                header=T,stringsAsFactors = F)
-  browser()
+  
   # Now subset the fishery data if we need to remove some data (usually b/c recent data is not QA/QC ready) ...
   fish.dat <- subset(fish.dat, date < max.date)
   yr <- max(years)

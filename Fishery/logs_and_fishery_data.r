@@ -415,14 +415,16 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
             write.table(new.log.dat, file = paste(direct.off,"Data/Fishery_data/Logs/Compiled/",
                                                   ifelse(year[1]=="ALL",2009,max(min(year),2009)),"-",
                                                   ifelse(year[1]=="ALL",current.year,max(year)),"_up_to_",
-                                                  max(format(new.log.dat$fished, "%Y-%m-%d"),na.rm=T),
+                                                  max(format(ymd(new.log.dat$fished), "%Y-%m-%d"),na.rm=T),
                                                   "log.csv",sep=""), # end of the big ugle paste!
                                                   sep=",", row.names=F,col.names=T)
+            
+            
             #Write19
             write.table(slip.dat, file = paste(direct.off,"Data/Fishery_data/Slips/Compiled/",
                                                ifelse(year[1]=="ALL",2009,max(min(year),2009)),"-",
                                                ifelse(year[1]=="ALL",current.year,max(year)),"_up_to_",
-                                               max(format(slip.dat$sail, "%Y-%m-%d"),na.rm=T),
+                                               max(format(ymd(slip.dat$sail), "%Y-%m-%d"),na.rm=T),
                                                "slip.csv",sep=""), # end of the big ugle paste!
                                                sep=",", row.names=F,col.names=T)
           } # if(last.year == current.year)
