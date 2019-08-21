@@ -221,7 +221,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     highlights <- rbind(highlights, abundPT)
     highlights <- rbind(highlights, bmPT)
-    browser()
+    
     # shell height frequencies
     shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, 14:53], 2, mean)
     maxbin <- names(shsummary[shsummary==max(shsummary)])
@@ -272,22 +272,67 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
+    
+    # size range quartiles. This outputs a range that includes 75% of the scallops
+    # total number per tow caught this year
+    if(!banks[i] == "Ger"){
+      df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$n.yst))
+      df$year <- survey.obj[[banks[i]]][[1]]$year
+    }
+    if(banks[i] == "Ger"){
+      df <- as.data.frame(round(lined.survey.obj$shf.dat$n.yst))
+      df$year <- lined.survey.obj[[1]]$year
+    }
+    sizerange75 <- NULL
+    for(y in c(lastyear, year)){
+      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+      shf.ty$bin <- seq(0,195,5)
+      names(shf.ty) <- c("npertow", "bin")
+      expanded <- shf.ty[rep(seq_len(nrow(shf.ty)), shf.ty$npertow), 1:2]
+      #hist(expanded$bin)
+      sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
+      sizerange75[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
+    }
+    
+    # breakdown plot biomass size ranges
+    # size range quartiles. This outputs a range that includes 75% of the scallops
+    # total number per tow caught this year
+    if(!banks[i] == "Ger"){
+      df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$w.yst))
+      df$year <- survey.obj[[banks[i]]][[1]]$year
+    }
+    if(banks[i] == "Ger"){
+      df <- as.data.frame(round(lined.survey.obj$shf.dat$w.yst))
+      df$year <- lined.survey.obj[[1]]$year
+    }
+    sizerange75_bm_65up <- NULL
+    for(y in c(lastyear, year)){
+      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+      shf.ty$bin <- seq(0,195,5)
+      names(shf.ty) <- c("npertow", "bin")
+      shf.ty <- shf.ty[shf.ty$bin > 60,]
+      expanded <- shf.ty[rep(seq_len(nrow(shf.ty)), shf.ty$npertow), 1:2]
+      #hist(expanded$bin)
+      sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
+      sizerange75_bm_65up[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
+    }
+    
     print('check1')
     
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q),
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "sizerange75", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                              word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
                                     paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
-                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)")),
+                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA),
                              nearLTM=NA,
                              bank=banks[i])
     
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q),
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "sizerange75", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q,sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
@@ -479,20 +524,68 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     clap$bank <- banks[i]
     highlights <- rbind(highlights, clap)
     print('check4')
+    
     #seedboxes
     if(banks[i] %in% unique(names(seedbox.obj))){
-      boxy <- seedbox.obj[[banks[i]]][[1]]
-      
-      SeedPR_current <- boxy$model.dat$NPR[boxy$model.dat$year==year]
-      SeedPR_prev <- boxy$model.dat$NPR[boxy$model.dat$year==lastyear]
-      SeedR_current <- boxy$model.dat$NR[boxy$model.dat$year==year]
-      SeedR_prev <- boxy$model.dat$NR[boxy$model.dat$year==lastyear]
-      Seed_current <- boxy$model.dat$N[boxy$model.dat$year==year]
-      Seed_prev <- boxy$model.dat$N[boxy$model.dat$year==lastyear]
-      
-      seedPT <- data.frame(variable=c("SeedNPR", "SeedNR", "SeedN"), 
-                            lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev),
-                            thisyear=c(SeedPR_current, SeedR_current, Seed_current),
+
+      SeedPR_current<- NULL
+      SeedPR_prev<- NULL
+      SeedR_current<- NULL
+      SeedR_prev<- NULL
+      Seed_current<- NULL
+      Seed_prev<- NULL
+      bmSeedPR_current<- NULL
+      bmSeedPR_prev<- NULL
+      bmSeedR_current<- NULL
+      bmSeedR_prev<- NULL
+      bmSeed_current<- NULL
+      bmSeed_prev<- NULL
+      sizerange75_seed <- NULL
+      sizerange75_seed_prev <- NULL
+      sizerange75_seed_current <- NULL
+      for(k in 1:length(seedbox.obj[banks[i]][[1]])) {
+        boxy <- seedbox.obj[[banks[i]]][[k]]
+        
+        SeedPR_current[k] <- boxy$model.dat$NPR[boxy$model.dat$year==year]
+        SeedPR_prev[k] <- boxy$model.dat$NPR[boxy$model.dat$year==lastyear]
+        SeedR_current[k] <- boxy$model.dat$NR[boxy$model.dat$year==year]
+        SeedR_prev[k] <- boxy$model.dat$NR[boxy$model.dat$year==lastyear]
+        Seed_current[k] <- boxy$model.dat$N[boxy$model.dat$year==year]
+        Seed_prev[k] <- boxy$model.dat$N[boxy$model.dat$year==lastyear]
+        
+        bmSeedPR_current[k] <- boxy$model.dat$IPR[boxy$model.dat$year==year]
+        bmSeedPR_prev[k] <- boxy$model.dat$IPR[boxy$model.dat$year==lastyear]
+        bmSeedR_current[k] <- boxy$model.dat$IR[boxy$model.dat$year==year]
+        bmSeedR_prev[k] <- boxy$model.dat$IR[boxy$model.dat$year==lastyear]
+        bmSeed_current[k] <- boxy$model.dat$I[boxy$model.dat$year==year]
+        bmSeed_prev[k] <- boxy$model.dat$I[boxy$model.dat$year==lastyear]
+        
+        # seedbox size range quartiles. This outputs a range that includes 75% of the scallops
+        # total number per tow caught this year
+        df <- as.data.frame(round(boxy$shf.dat$n.yst))
+        df$year <- boxy$model.dat$year
+        sizerange75_seed_y <- NULL
+         for(y in c(lastyear, year)){
+           if(dim(df[df$year==y,])[1]==0) sizerange75_seed_y[paste0(y)] <- NA
+           if(dim(df[df$year==y,])[1]>0){
+             shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+             shf.ty$bin <- seq(0,195,5)
+             names(shf.ty) <- c("npertow", "bin")
+             shf.ty$npertow[is.na(shf.ty$npertow)] <- 0
+             expanded <- shf.ty[rep(seq_len(nrow(shf.ty)), shf.ty$npertow), 1:2]
+             #hist(expanded$bin)
+             sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
+             sizerange75_seed_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
+           }
+        }
+        sizerange75_seed[[k]] <- c(sizerange75_seed_y[paste0(lastyear)], sizerange75_seed_y[paste0(year)])
+        # sizerange75_seed_prev <- sizerange75_seed[paste0(lastyear)]
+      }
+      sizerange75_seed <- unlist(sizerange75_seed)
+      seedPT <- data.frame(variable=c(rep("SeedNPR", length(SeedPR_current)), rep("SeedNR", length(SeedR_current)), 
+                                      rep("SeedN", length(Seed_current)), rep("sizerange75_seed", length(Seed_current))), 
+                            lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev, unname(sizerange75_seed[which(names(sizerange75_seed) == paste0(lastyear))])),
+                            thisyear=c(SeedPR_current, SeedR_current, Seed_current, unname(sizerange75_seed[which(names(sizerange75_seed) == paste0(year))])),
                             LTM=NA)
       # ifelse for the wording
       seedPT$word <- ifelse(seedPT$thisyear - seedPT$lastyear >  5,
@@ -510,14 +603,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       seedPT$nearLTM <- NA
       seedPT$bank <- banks[i]
       
-      bmSeedPR_current <- boxy$model.dat$IPR[boxy$model.dat$year==year]
-      bmSeedPR_prev <- boxy$model.dat$IPR[boxy$model.dat$year==lastyear]
-      bmSeedR_current <- boxy$model.dat$IR[boxy$model.dat$year==year]
-      bmSeedR_prev <- boxy$model.dat$IR[boxy$model.dat$year==lastyear]
-      bmSeed_current <- boxy$model.dat$I[boxy$model.dat$year==year]
-      bmSeed_prev <- boxy$model.dat$I[boxy$model.dat$year==lastyear]
-      
-      bmseedPT <- data.frame(variable=c("SeedIPR", "SeedIR", "SeedI"), 
+      bmseedPT <- data.frame(variable=c(rep("SeedIPR", length(SeedPR_current)), rep("SeedIR", length(SeedR_current)), rep("SeedI", length(Seed_current))), 
                            lastyear=c(bmSeedPR_prev, bmSeedR_prev, bmSeed_prev),
                            thisyear=c(bmSeedPR_current, bmSeedR_current, bmSeed_current),
                            LTM=NA)
@@ -548,7 +634,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   print(ntows)
   print(highlights)
 
-  highlights[,c(2,3,4)] <- apply(highlights[,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
   sizes <<- as.data.frame(sizes)
   ntows <<- ntows
