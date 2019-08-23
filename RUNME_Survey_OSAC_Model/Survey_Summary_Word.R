@@ -2,6 +2,7 @@
 ## use model.dat cf for all cf measurements!
 Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
   options(scipen=999)
+  require(plyr)
   load(data)
   banks <- names(bank.dat)
   if(any(grepl(x=banks, pattern="GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
@@ -527,7 +528,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     #seedboxes
     if(banks[i] %in% unique(names(seedbox.obj))){
-
+      seedboxes <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv",sep=""),
+                           stringsAsFactors = F,header=T)
+      seedboxes$Closed <- dmy(seedboxes$Closed)
+      seedboxes$Open <- dmy(seedboxes$Open)
+      # Dump the commments they are just messy..
+      seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
+      sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(year,"-11-01",sep="") & Open >= paste(year,"-01-01",sep=""))
+      if(banks[i] =="GB") sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+      box.names <- unique(sb$SCALLOP_Group_ID)
+      
       SeedPR_current<- NULL
       SeedPR_prev<- NULL
       SeedR_current<- NULL
@@ -541,8 +551,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       bmSeed_current<- NULL
       bmSeed_prev<- NULL
       sizerange75_seed <- NULL
-      sizerange75_seed_prev <- NULL
-      sizerange75_seed_current <- NULL
+      sizerange75_seed_bm <- NULL
       for(k in 1:length(seedbox.obj[banks[i]][[1]])) {
         boxy <- seedbox.obj[[banks[i]]][[k]]
         
@@ -564,7 +573,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
         # total number per tow caught this year
         df <- as.data.frame(round(boxy$shf.dat$n.yst))
         df$year <- boxy$model.dat$year
+        df2 <- as.data.frame(round(boxy$shf.dat$w.yst))
+        df2$year <- boxy$model.dat$year
+        
         sizerange75_seed_y <- NULL
+        sizerange75_seed_bm_y <- NULL
          for(y in c(lastyear, year)){
            if(dim(df[df$year==y,])[1]==0) sizerange75_seed_y[paste0(y)] <- NA
            if(dim(df[df$year==y,])[1]>0){
@@ -576,17 +589,32 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
              #hist(expanded$bin)
              sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
              sizerange75_seed_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
+             
+             shf.bm.ty <- as.data.frame(t(df2[df2$year==y, which(!names(df2) %in% "year")]))
+             shf.bm.ty$bin <- seq(0,195,5)
+             names(shf.bm.ty) <- c("npertow", "bin")
+             shf.bm.ty <- shf.bm.ty[shf.bm.ty$bin > 60,]
+             shf.bm.ty$npertow[is.na(shf.bm.ty$npertow)] <- 0
+             expanded <- shf.bm.ty[rep(seq_len(nrow(shf.bm.ty)), shf.bm.ty$npertow), 1:2]
+             #hist(expanded$bin)
+             sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
+             sizerange75_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
+             
            }
         }
-        sizerange75_seed[[k]] <- c(sizerange75_seed_y[paste0(lastyear)], sizerange75_seed_y[paste0(year)])
+        sizerange75_seed[[box.names[k]]] <- c(sizerange75_seed_y[paste0(lastyear)], sizerange75_seed_y[paste0(year)])
+        sizerange75_seed_bm[[box.names[k]]] <- c(sizerange75_seed_bm_y[paste0(lastyear)], sizerange75_seed_bm_y[paste0(year)])
         # sizerange75_seed_prev <- sizerange75_seed[paste0(lastyear)]
       }
+      
       sizerange75_seed <- unlist(sizerange75_seed)
+      sizerange75_seed_bm <- unlist(sizerange75_seed_bm)
+     
       seedPT <- data.frame(variable=c(rep("SeedNPR", length(SeedPR_current)), rep("SeedNR", length(SeedR_current)), 
-                                      rep("SeedN", length(Seed_current)), rep("sizerange75_seed", length(Seed_current))), 
-                            lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev, unname(sizerange75_seed[which(names(sizerange75_seed) == paste0(lastyear))])),
-                            thisyear=c(SeedPR_current, SeedR_current, Seed_current, unname(sizerange75_seed[which(names(sizerange75_seed) == paste0(year))])),
-                            LTM=NA)
+                                      rep("SeedN", length(Seed_current))), 
+                            lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev),
+                            thisyear=c(SeedPR_current, SeedR_current, Seed_current),
+                            LTM=rep(box.names, 3))
       # ifelse for the wording
       seedPT$word <- ifelse(seedPT$thisyear - seedPT$lastyear >  5,
                              "increased",
@@ -600,13 +628,21 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
                                                     abs(seedPT$thisyear - seedPT$lastyear) == 1, 
                                                   "similar",
                                                   "other"))))
+      
+      seedPT <- rbind(seedPT, data.frame(variable=c(rep("sizerange75_seed", length(Seed_current)),rep("sizerange75_seed_bm", length(Seed_current))),
+                                         lastyear= c(unname(sizerange75_seed[grep(x=names(sizerange75_seed), pattern=paste0(".",lastyear))]),
+                                                     unname(sizerange75_seed_bm[grep(x=names(sizerange75_seed_bm), pattern=paste0(".",lastyear))])),
+                                         thisyear= c(unname(sizerange75_seed[grep(x=names(sizerange75_seed), pattern=paste0(".",year))]),
+                                                     unname(sizerange75_seed_bm[grep(x=names(sizerange75_seed_bm), pattern=paste0(".",year))])),
+                                         LTM=rep(box.names, 2),
+                                         word=NA))
       seedPT$nearLTM <- NA
       seedPT$bank <- banks[i]
       
       bmseedPT <- data.frame(variable=c(rep("SeedIPR", length(SeedPR_current)), rep("SeedIR", length(SeedR_current)), rep("SeedI", length(Seed_current))), 
                            lastyear=c(bmSeedPR_prev, bmSeedR_prev, bmSeed_prev),
                            thisyear=c(bmSeedPR_current, bmSeedR_current, bmSeed_current),
-                           LTM=NA)
+                           LTM=rep(box.names, 3))
       # ifelse for the wording
       bmseedPT$word <- ifelse(bmseedPT$thisyear - bmseedPT$lastyear >  5,
                             "increased",
@@ -630,11 +666,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   }
   
   #print(bankcheck)
+
+  highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up", "sizerange75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  
   print(sizes)
   print(ntows)
   print(highlights)
-
-  highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
   sizes <<- as.data.frame(sizes)
   ntows <<- ntows

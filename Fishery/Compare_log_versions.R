@@ -9,17 +9,30 @@
 # check_kg_hm: compares prorepwt and db_new$NO_RAKES_FISHED*db_new$NO_TOWS_PER_WATCH*(db_new$AVG_TOW_TIME/60) (NOT ACTUALLY EFFORT!) 
 ### NOTE: DOES NOT HANDLE SLIPS YET!
 
-compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_hm=T, by="month"){
+compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_hm=T, incl_new=T, by="month", trip_ids="ALL"){
   require(compareDF)
   
   db_old <- read.csv(old_log)
+  db_old <- arrange(db_old, TRIP_ID, DATE_FISHED, WATCH)
   db_old$row <- 1:dim(db_old)[1]
   
   db_new <- read.csv(new_log)
+  db_new <- arrange(db_new, TRIP_ID, DATE_FISHED, WATCH)
   db_new$row <- 1:dim(db_new)[1]
+  
+  if(!trip_ids=="ALL") {
+    db_old <- db_old[db_old$TRIP_ID %in% trip_ids,]
+    db_new <- db_new[db_new$TRIP_ID %in% trip_ids,]
+  }
   
   if(any(grepl(names(db_old), pattern="X")==TRUE)) db_old <- db_old[, -which(grepl(names(db_old), pattern="X"))]
   if(any(grepl(names(db_new), pattern="X")==TRUE)) db_new <- db_new[, -which(grepl(names(db_new), pattern="X"))]
+  
+  if(incl_new == F) {
+    maxdate <- max(dmy(db_old$DATE_FISHED))
+    db_new <- db_new[dmy(db_new$DATE_FISHED) <= maxdate,]
+    db_new <- arrange(db_new, TRIP_ID, DATE_FISHED, WATCH)
+  }
   
   comparisondf <- NULL
   j<-NULL
@@ -38,6 +51,7 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
   }
   
   if(!is.null(comparisondf)) {
+    browser()
     comparisondf <- dplyr::select(comparisondf, -"chng_type")
     for(i in seq(1, dim(comparisondf)[1], 2)){
       print(paste0("TRIP_ID=", comparisondf[i,]$TRIP_ID, " Row number=", comparisondf[i,]$row))
