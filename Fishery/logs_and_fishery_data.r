@@ -242,7 +242,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
             if(file.exists(paste(direct.off,"Data/Fishery_data/Logs/QAQC_logs/",new.yr[i],"log.csv",sep=""))==F)
             {
               log.lst[[i]] <-read.table(paste(direct.off,"Data/Fishery_data/Logs/Preliminary/",new.yr[i],"log.csv",sep=""),
-                                        sep=",",header=T,stringsAsFactors = F,quote='')
+                                        sep=",",header=T,stringsAsFactors = F,quote='') # use fill=T to diagnose/troubleshoot in a browser() if something goes wrong here
             }# end if(file.exists(paste(direct.off,
             
             # If we have the final slip data then we pull that down

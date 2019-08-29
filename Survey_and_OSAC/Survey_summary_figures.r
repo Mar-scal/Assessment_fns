@@ -628,6 +628,7 @@ for(i in 1:len)
             if(!banks[i] == "BanIce") tmp.gp <- pot.grow[[banks[i]]][pot.grow[[banks[i]]]$year == yr,]
           } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB")) 
           # Now loop through each spatial map we want to make.
+          fitted <- NULL
           for(k in 1:length(seed.n.spatial.maps))
           {
             # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
@@ -640,8 +641,11 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family1, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.dat$pre)],
+                                   dat=tmp.dat$pre)
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")   
-          
+            
             if(seed.n.spatial.maps[k] == "Rec-spatial")        
             {
               # This is the stack for the INLA model
@@ -651,6 +655,8 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family1, data = inla.stack.data(stk),#control.family= control.family1,
                           control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.dat$rec)],
+                                   dat=tmp.dat$rec)
             } # end if(seed.n.spatial.maps[k] == "Rec-spatial") 
             
             if(seed.n.spatial.maps[k] == "FR-spatial") 
@@ -664,6 +670,8 @@ for(i in 1:len)
                           # This is the INLA model itself
               mod <- inla(formula3, family=family1, data = inla.stack.data(stk),#control.family= control.family1,
                           control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.dat$com)],
+                                   dat=tmp.dat$com)
             } # end if(seed.n.spatial.maps[k] == "FR-spatial")
               
             if(seed.n.spatial.maps[k] == "CF-spatial")       
@@ -675,6 +683,8 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family1.cf, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.cf$CF)],
+                                   dat=tmp.cf$CF)
             }
             # THis seems to be making sense...
             if(seed.n.spatial.maps[k] == "MC-spatial")      
@@ -686,6 +696,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family1.cf, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.cf$meat.count)],
+                                   dat=tmp.cf$meat.count)
             } # end if(seed.n.spatial.maps[k] == "MC-spatial") 
             
             if(seed.n.spatial.maps[k] == "Clap-spatial")        
@@ -697,6 +710,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family.clap, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.clap$clap.prop)],
+                                   dat=tmp.clap$clap.prop)
             } # end if(seed.n.spatial.maps[k] == "Clap-spatial")  
             
             if(seed.n.spatial.maps[k] == "MW-spatial")    
@@ -708,6 +724,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.gp$cur.mw)],
+                                   dat= tmp.gp$cur.mw)
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
             
             if(seed.n.spatial.maps[k] == "SH-spatial")    
@@ -719,6 +738,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.gp$cur.sh)],
+                                   dat= tmp.gp$cur.sh)
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
             
             if(seed.n.spatial.maps[k] == "MW.GP-spatial")    
@@ -730,6 +752,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.gp$gp.mw)],
+                                   dat= tmp.gp$gp.mw)
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
             
             if(seed.n.spatial.maps[k] == "SH.GP-spatial")    
@@ -741,6 +766,9 @@ for(i in 1:len)
               # This is the INLA model itself
               mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                           control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
+              
+              fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.gp$gp.sh)],
+                                   dat= tmp.gp$gp.sh)
             } # end if(seed.n.spatial.maps[k] == "PR-spatial")  
             
             # Now that this is done we need to make a prediction grid for projection onto our mesh,
@@ -869,7 +897,7 @@ for(i in 1:len)
       # Results are only saved if the option 'run.full' is chosen
       if(INLA == 'run.full') 
       {
-        save(mod.res,proj,mesh,pred.in,
+        save(mod.res,proj,mesh,pred.in,fitted,
              file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/" ,banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
       } # end if(save.INLA ==T) 
       
@@ -2650,7 +2678,7 @@ for(i in 1:len)
                           control.predictor=list(A=inla.stack.A(stk.sb),link=link, compute=TRUE))
               # These are the results for each spatial mesh
               mod.res.tmp<- exp(mod$summary.random$s$mean+mod$summary.fixed$mean)
-              
+             
               # This projects our mesh
               
               proj.sb <- inla.mesh.projector(mesh.sb,xlim = range(this.box$X),ylim =  range(this.box$Y), dims = s.res)

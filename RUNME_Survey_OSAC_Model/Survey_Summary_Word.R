@@ -2,6 +2,7 @@
 ## use model.dat cf for all cf measurements!
 Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
   options(scipen=999)
+  require(lubridate)
   require(plyr)
   load(data)
   banks <- names(bank.dat)
@@ -242,10 +243,24 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
     
+    if(file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
+      load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))
+    }
+    if(!file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
+      fitted <- NULL
+    }
+    
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
     if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
     PR3Q <- round(summary(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
+    PR75 <- c(quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[3])
+    PR75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
+    PR75 <- paste0(round_any(PR75[1], 5), "-", round_any(PR75[2], 5))
+    PR75_LY <- paste0(round_any(PR75_LY[1], 5), "-", round_any(PR75_LY[2], 5))
+    PR75_f <- c(quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
+    PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
@@ -257,6 +272,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear])
     if(banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear])
     R3Q <- round(summary(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
+    R75 <- c(quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[3])
+    R75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
+    R75 <- paste0(round_any(R75[1], 5), "-", round_any(R75[2], 5))
+    R75_LY <- paste0(round_any(R75_LY[1], 5), "-", round_any(R75_LY[2], 5))
+    R75_f <- c(quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    R75_f <- paste0(round_any(R75_f[1], 5), "-", round_any(R75_f[2], 5))
+    R75 <- paste0(R75, " (INLA fit = ", R75_f, ")")
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
@@ -267,6 +289,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear])
     if(banks[i]=="BBs") maxCtow_LY <- max(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear])
     C3Q <- round(summary(surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year])[5], -1)
+    C75 <- c(quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==year], c(0.125, 0.5, 0.875, 1))[3])
+    C75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
+    C75 <- paste0(round_any(C75[1], 5), "-", round_any(C75[2], 5))
+    C75_LY <- paste0(round_any(C75_LY[1], 5), "-", round_any(C75_LY[2], 5))
+    C75_f <- c(quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    C75_f <- paste0(round_any(C75_f[1], 5), "-", round_any(C75_f[2], 5))
+    C75 <- paste0(C75, " (INLA fit = ", C75_f, ")")
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
@@ -320,20 +349,20 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     print('check1')
     
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "sizerange75", "sizerange75_bm_65up"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                              word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
                                     paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
-                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA),
+                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA),
                              nearLTM=NA,
                              bank=banks[i])
     
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "sizerange75", "sizerange75_bm_65up"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q,sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
@@ -664,10 +693,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     }
     
   }
-  
+
   #print(bankcheck)
 
-  highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("sizerange75", "sizerange75_bm_65up", "sizerange75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
   print(sizes)
   print(ntows)
