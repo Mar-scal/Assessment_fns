@@ -371,6 +371,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     highlights <- rbind(highlights, towsummary)
     
     # mwsh and cf
+    
     fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
 
     if(!banks[i] =="Ger"){

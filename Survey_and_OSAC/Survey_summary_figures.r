@@ -363,6 +363,7 @@ for(i in 1:len)
     bound.surv.poly[[banks[i]]] <- as.data.frame(bound.surv.poly[[banks[i]]])
     names(bound.surv.poly[[banks[i]]]) <- c("PID", "SID", "POS", "X", "Y", "label", "startyear")
   }
+  
   if(banks[i] %in% c("GBa","GBb","BBn","BBs", "Ban", "BanIce", "GB", spat.name)) bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
   
   if(!is.null(keep.full.GB) & keep.full.GB == T) {
@@ -371,11 +372,11 @@ for(i in 1:len)
   # Need to treat Sable special...
   if(banks[i] %in% c("Sab")) 
   {
-    if(yr < max(survey.bound.polys$startyear)) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==1900,],
+    if(yr < max(survey.bound.polys$startyear[survey.bound.polys$label=="Sab"])) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==1900,],
                                                                  label==banks[i], 
                                                                  select=c("PID", "SID", "POS", "X", "Y", "label")), 
                                                           projection ="LL")
-    if(!yr < max(survey.bound.polys$startyear)) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==2018,],
+    if(!yr < max(survey.bound.polys$startyear[survey.bound.polys$label=="Sab"])) bound.poly.surv <-as.PolySet(subset(survey.bound.polys[survey.bound.polys$startyear==2018,],
                                                                                    label==banks[i], 
                                                                                    select=c("PID", "SID", "POS", "X", "Y", "label")), 
                                                                             projection ="LL")
@@ -385,11 +386,11 @@ for(i in 1:len)
   if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) detail.poly.surv <- as.PolySet(detail.surv.poly[[banks[i]]],projection ="LL")
   if(banks[i] %in% c("Sab")) 
   {
-    if(yr < max(survey.detail.polys$startyear)) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==1900,],
+    if(yr < max(survey.detail.polys$startyear[survey.bound.polys$label=="Sab"])) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==1900,],
                                                                                       label==banks[i], 
                                                                                       select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
                                                                                projection = "LL")
-    if(!yr < max(survey.detail.polys$startyear)) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==2018,],
+    if(!yr < max(survey.detail.polys$startyear[survey.bound.polys$label=="Sab"])) detail.poly.surv <- as.PolySet(subset(survey.detail.polys[survey.detail.polys$startyear==2018,],
                                                                                       label==banks[i], 
                                                                                       select=c("PID", "SID", "POS", "X", "Y", "label", "Strata_ID")),
                                                                                projection = "LL")
@@ -1359,7 +1360,9 @@ for(i in 1:len)
         #          pt.bg = c(rep(NA,length(lvls))),inset=0.01,bg=NA,box.col=NA,cex=1.2)
         # } # end if(seed.n.spatial.maps[k] %in% c("Condition","Meat Count"))
           # Add the survey boxes if they exist.
-          if(length(sb[,1]) > 0) {
+          
+          # plot the boxes if it's not sable, or if it's sable and the abundance figs
+          if((length(sb[,1]) > 0 & !banks[i] == "Sab") | (length(sb[,1]) > 0 & banks[i] == "Sab" & maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial", "Clap-spatial"))) {
             sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
             addPolys(sb,lty=2,lwd=2)
           }
@@ -1451,20 +1454,20 @@ for(i in 1:len)
     #bg.col<-tapply(GBb.surv.info$col,GBb.surv.info$PName,unique)[c(2,3,1,4,5)]
     
     # Add the regular survey tows.
-    if(!banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=0.8)
+    if(!banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1)
     if(banks[i] %in% spat.name) points(lat~lon,surv.Live[[banks[i]]],subset=year==yr & state=='live'& random==1,pch=20,bg='black',cex=1.2)
     
     if(banks[i] %in% c("GBa","BBn", "Sab" , "Mid", "Ban", "BBs" ,"BanIce","GBb"))  
     {
       leg.loc <- ifelse(banks[i] %in% c("GBa","BBn","BBs"),"topleft","bottomright")    
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-             & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=0.8)
+             & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=1.2)
       legend(leg.loc,legend = c(paste('exploratory (n =',
                                       length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,3,4,5))$tow)),
                                       ")",sep=""),
                                 paste('regular (n =',
                                       length(unique(subset(surv.Live[[banks[i]]],year==yr & random==1)$tow)),
-                                      ")",sep="")),title="Tow type",
+                                      ")",sep="")),title="Tow type", cex=1.2,pt.cex = 1.2,
              pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA)
     }
     if(banks[i] %in% spat.name)  
@@ -1509,9 +1512,9 @@ for(i in 1:len)
     if(banks[i] == "Ger") 
     {
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr &
-               random==3,pch=22,bg="yellow",cex=0.8)
+               random==3,pch=22,bg="yellow",cex=1.2)
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr &
-               random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=0.8)
+               random %in% c(0,2,4,5),pch=24,bg="darkorange",cex=1.2)
       
       legend('topleft',legend=
                c(paste('regular (n =',length(unique(subset(surv.Live[[banks[i]]],year==yr & 
@@ -1520,7 +1523,7 @@ for(i in 1:len)
                                                               random==3)$tow)),")", sep=""),
                   paste('exploratory (n =',
                    length(unique(subset(surv.Live[[banks[i]]],year==yr & random %in% c(0,2,4,5))$tow)),")",sep="")),
-             pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',cex=1, inset = .02,bg=NA,box.col=NA)
+             pch=c(20,22,24), pt.bg = c("black","yellow","darkorange"),bty='n',cex=1.2, inset = .02,bg=NA,box.col=NA)
       
     } # end if(banks[i] == "Ger") 
     
@@ -1543,9 +1546,9 @@ for(i in 1:len)
     if(banks[i] == "GB") 
     {
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-             & state =='live' & random%in% c(2,4,5),pch=24,bg="darkorange",cex=0.8)
+             & state =='live' & random%in% c(2,4,5),pch=24,bg="darkorange",cex=1.2)
       points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
-             & state =='live' & random==3,pch=22,bg="yellow",cex=0.8)
+             & state =='live' & random==3,pch=22,bg="yellow",cex=1.2)
       
       legend("topleft",legend = c(paste('exploratory (n =',
                                          length(unique(subset(surv.Live[[banks[i]]],year==yr & random%in% c(2,4,5))$tow)),")",sep=""),
@@ -1681,6 +1684,7 @@ for(i in 1:len)
                 median.line=T,graphic='none',xlab='Year',ylim=c(4,25),las=1,titl = CF.ts.title,cex.mn=cap.size,tx.ypos=4)
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
     }
+    
     # Have to add in the CF for May into the data
     if(banks[i] == "GBa")
     {
@@ -1722,7 +1726,8 @@ for(i in 1:len)
           survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
         } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
         points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
-        abline(h=median(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T),col="blue",lty=3)
+        lines(y=rep(median(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GBa"]][[1]]$year)-1), 
+              x = survey.obj.last[["GBa"]][[1]]$year[-length(survey.obj.last[["GBa"]][[1]]$year)],col="blue",lty=3)
       } # end  if(season=="spring")
       legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))	
       
@@ -1763,10 +1768,11 @@ for(i in 1:len)
     if(banks[i] == "Ger")
     {
 
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
-                ymin=-5,dat2=merged.survey.obj,clr=c('blue','red',"blue"),pch=c(16,17),se=T,
+      survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
+                ymin=-5,dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
+      
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(2,1),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     
     if(banks[i] == "Mid" || banks[i] == "GB" || banks[i] == "Ban"|| banks[i] == "BanIce")
@@ -1859,10 +1865,11 @@ for(i in 1:len)
     } # end if(banks[i] != "Ger")
     if(banks[i] == "Ger")
     {
-      survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,type='B', 
-                dat2=merged.survey.obj,clr=c('blue','red',"blue"),se=T,pch=c(16,17),
-                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx=1.5)
-      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
+      survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B',
+                dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
+                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      
+      legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(2,1),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
     
     # For sable bank (due to restratification)

@@ -74,8 +74,14 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	if(length(y)>1)for(i in 2:length(y)){points(unlist(data[x[i]]),unlist(data[y[i]]), type='o', lty=lty[i], 
 	                                            pch=pch[i], col=col[i],bg=col[i])}
 	# Draw the median line for the data
+	if(median.line & dim(data[y])[2] == 1) lines(y = rep(mediany, length(unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)])), x=unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)], lty=3,lwd=2,cex=1, col=col)
+	if(median.line & dim(data[y])[2] == 2) {
+	  years1 <- min(years) : max(data$year[!is.na(data[y[1]])])
+	  years2 <- (max(data$year[!is.na(data[y[1]])]) + 1) : max(data$year[!is.na(data[y[2]])])
 	
-	if(median.line)abline(h=mediany,lty=3,lwd=2,cex=1, col=col)
+	  lines(y = rep(mediany[1], length(years1)), x=years1, lty=3,lwd=2,cex=1, col=col[1])
+	  lines(y = rep(mediany[2], (length(years2)-1)), x=years2[-length(years2)], lty=3,lwd=2,cex=1, col=col[2])
+	}
 	# Make the rest of the plot pretty.
 	axis(4,lab=F, cex.axis=labcx)
 	axis(1,at=data$year,lab=F,tcl=-0.3, cex.axis=labcx)

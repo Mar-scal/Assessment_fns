@@ -70,7 +70,8 @@ Clap3.plt <- function(data, years=1981:2009,median.line=T,graphic="R",width = 11
 	#The pre-recruit time series
 	plot(years,dat$clapsPre, type='o', ylim=yl, ylab="", xlab="", tcl=-0.3,  pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(median.line==T)  {abline(h=median(dat$clapsPre[-length(years)],na.rm = T),lty=2,col=clr[2],lwd=2)
+	if(median.line==T)  {
+	  lines(y=rep(median(dat$clapsPre[-length(years)],na.rm = T), length(years)-1) ,x=years[1:(length(years)-1)],lty=2,col=clr[2],lwd=2)
 	  LTMpre <- median(dat$clapsPre[-length(years)],na.rm = T)
 	  LTMrec <- median(dat$clapsRec[-length(years)],na.rm = T)
 	  LTMcom <- median(dat$clapsCom[-length(years)],na.rm = T)
@@ -92,7 +93,7 @@ Clap3.plt <- function(data, years=1981:2009,median.line=T,graphic="R",width = 11
 	# The recruit time series
 	plot(years,dat$clapsRec, type='o', las=1, ylim=yl, ylab="", xlab="", tcl=-0.3,  pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(median.line==T) abline(h=median(dat$clapsRec[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
+	if(median.line==T) lines(y=rep(median(dat$clapsRec[-length(years)],na.rm = T), length(years)-1),x=years[1:(length(years)-1)],lty=2,col=clr[2],lwd=2)
 	# Add axis tick marks and label this "recruits".
 	axis(4, lab=F, tcl=-0.3,cex.axis=axis.cx)
 	axis(1,lab=F,cex.axis=axis.cx)
@@ -106,7 +107,7 @@ Clap3.plt <- function(data, years=1981:2009,median.line=T,graphic="R",width = 11
 	
 	plot(years,dat$clapsCom, type='o', las=1, ylim=yl, ylab="", xlab="", tcl=-0.3, pch=16,xaxt="n",yaxt="n",col=clr[1])
 	#Add optional mean line
-	if(median.line)abline(h=median(dat$clapsCom[-length(years)],na.rm=T),lty=2,col=clr[2],lwd=2)
+	if(median.line)lines(y=rep(median(dat$clapsCom[-length(years)],na.rm = T), length(years)-1),x=years[1:(length(years)-1)],lty=2,col=clr[2],lwd=2)
 	# Add axis tick marks and label this "fully recruited". Also add y axis lable.
 	axis(4, lab=F, tcl=-0.3,cex.axis=axis.cx)
 	axis(1,cex.axis=axis.cx)
