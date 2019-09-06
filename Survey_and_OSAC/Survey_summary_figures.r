@@ -354,7 +354,7 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") & Active=="Yes")
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
   
   ###  Now for the plots, first the survey data...
@@ -1487,7 +1487,8 @@ for(i in 1:len)
                                       ")",sep="")),title="Tow type",
              pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA, cex = 1.2, pt.cex = 1.2)
       # Generalized code so it would work long term.  Pulling out all seedboxes that were closed at any point during the current year.
-      sb2 <- seedboxes[which(year(seedboxes$Open) >= yr),]
+      sb2 <- subset(seedboxes, Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") & Active=="Yes" | is.na(Open)))
+      sb2[,c("X", "Y")] <- apply(sb2[,c("X", "Y")], 2, function(x) as.numeric(x))
       addPolys(as.PolySet(sb2, projection = "LL"),lty=2,lwd=2)
     } # end if(banks[i] %in% c("GBa","BBn"))
     
@@ -1867,7 +1868,7 @@ for(i in 1:len)
     {
       survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B',
                 dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
-                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+                add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5, yl2=c(3000,3000,6000))
       
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(2,1),col=c("blue","red"),bty="n")
     } # end if(banks[i] == "Ger")
@@ -2052,7 +2053,7 @@ for(i in 1:len)
         shf.years <-  lined.survey.obj[[1]]$year[(length(lined.survey.obj[[1]]$year)-6):length(lined.survey.obj[[1]]$year)]
         s.size <- lined.survey.obj[[1]]$n[lined.survey.obj[[1]]$year %in% shf.years]
         shf.plt(lined.survey.obj,from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T)	
+                recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, ymax=30)	
         if(fig != "screen") dev.off()
         # We also want to grab the matched tows figure
         s.size <- matched.survey.obj[[1]]$n
@@ -2256,7 +2257,6 @@ for(i in 1:len)
   ##### END Clapper % time series      ##### END Clapper % time series##### END Clapper % time series
   ##### END Clapper % time series ##### END Clapper % time series ##### END Clapper % time series      
   
-
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series             
   ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series
   
@@ -2396,7 +2396,7 @@ for(i in 1:len)
     # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
     # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
     # original presentations (maybe OSAC, but this isn't OSAC)....
-    sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") | is.na(Open)))
+    sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & (Open >= paste(yr,"-01-01",sep="") & Active=="Yes" | is.na(Open)))
     if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
     if(nrow(sb) > 0) # only run the rest of this if we have data...
     {
@@ -2755,7 +2755,7 @@ for(i in 1:len)
         
         
         # Get the correct levels for the legend and the image plots for the spatial abundance
-        if(dim(surv.seed[surv.seed$year==yr,]) >0) {
+        if(dim(surv.seed[surv.seed$year==yr,])[1] >0) {
           base.lvls=c(0,5,10,50,100,500,1000,2000,5000,10000,20000,50000,1e6)
           cols <- c(rev(plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                     rev(plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))

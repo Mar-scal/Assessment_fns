@@ -1849,3 +1849,45 @@ bank.dat.manual.v2 <- convert_col_dat_to_bank_dat(v=v2)
 
 compare_df(bank.dat.manual.v1, bank.dat.manual.v2, "ID")
 # all other calculations match except for tow 936. 
+
+
+
+##### comparing german SPR to simple means
+spr <- spr.survey.obj$out.obj[[1]]
+simple <- lined.survey.obj$model.dat
+
+ger <- data.frame(year=spr$year, spr = spr$NPR, simple=simple$NPR)
+require(reshape2)
+ger <- melt(ger, id.vars="year")
+
+ggplot() + geom_line(data=ger, aes(year, value, colour=variable)) +
+  geom_point(data=ger, aes(year, value, colour=variable, shape=variable)) +
+  theme_bw() + theme(panel.grid=element_blank()) +
+  ylab("NPR") +
+  scale_x_continuous(breaks=seq(2008, 2019, 1)) +
+  scale_colour_discrete(name="Estimate type")+
+  scale_shape_discrete(name="Estimate type") +
+  ggtitle("German pre-recruit estimates 2008-2019")
+
+load(paste0(direct, "Data/Survey_data/2019/Survey_summary_output/BBn_figures_res_250-250.RData"))
+#mod.res,proj,mesh,pred.in,
+
+class(mod.res$`PR-spatial`)
+max(mod.res$`PR-spatial`, na.rm=T)
+which(mod.res$`PR-spatial`==max(mod.res$`PR-spatial`, na.rm=T))
+mod.res$`PR-spatial`[21000:22000]
+png(paste0(direct, "2019/Presentations/Survey_summary/Exploratory_figures/Ger/PR_spatial_with_tows.png"),width=11,height=8.5, units="in", res=400)
+ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+           plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+           nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
+image(list(x = proj$x, y=proj$y, z = mod.res$`PR-spatial`), axes=F,add=T,breaks = c(0,1,5,10,50,100,500,1000,2000,5000, 10000),
+      col= c(rev(plasma(10,alpha=0.7,begin=0.6,end=1))))
+with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
+dev.off()
+
+
+source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/RUNME_Survey_OSAC_Model/Survey_Summary_Word.R")
+Survey_Summary_Word(year=2019, reportseason="spring", data="C:/Documents/Offshore scallop/Assessment/Data/Survey_data/2019/Survey_summary_output/testing_results_SCALOFF_LE09.Rdata")
+# objects: "bankcheck" df, ntows" df and "highlights" df
+
