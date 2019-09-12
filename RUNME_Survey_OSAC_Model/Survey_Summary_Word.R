@@ -679,7 +679,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
          }
         sizerange75_seed[[box.names[k]]] <- c(sizerange75_seed_y[paste0(lastyear)], sizerange75_seed_y[paste0(year)])
         sizerange75_seed_bm[[box.names[k]]] <- c(sizerange75_seed_bm_y[paste0(lastyear)], sizerange75_seed_bm_y[paste0(year)])
-        browser()
+        
         # sizerange75_seed_prev <- sizerange75_seed[paste0(lastyear)]
       }
       
@@ -742,8 +742,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
   }
 
   #print(bankcheck)
-
-  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- 
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
   print(sizes)
   print(ntows)
