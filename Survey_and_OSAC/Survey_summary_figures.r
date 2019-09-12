@@ -586,12 +586,13 @@ for(i in 1:len)
         # Because of the generally thin spacing on GB we need to decrease the spatial correlation distance and allow for more spatial variability in the 
         # data, so I have changed the priors...  Revised by DK August 2018, not fully incorporated into the Spring Survey summary presentation
         # previous prior.range was c(1,0.5) (July 2018 spring survey summary used this value)
-        if(banks[i] == "GB") 
+        if(banks[i] %in% c("GB", "Sab"))
         {
           spde <- inla.spde2.pcmatern(mesh,    
                                     prior.sigma=c(4,0.75), # The probabiliy that the marginal standard deviation (first number) is larger than second number
                                     prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
         }
+       
         ## All of our abundance spatial plots are counts, moving to a negative binomial model
         family1 = "nbinomial"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
@@ -674,7 +675,7 @@ for(i in 1:len)
               fitted[[seed.n.spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.dat$com)],
                                    dat=tmp.dat$com)
             } # end if(seed.n.spatial.maps[k] == "FR-spatial")
-              
+            
             if(seed.n.spatial.maps[k] == "CF-spatial")       
             {
               # This is the stack for the INLA model
@@ -820,8 +821,6 @@ for(i in 1:len)
         } # end if(length(seed.n.spatial.maps > 0))
       } # end the if(length(grep("run",INLA)) > 0)
       print("finished running normal models")
-      
-      
       
       ### The user shell height bins....
       # Now we need to get the projections if we have specified the User.SH.bins plots to be produced.
@@ -998,6 +997,7 @@ for(i in 1:len)
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
+            #if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) base.lvls <- c(0,5,8,10,12,14,16,18,20,24,30,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
             min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
@@ -1258,7 +1258,7 @@ for(i in 1:len)
             # In case any of these banks has exploratory tows...
             if(banks[i] %in% c("BBn","Sab","Mid","GBb","BBs", "Ban", "BanIce"))  
             {
-  
+
               points(lat~lon,surv.Live[[banks[i]]],subset=year==yr 
                      & state =='live' & random %in% c(0,2,3,4,5),pch=24,bg="darkorange",cex=1.2)
               legend("topleft",legend = c(paste('exploratory (n =',
@@ -2553,7 +2553,7 @@ for(i in 1:len)
           }
           if(fig != "screen") dev.off()   
         } # end if(length(bm.last[!is.na(bm.last)]) > 0)
-        
+       
         # Now the Shell height frequency plots.
         shf.years <- boxy$model.dat$year[(length(boxy$model.dat$year)-6):
                                            length(boxy$model.dat$year)]

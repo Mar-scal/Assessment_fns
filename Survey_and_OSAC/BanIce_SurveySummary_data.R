@@ -257,9 +257,9 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   ########### Make survey.obj for Ban (mimicking Middle bank method) ###########################
   
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/simple.surv.R"))
-  survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
+  survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
   survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
-                                      function(x){with(subset(surv.Live[[bnk]],year == years[x]),
+                                      function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),
                                                        weighted.mean(CF,com.bm,na.rm=T))})
   
   clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=years)

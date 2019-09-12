@@ -923,16 +923,15 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
     
     
-    
     #Source15 source("fn/simple.surv.r") prepare survey index data obj
     if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
     {
-      survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
+      survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
       survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
-                                          function(x){with(subset(surv.Live[[bnk]],year == years[x]),
+                                          function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),
                                                            weighted.mean(CF,com.bm,na.rm=T))})
-      if(bank.4.spatial == "Mid") clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=years)
-      if(bank.4.spatial %in% c("Ban", "BanIce")) message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]],years=years)
+      if(bank.4.spatial == "Mid") clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
+      if(bank.4.spatial %in% c("Ban", "BanIce")) message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
     } #end 	if(bnk == "Mid")  
     # And here is Georges Bank spring survey results
     if(bank.4.spatial == "GB")  
@@ -1130,10 +1129,13 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     #names(SS.summary[[bnk]]) <- c("year","n","FR.BM","CV.FR.BM","R.BM","CV.R.BM","Pre.BM","CV.Pre.BM",
     #                            "FR_N", "CV.FR.N",  "R.N","CV.R.N","Pre.N", "CV.Pre.N","bank")
     
-    
     # MEAT COUNT & CONDITION FACTOR requires some processing
-    CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
+    if(!bank.4.spatial %in% c("Ban", "BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
                                      SpatHtWt.fit[[bnk]]$fit))
+    if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="seascallop",c('tow','lon','lat')),
+                                                                                 SpatHtWt.fit[[bnk]]$fit))
+    if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="icelandic",c('tow','lon','lat')),
+                                                                      SpatHtWt.fit[[bnk]]$fit))
     if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank %in% c("GB","GBa","GBb") & year==yr & month < 7,
                                                                        c('tow','lon','lat')),SpatHtWt.fit[[bnk]]$fit))
     if(bank.4.spatial == "GBa") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bank.4.spatial & year==yr & month > 6,
@@ -1260,7 +1262,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),
                                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))
   } # end if(testing ==F) 
-  
   
   return(list(survey.obj = survey.obj,
               SHF.summary = SHF.summary,

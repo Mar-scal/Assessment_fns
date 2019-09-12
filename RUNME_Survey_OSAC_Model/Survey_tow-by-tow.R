@@ -29,13 +29,15 @@ source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-# bnk <- c("BBn","Ger","Sab","Mid","GB", "Ban", "BanIce") #"BBs", 
+ bnk <- c("BBn")#,"Ger","Sab","Mid","GB", "Ban", "BanIce") #"BBs", 
 #          "GBa", "GBb")
 # bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
-bnk <- "Ger"
+# bnk <- "Ger"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
 mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")"))) 
+
+cf.data2 <- cf.data
 
 for(i in 1:length(bnk))
 {
@@ -100,6 +102,7 @@ bank.mw$CF_samp <- bank.mw$wmw/(bank.mw$sh/100)^3
 # Check out the Clappers by "real" CF from the bank.mw...
 # This gets the mean CF for each tow and adds that to the data 
 tmp<- tapply(bank.mw$CF_samp, bank.mw$tow,mean)
+
 cf.data <- as.data.frame(1:length(tmp))
 cf.data$tow <- as.numeric(names(tmp))
 cf.data$cf <- as.numeric(tmp)
@@ -1385,6 +1388,26 @@ dev.off()
       ############
 
 
+#### Plot the locations of the CF prediction
+png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_prediction_location.png",sep=""),
+    width=11,height=8.5, units="in", res=400)
+if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
+{
+  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location"),dec.deg=F)
+} # end if(is.null(bank.survey.info) ==F)
+
+if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
+{
+  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location"),dec.deg=F)
+} # end if(is.null(bank.survey.info) ==T)
+
+points(x=cf.data2[[bnk[i]]]$CFyrs$lon[cf.data2[[bnk[i]]]$CFyrs$year==yr], y=cf.data2[[bnk[i]]]$CFyrs$lat[cf.data2[[bnk[i]]]$CFyrs$year==yr], cex=3)
+
+dev.off()
 
 # Now for the clappers by CF, any indication low CF is associated with High clapper numbers.
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_vs_CF.png",sep=""),width=8.5,height=11, units="in", res=400)
