@@ -366,10 +366,6 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     print('check1')
     
-    if(!is.null(fitted)) {
-      
-    }
-    
     if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up"), 
                              lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75FR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
                              thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75FR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
