@@ -1,3 +1,12 @@
+## summarizes survey summary into a nice table for use in Rmarkdown
+
+## REQUIRES:
+## survey summary Rdata file (e.g. testing_results.Rdata)
+## direct/Data/Figure_regulations_by_bank.csv
+
+## OPTIONAL:
+## INLA model RData files (from survey_summary_figures.R)
+
 
 ## use model.dat cf for all cf measurements!
 Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
