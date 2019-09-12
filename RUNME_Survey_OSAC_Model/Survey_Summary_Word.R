@@ -264,7 +264,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!is.null(fitted)) PR75_f <- c(quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
     if(!is.null(fitted)) PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
     if(is.null(fitted)) PR75_f <- NA
-    if(!is.null(fitted)) PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
+    PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
@@ -283,7 +283,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!is.null(fitted)) R75_f <- c(quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
     if(!is.null(fitted)) R75_f <- paste0(round_any(R75_f[1], 5), "-", round_any(R75_f[2], 5))
     if(is.null(fitted)) R75_f <- NA
-    if(!is.null(fitted)) R75 <- paste0(R75, " (INLA fit = ", R75_f, ")")
+    R75 <- paste0(R75, " (INLA fit = ", R75_f, ")")
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
@@ -301,14 +301,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     if(!is.null(fitted)) C75_f <- c(quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
     if(!is.null(fitted)) C75_f <- paste0(round_any(C75_f[1], 5), "-", round_any(C75_f[2], 5))
     if(is.null(fitted)) C75_f <- NA
-    if(!is.null(fitted)) C75 <- paste0(C75, " (INLA fit = ", C75_f, ")")
+    C75 <- paste0(C75, " (INLA fit = ", C75_f, ")")
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
     if(!banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
-    
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
     if(!banks[i] == "Ger"){
