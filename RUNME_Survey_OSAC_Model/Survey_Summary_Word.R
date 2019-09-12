@@ -257,9 +257,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     if(file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))
+      fitted.x <- fitted
     }
     if(!file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
-      fitted <- NULL
+      fitted.x <- NULL
     }
     
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
@@ -270,8 +271,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     PR75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
     PR75 <- paste0(round_any(PR75[1], 5), "-", round_any(PR75[2], 5))
     PR75_LY <- paste0(round_any(PR75_LY[1], 5), "-", round_any(PR75_LY[2], 5))
-    if(!is.null(fitted)) PR75_f <- c(quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
-    if(!is.null(fitted)) PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
+    if(!is.null(fitted.x)) PR75_f <- c(quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    if(!is.null(fitted.x)) PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
     if(is.null(fitted)) PR75_f <- NA
     PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
@@ -289,9 +290,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     R75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
     R75 <- paste0(round_any(R75[1], 5), "-", round_any(R75[2], 5))
     R75_LY <- paste0(round_any(R75_LY[1], 5), "-", round_any(R75_LY[2], 5))
-    if(!is.null(fitted)) R75_f <- c(quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
-    if(!is.null(fitted)) R75_f <- paste0(round_any(R75_f[1], 5), "-", round_any(R75_f[2], 5))
-    if(is.null(fitted)) R75_f <- NA
+    if(!is.null(fitted.x)) R75_f <- c(quantile(x=fitted.x$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted.x$`Rec-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    if(!is.null(fitted.x)) R75_f <- paste0(round_any(R75_f[1], 5), "-", round_any(R75_f[2], 5))
+    if(is.null(fitted.x)) R75_f <- NA
     R75 <- paste0(R75, " (INLA fit = ", R75_f, ")")
     ntowsaboveR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$rec>R3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
@@ -307,9 +308,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     C75_LY <- c(quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[1], quantile(x=surv.Rand[banks[i]][[1]]$com[surv.Rand[banks[i]][[1]]$year==lastyear], c(0.125, 0.5, 0.875, 1))[3])
     C75 <- paste0(round_any(C75[1], 5), "-", round_any(C75[2], 5))
     C75_LY <- paste0(round_any(C75_LY[1], 5), "-", round_any(C75_LY[2], 5))
-    if(!is.null(fitted)) C75_f <- c(quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
-    if(!is.null(fitted)) C75_f <- paste0(round_any(C75_f[1], 5), "-", round_any(C75_f[2], 5))
-    if(is.null(fitted)) C75_f <- NA
+    if(!is.null(fitted.x)) C75_f <- c(quantile(x=fitted.x$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted.x$`FR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
+    if(!is.null(fitted.x)) C75_f <- paste0(round_any(C75_f[1], 5), "-", round_any(C75_f[2], 5))
+    if(is.null(fitted.x)) C75_f <- NA
     C75 <- paste0(C75, " (INLA fit = ", C75_f, ")")
     ntowsaboveC3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                   surv.Rand[banks[i]][[1]]$year==year]) - 1)
