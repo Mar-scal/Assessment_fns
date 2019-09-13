@@ -125,7 +125,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   if(any(mw.dm$sh > 10)) 
     mw.dm$sh<-mw.dm$sh/100
   
-  # we only have BanIce mw data from 2012 on, so no need to use import.hyd.dat for BanIce. Furthermore, we shouldn't need to remove 0's since the 
+  # we only have BanIce mw data from 2012 on, so no need to use import.hyd.dat for BanIce. Furthermore, we shouldn't need to remove tow ID 0's since the 
   # commercial surveys are over, but just in case.
   if(commercialsampling==F) 
     mw.dm <- subset(mw.dm, tow>0)
@@ -133,7 +133,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   # move the full data (all years) to mw.dat.all
   mw.dat.all[[bnk]] <- mw.dm
 
-  # now run the model for the current year
+  # now run the MWSH model for the current year. 
   SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[mw.dm$year==yr,],random.effect='tow',b.par=3)
   
   # depth.f to metres?
@@ -145,7 +145,10 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   if(file.exists(paste0(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial))==F) 
     dir.create(path = paste0(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial))
   
+  if(!any(mw.dat.all[[bnk]]$sh > 10)) mw.dat.all[[bnk]]$sh <- mw.dat.all[[bnk]]$sh*100
   write.csv(mw.dat.all[[bnk]],paste0(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial,"/mw_Data.csv"),row.names=F) # Write1
+  
+  if(any(mw.dat.all[[bnk]]$sh > 10)) mw.dat.all[[bnk]]$sh <- mw.dat.all[[bnk]]$sh/100
   
   ############### Annual Condition Model #####################
   
@@ -156,7 +159,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   pred.loc[["lat"]] <- mean(subset(mw.dat.all[[bnk]], year >=2005 & year <2015)$lat,na.rm=T)
   pred.loc[["lon"]] <- mean(subset(mw.dat.all[[bnk]], year >=2005 & year <2015)$lon,na.rm=T)
   
-  # now run the model to predict condition for all years using the model that includes this year's data
+  # now run the model to predict condition for all years with MW data using the model that includes this year's data
   HtWt.fit[[bnk]] <- shwt.lme(mw.dat.all[[bnk]],random.effect='ID',b.par=3, verbose=F)
   
   # Merge the raw data with the model fit, just keep the first sample for each tow in which we have multiple samples.
@@ -196,7 +199,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
     browser()
     source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
     mwsh.test.dat <- mw.dat.all[[bnk]]
-    mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
+    if(!any(mwsh.test.dat$sh > 10)) mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
     mwshtest <- mwsh.sensit(mwdat=na.omit(mwsh.test.dat[, !names(mwsh.test.dat) %in% c("month", "species")]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                             sub.size=NULL, sub.year=c(NA, 2012), sub.tows=NULL, sub.samples=NULL, 
                             direct=direct, seed=1234)
@@ -216,7 +219,6 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
   
   ######## Calculate biomasses by tow ###########################################################
-  
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/surv.by.tow.r"))
   surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
 
@@ -255,9 +257,9 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   ########### Make survey.obj for Ban (mimicking Middle bank method) ###########################
   
   source(paste0(direct, "Assessment_fns/Survey_and_OSAC/simple.surv.R"))
-  survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
+  survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
   survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
-                                      function(x){with(subset(surv.Live[[bnk]],year == years[x]),
+                                      function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),
                                                        weighted.mean(CF,com.bm,na.rm=T))})
   
   clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=years)
@@ -292,6 +294,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
 
   ############# Return all objects created here to the main SurveySummary_data script. 
   returnlist <- list(bank.dat=bank.dat[[bnk]],
+                     mw.dat.all=mw.dat.all[[bnk]],
                      SpatHtWt.fit=SpatHtWt.fit[[bnk]],
                      cf.data=cf.data[[bnk]],
                      surv.dat=surv.dat[[bnk]],

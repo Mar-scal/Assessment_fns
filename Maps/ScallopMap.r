@@ -202,14 +202,14 @@ ScallopMap<-function(area='custom',
 	if(area=='GB')		   { ylim=c(41.1,42.3); 	  xlim=c(-67.3,-65.6)	}
   if(area=='GBa')      {ylim=c(41.2,42.3);      xlim=c(-67.15,-65.85)}
 	if(area=='GBb')		   { ylim=c(41.6,42.3); 	  xlim=c(-66.7,-65.6)	}
-	if(area=='Ger')		   { ylim=c(42.8,43.8); 	  xlim=c(-67,-65.6)		}
+	if(area=='Ger')		   { ylim=c(42.8,43.825); 	  xlim=c(-67.1,-65.6)		}
 	if(area=='Sab')		   { ylim=c(43,44.35); 	    xlim=c(-62.5,-60.5)	}
 	if(area=='SPB')		   { ylim=c(44.5,47.5);	    xlim=c(-58,-55)		}
   if(area=='SPB-banks'){ ylim=c(45.25,46.25);	  xlim=c(-57.25,-55.5)		}
 	# These are from offshore ScallopMap.r and I believe we'll need them
   if(area=='West')	   {  ylim=c(43,44.1); 		xlim=c(-62.2,-60.4)	}
   if(area=='Mid')		   { ylim=c(44.2,44.9);	xlim=c(-61.3,-60.1) }
-  if(area=='Ban')		   { ylim=c(43.9,44.8); 	xlim=c(-60.25,-58.5)	}
+  if(area=='Ban')		   { ylim=c(43.9,44.9); 	xlim=c(-60.25,-58.5)	}
   if(area=='Sab-West') { ylim=c(42.8,44.5); 		xlim=c(-62.5,-58.8)	}
   if(area=='Ban-Wide') { ylim=c(43.7,45.2); 	xlim=c(-60.5,-57)	}
   

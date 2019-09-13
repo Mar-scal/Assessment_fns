@@ -27,7 +27,7 @@
 # y:          name of the y data.  Default = names(data[2]), 
 # ylab:       y axis label.  Default = y 
 # xlab:       x axis label.  Default = x
-# mean.line:  Plot the mean of the lines(T/F) default = F,
+# median.line:  Plot the median of the lines(T/F) default = F,
 # graphic:    What plotting device to open.  Default ="R", "pdf" will produce a figure and save it to specified directory.
 # width:      width of the plot window.  Default = 11 
 # height:     height of the plot window.  Default = 8.5
@@ -43,7 +43,7 @@
 #axis.cx:     Magnification of the axes.  Default = 1
 #tx.ypos:     Position of the margin text for y axis.  Default = 5.3
 
-stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, mean.line=F,graphic="R",width = 11, 
+stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, median.line=F,graphic="R",width = 11, 
                       height = 8.5, labcx=1.25, ylim, xlim, col=c("blue","red","grey50","orange"), pch=1:length(y), lty=1:length(y),type='o',
                       titl="",cex.mn = 1.2,axis.cx=1,tx.ypos = 5.3, error=F, ...)
 {
@@ -52,12 +52,13 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
   if(graphic=='pdf')pdf("plots/cfindex.pdf", width = width, height = height, pointsize = 14)
 	# Or use an R window
   #if(graphic=="R") windows( width = width, height = height)
-	# Calculate the mean of the response variable (y's)
-  meany<-colMeans(data[y],na.rm=T)
-	print(meany)
+	# Calculate the median of the response variable (y's)
+  if(dim(data[y])[2] == 1) mediany <- median(data[y][-nrow(data[y]),], na.rm=T) 
+  if(dim(data[y])[2] == 2) mediany <- apply(data[y][-nrow(data[y]),], 2, function(x) median(x, na.rm=T))
+	print(mediany)
   # Add in xlim/ylim in not specified.
-	if(missing(xlim))xlim=range(data[x],na.rm=T)
-	if(missing(ylim))ylim=range(data[y],na.rm=T)
+	if(missing(xlim)) xlim=range(data[x],na.rm=T)
+	if(missing(ylim)) ylim=range(data[y],na.rm=T)
 	# Set margins and leave the plot window open
   if(!nchar(titl) > 35) par(mar=c(3.6,6,2,2))
 	if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))
@@ -72,9 +73,15 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	# if there is more than 1 y name then add the lines and points to the figure for each x/y combination.
 	if(length(y)>1)for(i in 2:length(y)){points(unlist(data[x[i]]),unlist(data[y[i]]), type='o', lty=lty[i], 
 	                                            pch=pch[i], col=col[i],bg=col[i])}
-	# Draw the mean line for the data
+	# Draw the median line for the data
+	if(median.line & dim(data[y])[2] == 1) lines(y = rep(mediany, length(unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)])), x=unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)], lty=3,lwd=2,cex=1, col=col)
+	if(median.line & dim(data[y])[2] == 2) {
+	  years1 <- min(years) : max(data$year[!is.na(data[y[1]])])
+	  years2 <- (max(data$year[!is.na(data[y[1]])]) + 1) : max(data$year[!is.na(data[y[2]])])
 	
-	if(mean.line)abline(h=meany,lty=3,lwd=2,cex=1, col=col)
+	  lines(y = rep(mediany[1], length(years1)), x=years1, lty=3,lwd=2,cex=1, col=col[1])
+	  lines(y = rep(mediany[2], (length(years2)-1)), x=years2[-length(years2)], lty=3,lwd=2,cex=1, col=col[2])
+	}
 	# Make the rest of the plot pretty.
 	axis(4,lab=F, cex.axis=labcx)
 	axis(1,at=data$year,lab=F,tcl=-0.3, cex.axis=labcx)

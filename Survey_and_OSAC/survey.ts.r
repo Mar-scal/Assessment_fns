@@ -65,7 +65,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
                               clr=c(1,1,1), cx=1.2, pch=1:2, lty=1:2, wd=10, ht=8, Npt=T, se=F, ys=1.2, yl2=NULL, ymin=0, dat2=NULL, areas=NULL, areas2=NULL,
                               ypos=1, add.title = F, cx.mn = 1, titl = "", axis.cx=1,user.bins = NULL, log.y=F, ...)
 {
- 
+
   # Subset the data into the years of interest
   shf<-subset(shf,year %in% years)
   # Get the current years RS and CS for the bank, this is slighly dis-engenious for GB since we actually calculate the biomass for the RS/CS
@@ -146,7 +146,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(pdf == T & is.null(user.bins)) pdf(paste("figures/",Bank,type,min(years),"-",max(years),".pdf",sep=""), width = wd, height = ht)
   if(pdf == T & !is.null(user.bins)) pdf(paste("figures/",Bank,"User_SH_bins",type,min(years),"-",max(years),".pdf",sep=""), width = wd, height = ht)
   # If looking for abundance do this
-  
+
   # If areas has been specified and Number per tow is True (Npt=T) then we want to scale the data from bank to tow
   if(is.null(areas) == F && Npt == T)
   {
@@ -294,11 +294,22 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(!is.null(yl2) && length(yl2) > 1 )  ymax<-yl2
   
   # Set up the plot.
-  par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+  
+  extra.args <- list(...)
+  
+  if(!is.null(extra.args$plot.which.bins)) {
+    par(mfrow = c(length(extra.args$plot.which.bins), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+    plot.which.bins <- extra.args$plot.which.bins
+  }
+  if(is.null(extra.args$plot.which.bins)) {
+    par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+    plot.which.bins <- 1:length(mn.tmp)
+  }
+
   
   # If we want the Pre-recruit plot this is how it's done.  
   # Set up the plot, no points are added yet
-  for(i in 1:length(mn.tmp))
+  for(i in plot.which.bins)
   {
     
     if(log.y == F) plot(years, years, type = "n",  ylab = "", xlab = "", las = 1, ylim = c(ymin, ymax[i]*ys), mgp = c(0.5, 0.5, 0), 
@@ -321,10 +332,14 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     if(type =="B" && log.y == T) axis(2, mgp = c(0.5, 0.7, 0),las=1,cex.axis=axis.cx)
     
     if(log.y == F) axis(4, pretty(c(0,ymax[i]*ys)),lab = F, tcl = -0.3,cex.axis=axis.cx)
+    
+    median.val <- median(shf[!shf$year==max(years),mn.tmp[i]],na.rm=T)
     # Now add the median line, but only for the years we have data, allow the lines to have their own unique color.
-    if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],rep(median(shf[,mn.tmp[i]],na.rm=T),
-                                                                                           length(shf$year[-which(is.na(shf[,mn.tmp[i]]))])),col=clr[3],lty=2,lwd=2)
-    if(any(is.na(shf[,mn.tmp[i]]))==F)  lines(shf$year,rep(median(shf[,mn.tmp[i]],na.rm=T),length(shf$year)),col=clr[3],lty=2,lwd=2)
+    if(length(which(!is.na(shf[!shf$year==max(years),mn.tmp[i]]))) > 2) {
+      if(any(is.na(shf[,mn.tmp[i]]))==T)  lines(shf$year[-which(is.na(shf[,mn.tmp[i]]))],c(rep(median.val,
+                                                                                             (length(shf$year[-which(is.na(shf[,mn.tmp[i]]))])-1)), NA),col=clr[3],lty=2,lwd=2)
+      if(any(is.na(shf[,mn.tmp[i]]))==F)  lines(shf$year,c(rep(median.val,(length(shf$year)-1)), NA),col=clr[3],lty=2,lwd=2)
+    }
     # now add the points
     
     points(shf$year, shf[,mn.tmp[i]] , type = "o", pch = pch[1], cex=cx, col=clr[1])
@@ -334,9 +349,9 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     {
       points(dat2$year, dat2[,mn.tmp[i]], type = "o", cex=cx,col=clr[2],lty=lty[2],pch=pch[2])
       # add the median line, if statement handling cases with/without NA's, if we have a second line we keep the median line the same clr.
-      if(any(is.na(dat2[,mn.tmp[i]]))==T)  lines(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))],rep(median(dat2[,mn.tmp[i]],na.rm=T),
-                                                                                                length(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))])),col=clr[2],lty=2,lwd=2)
-      if(any(is.na(dat2$NPR))==F) lines(dat2$year,rep(median(dat2[,mn.tmp[i]],na.rm=T),length(dat2$year)),col=clr[2],lty=2,lwd=2)
+      if(any(is.na(dat2[,mn.tmp[i]]))==T)  lines(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))],rep(median(dat2[!dat2$year==max(years),mn.tmp[i]],na.rm=T),
+                                                                                                (length(dat2$year[-which(is.na(dat2[,mn.tmp[i]]))]))),col=clr[2],lty=2,lwd=2)
+      if(any(is.na(dat2[,mn.tmp[i]]))==F) lines(dat2$year,c(rep(median(dat2[!dat2$year==max(years),mn.tmp[i]],na.rm=T),(length(dat2$year)-1)), NA),col=clr[2],lty=2,lwd=2)
       
       # Add the se
       if(se == T) segments(dat2$year,dat2[,mn.tmp[i]]+dat2[,se.names[i]],dat2$year,dat2[,mn.tmp[i]]-dat2[,se.names[i]],col=clr[2])

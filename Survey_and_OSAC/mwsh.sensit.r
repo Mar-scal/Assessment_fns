@@ -108,7 +108,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
   #######  
 
   # Run mwsh model (same for all banks. this is the one done INSIDE condFac normally)
-  mwdat$sh <- mwdat$sh/100 # convert sh
+  if(any(mwdat$sh>10)) mwdat$sh <- mwdat$sh/100 # convert sh
   mwshmod <- shwt.lme(mwdat, random.effect='ID', b.par=3, verbose = T)
   
   # SE from mwshmod is in mwshmod$summary$tTable

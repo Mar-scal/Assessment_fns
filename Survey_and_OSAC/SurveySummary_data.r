@@ -259,9 +259,9 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     
     ### Do any preprocessing to the BanIce data here
     if("BanIcespring" %in% surveys) {
-     BanIceSurvey2012 <- read.csv(paste0(direct, "2012/r/data/Ban/BanIceSurvey2012.csv"))
+     BanIceSurvey2012 <- read.csv(paste0(direct, "Data/Survey_data/2012/Spring/BanIceSurvey2012.csv"))
      BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
-     message("Note: the pre/rec/com estimates in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data) are WRONG and are based on incorrect bins.\nWe will recalculate these later in this function.")
+     message("Note: the pre/rec/com estimates and HF data for tow 936 in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data)\nare WRONG and are based on incorrect bins. We will recalculate these later in this function.\nAlso note that BanIce tow 936 HF data was corrected in 2019.\nThe accurate raw HF data are in .../Data/2012/Spring/TE13BanIcehf.csv. NOT IN THE Y:/Alan/... FOLDER\nNOR IN Y:/Offshore scallop/Assessment/2012/r/data FOLDER.")
     }
     
     ### This grabs the data directly from the database and makes it it's own object, works for now
@@ -487,6 +487,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       survey.strata.table[["BanIce"]] <- BanIce$survey.strata.table
       detail.surv.poly[["BanIce"]] <- BanIce$detail.surv.poly
       bound.surv.poly[["BanIce"]] <- BanIce$bound.surv.poly
+      mw.dat.all[["BanIce"]] <- BanIce$mw.dat.all
       
       bnk <- "BanIce"
       bank.4.spatial <- "BanIce"
@@ -922,16 +923,15 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
     
     
-    
     #Source15 source("fn/simple.surv.r") prepare survey index data obj
     if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
     {
-      survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin)
+      survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
       survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
-                                          function(x){with(subset(surv.Live[[bnk]],year == years[x]),
+                                          function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),
                                                            weighted.mean(CF,com.bm,na.rm=T))})
-      if(bank.4.spatial == "Mid") clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=years)
-      if(bank.4.spatial %in% c("Ban", "BanIce")) message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]],years=years)
+      if(bank.4.spatial == "Mid") clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
+      if(bank.4.spatial %in% c("Ban", "BanIce")) message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
     } #end 	if(bnk == "Mid")  
     # And here is Georges Bank spring survey results
     if(bank.4.spatial == "GB")  
@@ -1129,10 +1129,13 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     #names(SS.summary[[bnk]]) <- c("year","n","FR.BM","CV.FR.BM","R.BM","CV.R.BM","Pre.BM","CV.Pre.BM",
     #                            "FR_N", "CV.FR.N",  "R.N","CV.R.N","Pre.N", "CV.Pre.N","bank")
     
-    
     # MEAT COUNT & CONDITION FACTOR requires some processing
-    CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
+    if(!bank.4.spatial %in% c("Ban", "BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
                                      SpatHtWt.fit[[bnk]]$fit))
+    if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="seascallop",c('tow','lon','lat')),
+                                                                                 SpatHtWt.fit[[bnk]]$fit))
+    if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="icelandic",c('tow','lon','lat')),
+                                                                      SpatHtWt.fit[[bnk]]$fit))
     if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank %in% c("GB","GBa","GBb") & year==yr & month < 7,
                                                                        c('tow','lon','lat')),SpatHtWt.fit[[bnk]]$fit))
     if(bank.4.spatial == "GBa") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bank.4.spatial & year==yr & month > 6,
@@ -1151,6 +1154,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # The seedbox calculations		
     # Bring in the seeboxes for the latest year
     sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+    sb <- subset(sb, Active=="Yes")
     if(bank.4.spatial == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
     
     # If there were any seeboxes closed in this year get the results from the box(es)
@@ -1258,7 +1262,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),
                                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))
   } # end if(testing ==F) 
-  
   
   return(list(survey.obj = survey.obj,
               SHF.summary = SHF.summary,

@@ -201,8 +201,8 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
     print(conflicting_banks[conflicting_banks$Freq > 1,])
   }
 
-if(length(unique(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq)) == 2 & 
-   max(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq) == 1) {
+if(length(unique(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq)) == 1 | (length(unique(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq)) == 2 & 
+   max(data.frame(table(tow_survey$TOW_NO, tow_survey$SURVEY_NAME))$Freq) == 1)) {
   message("Successfully passed duplicate tow check without any issues. Yay!")
 }
 }
