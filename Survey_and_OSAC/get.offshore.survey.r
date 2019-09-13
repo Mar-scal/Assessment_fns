@@ -203,20 +203,23 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     
     surv_tows_samp_hf$prorated_number[is.na(surv_tows_samp_hf$prorated_number)] <- 0
     
-    industryreport_l <- ddply(.data=surv_tows_samp_hf[!is.na(surv_tows_samp_hf$LIVECODE),], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE, indreport_bin),
+    industryreport_l <- ddply(.data=surv_tows_samp_hf[!is.na(surv_tows_samp_hf$LIVECODE), !names(surv_tows_samp_hf) == "COMMENTS"], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE, indreport_bin),
                             summarize,
                             total_in_bin=sum(prorated_number))
-    
-    industryreport_catchbaskets <- ddply(.data=surv_tows_samp_hf[surv_tows_samp_hf$CONTAINER_TYPE_ID ==1 & surv_tows_samp_hf$LIVECODE=="L",], .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID, LIVECODE),
+ 
+    industryreport_catchbaskets <- ddply(.data=unique(surv_tows_samp_hf[, c("SURVEY_NAME", "TOW_NO", "MGT_AREA_CD", "TOW_TYPE_ID",
+                                                                                                           "START_LAT", "START_LON", "END_LAT", "END_LON", "DEPTH_F", 
+                                                                                                           "SPECIES_ID", "CONTAINER_TYPE_ID", "TOTAL")]), 
+                                                      .(SURVEY_NAME, MGT_AREA_CD, TOW_NO, TOW_TYPE_ID, START_LAT, START_LON, END_LAT, END_LON, DEPTH_F, SPECIES_ID),
                                          summarize,
-                                         catchbaskets=unique(round((unique(TOTAL)/30) *4, 0)/4))
+                                         catchbaskets=round((sum(TOTAL)/30) *4, 0)/4)
     
     industryreport_l <- join(industryreport_l, industryreport_catchbaskets, type="left")
     
     industryreport <- dcast(industryreport_l, SURVEY_NAME + MGT_AREA_CD + TOW_NO + TOW_TYPE_ID + START_LAT + START_LON + END_LAT + END_LON + DEPTH_F + SPECIES_ID + catchbaskets ~ LIVECODE + indreport_bin, value.var="total_in_bin")
     
     industryreport$YEAR <- yr
-    
+
     # add the empty tows back in
     industryreport <- join(industryreport, unique(surv_tows_samp[, c("SURVEY_NAME", "MGT_AREA_CD", "TOW_NO", "TOW_TYPE_ID", "START_LAT", "START_LON", "END_LAT", "END_LON", "DEPTH_F","SPECIES_ID")]), type="full")
     
@@ -227,7 +230,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     industryreport <- aggregate(cbind(catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`) ~ ., data=industryreport, sum)
       
     # And make the CSV...
-    write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)
+    write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/Industry Reports/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)
     
   }# End if(industry.report = T)
   

@@ -53,6 +53,7 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
     if(i == length(user.bins)+1) bnames[i] <- paste0("bin_",user.bins[i-1],"_plus")
   } # End for(i in 1:length(user.bins)+1) 
   bnames <- c(bnames,paste0(bnames,"_bm"))
+  
   # Make a temporary object of correct length and make sure it has proper names
   tmp <- as.data.frame(matrix(NA,nrow=nrow(shf.dat),ncol = length(bnames)))
   names(tmp) <- bnames

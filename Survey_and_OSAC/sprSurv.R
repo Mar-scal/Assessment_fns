@@ -5,6 +5,7 @@
 ####  from both the matched and unmatched tows and the differences in these between years to get 
 ##### the esimated abundance/biomass for each category.
 ####
+####  FOR INFORMATION ON HOW SPR CODE WORKS, SEE Y:\Offshore scallop\Assessment\Assessment_fns\Help and Documentation\Stephen's functions annotated\summarySPR_annotated_for_reference_only
 ################################################################################################################
 ## Update history
 ## 1: March 31 2016 by DK, tidying up structure and comments

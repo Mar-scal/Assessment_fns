@@ -321,6 +321,8 @@ Check the MGT_AREA_CD values for the following tows:")
       # grab the authoritative management area polygons file. 
       area <- read.csv(paste0(direct, "Data/Maps/approved/Survey/survey_boundary_polygons.csv"))
       area <- area[!(area$startyear==1900 & area$label=="Sab"),] 
+      area <- area[!(area$startyear==1900 & area$label=="Ban"),]
+      
       
       if(bank=="GB") area <- area[!area$label %in% c("GBa", "GBb"),]
       if(!bank=="GB") area <- area[!area$label %in% c("GB"),]
@@ -554,13 +556,13 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       if(!is.null(nickname)) {
-        if(!unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
-        if(unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks_ice", nickname, ".pdf"),onefile=T,width=22,height=12)
+        if(!unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
+        if(unique(hfs$SPECIES_ID)=="2 - Iceland scallop") pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks_ice", nickname, ".pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
       }
       if(is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
+        pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/HF_distribution_checks.pdf"),onefile=T,width=22,height=12)
         print(plot.list)
         dev.off()
       }
@@ -603,13 +605,13 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       if(!is.null(nickname)) {
-        if(!unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks", nickname, ".pdf"),onefile=T,width=15,height=12)
-        if(unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks_ice", nickname, ".pdf"),onefile=T,width=15,height=12)
+        if(!unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks", nickname, ".pdf"),onefile=T,width=15,height=12)
+        if(unique(mwshs$SPECIES_ID) == "2 - Iceland scallop") pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks_ice", nickname, ".pdf"),onefile=T,width=15,height=12)
         print(plot.list)
         dev.off()
       }
       if(is.null(nickname)) {
-        pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks.pdf"),onefile=T,width=15,height=12)
+        pdf(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/MWSH_checks.pdf"),onefile=T,width=15,height=12)
         print(plot.list)
         dev.off()
       }

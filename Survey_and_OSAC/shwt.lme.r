@@ -126,7 +126,7 @@ shwt.lme<-function(wt.dat,random.effect="year",verbose=T, GBmodel=F, b.par='esti
 	# If our random effect is month pull out the Month and put them in as the label.
 	if(random.effect=="month")wt.dat$label<-months(as.Date(paste("2009-",1:12,"-01",sep="")))[wt.dat$raneff]
 	summy <- summary(wt.lme)
-	#browser()
+	
 	# Send the model results and the wt.dat object back to the function calling this one.
 	return(list(A=A,B=B,a=a,b=b,data=wt.dat,fit=fit,summary = summy))
 	#browser()
