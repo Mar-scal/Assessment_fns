@@ -274,6 +274,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   require(boot)|| stop("Install the boot package for the spatial plots")
   require(fields)|| stop("Install the fields package for the spatial plots")
   require(PBSmapping)|| stop("Install the PBSmapping package for the spatial plots")
+  require(ggplot2)|| stop("Install the ggplot2 package for the spatial plots")
 # If necessary bring in the fishery regulations (only used for seedbox and breakdown figures)
 
   if(any(plots %in% c("seedboxes","breakdown"))) fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep="")) # Read1
@@ -364,8 +365,10 @@ for(i in 1:len)
     names(bound.surv.poly[[banks[i]]]) <- c("PID", "SID", "POS", "X", "Y", "label", "startyear")
   }
   
-  if(banks[i] %in% c("GBa","GBb","BBn","BBs", "Ban", "BanIce", "GB", spat.name)) bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
-  
+  if(banks[i] %in% c("GBa","GBb","BBn","BBs", "Ban", "BanIce", "GB", spat.name)) {
+    if(sub.area==T) bound.poly.surv.GBsub <- lapply(bound.surv.poly[which(grepl(x=names(bound.surv.poly), "GBa-"))], function(x) as.PolySet(x, projection="LL"))
+    bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
+  }
   if(!is.null(keep.full.GB) & keep.full.GB == T) {
     bound.poly.surv <- as.PolySet(rbind(bound.surv.poly$GBa, bound.surv.poly$GBb), projection ="LL")
   }
@@ -439,6 +442,16 @@ for(i in 1:len)
     survey.obj[[banks[i]]][[2]]$w.yst <- survey.obj[[banks[i]]][[2]]$w.yst[,-1]
   } # if(length(missing.year > 0))
   
+  
+  if(banks[i] == "GBa" & sub.area==T) {
+    subarea_df <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x$bankpertow),data.frame))
+    subarea_cv <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x[[1]]),data.frame))
+    subarea_df$subarea <- gsub(x=row.names(subarea_df),pattern = "\\..*",replacement="")
+    subarea_cv$subarea <- gsub(x=row.names(subarea_cv),pattern = "\\..*",replacement="")
+    subarea_df <- join(subarea_df, subarea_cv[, c("year", "subarea", "N.cv", "NPR.cv", "NR.cv", "I.cv", 'IR.cv', "IPR.cv", "CF")], type="full")
+    
+    #surv.info.subarea <- NULL
+  }
   ################################# START MAKING FIGURES################################# START MAKING FIGURES################################# 
 
 ################  The non-survey spatial plots ###########################
@@ -780,9 +793,14 @@ for(i in 1:len)
             if(seed.n.spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial","SH-spatial","SH.GP-spatial",
                                              "MW-spatial","MW.GP-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
                                                                             inla.mesh.project(proj, exp(mod$summary.random$s$mean + mod$summary.fixed$mean))
+            
             # Now for the Gaussian models.
             if(seed.n.spatial.maps[k] %in% c("CF-spatial","MC-spatial")) mod.res[[seed.n.spatial.maps[k]]] <- 
                                                                             inla.mesh.project(proj, mod$summary.random$s$mean + mod$summary.fixed$mean)
+            
+            # print a message if the model didn't work:
+            if(max(mod.res[[seed.n.spatial.maps[k]]], na.rm=T) == "Inf") stop(paste0("Inf predictions in mod.res[[seed.n.spatial.maps[k]]]. Please try a different mesh for ", banks[i], " ", seed.n.spatial.maps[k], ".\nRecommend changing inla.mesh.2d max.edge argument very slightly."))
+            
             # Get rid of all data outside our plotting area, necessary for the full model runs only.
             # We use this later for our visualization...
             
@@ -939,7 +957,7 @@ for(i in 1:len)
           n.maps <- length(spatial.maps) # This will plot only the spatial maps since we didn't ask for user SH maps.
           maps.to.make <- spatial.maps
         } # end if(any(plots %in% "user.SH.bins") ==F) 
-        
+       
         count = 0
         # Make the maps...
         for(m in 1:n.maps)
@@ -1399,6 +1417,22 @@ for(i in 1:len)
     if(banks[i] %in% spat.name) survey.title <- substitute(bold(paste("Survey (",bank," ",year,")",sep="")),list(year=as.character(yr),bank= banks[i]))
     # Now we'll need to do a few things differently if there are no survey strata on a bank, this will work for Middle and German
     
+    if(banks[i] %in% "GBa" & sub.area==T){
+      if(fig == "png") png(paste(plot.dir,"/survey_strata_overlay.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
+      if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata_overlay.pdf",sep=""),width = 11,height = 8.5)
+      if(fig == "screen") windows(11,8.5)
+      ScallopMap(banks[i],poly.lst=NULL,direct = direct,cex.mn=2, boundries="offshore",
+                 plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+                 nafo.bord = F,nafo.lab = F,title="  ",dec.deg = F,add.scale = add.scale)
+      lapply(bound.poly.surv.GBsub[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) addPolys(x)) 
+      #labs <- do.call(rbind,lapply(bound.poly.surv.GBsub[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")],data.frame))
+      #labs$label <- gsub(x=row.names(labs),pattern = "\\..*",replacement="")
+      # addLabels(data = extractPolyData(labs)[extractPolyData(labs)$PID %in% c(22,23) | 
+      #                                          extractPolyData(labs)$PID == 21 &  extractPolyData(labs)$SID == 1|
+      #                                          extractPolyData(labs)$PID == 27 &  extractPolyData(labs)$SID == 2,], polys = labs, placement="CENTROID", cex=1.25)
+      dev.off()
+    }
+    
     # Save the figures?
     if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
     if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
@@ -1414,6 +1448,7 @@ for(i in 1:len)
       if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct,cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
+      
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("Sab","GBb")) 
       {
@@ -1470,6 +1505,7 @@ for(i in 1:len)
                                       ")",sep="")),title="Tow type", cex=1.2,pt.cex = 1.2,
              pt.bg = c("darkorange","black"),pch=c(24,20),bg = NA,inset=0.01,box.col=NA)
     }
+    
     if(banks[i] %in% spat.name)  
     {
       if(banks[i] %in% spat.name) leg.loc <- "bottomright"
@@ -1736,11 +1772,58 @@ for(i in 1:len)
     #legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,NA),bty='n',inset=0.02,col=c("blue","red"))		
     if(fig != "screen") dev.off()
     
+    if(banks[i] == "GBa" & sub.area==T) {
+      
+      if(fig == "screen") windows(8.5,8.5)
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea.png",sep=""),
+                           units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea.png",sep=""),width = 8.5,height = 8.5)
+      
+      print(
+        ggplot() + geom_point(data=subarea_df, aes(year, CF, colour=subarea, shape=subarea), size=3) +
+        geom_line(data=subarea_df, aes(year, CF, colour=subarea), size=1) +
+        #geom_smooth(data=subarea_df, aes(year, CF, colour=subarea), method="gam", se=F) +
+        theme_bw() + 
+        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+        ggtitle("Condition factor time series (GBa subareas)") +
+        scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+        scale_shape_discrete(name=NULL)+
+        theme(axis.title.y = element_text(angle=360, vjust=0.5))+
+        xlab("Year")+
+        scale_y_continuous(limits=c(4, 25), breaks=seq(5,25,2.5), labels=c(5, " ", 10, " ", 15, " ", 20, " ", 25), name=cf.lab) +
+        scale_x_continuous(breaks=seq(1985,2020,5), labels=c(" ", 1990, " ", 2000, " ", 2010, " ", 2020))
+      )
+      
+      if(fig != "screen") dev.off()
+      
+      if(fig == "screen") windows(8.5,8.5)
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_gam.png",sep=""),
+                           units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_gam.png",sep=""),width = 8.5,height = 8.5)
+      
+      print(
+        ggplot() + geom_point(data=subarea_df, aes(year, CF, colour=subarea, shape=subarea), size=1) +
+        #geom_line(data=subarea_df, aes(year, CF, colour=subarea), size=1) +
+        geom_smooth(data=subarea_df, aes(year, CF, colour=subarea), method="gam", se=F) +
+        theme_bw() + 
+        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+        ggtitle("Condition factor time series (GBa subareas)") +
+        scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+        scale_shape_discrete(name=NULL)+
+        theme(axis.title.y = element_text(angle=360, vjust=0.5))+
+        xlab("Year")+
+        scale_y_continuous(limits=c(4, 25), breaks=seq(5,25,2.5), labels=c(5, " ", 10, " ", 15, " ", 20, " ", 25), name=cf.lab) +
+        scale_x_continuous(breaks=seq(1985,2020,5), labels=c(" ", 1990, " ", 2000, " ", 2010, " ", 2020)) 
+      )
+      if(fig != "screen") dev.off()
+    }
+    
   } # end if(any(plots=="MW-SH"))
 ############  END THE MW SHELL HEIGHT FIGURE ###################  END THE MW SHELL HEIGHT FIGURE #######
 
 #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE
 #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE      
+
   if(any(plots=="abund-ts"))
   {
     survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,")",sep="")),
@@ -1750,16 +1833,16 @@ for(i in 1:len)
     
     if(add.title == F) survey.ts.N.title <- ""
     if(fig == "screen") windows(8.5,11)
-   
+    
     if(fig == "png")png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
-                         width = 8.5, height = 11,res=420,bg="transparent")
+                        width = 8.5, height = 11,res=420,bg="transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
-
+    
     par(mfrow=c(1,1))
     
     # if log.y=T you must also specify ymin.
     if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "BanIce" && banks[i] != "GB" && banks[i] != "Sab")
-
+      
     {
       survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
                 areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
@@ -1768,7 +1851,7 @@ for(i in 1:len)
     # For german bank
     if(banks[i] == "Ger")
     {
-
+      
       survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
                 ymin=-5,dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
                 add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
@@ -1779,11 +1862,11 @@ for(i in 1:len)
     if(banks[i] == "Mid" || banks[i] == "GB" || banks[i] == "Ban"|| banks[i] == "BanIce")
     {
       if(!banks[i] == "BanIce")survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F, 
-                ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
-
-      if(banks[i] == "BanIce")  survey.ts(survey.obj[[banks[i]]][[1]],Bank=banks[i],
-                                         years=min(survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n)],na.rm=T):yr,pdf=F,
                                          ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+      
+      if(banks[i] == "BanIce")  survey.ts(survey.obj[[banks[i]]][[1]],Bank=banks[i],
+                                          years=min(survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n)],na.rm=T):yr,pdf=F,
+                                          ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
     } # end if(banks[i] == "Mid")
     
     # For sable bank (due to restratification)
@@ -1827,10 +1910,43 @@ for(i in 1:len)
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
         legend("topright", inset=c(0.05, -0.9), xpd=NA, c("After restratification","Prior to restratification"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(1,2),col=c("blue","red"),bty="n")
       }
-
+      
     } # end if(banks[i] == "Sab")
     
     if(fig != "screen") dev.off()
+    
+    if(banks[i] == "GBa" & sub.area==T) {
+      
+      if(fig == "screen") windows(6,11)
+      if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
+                          width = 6, height = 11,res=420,bg="transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/abundance_bars.pdf",sep=""),width = 6, height = 11)
+      # surv.info.subarea <- aggregate(data=surv.info.subarea[, c("subarea", "towable_area")], towable_area ~ subarea, sum)
+      # surv.info.subarea$area <- surv.info.subarea$towable_area*10^6
+      subarea_abund <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
+      subarea_abund_cv <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N.cv", "NPR.cv", "NR.cv")], id.vars="subarea", variable.name = "CV")
+      subarea_abund_cv$variable <- gsub(x=subarea_abund_cv$CV, ".cv", "")
+      subarea_abund_cv$CV <- subarea_abund_cv$value
+      subarea_abund <- join(subarea_abund, subarea_abund_cv[,c("subarea","variable", "CV")], type="full")
+      subarea_abund$variable <- factor(subarea_abund$variable, levels=c("NPR", "NR", "N"))
+      levels(subarea_abund$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_abund$subarea <- factor(subarea_abund$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_abund$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      
+      print(
+        ggplot() + geom_bar(data=subarea_abund, aes(subarea, value), fill="lightblue", colour="black", stat="identity", position="dodge") + 
+          geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
+          theme_bw() + theme(panel.grid=element_blank()) +
+          ylab(paste0(yr, " abundance (n/tow)")) +
+          xlab("Sub-area of GBa") +
+          facet_wrap(~variable, nrow=3, scales="free_y") +
+          theme(strip.text = element_blank()) + 
+          scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
+          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_abund$variable))+
+          geom_vline(xintercept = 2.5, linetype="dashed")
+      )
+      if(fig != "screen") dev.off()
+    }
     
   }# end if(any(plots=="abund-ts"))
       
@@ -1905,7 +2021,40 @@ for(i in 1:len)
                                           ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
     } # end if(banks[i] == "Mid")
   
-  if(fig != "screen") dev.off()
+    if(fig != "screen") dev.off()
+  
+    if(banks[i] == "GBa" & sub.area==T){
+      
+      if(fig == "screen") windows(8.5,11)
+      if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
+                          width = 8.5, height = 11,res=420,bg="transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/biomass_bars.pdf",sep=""),width = 8.5, height = 11)
+      subarea_biomass <- melt(subarea_df[subarea_df$year==yr, c("subarea", "I", "IPR", "IR")], id.vars="subarea")
+      subarea_biomass_cv <- melt(subarea_df[subarea_df$year==yr, c("subarea", "I.cv", "IPR.cv", "IR.cv")], id.vars="subarea", variable.name = "CV")
+      subarea_biomass_cv$variable <- gsub(x=subarea_biomass_cv$CV, ".cv", "")
+      subarea_biomass_cv$CV <- subarea_biomass_cv$value
+      subarea_biomass <- join(subarea_biomass, subarea_biomass_cv[,c("subarea","variable", "CV")], type="full")
+      subarea_biomass$variable <- factor(subarea_biomass$variable, levels=c("IPR", "IR", "I"))
+      levels(subarea_biomass$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_biomass$subarea <- factor(subarea_biomass$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_biomass$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      
+      print(
+        ggplot() + 
+          geom_bar(data=subarea_biomass, aes(subarea, value), fill="lightblue", colour="black", stat="identity", position="dodge") + 
+          geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
+          theme_bw() + theme(panel.grid=element_blank()) +
+          ylab(paste0(yr, " biomass (kg/tow)\n")) +
+          xlab("\nSub-area of GBa") +
+          facet_wrap(~variable, nrow=3, scales="free_y") +
+          theme(strip.text = element_blank()) + 
+          scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
+          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_biomass$variable)) +
+          geom_vline(xintercept = 2.5, linetype="dashed") 
+      )
+      if(fig != "screen") dev.off()
+    }
+    
 } # end if(any(plots=="biomass-ts"))
         
         

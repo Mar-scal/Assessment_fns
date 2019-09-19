@@ -9,13 +9,13 @@
 
 
 ## use model.dat cf for all cf measurements!
-Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
+Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
   options(scipen=999)
   require(lubridate)
   require(plyr)
   load(data)
   banks <- names(bank.dat)
-  if(any(grepl(x=banks, pattern="GBa-"))) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
+  if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
   
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
   
@@ -60,6 +60,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
     
     #print(i)
     # number of tows:
+    
+    if(class(surv.dat[banks[i]][[1]]) == "SpatialPointsDataFrame") surv.dat[banks[i]][[1]] <- as.data.frame(surv.dat[banks[i]][[1]])
     ntowsy <- as.data.frame(table(unique(surv.dat[banks[i]][[1]][surv.dat[banks[i]][[1]]$year==year, c("tow", "random")])$random))
     ntowsy$type[ntowsy$Var1 == 1] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 1], "1", "fixed_regular")
     ntowsy$type[ntowsy$Var1 == 2] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 2], "2", "exploratory_2")
@@ -90,7 +92,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       }
     }
     
-    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
+    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb") | grepl(x=banks[i], pattern="GBa")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       NR_current <- survey.obj[banks[i]][[1]]$bankpertow$NR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
@@ -171,7 +173,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", data="E:/Offsh
       }
     }
     
-    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")){
+    if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")| grepl(x=banks[i], pattern="GBa")){
       IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
       IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
