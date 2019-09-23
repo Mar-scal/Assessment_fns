@@ -242,10 +242,14 @@ for(i in 1:num.trips)
     } # end if(sum.slip != trip.slip) 
   } # end if(trip.tol == 'round')
 
+  # check for extra rows that are full of NA's, and remove them if they exist:
+  #trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),]
+  
+  
   # Check to ensure vessel gear size and number of rakes and gear size is correct.  I don't want to flag NA"s here as that would be redundant with above
   num.rakes <- fleet.dat$num_rakes[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
   gear.size <- fleet.dat$gear_size[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
-  #browser()
+  browser()
   if(any(na.omit(trip.log$numrake) != num.rakes)) num.rakes.mismatch[[as.character(trip.ids[i])]] <- trip.log
   if(any(na.omit(trip.slip$gear.ft) != gear.size)) gear.size.mismatch[[as.character(trip.ids[i])]] <- trip.slip
 

@@ -274,7 +274,9 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   require(boot)|| stop("Install the boot package for the spatial plots")
   require(fields)|| stop("Install the fields package for the spatial plots")
   require(PBSmapping)|| stop("Install the PBSmapping package for the spatial plots")
-  require(ggplot2)|| stop("Install the ggplot2 package for the spatial plots")
+  require(ggplot2)|| stop("Install the ggplot2 package for the subarea plots")
+  require(plyr)|| stop("Install the plyr package for the subarea plots")
+  require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
 # If necessary bring in the fishery regulations (only used for seedbox and breakdown figures)
 
   if(any(plots %in% c("seedboxes","breakdown"))) fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep="")) # Read1
@@ -1775,16 +1777,16 @@ for(i in 1:len)
     if(banks[i] == "GBa" & sub.area==T) {
       
       if(fig == "screen") windows(8.5,8.5)
-      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea.png",sep=""),
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_NS.png",sep=""),
                            units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea.png",sep=""),width = 8.5,height = 8.5)
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_NS.pdf",sep=""),width = 8.5,height = 8.5)
       
       print(
-        ggplot() + geom_point(data=subarea_df, aes(year, CF, colour=subarea, shape=subarea), size=3) +
-        geom_line(data=subarea_df, aes(year, CF, colour=subarea), size=1) +
+        ggplot() + geom_point(data=subarea_df[subarea_df$subarea %in% c("GBa-North", "GBa-South"),], aes(year, CF, colour=subarea, shape=subarea), size=3) +
+        geom_line(data=subarea_df[subarea_df$subarea %in% c("GBa-North", "GBa-South"),], aes(year, CF, colour=subarea), size=1) +
         #geom_smooth(data=subarea_df, aes(year, CF, colour=subarea), method="gam", se=F) +
         theme_bw() + 
-        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
         ggtitle("Condition factor time series (GBa subareas)") +
         scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
         scale_shape_discrete(name=NULL)+
@@ -1797,16 +1799,16 @@ for(i in 1:len)
       if(fig != "screen") dev.off()
       
       if(fig == "screen") windows(8.5,8.5)
-      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_gam.png",sep=""),
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_gam_NS.png",sep=""),
                            units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_gam.png",sep=""),width = 8.5,height = 8.5)
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_gam_NS.pdf",sep=""),width = 8.5,height = 8.5)
       
       print(
-        ggplot() + geom_point(data=subarea_df, aes(year, CF, colour=subarea, shape=subarea), size=1) +
+        ggplot() + geom_point(data=subarea_df[subarea_df$subarea %in% c("GBa-North", "GBa-South"),], aes(year, CF, colour=subarea, shape=subarea), size=1) +
         #geom_line(data=subarea_df, aes(year, CF, colour=subarea), size=1) +
-        geom_smooth(data=subarea_df, aes(year, CF, colour=subarea), method="gam", se=F) +
+        geom_smooth(data=subarea_df[subarea_df$subarea %in% c("GBa-North", "GBa-South"),], aes(year, CF, colour=subarea), method="gam", se=F) +
         theme_bw() + 
-        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+        theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
         ggtitle("Condition factor time series (GBa subareas)") +
         scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
         scale_shape_discrete(name=NULL)+
@@ -1814,6 +1816,49 @@ for(i in 1:len)
         xlab("Year")+
         scale_y_continuous(limits=c(4, 25), breaks=seq(5,25,2.5), labels=c(5, " ", 10, " ", 15, " ", 20, " ", 25), name=cf.lab) +
         scale_x_continuous(breaks=seq(1985,2020,5), labels=c(" ", 1990, " ", 2000, " ", 2010, " ", 2020)) 
+      )
+      if(fig != "screen") dev.off()
+      
+      if(fig == "screen") windows(8.5,8.5)
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_northareas.png",sep=""),
+                           units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_northareas.pdf",sep=""),width = 8.5,height = 8.5)
+      
+      print(
+        ggplot() + geom_point(data=subarea_df[subarea_df$subarea %in% c("GBa-West", "GBa-Central", "GBa-East"),], aes(year, CF, colour=subarea, shape=subarea), size=3) +
+          geom_line(data=subarea_df[subarea_df$subarea %in% c("GBa-West", "GBa-Central", "GBa-East"),], aes(year, CF, colour=subarea), size=1) +
+          #geom_smooth(data=subarea_df, aes(year, CF, colour=subarea), method="gam", se=F) +
+          theme_bw() + 
+          theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
+          ggtitle("Condition factor time series (GBa North sub-areas)") +
+          scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+          scale_shape_discrete(name=NULL)+
+          theme(axis.title.y = element_text(angle=360, vjust=0.5))+
+          xlab("Year")+
+          scale_y_continuous(limits=c(4, 25), breaks=seq(5,25,2.5), labels=c(5, " ", 10, " ", 15, " ", 20, " ", 25), name=cf.lab) +
+          scale_x_continuous(breaks=seq(1985,2020,5), labels=c(" ", 1990, " ", 2000, " ", 2010, " ", 2020))
+      )
+      
+      if(fig != "screen") dev.off()
+      
+      if(fig == "screen") windows(8.5,8.5)
+      if(fig == "png") png(paste(plot.dir,"/CF_ts_subarea_gam_northareas.png",sep=""),
+                           units="in",width = 8.5,height = 8.5,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/CF_ts_subarea_gam_northareas.pdf",sep=""),width = 8.5,height = 8.5)
+      
+      print(
+        ggplot() + geom_point(data=subarea_df[subarea_df$subarea %in% c("GBa-West", "GBa-Central", "GBa-East"),], aes(year, CF, colour=subarea, shape=subarea), size=1) +
+          #geom_line(data=subarea_df, aes(year, CF, colour=subarea), size=1) +
+          geom_smooth(data=subarea_df[subarea_df$subarea %in% c("GBa-West", "GBa-Central", "GBa-East"),], aes(year, CF, colour=subarea), method="gam", se=F) +
+          theme_bw() + 
+          theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
+          ggtitle("Condition factor time series (GBa North sub-areas)") +
+          scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+          scale_shape_discrete(name=NULL)+
+          theme(axis.title.y = element_text(angle=360, vjust=0.5))+
+          xlab("Year")+
+          scale_y_continuous(limits=c(4, 25), breaks=seq(5,25,2.5), labels=c(5, " ", 10, " ", 15, " ", 20, " ", 25), name=cf.lab) +
+          scale_x_continuous(breaks=seq(1985,2020,5), labels=c(" ", 1990, " ", 2000, " ", 2010, " ", 2020)) 
       )
       if(fig != "screen") dev.off()
     }
@@ -1917,10 +1962,10 @@ for(i in 1:len)
     
     if(banks[i] == "GBa" & sub.area==T) {
       
-      if(fig == "screen") windows(6,11)
+      if(fig == "screen") windows(8.5, 11)
       if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
-                          width = 6, height = 11,res=420,bg="transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/abundance_bars.pdf",sep=""),width = 6, height = 11)
+                          width = 8.5, height = 11,res=100,bg="transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/abundance_bars.pdf",sep=""),width = 8.5, height = 11)
       # surv.info.subarea <- aggregate(data=surv.info.subarea[, c("subarea", "towable_area")], towable_area ~ subarea, sum)
       # surv.info.subarea$area <- surv.info.subarea$towable_area*10^6
       subarea_abund <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
@@ -1934,16 +1979,18 @@ for(i in 1:len)
       levels(subarea_abund$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
       
       print(
-        ggplot() + geom_bar(data=subarea_abund, aes(subarea, value), fill="lightblue", colour="black", stat="identity", position="dodge") + 
+        ggplot() + geom_bar(data=subarea_abund, aes(subarea, value, fill=subarea), colour="black", stat="identity", position="dodge") + 
           geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
-          theme_bw() + theme(panel.grid=element_blank()) +
-          ylab(paste0(yr, " abundance (n/tow)")) +
-          xlab("Sub-area of GBa") +
+          theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+          ylab(expression(frac("N","tow"), "\n")) +
+          xlab(NULL) +
+          ggtitle(paste0(yr, " Survey Abundance by GBa Sub-area")) +
           facet_wrap(~variable, nrow=3, scales="free_y") +
           theme(strip.text = element_blank()) + 
           scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
-          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_abund$variable))+
-          geom_vline(xintercept = 2.5, linetype="dashed")
+          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_abund$variable), size=5)+
+          geom_vline(xintercept = 2.5, linetype="dashed") +
+          scale_fill_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
       )
       if(fig != "screen") dev.off()
     }
@@ -2025,7 +2072,7 @@ for(i in 1:len)
   
     if(banks[i] == "GBa" & sub.area==T){
       
-      if(fig == "screen") windows(8.5,11)
+      if(fig == "screen") windows(8.5, 11)
       if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                           width = 8.5, height = 11,res=420,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/biomass_bars.pdf",sep=""),width = 8.5, height = 11)
@@ -2041,16 +2088,19 @@ for(i in 1:len)
       
       print(
         ggplot() + 
-          geom_bar(data=subarea_biomass, aes(subarea, value), fill="lightblue", colour="black", stat="identity", position="dodge") + 
+          geom_bar(data=subarea_biomass, aes(subarea, value, fill=subarea), colour="black", stat="identity", position="dodge") + 
           geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
-          theme_bw() + theme(panel.grid=element_blank()) +
-          ylab(paste0(yr, " biomass (kg/tow)\n")) +
-          xlab("\nSub-area of GBa") +
+          theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+          ylab(expression(frac("kg","tow"), "\n")) +
+          xlab(NULL) +
+          ggtitle(paste0(yr, " Survey Biomass by GBa Sub-area")) +
           facet_wrap(~variable, nrow=3, scales="free_y") +
           theme(strip.text = element_blank()) + 
           scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
-          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_biomass$variable)) +
-          geom_vline(xintercept = 2.5, linetype="dashed") 
+          annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_biomass$variable), size=5) +
+          geom_vline(xintercept = 2.5, linetype="dashed") +
+          scale_fill_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
+          
       )
       if(fig != "screen") dev.off()
     }
