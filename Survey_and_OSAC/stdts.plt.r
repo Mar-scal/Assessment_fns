@@ -76,7 +76,7 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	# Draw the median line for the data
 	if(median.line & dim(data[y])[2] == 1) lines(y = rep(mediany, length(unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)])), x=unlist(data[x[1]])[1:(length(unlist(data[x[1]]))-1)], lty=3,lwd=2,cex=1, col=col)
 	if(median.line & dim(data[y])[2] == 2) {
-	  years1 <- min(years) : max(data$year[!is.na(data[y[1]])])
+	  years1 <- min(data$year[!is.na(data[y[1]])]) : max(data$year[!is.na(data[y[1]])])
 	  years2 <- (max(data$year[!is.na(data[y[1]])]) + 1) : max(data$year[!is.na(data[y[2]])])
 	
 	  lines(y = rep(mediany[1], length(years1)), x=years1, lty=3,lwd=2,cex=1, col=col[1])
