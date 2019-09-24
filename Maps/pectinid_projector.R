@@ -536,7 +536,6 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!exists("offshore.strata",where=1) && exists("offshore.strata"))   assign('offshore.strata',offshore.strata,pos=1)
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
   
-
   # make a ggplot2 obj
   #if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
      # is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
@@ -568,8 +567,10 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
           ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
           crs(ext) <- crs(inshore.spa[[i]])
           inshore.spa_ext <- gIntersection(inshore.spa[[i]], ext, byid=T)
-          inshore.spa_f <- fortify(inshore.spa_ext, region="ID")
-          pect_ggplot <- pect_ggplot + geom_path(data=inshore.spa_f, aes(x=long, y=lat, group=group), fill=NA, colour="blue")
+          if(!is.null(inshore.spa_ext)){
+            inshore.spa_f <- fortify(inshore.spa_ext, region="ID")
+            pect_ggplot <- pect_ggplot + geom_path(data=inshore.spa_f, aes(x=long, y=lat, group=group), fill=NA, colour="blue")
+          }
         }
       }
       
@@ -580,8 +581,10 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
           ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
           crs(ext) <- crs(offshore.spa[[i]])
           offshore.spa_ext <- gIntersection(offshore.spa[[i]], ext, byid=T)
-          offshore.spa_f <- fortify(offshore.spa_ext, region = "ID")
-          pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f, aes(x=long, y=lat, group=group), fill="lightgreen", alpha=0.4, colour="blue")
+          if(!is.null(offshore.spa_ext)){
+            offshore.spa_f <- fortify(model = offshore.spa_ext, region = "ID")
+            pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f, aes(x=long, y=lat, group=group), fill="lightgreen", alpha=0.4, colour="blue")
+          }
         }
       }
     }
@@ -592,8 +595,10 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         crs(ext) <- crs(eez)
         eez_ext <- gIntersection(eez, ext, byid=T)
         eez_f<- SpatialLinesDataFrame(eez_ext, match.ID = F, data = data.frame(ID = 1))
-        eez_f <- fortify(eez_f, region = "ID")
-        pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group), colour="red", lwd=2)
+        if(!is.null(eez_f)){
+          eez_f <- fortify(eez_f, region = "ID")
+          pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group), colour="red", lwd=2)
+        }
       }
     }
     
@@ -602,9 +607,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
         crs(ext) <- crs(nafo.divs$Divisions)
         nafo.divs_ext <- gIntersection(nafo.divs$Divisions, ext, byid=T, drop_lower_td = T)
-        nafo.divs_f <- fortify(nafo.divs_ext, region = "ID")
-        nafo.divs_sub5zejm_f <- fortify(nafo.divs_sub5zejm, region="ID")
-        pect_ggplot <- pect_ggplot + geom_path(data=nafo.divs_f, aes(x=long, y=lat, group=group), colour="black")
+        if(!is.null(nafo.divs_ext) & !is.null(nafo.divs_sub5zejm)){
+          nafo.divs_f <- fortify(nafo.divs_ext, region = "ID")
+          nafo.divs_sub5zejm_f <- fortify(nafo.divs_sub5zejm, region="ID")
+          pect_ggplot <- pect_ggplot + geom_path(data=nafo.divs_f, aes(x=long, y=lat, group=group), colour="black")
+        }
       }
       if(add_nafo == "sub") {
         for(i in 1:length(nafo.subs)){
@@ -612,9 +619,11 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
             ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
             crs(ext) <- crs(nafo.subs[[i]])
             nafo.subs_int <- gIntersection(nafo.subs[[i]], ext, byid=T, drop_lower_td = T)
-            nafo_s <- fortify(nafo.subs_int)
-            # nafo_s$name <- names(nafo.subs)[i]
-            if(is.data.frame(nafo_s)) pect_ggplot <- pect_ggplot + geom_path(data=nafo_s, aes(x=long, y=lat, group=group), colour="black")
+            if(!is.null(nafo.subs_int)){ 
+              nafo_s <- fortify(nafo.subs_int)
+              # nafo_s$name <- names(nafo.subs)[i]
+              if(is.data.frame(nafo_s)) pect_ggplot <- pect_ggplot + geom_path(data=nafo_s, aes(x=long, y=lat, group=group), colour="black")
+            }
           #}
         }
       }
@@ -634,10 +643,12 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
         crs(ext) <- crs(land.sp)
         land.sp.int <- gIntersection(land.sp, ext, byid=T)
-        land_f <- fortify(land.sp.int)
-        if(dim(land_f)[1]>0) {
-          land_f$order <- 1:nrow(land_f)
-          pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+        if(!is.null(land.sp.int)){ 
+          land_f <- fortify(land.sp.int)
+          if(dim(land_f)[1]>0) {
+            land_f$order <- 1:nrow(land_f)
+            pect_ggplot <- pect_ggplot + geom_polygon(data=land_f, aes(x=long, y=lat, group=group), fill="darkgrey", colour="black")
+          }
         }
       }
     }
