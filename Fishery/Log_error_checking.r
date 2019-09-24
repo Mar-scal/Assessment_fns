@@ -191,34 +191,6 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
                                       "_avg_tow_time_range_",t.name,"_slip_vs_log_weight_tol_",trip.tol,"_spatial_checks")
   } # if(export == T || spatial == T)
   
-<<<<<<< Updated upstream
-  # If you specify a tolerance value you want to compare, default is 1 lb which is basically same a rounding
-  if(is.numeric(trip.tol))
-  {
-    # If the difference between these 2 values is > trip.tol then output the slip.
-    if(abs(sum.slip - sum.trip) > trip.tol)
-    {
-      weight.mismatch.logs[[as.character(trip.ids[i])]]  <- trip.log
-      weight.mismatch.slips[[as.character(trip.ids[i])]] <- trip.slip
-    } # end if(sum.slip != trip.slip) 
-  } # end if(trip.tol == 'round')
-
-  # check for extra rows that are full of NA's, and remove them if they exist:
-  #trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),]
-  
-  
-  # Check to ensure vessel gear size and number of rakes and gear size is correct.  I don't want to flag NA"s here as that would be redundant with above
-  num.rakes <- fleet.dat$num_rakes[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
-  gear.size <- fleet.dat$gear_size[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
-  browser()
-  if(any(na.omit(trip.log$numrake) != num.rakes)) num.rakes.mismatch[[as.character(trip.ids[i])]] <- trip.log
-  if(any(na.omit(trip.slip$gear.ft) != gear.size)) gear.size.mismatch[[as.character(trip.ids[i])]] <- trip.slip
-
-  # We also want to make spatial plots, I'm going to test out pecjector for this..
-  # and while I'm at it we may as well run simple spatial checks to make sure the data falls within the boundary we expect it to.
-=======
->>>>>>> Stashed changes
-  
   # I need to do something with the slips to make sure they agree with the weights for each trip
   trip.ids <- unique(dat.log$tripnum)
   num.trips <- length(trip.ids)
