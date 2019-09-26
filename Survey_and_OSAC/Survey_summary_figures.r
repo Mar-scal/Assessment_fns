@@ -1979,8 +1979,8 @@ for(i in 1:len)
       levels(subarea_abund$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
       
       print(
-        ggplot() + geom_bar(data=subarea_abund, aes(subarea, value, fill=subarea), colour="black", stat="identity", position="dodge") + 
-          geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
+        ggplot() + geom_point(data=subarea_abund, aes(subarea, value, colour=subarea), size=3) + 
+          geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
           theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
           ylab(expression(frac("N","tow"), "\n")) +
           xlab(NULL) +
@@ -1990,7 +1990,7 @@ for(i in 1:len)
           scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
           annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_abund$variable), size=5)+
           geom_vline(xintercept = 2.5, linetype="dashed") +
-          scale_fill_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
+          scale_colour_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
       )
       if(fig != "screen") dev.off()
     }
@@ -2087,9 +2087,8 @@ for(i in 1:len)
       levels(subarea_biomass$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
       
       print(
-        ggplot() + 
-          geom_bar(data=subarea_biomass, aes(subarea, value, fill=subarea), colour="black", stat="identity", position="dodge") + 
-          geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV)), position=position_dodge(width = .9), width=0.1) +
+        geom_point(data=subarea_biomass, aes(subarea, value, colour=subarea), size=3) + 
+          geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
           theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
           ylab(expression(frac("kg","tow"), "\n")) +
           xlab(NULL) +
@@ -2099,7 +2098,7 @@ for(i in 1:len)
           scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
           annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_biomass$variable), size=5) +
           geom_vline(xintercept = 2.5, linetype="dashed") +
-          scale_fill_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
+          scale_colour_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
           
       )
       if(fig != "screen") dev.off()
