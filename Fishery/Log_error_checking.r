@@ -71,9 +71,9 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   if(repo == "github")
   {
     require(RCurl)|| stop("You need RCurl or this will all unfurl!")
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Fishery/logs_and_fishery_data.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/pectinid_projector.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
   } # end if(repo == "github")
   
   if(repo == "local")
@@ -203,14 +203,14 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   watches.outside.sa <- NULL
   watches.outside.nafo <- NULL
   # If makeing spatial plots crack open the pdf
-  if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11)
+  if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11, onefile=T)
   trip.log.all <- list()
   osa.all <- list()
   pr.all <- list()
   if(shiny ==T) pect_ggplot.all <- list()
   
   
-  for(i in 1:num.trips)
+  for(i in 1:num.trips) # this is going through trips
   {
     #browser()  
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
@@ -365,7 +365,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       # match then we flag it.
       os.nafo <- NULL
       
-      for(n in 1:nrow(trip.log))
+      for(n in 1:nrow(trip.log)) # this is going through log records for one trip
       {
         # Get the nafo area from the log
         nafo.area <- trip.log$nafo[n]
@@ -387,7 +387,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         } # end if(!is.na(nafo.area))
         
       } # end for(n in 1:length(trip.log))
-      #browser()
+      
       # Tidy up the os.nafo list...
       #if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
       if(length(os.nafo) >1) os.nafo <- do.call("rbind",os.nafo)
@@ -403,18 +403,19 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       
       if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
       {
-        pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = "please do", plot_package=plot_package,add_nafo = "sub")
+        pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
       } 
       else {
-        pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = "great plan!", plot_package=plot_package,add_nafo = "sub")
+        pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
       }
       
       plot(trip.log,add=T,pch=19,cex=1)
+      #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
       if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
       
       if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
       title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
-      dev.off()
+      
     } # end if(spatial==T)
     print(paste0("Trip ID:",trip.ids[i],"  count=",i))
     
@@ -427,6 +428,8 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
     }
     
   } # end for(i in 1:num.trips)
+  
+  dev.off() # close PDF device
   
   # if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
   if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
