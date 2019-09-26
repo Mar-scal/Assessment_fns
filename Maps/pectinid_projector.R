@@ -537,9 +537,9 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
   
   # make a ggplot2 obj
-  #if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
-     # is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
-     # is.null(add_custom)){
+  if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
+      is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
+      is.null(add_custom)){
     require(ggplot2)
     
     # here's the ggplot template (pect_ggplot). We'll add geom layers onto this based on the arguments provided
@@ -547,8 +547,8 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       coord_map() + 
       theme_bw() + 
       theme(panel.grid=element_blank()) +
-      scale_x_continuous(expand = c(0,0), limits = xlim) +
-      scale_y_continuous(expand = c(0,0), limits = ylim) 
+      scale_x_continuous(expand = c(0,0), limits = c(x1, x2)) +
+      scale_y_continuous(expand = c(0,0), limits = c(y1, y2)) 
     
     if(!is.null(add_bathy) & c_sys == "+init=epsg:4326"){
       if(!is.null(add_bathy)) {
@@ -564,7 +564,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       if((add_sfas == "inshore" | add_sfas == "all")) {
         inshore.spa_f <- NULL
         for(i in 1:length(inshore.spa)){
-          ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+          ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
           crs(ext) <- crs(inshore.spa[[i]])
           inshore.spa_ext <- gIntersection(inshore.spa[[i]], ext, byid=T)
           if(!is.null(inshore.spa_ext)){
@@ -578,7 +578,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         offshore.spa_f <- NULL
         offshore.spa <- offshore.spa[which(names(offshore.spa) %in% c("GBa", "GBb"))]
         for(i in 1:length(offshore.spa)){
-          ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+          ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
           crs(ext) <- crs(offshore.spa[[i]])
           offshore.spa_ext <- gIntersection(offshore.spa[[i]], ext, byid=T)
           if(!is.null(offshore.spa_ext)){
@@ -591,7 +591,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     
     if(!is.null(add_EEZ)){
       if(add_EEZ == T) {
-        ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+        ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
         crs(ext) <- crs(eez)
         eez_ext <- gIntersection(eez, ext, byid=T)
         eez_f<- SpatialLinesDataFrame(eez_ext, match.ID = F, data = data.frame(ID = 1))
@@ -604,7 +604,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     
     if(!is.null(add_nafo)){
       if(add_nafo == "main") {
-        ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+        ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
         crs(ext) <- crs(nafo.divs$Divisions)
         nafo.divs_ext <- gIntersection(nafo.divs$Divisions, ext, byid=T, drop_lower_td = T)
         if(!is.null(nafo.divs_ext) & !is.null(nafo.divs_sub5zejm)){
@@ -616,7 +616,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       if(add_nafo == "sub") {
         for(i in 1:length(nafo.subs)){
          # if(i==3){
-            ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+            ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
             crs(ext) <- crs(nafo.subs[[i]])
             nafo.subs_int <- gIntersection(nafo.subs[[i]], ext, byid=T, drop_lower_td = T)
             if(!is.null(nafo.subs_int)){ 
@@ -640,7 +640,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     
     if(!is.null(add_land)){
       if(add_land == T) {
-        ext <- as(extent(xlim[1], xlim[2], ylim[1], ylim[2]), "SpatialPolygons")
+        ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
         crs(ext) <- crs(land.sp)
         land.sp.int <- gIntersection(land.sp, ext, byid=T)
         if(!is.null(land.sp.int)){ 
@@ -656,5 +656,5 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     pect_ggplot <<- pect_ggplot +
       xlab("Longitude") + ylab("Latitude")
 #  }
-  
+  }
 } # end function
