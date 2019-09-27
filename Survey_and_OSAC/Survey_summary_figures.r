@@ -232,7 +232,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.
     } 
   }# if(season == "summer")
-   
+
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   #browser()
@@ -357,8 +357,8 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") & Active=="Yes")
-  if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
+  if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
@@ -444,7 +444,7 @@ for(i in 1:len)
     survey.obj[[banks[i]]][[2]]$w.yst <- survey.obj[[banks[i]]][[2]]$w.yst[,-1]
   } # if(length(missing.year > 0))
   
-  
+
   if(banks[i] == "GBa" & sub.area==T) {
     subarea_df <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x$bankpertow),data.frame))
     subarea_cv <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x[[1]]),data.frame))
@@ -1017,7 +1017,6 @@ for(i in 1:len)
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
-            #if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) base.lvls <- c(0,5,8,10,12,14,16,18,20,24,30,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
             min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
@@ -1028,6 +1027,21 @@ for(i in 1:len)
                                                                paste(lvls[length(lvls)-1],'+',sep='')),
                                                  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
                                                                paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+            
+            if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) {
+              byextra <- (round(max(mod.res[[maps.to.make[m]]], na.rm=T)) - max(lvls[-length(lvls)]))/3
+              extra.lvls <- c(max(lvls[-length(lvls)]) + byextra,  max(lvls[-length(lvls)]) + byextra*2,  50)
+              extra.cols <- inferno(length(extra.lvls) + 1 ,alpha=0.7,begin=0.35,end=0.05)[-1]
+              
+              lvls <- c(lvls[-length(lvls)], extra.lvls)
+              cols <- c(cols, extra.cols[-length(extra.cols)])
+              ifelse(max(lvls) == max(base.lvls),  leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                                                 paste(lvls[length(lvls)-1],'+',sep='')),
+                     leg.lvls <- c(paste(lvls[-length(lvls)],'-',lvls[-1],sep='')[-(length(lvls)-1):-length(lvls)],
+                                   paste(lvls[length(lvls)-1],'-',lvls[length(lvls)],sep='')))
+              
+              
+            }
             
             fig.title <- substitute(bold(paste("Condition factor (", bank,"-",year,")",sep="")),
                                    list(year=as.character(yr),bank=banks[i]))
@@ -1152,6 +1166,7 @@ for(i in 1:len)
             leg.title <- "Growth Potential (SH)"
             
           } # end if(maps.to.make[m]  %in% c("SH.GP-spatial")  
+          
           if(maps.to.make[m]  %in% c("MW.GP-spatial"))   
           {
             base.lvls <- c(0,0.05,0.1,0.2,0.3,0.5,0.75,1,2,10)
@@ -1788,7 +1803,7 @@ for(i in 1:len)
         theme_bw() + 
         theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
         ggtitle("Condition factor time series (GBa subareas)") +
-        scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+        scale_colour_manual(values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7]), name=NULL)+
         scale_shape_discrete(name=NULL)+
         theme(axis.title.y = element_text(angle=360, vjust=0.5))+
         xlab("Year")+
@@ -1810,7 +1825,7 @@ for(i in 1:len)
         theme_bw() + 
         theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
         ggtitle("Condition factor time series (GBa subareas)") +
-        scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+          scale_colour_manual(values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7]), name=NULL)+
         scale_shape_discrete(name=NULL)+
         theme(axis.title.y = element_text(angle=360, vjust=0.5))+
         xlab("Year")+
@@ -1831,7 +1846,7 @@ for(i in 1:len)
           theme_bw() + 
           theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
           ggtitle("Condition factor time series (GBa North sub-areas)") +
-          scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+          scale_colour_manual(values=c(surv.info$col[surv.info$Strata_ID%in% c(2,3,4)]), name=NULL)+
           scale_shape_discrete(name=NULL)+
           theme(axis.title.y = element_text(angle=360, vjust=0.5))+
           xlab("Year")+
@@ -1853,7 +1868,7 @@ for(i in 1:len)
           theme_bw() + 
           theme(panel.grid=element_blank(), plot.title = element_text(hjust = 0.5, size = 20, face = "bold"), text = element_text(size=16), legend.position = c(0.85, 0.15)) +
           ggtitle("Condition factor time series (GBa North sub-areas)") +
-          scale_colour_brewer(palette = "Set1", type = "qual", name=NULL)+
+          scale_colour_manual(values=c(surv.info$col[surv.info$Strata_ID%in% c(2,3,4)]), name=NULL)+
           scale_shape_discrete(name=NULL)+
           theme(axis.title.y = element_text(angle=360, vjust=0.5))+
           xlab("Year")+
@@ -1966,8 +1981,9 @@ for(i in 1:len)
       if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
                           width = 8.5, height = 11,res=100,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/abundance_bars.pdf",sep=""),width = 8.5, height = 11)
-      # surv.info.subarea <- aggregate(data=surv.info.subarea[, c("subarea", "towable_area")], towable_area ~ subarea, sum)
-      # surv.info.subarea$area <- surv.info.subarea$towable_area*10^6
+     
+      subarea_LTM <- melt(subarea_df[!subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
+      subarea_LTM <- aggregate(data = subarea_LTM, value ~ subarea + variable, FUN = median)
       subarea_abund <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
       subarea_abund_cv <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N.cv", "NPR.cv", "NR.cv")], id.vars="subarea", variable.name = "CV")
       subarea_abund_cv$variable <- gsub(x=subarea_abund_cv$CV, ".cv", "")
@@ -1977,9 +1993,15 @@ for(i in 1:len)
       levels(subarea_abund$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
       subarea_abund$subarea <- factor(subarea_abund$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
       levels(subarea_abund$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      subarea_LTM$variable <- factor(subarea_LTM$variable, levels=c("NPR", "NR", "N"))
+      levels(subarea_LTM$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_LTM$subarea <- factor(subarea_LTM$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_LTM$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
       
       print(
         ggplot() + geom_point(data=subarea_abund, aes(subarea, value, colour=subarea), size=3) + 
+          geom_point(data=subarea_LTM, aes(subarea, value), shape="-", size=10) + 
+          geom_text(data=subarea_LTM, aes(subarea, value), label="   LTM", size=3, hjust=0) + 
           geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
           theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
           ylab(expression(frac("N","tow"), "\n")) +
@@ -2076,6 +2098,8 @@ for(i in 1:len)
       if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                           width = 8.5, height = 11,res=420,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/biomass_bars.pdf",sep=""),width = 8.5, height = 11)
+      subarea_LTM <- melt(subarea_df[!subarea_df$year==yr, c("subarea", "I", "IPR", "IR")], id.vars="subarea")
+      subarea_LTM <- aggregate(data = subarea_LTM, value ~ subarea + variable, FUN = median)
       subarea_biomass <- melt(subarea_df[subarea_df$year==yr, c("subarea", "I", "IPR", "IR")], id.vars="subarea")
       subarea_biomass_cv <- melt(subarea_df[subarea_df$year==yr, c("subarea", "I.cv", "IPR.cv", "IR.cv")], id.vars="subarea", variable.name = "CV")
       subarea_biomass_cv$variable <- gsub(x=subarea_biomass_cv$CV, ".cv", "")
@@ -2085,9 +2109,15 @@ for(i in 1:len)
       levels(subarea_biomass$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
       subarea_biomass$subarea <- factor(subarea_biomass$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
       levels(subarea_biomass$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      subarea_LTM$variable <- factor(subarea_LTM$variable, levels=c("IPR", "IR", "I"))
+      levels(subarea_LTM$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_LTM$subarea <- factor(subarea_LTM$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_LTM$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
       
       print(
-        geom_point(data=subarea_biomass, aes(subarea, value, colour=subarea), size=3) + 
+        ggplot() + geom_point(data=subarea_biomass, aes(subarea, value, colour=subarea), size=3) + 
+          geom_point(data=subarea_LTM, aes(subarea, value), shape="-", size=10) + 
+          geom_text(data=subarea_LTM, aes(subarea, value), label="   LTM", size=3, hjust=0) + 
           geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
           theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
           ylab(expression(frac("kg","tow"), "\n")) +
@@ -2751,7 +2781,7 @@ for(i in 1:len)
           }
           if(fig != "screen") dev.off()   
         } # end if(length(bm.last[!is.na(bm.last)]) > 0)
-       
+       browser()
         # Now the Shell height frequency plots.
         shf.years <- boxy$model.dat$year[(length(boxy$model.dat$year)-6):
                                            length(boxy$model.dat$year)]
