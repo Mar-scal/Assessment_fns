@@ -53,7 +53,7 @@
 #               data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
 #               Note that for mutiple trips the NULL option will zoom in on each trip, whereas the non-NULL option will plot the
 #               same region for every trip.
-# shiny         Do you want to run the interactive shiny app to visually assess the logs you have identified.  T/F, default = T   
+# plot          "shiny" if you want to run the shiny app. "pdf" if you want to print the pdfs. 
 # export        Do you want to export the results to a xlsx spreadsheet.  Default is NULL which doesn't export anything.
 #               export = "fish.dat" will put a file in the Assessment/yr/log_Checks/ folder with a name that attempts to
 #               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
