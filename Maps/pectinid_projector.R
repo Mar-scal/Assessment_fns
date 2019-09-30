@@ -538,7 +538,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   
   # make a ggplot2 obj
   if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
-      is.null(add_bathy) && add_nafo==F && add_sfas=="all" && is.null(add_strata) &&
+      is.null(add_bathy) && add_sfas=="all" && is.null(add_strata) &&
       is.null(add_custom)){
     require(ggplot2)
     
@@ -567,7 +567,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
           ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
           crs(ext) <- crs(inshore.spa[[i]])
           inshore.spa_ext <- gIntersection(inshore.spa[[i]], ext, byid=T)
-          if(!is.null(inshore.spa_ext)){
+          if(!is.null(inshore.spa_ext) & class(inshore.spa_ext) == "SpatialLinesDataFrame"){
             inshore.spa_f <- fortify(inshore.spa_ext, region="ID")
             pect_ggplot <- pect_ggplot + geom_path(data=inshore.spa_f, aes(x=long, y=lat, group=group), fill=NA, colour="blue")
           }
@@ -576,14 +576,15 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       
       if(add_sfas == "offshore" | add_sfas == "all") {
         offshore.spa_f <- NULL
-        offshore.spa <- offshore.spa[which(names(offshore.spa) %in% c("GBa", "GBb"))]
+        #offshore.spa <- offshore.spa[which(names(offshore.spa) %in% c("GBa", "GBb"))]
+        offshore.spa <- offshore.spa[which(grepl(x = names(offshore.spa), pattern="GBa-")==FALSE)]
         for(i in 1:length(offshore.spa)){
           ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
           crs(ext) <- crs(offshore.spa[[i]])
           offshore.spa_ext <- gIntersection(offshore.spa[[i]], ext, byid=T)
           if(!is.null(offshore.spa_ext)){
             offshore.spa_f <- fortify(model = offshore.spa_ext, region = "ID")
-            pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f, aes(x=long, y=lat, group=group), fill="lightgreen", alpha=0.4, colour="blue")
+            pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f, aes(x=long, y=lat, group=group), fill=NA, colour="blue")
           }
         }
       }
