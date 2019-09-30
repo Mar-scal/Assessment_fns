@@ -1153,9 +1153,9 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     
     # The seedbox calculations		
     # Bring in the seeboxes for the latest year
-    sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+    sb <- subset(seedboxes,Bank == bnk & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == bnk & Active=="Yes")
     sb <- subset(sb, Active=="Yes")
-    if(bank.4.spatial == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
+    if(bank.4.spatial == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank == bnk & Active=="Yes")
     
     # If there were any seeboxes closed in this year get the results from the box(es)
     if(length(sb[,1]) > 0)

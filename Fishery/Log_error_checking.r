@@ -62,7 +62,7 @@
 log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , marfis=T, repo = "github",
                        db.con="ptran",un=NULL,pw=NULL,db.lib = "ROracle", 
                        bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time = c(3,80),trip.tol = 1 ,
-                       spatial = T,reg.2.plot = NULL, shiny = T, export = NULL
+                       spatial = T,reg.2.plot = NULL, plot = "shiny", export = NULL
                        
 )
 {
@@ -93,7 +93,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   options(stringsAsFactors = F)
   
   # If we are running the shiny app we want to set the plot_package to be "ggplot2", otherwise we set it to NULL which is just base graphics
-  plot_package <- ifelse(shiny == T,"ggplot2","NULL")
+  plot_package <- ifelse(plot == "shiny","ggplot2","NULL")
   # We want to bring in the vessel information
   fleet.dat <- read.csv(paste0(direct,"Data/Offshore_Fleet.csv"))
   # Now we want to look at the portion of the fleet we have Gear size and number of rakes
@@ -203,16 +203,16 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   watches.outside.sa <- NULL
   watches.outside.nafo <- NULL
   # If makeing spatial plots crack open the pdf
-  if(spatial ==T) pdf(file = paste0(f.name,".pdf"),width=11,height = 11, onefile=T)
+  if(spatial ==T & plot == "pdf") {pdf(file = paste0(f.name,".pdf"),width=11,height = 11, onefile=T)}
   trip.log.all <- list()
   osa.all <- list()
   pr.all <- list()
-  if(shiny ==T) pect_ggplot.all <- list()
+  if(plot == "shiny") pect_ggplot.all <- list()
   
   
   for(i in 1:num.trips) # this is going through trips
   {
-    #browser()  
+      
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
@@ -261,7 +261,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       # First we bring in the shapefiles if we haven't already...
       if(!exists("offshore.spa"))
       {
-        #browser()
+        
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -281,7 +281,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       
       if(!exists("nafo.subs"))
       {
-        #browser()
+        
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -307,7 +307,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       trip.log <- trip.log[!is.na(trip.log$lat),]
       trip.log <- trip.log[!is.na(trip.log$lon),]
       # SPB is a pain as it is two different pieces, so if looking at SPB I switch to look at this by SFA
-      #browser()
+      
       if(trip.area == "SPB")
       {
         #Pick it up here, I have logs that could be spread across 2-3 areas, so I think I need to loop through each of the SFA's and
@@ -399,37 +399,71 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       # This assumes that you are asking to plot a certain region that pecjector understands (e.g. "GBa","GB","SS", etc) or
       # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
       if(!is.null(reg.2.plot)) pr <- reg.2.plot
+      
       # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
-      
-      if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
-      {
-        pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
-      } 
-      else {
-        pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+      if(spatial ==T) {
+        if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
+        {
+          pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+        } 
+        else {
+          pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+        }
+        
+        plot(trip.log,add=T,pch=19,cex=1)
+        #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
+        if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
+        
+        if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
+        title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
       }
-      
-      plot(trip.log,add=T,pch=19,cex=1)
-      #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
-      if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
-      
-      if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
-      title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
-      
     } # end if(spatial==T)
     print(paste0("Trip ID:",trip.ids[i],"  count=",i))
     
-    if(shiny == T){
+    if(plot == "shiny"){
       # for use in shiny
       trip.log.all[[i]] <- trip.log
       osa.all[[i]] <- osa
+      
+      #manually expand pr for each trip
+      if(pr$x[1] < pr$x[2])
+      {
+        if(pr$x[1] < 0) pr$x[1] <-pr$x[1] + 0.0025*pr$x[1]
+        if(pr$x[1] > 0) pr$x[1] <- pr$x[1] - 0.0025*pr$x[1]
+        # Now we could have xlim[2] being positive when xlim 1 is negative so this needs it's own if's
+        if(pr$x[2] < 0) pr$x[2] <- pr$x[2] - 0.0025*pr$x[2]
+        if(pr$x[2] > 0) pr$x[2] <- pr$x[2] + 0.0025*pr$x[2]
+        
+      } else{
+        if(pr$x[1] < 0) pr$x[1] <- pr$x[1] - 0.0025*pr$x[1]
+        if(pr$x[1] > 0) pr$x[1] <- pr$x[1] + 0.0025*pr$x[1]
+        # Now we could have xlim[2] being positive when xlim 1 is negative so this needs it's own if's
+        if(pr$x[2] < 0) pr$x[2] <- pr$x[2] + 0.0025*pr$x[2]
+        if(pr$x[2] > 0) pr$x[2] <- pr$x[2] - 0.0025*pr$x[2]
+      } # end else and the if tied to xlim
+      # Now do the same for y's
+      if(pr$y[1] < pr$y[2])
+      {
+        if(pr$y[1] < 0) pr$y[1] <- pr$y[1] + 0.005*pr$y[1]
+        if(pr$y[1] > 0) pr$y[1] <- pr$y[1] - 0.005*pr$y[1]
+        # Now we could have ylim[2] being positive when ylim 1 is negative so this needs it's own if's
+        if(pr$y[2] < 0) pr$y[2] <- pr$y[2] - 0.005*pr$y[2]
+        if(pr$y[2] > 0) pr$y[2] <- pr$y[2] + 0.005*pr$y[2]
+        
+      } else{
+        if(pr$y[1] < 0) pr$y[1] <- pr$y[1] - 0.005*pr$y[1]
+        if(pr$y[1] > 0) pr$y[1] <- pr$y[1] + 0.005*pr$y[1]
+        # Now we could have ylim[2] being positive when ylim 1 is negative so this needs it's own if's
+        if(pr$y[2] < 0) pr$y[2] <- pr$y[2] + 0.005*pr$y[2]
+        if(pr$y[2] > 0) pr$y[2] <- pr$y[2] - 0.005*pr$y[2]
+      } # end else and the if tied to ylim
       pr.all[[i]] <- pr
       if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
     }
     
   } # end for(i in 1:num.trips)
   
-  dev.off() # close PDF device
+  if(spatial==T & plot==T) dev.off() # close PDF device
   
   # if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
   if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
@@ -450,7 +484,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   weight.slip.wrong <- NA
   if(!is.null(weight.mismatch.slips)) weight.slip.wrong <- do.call("rbind",weight.mismatch.slips)
   
-  #browser()
+  
   
   if(spatial == T) watches.outside.survey.bounds <- do.call("rbind",watches.outside.sa)
   if(spatial == T) watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
@@ -466,7 +500,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
                                       watches.outside.nafo.bounds = watches.outside.nafo.bounds)
   
-  #browser()
+  
   # Now I want to make a file name that tells me exactly what I ran, this should be fun!
   if(!is.null(export))
   {
@@ -479,7 +513,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
     assign('dat.export',dat.export,pos=1)
   } # end if(!is.null(export))
   
-  if(shiny == T && is.null(reg.2.plot)) {
+  if(plot== "shiny" && is.null(reg.2.plot)) {
     source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
   }
