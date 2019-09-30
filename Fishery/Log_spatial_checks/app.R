@@ -9,7 +9,7 @@
 
 
 
-# Define UI for application that draws a histogram
+# Define UI for application
 shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=repo, pect_ggplot=pect_ggplot) {
   require(shiny)
 
@@ -33,6 +33,10 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=re
     
     # Application title
     titlePanel("Spatial Log Checks"),
+    
+    # a few user notes (legend)
+    helpText("NAFO lines are black.  ",
+             "SFA lines are blue.  "),
     
     # pick a trip
     fluidRow(selectInput(inputId = "trip",
@@ -68,17 +72,18 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=re
   # Define server logic required to draw a histogram
   server <- function(input, output) {
     require(ggplot2)
+    
     output$maplog <- renderPlot({
 
       pect_ggplot[[which(trips==input$trip)]] + 
         geom_point(data=trip.log_f[[which(trips==input$trip)]], aes(lon, lat)) +
-        xlim(pr[[which(trips==input$trip)]]["min", "x"], pr[[which(trips==input$trip)]]["max", "x"]) +
-        ylim(pr[[which(trips==input$trip)]]["min", "y"], pr[[which(trips==input$trip)]]["max", "y"])# +
-        #ggtitle(paste0(trip.log_f[[which(trips==input$trip)]]$ves[1],"_",
-                       #trip.log_f[[which(trips==input$trip)]]$vrnum[1],"_",
-                       #min(trip.log_f[[which(trips==input$trip)]]$fished,na.rm=T),"-",
-                       #max(trip.log_f[[which(trips==input$trip)]]$fished,na.rm=T)))
+       coord_map(xlim = c(pr[[which(trips==input$trip)]]["min", "x"], pr[[which(trips==input$trip)]]["max", "x"]), 
+                       ylim=c(pr[[which(trips==input$trip)]]["min", "y"], pr[[which(trips==input$trip)]]["max", "y"]), 
+                      clip = "on") 
+        
     })
+    
+    output$notes <- NULL
     
     output$click_info <- renderTable({
       nearPoints(df=trip.log_f[[which(trips==input$trip)]], xvar = "lon", yvar="lat", coordinfo = input$plot1_click, addDist=TRUE)

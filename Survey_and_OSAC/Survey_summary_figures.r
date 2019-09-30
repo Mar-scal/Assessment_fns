@@ -2781,7 +2781,7 @@ for(i in 1:len)
           }
           if(fig != "screen") dev.off()   
         } # end if(length(bm.last[!is.na(bm.last)]) > 0)
-       browser()
+       
         # Now the Shell height frequency plots.
         shf.years <- boxy$model.dat$year[(length(boxy$model.dat$year)-6):
                                            length(boxy$model.dat$year)]
