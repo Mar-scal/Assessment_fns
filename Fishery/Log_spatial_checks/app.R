@@ -36,7 +36,8 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=re
     
     # a few user notes (legend)
     helpText("NAFO lines are black.  ",
-             "SFA lines are blue.  "),
+             "SFA lines are blue.  ",
+             "EEZ is red.  "),
     
     # pick a trip
     fluidRow(selectInput(inputId = "trip",
