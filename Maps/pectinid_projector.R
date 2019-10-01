@@ -86,9 +86,9 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(repo == "github")
   {
     require(RCurl)|| stop("You need RCurl or this will all unfurl!")
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/convert_coords.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
   } # end if(repo == "github")
   
   # If getting the data from a local source...
@@ -183,7 +183,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/EEZ/EEZ.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/EEZ/EEZ.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -257,7 +257,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to there
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Divisions/Divisions.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Divisions/Divisions.zip", temp)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -284,7 +284,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas/Subareas.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Subareas/Subareas.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -321,7 +321,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/inshore/inshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore/inshore.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -338,7 +338,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore/offshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -385,7 +385,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/inshore_survey_strata/inshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_survey_strata/inshore_survey_strata.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -405,7 +405,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -482,49 +482,53 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     if(trans== "exp") arg.list <- list(at=lvls,labels=round(exp(lvls)))
     if(trans == "none") arg.list <- list(at=lvls,labels=lvls)
     #browser()
-    par(mar=c(4,4,1,1))
-    image.plot(list(x = projec$x, y=projec$y, z = field.projec), xlim = xlim, ylim = ylim, zlim=zlim, 
-               axes=F,las=1,add=F, breaks=lvls, axis.args= arg.list,
-               col = addalpha(colorRampPalette(colors,interpolate = "spline",alpha=T)(length(lvls)-1),alpha=alpha))
+    if(plot_package=="base" | is.null(plot_package)){
+      par(mar=c(4,4,1,1))
+      image.plot(list(x = projec$x, y=projec$y, z = field.projec), xlim = xlim, ylim = ylim, zlim=zlim, 
+                 axes=F,las=1,add=F, breaks=lvls, axis.args= arg.list,
+                 col = addalpha(colorRampPalette(colors,interpolate = "spline",alpha=T)(length(lvls)-1),alpha=alpha))
+    }
   } # end if(!is.null(field))
   
   # If we don't specify the field let's just make a blank plot of the correct type..
-  if(is.null(field)) plot(coords,col='white')
-  # 
-  if(!is.null(add_obj)) plot(add_obj,angle = 45,density=8,col="black",lwd=.5,add=T)
-  # Add the eez in a funky colour and fairly thick line if it will show up on the figure.
-  if(!is.null(add_EEZ)) 
-  {
-    if(!is.null(eez)) plot(eez,lwd=3,col=magma(1,alpha=0.3,begin=0),add=T) # EEZ b/t Can and US
-  } # end if(!is.null(add_EEZ)) 
-  # Add the bathymetry
-  if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") plot(bathy,add=T,col = "blue") # bathymetry, only works if plotting in lat/lon coordinates and WGS84...
-  # Add the NAFO regions, make them dotted lines and thin
-  #browser()
-  if(add_nafo =="main") for(i in 1:length(nafo.divs))plot(nafo.divs[[i]],add=T,lwd= 0.5) # NAFO divisions
-  if(add_nafo =="sub") for(i in 1:length(nafo.subs)) plot(nafo.subs[[i]],add=T,lwd=0.5) # NAFO sub areas
-  # now add in the spa boundaries, these are set up as a number of layers in an sp object
-  if(!is.null(add_sfas))  
-  {
-    # Here's all we need for inshore.
-    if(add_sfas != "offshore") for(i in 1:length(inshore.spa)) plot(inshore.spa[[i]],add=T)   
-    if(add_sfas != "inshore") for(i in 1:length(offshore.spa)) plot(offshore.spa[[i]],add=T,border="blue")   
-  } # end if(add_sfas == T) 
-  
-  # now add in the strata boundaries, these are set up as a number of layers in an sp object
-  if(!is.null(add_strata))  
-  {
-    # Here's all we need for inshore.
-    if(add_strata != "offshore") for(i in 1:length(inshore.strata)) plot(inshore.strata[[i]],add=T)   
-    if(add_strata != "inshore") for(i in 1:length(offshore.strata)) plot(offshore.strata[[i]],add=T,border="blue")   
-  } # end if(add_sfas == T) 
-  # We always want to add the land at the end so it overplots pieces we don't care about...
-  if(!is.null(add_custom)) for(i in 1:length(custom)) plot(custom[[i]],add=T)   
-  
-  if(add_land == T) 
-  {
-    if(!is.null(land.sp)) plot(land.sp,add=T,col = "lightgrey")
-  } # end if(add_land == T) 
+  if(plot_package=="base" | is.null(plot_package)){
+    if(is.null(field)) plot(coords,col='white')
+    # 
+    if(!is.null(add_obj)) plot(add_obj,angle = 45,density=8,col="black",lwd=.5,add=T)
+    # Add the eez in a funky colour and fairly thick line if it will show up on the figure.
+    if(!is.null(add_EEZ)) 
+    {
+      if(!is.null(eez)) plot(eez,lwd=3,col=magma(1,alpha=0.3,begin=0),add=T) # EEZ b/t Can and US
+    } # end if(!is.null(add_EEZ)) 
+    # Add the bathymetry
+    if(!is.null(add_bathy) && c_sys == "+init=epsg:4326") plot(bathy,add=T,col = "blue") # bathymetry, only works if plotting in lat/lon coordinates and WGS84...
+    # Add the NAFO regions, make them dotted lines and thin
+    #browser()
+    if(add_nafo =="main") for(i in 1:length(nafo.divs))plot(nafo.divs[[i]],add=T,lwd= 0.5) # NAFO divisions
+    if(add_nafo =="sub") for(i in 1:length(nafo.subs)) plot(nafo.subs[[i]],add=T,lwd=0.5) # NAFO sub areas
+    # now add in the spa boundaries, these are set up as a number of layers in an sp object
+    if(!is.null(add_sfas))  
+    {
+      # Here's all we need for inshore.
+      if(add_sfas != "offshore") for(i in 1:length(inshore.spa)) plot(inshore.spa[[i]],add=T)   
+      if(add_sfas != "inshore") for(i in 1:length(offshore.spa)) plot(offshore.spa[[i]],add=T,border="blue")   
+    } # end if(add_sfas == T) 
+    
+    # now add in the strata boundaries, these are set up as a number of layers in an sp object
+    if(!is.null(add_strata))  
+    {
+      # Here's all we need for inshore.
+      if(add_strata != "offshore") for(i in 1:length(inshore.strata)) plot(inshore.strata[[i]],add=T)   
+      if(add_strata != "inshore") for(i in 1:length(offshore.strata)) plot(offshore.strata[[i]],add=T,border="blue")   
+    } # end if(add_sfas == T) 
+    # We always want to add the land at the end so it overplots pieces we don't care about...
+    if(!is.null(add_custom)) for(i in 1:length(custom)) plot(custom[[i]],add=T)   
+    
+    if(add_land == T) 
+    {
+      if(!is.null(land.sp)) plot(land.sp,add=T,col = "lightgrey")
+    } # end if(add_land == T) 
+  }
   #browser()
   # Now if these shapefiles aren't already in the global environment but exist within the function put them into the global environment for later use
   if(!exists("eez.all",where=1) && exists("eez.all"))                   assign('eez.all',eez.all,pos=1)
@@ -537,7 +541,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(!exists("inshore.strata",where=1) && exists("inshore.strata"))     assign('inshore.strata',inshore.strata,pos=1)
   
   # make a ggplot2 obj
-  if(!is.null(plot_package) && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
+  if(plot_package == "ggplot2" && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
       is.null(add_bathy) && add_sfas=="all" && is.null(add_strata) &&
       is.null(add_custom)){
     require(ggplot2)
