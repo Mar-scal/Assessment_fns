@@ -17,6 +17,7 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=re
   trip.log_f <- list()
   osa_f <- list()
   for(i in 1:length(trip.log)){
+    
     trip<-unique(trip.log[[i]]@data$tripnum)
     trips <- c(trips,trip)
     
