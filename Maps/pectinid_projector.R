@@ -86,9 +86,9 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   if(repo == "github")
   {
     require(RCurl)|| stop("You need RCurl or this will all unfurl!")
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/convert_coords.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Dave-Keith/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
   } # end if(repo == "github")
   
   # If getting the data from a local source...
@@ -183,7 +183,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/EEZ/EEZ.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/EEZ/EEZ.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -257,7 +257,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to there
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Divisions/Divisions.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Divisions/Divisions.zip", temp)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -284,7 +284,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas/Subareas.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Subareas/Subareas.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -321,7 +321,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/inshore/inshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore/inshore.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -338,7 +338,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore/offshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -385,7 +385,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/inshore_survey_strata/inshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_survey_strata/inshore_survey_strata.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -405,7 +405,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
