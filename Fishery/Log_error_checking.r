@@ -53,7 +53,7 @@
 #               data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
 #               Note that for mutiple trips the NULL option will zoom in on each trip, whereas the non-NULL option will plot the
 #               same region for every trip.
-# shiny         Do you want to run the interactive shiny app to visually assess the logs you have identified.  T/F, default = T   
+# plot          "shiny" if you want to run the shiny app. "pdf" if you want to print the pdfs. 
 # export        Do you want to export the results to a xlsx spreadsheet.  Default is NULL which doesn't export anything.
 #               export = "fish.dat" will put a file in the Assessment/yr/log_Checks/ folder with a name that attempts to
 #               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
@@ -212,7 +212,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   for(i in 1:num.trips) # this is going through trips
   {
-      
+   
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
@@ -402,6 +402,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       
       # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
       if(spatial ==T) {
+        
         if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
         {
           pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
@@ -410,12 +411,15 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
           pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
         }
         
-        plot(trip.log,add=T,pch=19,cex=1)
-        #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
-        if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
-        
-        if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
-        title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
+        if(plot_package=="base" | is.null(plot_package)){ 
+          plot(trip.log,add=T,pch=19,cex=1)
+          
+          #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
+          if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
+          
+          if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
+          title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
+        }
       }
     } # end if(spatial==T)
     print(paste0("Trip ID:",trip.ids[i],"  count=",i))
@@ -458,7 +462,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         if(pr$y[2] > 0) pr$y[2] <- pr$y[2] - 0.005*pr$y[2]
       } # end else and the if tied to ylim
       pr.all[[i]] <- pr
-      if(!is.null(plot_package) && plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
+      if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_ggplot
     }
     
   } # end for(i in 1:num.trips)
