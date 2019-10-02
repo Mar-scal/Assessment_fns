@@ -592,7 +592,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       seedboxes$Open <- dmy(seedboxes$Open)
       # Dump the commments they are just messy..
       seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
-      sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(year,"-11-01",sep="") & Open >= paste(year,"-01-01",sep=""))
+      sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(year,"-11-01",sep="") & Open >= paste(year,"-01-01",sep="") | Bank == banks[i] & Active=="Y")
       if(banks[i] =="GB") sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
       box.names <- unique(sb$SCALLOP_Group_ID)
       
