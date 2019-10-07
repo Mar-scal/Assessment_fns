@@ -150,7 +150,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                      ifelse(abundPT$thisyear/abundPT$LTM < 0.10 | 
                                               (abundPT$thisyear/abundPT$LTM > 0.90 &
                                                  abundPT$thisyear/abundPT$LTM < 1.10), 
-                                            "similar to", "other")))
+                                            "near", "other")))
     
     abundPT$bank <- banks[i]
     
@@ -231,7 +231,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                   ifelse(bmPT$thisyear/bmPT$LTM < 0.10 | 
                                            (bmPT$thisyear/bmPT$LTM > 0.90 &
                                               bmPT$thisyear/bmPT$LTM < 1.10), 
-                                         "similar to", "other")))
+                                         "near", "other")))
     
     bmPT$bank <- banks[i]
     
@@ -333,7 +333,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     
     sizerange75 <- NULL
     sizerange75PR <- NULL
-    sizerange75FR <- NULL
+    sizerange75RecFR <- NULL
     for(y in c(lastyear, year)){
       shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
       shf.ty$bin <- seq(0,195,5)
@@ -346,10 +346,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       expanded <- join(expanded, shf.ty[, c("bin", "class")])
       sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
       sizerange75[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
-      sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[3])
+      sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[3])
       sizerange75PR[paste0(y)] <- paste0(round_any(sevfivepercPR[1], 5), "-", round_any(sevfivepercPR[2], 5))
-      sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[3])
-      sizerange75FR[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
+      sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
+      sizerange75RecFR[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
     }
     
     # breakdown plot biomass size ranges
@@ -377,9 +377,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     
     print('check1')
     
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75FR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75FR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                              word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
@@ -388,9 +388,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                              nearLTM=NA,
                              bank=banks[i])
     
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up"), 
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75FR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75FR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"), 
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
@@ -658,9 +658,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                
                sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
                sizerange75_seed_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
-               sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[3])
+               sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75PR_seed_y[paste0(y)] <- paste0(round_any(sevfivepercPR[1], 5), "-", round_any(sevfivepercPR[2], 5))
-               sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[3])
+               sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75FR_seed_y[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
                #hist(expanded$bin)
                
@@ -677,9 +677,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                #hist(expanded$bin)
                sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
                sizerange75_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
-               sevfiveperc <- c(quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR", "Rec")], c(0.125, 0.5, 0.875, 1))[3])
+               sevfiveperc <- c(quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75PR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
-               sevfiveperc <- c(quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[3])
+               sevfiveperc <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec","FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75FR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
                
              }
@@ -757,8 +757,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
   #print(bankcheck)
   
-  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- 
-    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm"),c(2,3,4)] <- 
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
   
   print(sizes)
   print(ntows)
