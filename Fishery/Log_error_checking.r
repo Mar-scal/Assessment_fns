@@ -216,7 +216,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
-    sum.slip <- sum(trip.slip$pro.repwt,na.rm=T)*2.2046 # This is in lbs
+    sum.slip <- sum(trip.slip$weight,na.rm=T) # This is in lbs
     sum.trip <- sum(trip.log$pro.repwt,na.rm=T)*2.2046 # Get this into lbs to match sum.slip
     # Now what is your comparison criteria for these.
     
