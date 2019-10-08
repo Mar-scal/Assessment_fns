@@ -367,7 +367,8 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
+  sb <- subset(seedboxes,#Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | 
+               Bank == banks[i] & Active=="Yes")
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
@@ -598,6 +599,7 @@ for(i in 1:len)
         if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.05))
         if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.075))
         windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
+        
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
         A <- inla.spde.make.A(mesh, loc)
@@ -619,7 +621,7 @@ for(i in 1:len)
         }
        
         ## All of our abundance spatial plots are counts, moving to a negative binomial model
-        family1 = "nbinomial"
+        family1 = "poisson"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
         # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
