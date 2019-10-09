@@ -217,7 +217,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
     sum.slip <- sum(trip.slip$weight,na.rm=T) # This is in lbs
-    sum.trip <- sum(trip.log$pro.repwt,na.rm=T)*2.20462 # Get this into lbs to match sum.slip
+    sum.trip <- sum(trip.log$pro.repwt,na.rm=T)*2.2046 # Get this into lbs to match sum.slip
     # Now what is your comparison criteria for these.
     
     # exact criteria
@@ -272,7 +272,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         unzip(zipfile=temp, exdir=temp2)
         # This  little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
         offshore.spa <- all.layers(temp2)
-        for(i in 1:length(offshore.spa))offshore.spa[[i]] <- spTransform(offshore.spa[[i]],CRS("+init=epsg:4326"))
+        for(p in 1:length(offshore.spa))offshore.spa[[p]] <- spTransform(offshore.spa[[p]],CRS("+init=epsg:4326"))
         # Pop this into the global environment so we don't make it a bunch of times..
         assign('offshore.spa',offshore.spa,pos=1)
         # We also want to bring in the survey strata for the banks with a survey strata
@@ -292,7 +292,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         unzip(zipfile=temp, exdir=temp2)
         # This  little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
         nafo.subs <- all.layers(temp2)
-        for(i in 1:length(nafo.subs))nafo.subs[[i]] <- spTransform(nafo.subs[[i]],CRS("+init=epsg:4326"))
+        for(m in 1:length(nafo.subs))nafo.subs[[m]] <- spTransform(nafo.subs[[m]],CRS("+init=epsg:4326"))
         # Pop this into the global environment so we don't make it a bunch of times..
         assign('nafo.subs',nafo.subs,pos=1)
         # Figure out where your tempfiles are stored
@@ -367,6 +367,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       
       for(n in 1:nrow(trip.log)) # this is going through log records for one trip
       {
+       
         # Get the nafo area from the log
         nafo.area <- trip.log$nafo[n]
         if(!is.na(nafo.area))

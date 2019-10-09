@@ -386,7 +386,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
         new.log.dat$kg.hm <- new.log.dat$pro.repwt / new.log.dat$hm
         # And output the data to whomever wants		
         assign("new.log.dat", new.log.dat, pos = 1)
-        assign("slip.dat", new.log.dat, pos = 1)
+        assign("slip.dat", slip.dat, pos = 1)
         assign("fleet_data", boat.types, pos = 1)
         
         # Now if we want to export all of these data (from 2009-present) we can do it here.
