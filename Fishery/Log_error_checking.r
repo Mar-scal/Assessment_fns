@@ -212,7 +212,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   for(i in 1:num.trips) # this is going through trips
   {
-   
+    #browser()
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
@@ -520,6 +520,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
     source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
+   # browser()
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
   }
   
