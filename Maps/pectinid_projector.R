@@ -596,13 +596,15 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
     
     if(!is.null(add_EEZ)){
       if(add_EEZ == T) {
-        ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
-        crs(ext) <- crs(eez)
-        eez_ext <- gIntersection(eez, ext, byid=T)
-        eez_f<- SpatialLinesDataFrame(eez_ext, match.ID = F, data = data.frame(ID = 1))
-        if(!is.null(eez_f)){
-          eez_f <- fortify(eez_f, region = "ID")
-          pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group), colour="red", lwd=2)
+        if(!is.null(eez)){
+          ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
+          crs(ext) <- crs(eez)
+          eez_ext <- gIntersection(eez, ext, byid=T)
+          eez_f<- SpatialLinesDataFrame(eez_ext, match.ID = F, data = data.frame(ID = 1))
+          if(!is.null(eez_f)){
+            eez_f <- fortify(eez_f, region = "ID")
+            pect_ggplot <- pect_ggplot + geom_path(data=eez_f, aes(x=long, y=lat, group=group), colour="red", lwd=2)
+          }
         }
       }
     }
