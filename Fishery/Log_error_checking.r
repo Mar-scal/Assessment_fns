@@ -495,7 +495,6 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   if(spatial == T) watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
   # A list we need for exporting...
   
-  
   if(spatial == F) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
                                       gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on)
@@ -504,7 +503,6 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
                                       gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
                                       watches.outside.nafo.bounds = watches.outside.nafo.bounds)
-  
   
   # Now I want to make a file name that tells me exactly what I ran, this should be fun!
   if(!is.null(export))
@@ -520,7 +518,6 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
     source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
-   # browser()
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
   }
   
