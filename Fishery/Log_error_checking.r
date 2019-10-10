@@ -424,7 +424,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
       }
     } # end if(spatial==T)
     print(paste0("Trip ID:",trip.ids[i],"  count=",i))
-    dat.log
+    
     if(plot == "shiny"){
       # for use in shiny
       trip.log.all[[i]] <- trip.log
@@ -503,7 +503,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
                                       gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
                                       watches.outside.nafo.bounds = watches.outside.nafo.bounds)
-  browser()
+  
   # Now I want to make a file name that tells me exactly what I ran, this should be fun!
   if(!is.null(export))
   {
