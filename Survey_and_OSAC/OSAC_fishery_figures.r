@@ -76,6 +76,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   # Let's make this run for all the banks at once.
   for(i in 1:length(bnk))
   {
+    print(bnk[i])
     # Get the CPUE for the bank
     cpue.combo[[bnk[i]]] <- fishery.dat(fish.dat,bk=bnk[i],yr=years,method='jackknife',direct=dirct)
     cpue.wf[[bnk[i]]] <- fishery.dat(fish.dat[fish.dat$fleet == "WF",],bk=bnk[i],yr=years,method='jackknife',direct=dirct)

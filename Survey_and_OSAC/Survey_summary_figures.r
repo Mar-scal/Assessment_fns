@@ -149,6 +149,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   if(season == "testing") 
   {
     # Some temporary assignments so we can load in old data without overwritting more important crap
+    temp.nick <- nickname
     season <- tmp.season 
     yr <- tmp.yr
     dir.temp <- direct
@@ -158,12 +159,21 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     {
       # This loads last years Survey object results.
       load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""))  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
+    {
+      # This loads last years Survey object results.
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_SCALOFF_LE09.Rdata",sep=""))  
+      if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 159 to pull in the spring survey summary object for the GB MWSH plot.")
+      survey.obj.last <- survey.obj
+    } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    nickname <- temp.nick
     direct <- dir.temp
     season <- tmp.season 
     yr <- tmp.yr
+    
     # THEN bring in this year's file:
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))==T ||
        file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))==T) 
@@ -357,7 +367,8 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
+  sb <- subset(seedboxes,#Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | 
+               Bank == banks[i] & Active=="Yes")
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
@@ -366,7 +377,7 @@ for(i in 1:len)
     bound.surv.poly[[banks[i]]] <- as.data.frame(bound.surv.poly[[banks[i]]])
     names(bound.surv.poly[[banks[i]]]) <- c("PID", "SID", "POS", "X", "Y", "label", "startyear")
   }
-  
+ 
   if(banks[i] %in% c("GBa","GBb","BBn","BBs", "Ban", "BanIce", "GB", spat.name)) {
     if(sub.area==T) bound.poly.surv.GBsub <- lapply(bound.surv.poly[which(grepl(x=names(bound.surv.poly), "GBa-"))], function(x) as.PolySet(x, projection="LL"))
     bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
@@ -588,6 +599,7 @@ for(i in 1:len)
         if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.05))
         if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.075))
         windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
+        
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
         A <- inla.spde.make.A(mesh, loc)
@@ -609,7 +621,7 @@ for(i in 1:len)
         }
        
         ## All of our abundance spatial plots are counts, moving to a negative binomial model
-        family1 = "nbinomial"
+        family1 = "poisson"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
         # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
@@ -1744,10 +1756,12 @@ for(i in 1:len)
     {
       stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,
                 median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl = CF.ts.title,cex.mn=cap.size,las=1)
-      if(season=="both")
+      if(season=="both" | season=="testing")
       {
-        points(survey.obj[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
-        abline(h=mean(survey.obj[["GB"]][[1]]$CF,na.rm=T),col="red",lty=3)
+        points(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj.last[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
+        lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1), 
+              x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
+        
       } # end if(season="both")
       if(season=="summer")
       {
@@ -1757,9 +1771,10 @@ for(i in 1:len)
           survey.obj.last[["GB"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GB"]][[1]]$year))[survey.obj.last[["GB"]][[1]]$year]
         }
         lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
-        abline(h=mean(survey.obj.last[["GB"]][[1]]$CF,na.rm=T),col="red",lty=3)
+        lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1), 
+              x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
       } # end if(season="both")
-      legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,NA),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
+      legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
     } # end if(banks[i] == "GBa")
     # Here I'm adding in the cf for August into the spring survey data.
     if(banks[i] == "GB")
