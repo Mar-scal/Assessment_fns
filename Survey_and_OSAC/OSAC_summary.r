@@ -105,6 +105,7 @@ if(!is.null(bank))
   # If you want the figures saved as image files make sure "save.fig=T" and also make sure the directories for the current year exist
   #  exist.
   # This object also contains the catch in each cell for each bank...
+  print("fishery_figures")
   bank.spatial <- fishery_figures(fish.dat=fish.dat,bnk=bnk,max.date=mx.dt,dirct=direct,poly.brd=poly.brd,
                                   years=years,save.fig=save.fig,add.titles = add.titles)
   cpue.dat <- bank.spatial[[2]]
@@ -120,6 +121,8 @@ if(!is.null(bank))
   
   for(i in 1:length(bnk))
   {
+    print(paste0("fishery catch table - ", bnk[i]))
+    
     # This only works for the banks we have spatial data for...
     if(is.null(bank.spatial[[bnk[i]]])==F)
     {
@@ -198,6 +201,8 @@ if(!is.null(bank))
   fishery.results <- NULL
   for(i in 1:length(bnk))
   {
+    print(paste0("fishery.results - ", bnk[i]))
+    
     # Now subset the fishery data if we need to remove some data (usually b/c recent data is not QA/QC ready) ...
     bank.fish <- subset(fish.dat, bank == bnk[i] & date < mx.dt)
     
@@ -257,6 +262,8 @@ if(!is.null(bank))
   # Run this for each bank
   for(i in 1:length(bnk))
   {
+    print(paste0("survey data - ", bnk[i]))
+    
     # Name the bank
     surv.res$bank[i] <- bnk[i]
     # We don't have data for some banks in some years, so if we don't skip this bank and do nothing!
@@ -278,6 +285,7 @@ if(!is.null(bank))
   ### Only copy over the word docs that have Fsh or Fzn in the names.
   if(calc.mc == T)
   {
+    print("meat count")
     # Set up the path you want to go to pull the data in from, the default is the Port Sampling Reports folder
     if(mc.path == "default") mc.path <- paste0("Data/Port_Sampling/", yr, "/Reports/")
     path <-  paste0(direct,mc.path) 
@@ -301,6 +309,7 @@ if(!is.null(bank))
   # Make a spatial survey summary figure for each bank of interest.
   for(j in 1:length(bnk))
   {
+    print(paste0("Survey_strata - ", bnk[i]))
     # The directory for the figures, wouldn't hurt to make this into an "option" when converting to a function so that
     # the figures could be output to the screen and saved wherever you'd like
     # Note that the directory needs to exist for this to work!!!

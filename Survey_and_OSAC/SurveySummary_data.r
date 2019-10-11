@@ -1176,6 +1176,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
         seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
         seedbox.obj[[bnk]][[m]]$model.dat$RS <- RS
         seedbox.obj[[bnk]][[m]]$model.dat$CS <- CS
+        seedbox.obj[[bnk]][[m]]$box.tow.data <- surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,]
       } # end for(m in 1:length(box.names))
     } #end if(length(boxes[,1]) > 0))
     
