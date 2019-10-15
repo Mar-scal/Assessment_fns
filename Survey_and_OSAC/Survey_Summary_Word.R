@@ -694,17 +694,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                sizerange75FR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
                
                # for spatial figs
-               PR75_seed <- c(quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               PR75_seed_y[paste0(y)] <- paste0(round_any(PR75_seed[1], 5), "-", round_any(PR75_seed[2], 5))
+               PR75_seed_t <- c(quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               PR75_seed_y[paste0(y)] <- paste0(round_any(PR75_seed_t[1], 5), "-", round_any(PR75_seed_t[2], 5))
 
-               R75_seed <- c(quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               R75_seed_y[paste0(y)] <- paste0(round_any(R75_seed[1], 5), "-", round_any(R75_seed[2], 5))
+               R75_seed_t <- c(quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               R75_seed_y[paste0(y)] <- paste0(round_any(R75_seed_t[1], 5), "-", round_any(R75_seed_t[2], 5))
 
-               C75_seed <- c(quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               C75_seed_y[paste0(y)] <- paste0(round_any(C75_seed[1], 5), "-", round_any(C75_seed[2], 5))
-               PR75_seed <- NULL
-               R75_seed <- NULL
-               C75_seed <- NULL
+               C75_seed_t <- c(quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               C75_seed_y[paste0(y)] <- paste0(round_any(C75_seed_t[1], 5), "-", round_any(C75_seed_t[2], 5))
              }
            }
            if(!any(!is.na(df[df$year==y, !names(df) %in% "year"]))) {
