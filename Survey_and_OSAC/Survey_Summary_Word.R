@@ -9,11 +9,13 @@
 
 
 ## use model.dat cf for all cf measurements!
-Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
+Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata", direct=direct){
   options(scipen=999)
   require(lubridate)
   require(plyr)
+  direct.tmp <- direct
   load(data)
+  direct <- direct.tmp
   banks <- names(bank.dat)
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
   
@@ -256,7 +258,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
-    
+ 
     if(file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))
       fitted.x <- fitted
@@ -275,7 +277,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     PR75_LY <- paste0(round_any(PR75_LY[1], 5), "-", round_any(PR75_LY[2], 5))
     if(!is.null(fitted.x)) PR75_f <- c(quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
     if(!is.null(fitted.x)) PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
-    if(is.null(fitted)) PR75_f <- NA
+    if(is.null(fitted.x)) PR75_f <- NA
     PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
