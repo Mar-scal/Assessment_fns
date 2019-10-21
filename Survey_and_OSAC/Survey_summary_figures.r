@@ -162,6 +162,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+    
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
@@ -169,6 +170,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 159 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
+
     nickname <- temp.nick
     direct <- dir.temp
     season <- tmp.season 
@@ -1031,7 +1033,7 @@ for(i in 1:len)
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
-            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T))) - 1 # -1 makes it show the bin below the minimum bin.
             max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
             lvls <- base.lvls[min.lvl:max.lvl]
             cols <- cols[min.lvl:(max.lvl-1)]
