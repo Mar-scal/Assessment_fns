@@ -414,8 +414,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     }
     
     if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]>0){
-    
-      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
+      
+      cfdat$CF[is.nan(cfdat$CF)] <- NA
+
+      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year) & !cfdat$year == year], na.rm=T)
     
       cf <- data.frame(variable=c("CF",
                                 "spatialCF",
