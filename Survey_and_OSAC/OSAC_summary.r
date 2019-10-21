@@ -136,7 +136,7 @@ if(!is.null(bank))
       mid[[i]] <- cbind(calcCentroid(res[[i]],rollup=3),bank.spatial[[bnk[i]]][[2]]$Z,rep(bnk[i],length(bank.spatial[[bnk[i]]][[2]]$Z)))
     } # end     if(is.null(bank.spatial[[bnk[i]]]==F))
   } # end for(i in 1:length(bnk))
-  browser()
+  
   # If we have some spatial data grab the spatial information...
   if(is.null(mid) == F)
   {
