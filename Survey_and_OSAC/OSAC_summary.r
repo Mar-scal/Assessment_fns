@@ -65,6 +65,7 @@ source(paste(direct,"Assessment_fns/Fishery/fishery.dat.r",sep=""))
 source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
 source(paste0(direct, "Assessment_fns/Fishery/meat.count.table.R"))
 require(xlsx) || stop("Hold up!  If you don't install the xlsx package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
+require(plyr) || stop("Hold up!  If you don't install the plyr package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 # If you set bank to be NULL we skip almost the entire function and just run the meat count bit, if you set to NULL and don't calc.mc then
 # a big nothing happens!
 if(!is.null(bank))
@@ -135,6 +136,7 @@ if(!is.null(bank))
       mid[[i]] <- cbind(calcCentroid(res[[i]],rollup=3),bank.spatial[[bnk[i]]][[2]]$Z,rep(bnk[i],length(bank.spatial[[bnk[i]]][[2]]$Z)))
     } # end     if(is.null(bank.spatial[[bnk[i]]]==F))
   } # end for(i in 1:length(bnk))
+  
   # If we have some spatial data grab the spatial information...
   if(is.null(mid) == F)
   {
@@ -151,7 +153,13 @@ if(!is.null(bank))
     # Some basic summary stats...
     med.catch <- aggregate(catch~bank,fish.cells,median)
     men.catch <- aggregate(catch~bank,fish.cells,mean)
-    rg.catch <- aggregate(catch~bank,fish.cells,range)
+    min.catch <- aggregate(catch~bank,fish.cells,min)
+    max.catch <- aggregate(catch~bank,fish.cells,max)
+    
+    names(med.catch) <- c("bank", "median.catch")
+    names(men.catch) <- c("bank", "mean.catch")
+    names(min.catch) <- c("bank", "min.catch")
+    names(max.catch) <- c("bank", "max.catch")
     
     # Look at each bank in more detail...
     sum.stat <- as.data.frame(matrix(NA,ncol=3,nrow=length(unique(fish.cells$bank))))
@@ -181,7 +189,8 @@ if(!is.null(bank))
       } # end if(unique(fish.cells$bank)[i] %in% c("BBn","GBa","GBb"))
       
     } # end for(i in 1:length(unique(fish.cells$bank)))
-    sum.stat <- cbind(sum.stat,med.catch$catch,men.catch$catch,rg.catch$catch)
+    require(plyr)
+    sum.stat <- join(join(join(join(sum.stat,med.catch), men.catch), min.catch), max.catch)
     names(sum.stat) <- c("Bank","prop.spatial","prop.of.total","median.catch","mean.catch","min.catch","max.catch")
   } # end if(is.null(mid) == F)
   

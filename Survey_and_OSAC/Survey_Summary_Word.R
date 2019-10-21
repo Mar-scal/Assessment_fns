@@ -9,11 +9,13 @@
 
 
 ## use model.dat cf for all cf measurements!
-Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata"){
+Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata", direct=direct){
   options(scipen=999)
   require(lubridate)
   require(plyr)
+  direct.tmp <- direct
   load(data)
+  direct <- direct.tmp
   banks <- names(bank.dat)
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
   
@@ -256,7 +258,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
-    
+ 
     if(file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))
       fitted.x <- fitted
@@ -275,7 +277,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     PR75_LY <- paste0(round_any(PR75_LY[1], 5), "-", round_any(PR75_LY[2], 5))
     if(!is.null(fitted.x)) PR75_f <- c(quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[1], quantile(x=fitted.x$`PR-spatial`$fitted, c(0.125, 0.5, 0.875, 1))[3])
     if(!is.null(fitted.x)) PR75_f <- paste0(round_any(PR75_f[1], 5), "-", round_any(PR75_f[2], 5))
-    if(is.null(fitted)) PR75_f <- NA
+    if(is.null(fitted.x)) PR75_f <- NA
     PR75 <- paste0(PR75, " (INLA fit = ", PR75_f, ")")
     ntowsabovePR3Q <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==year]) - 1)
@@ -412,8 +414,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     }
     
     if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]>0){
-    
-      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)], na.rm=T)
+      
+      cfdat$CF[is.nan(cfdat$CF)] <- NA
+
+      cf_ltm <- median(cfdat$CF[!is.na(cfdat$year) & !cfdat$year == year], na.rm=T)
     
       cf <- data.frame(variable=c("CF",
                                 "spatialCF",
@@ -694,17 +698,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                sizerange75FR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
                
                # for spatial figs
-               PR75_seed <- c(quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               PR75_seed_y[paste0(y)] <- paste0(round_any(PR75_seed[1], 5), "-", round_any(PR75_seed[2], 5))
+               PR75_seed_t <- c(quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               PR75_seed_y[paste0(y)] <- paste0(round_any(PR75_seed_t[1], 5), "-", round_any(PR75_seed_t[2], 5))
 
-               R75_seed <- c(quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               R75_seed_y[paste0(y)] <- paste0(round_any(R75_seed[1], 5), "-", round_any(R75_seed[2], 5))
+               R75_seed_t <- c(quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$rec[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               R75_seed_y[paste0(y)] <- paste0(round_any(R75_seed_t[1], 5), "-", round_any(R75_seed_t[2], 5))
 
-               C75_seed <- c(quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
-               C75_seed_y[paste0(y)] <- paste0(round_any(C75_seed[1], 5), "-", round_any(C75_seed[2], 5))
-               PR75_seed <- NULL
-               R75_seed <- NULL
-               C75_seed <- NULL
+               C75_seed_t <- c(quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$com[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
+               C75_seed_y[paste0(y)] <- paste0(round_any(C75_seed_t[1], 5), "-", round_any(C75_seed_t[2], 5))
              }
            }
            if(!any(!is.na(df[df$year==y, !names(df) %in% "year"]))) {
