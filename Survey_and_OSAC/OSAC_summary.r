@@ -216,8 +216,8 @@ if(!is.null(bank))
     bank.fish <- subset(fish.dat, bank == bnk[i] & date < mx.dt)
     
     cpue.ts    <- fishery.dat(bank.fish,bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
-    cpue.ts.WF <-fishery.dat(subset(bank.fish,fleet=="WF"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
-    cpue.ts.FT <-fishery.dat(subset(bank.fish,fleet=="FT"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
+    cpue.ts.WF <- fishery.dat(subset(bank.fish,fleet=="WF"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
+    cpue.ts.FT <- fishery.dat(subset(bank.fish,fleet=="FT"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
     
     effort <- c(cpue.ts$effort[cpue.ts$year == max(cpue.ts$year)],
                 ifelse(max(cpue.ts$year) %in% cpue.ts.WF$year, cpue.ts.WF$effort[cpue.ts.WF$year == max(cpue.ts$year)],NA),

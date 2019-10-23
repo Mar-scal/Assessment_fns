@@ -193,6 +193,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      survey.obj.last <- survey.obj
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
   } # end if(season == "both") 
@@ -1030,6 +1031,7 @@ for(i in 1:len)
           # Now for the condition factor
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
+           
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
