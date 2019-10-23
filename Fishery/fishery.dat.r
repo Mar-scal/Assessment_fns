@@ -331,8 +331,7 @@ fishery.dat<-function(fishery.data,yr=1955:as.numeric(format(Sys.Date(),"%Y")),b
 	# This is the Jackknife method from the grand master Smith(1980)
 	if(method=='jackknife')
 	  {
-	  
-  	  # # Select the fishery data on selected bank(s), for all years, and with a data class of 1.  Calculate the 
+	   # # Select the fishery data on selected bank(s), for all years, and with a data class of 1.  Calculate the 
   	  # CPUE in kg/(h-m) for the year using the estimator from Smith(1980). Then turn this into a dataframe.
   		jack.dat<-with(subset(fishery.data,bank %in% bk & year %in% yr & datclass==1),data.frame(year=year,catch=pro.repwt,effort=hm))
   		#Source1 source("Y:/Offshore scallop/Assessment/2014/r/fn/jackknife.r",local=T)

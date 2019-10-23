@@ -281,23 +281,24 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
           dat$days[c] <- sum(days.by.boat,na.rm=T)
           
           # Here we calculate effort in hours, then hour-meters, then crew-hour-meters
-          dat$h[c] <- round(sum(with(temp, numtow * avgtime / 60), na.rm = T))
-          dat$hm[c] <- round(sum(with(temp, slip.dat[match(mdid, slip.dat$mdid),]$gear.ft 
-                                      * 0.3048 * numrake * numtow * avgtime / 60), na.rm = T))
-          dat$crhm[c] <- round(sum(with(temp, with(slip.dat[match(mdid, slip.dat$mdid),], 
-                                                   gear.ft * 0.3048 * numshuck) * numrake * numtow * avgtime / 60), na.rm = T))
+          dat$h[c] <- sum(with(temp, numtow * avgtime / 60), na.rm = T)
+          dat$hm[c] <- sum(with(temp, slip.dat[match(mdid, slip.dat$mdid),]$gear.ft 
+                                      * 0.3048 * numrake * numtow * avgtime / 60), na.rm = T)
+          dat$crhm[c] <- sum(with(temp, with(slip.dat[match(mdid, slip.dat$mdid),], 
+                                                   gear.ft * 0.3048 * numshuck) * numrake * numtow * avgtime / 60), na.rm = T)
           
           # Catch in lbs then convert to kg and metric tonnes
-          dat$lbs[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)))
-          dat$kg[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046)
-          dat$mt[c] <- round(with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046 * 0.001)
+          dat$lbs[c] <- with(temp,sum(pro.repwt * 2.2046, na.rm = T))
+          dat$kg[c] <- with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046
+          dat$mt[c] <- with(temp,sum(pro.repwt * 2.2046, na.rm = T)) / 2.2046 * 0.001
           
           # Now calculate the various CPUE metrics, kg/hr, kg/(hr-m), kg/(hr-m-crew)
-          dat$kg.h[c] <- round(dat$kg[c] / sum(with(temp, numtow * avgtime / 60), na.rm = T), 2)
-          dat$kg.hm[c] <- round(dat$kg[c] / sum(with(temp, slip.dat[match(mdid, slip.dat$mdid),]$gear.ft 
-                                                     * 0.3048 * numrake * numtow * avgtime / 60), na.rm = T), 2)
-          dat$kg.crhm[c] <- round(dat$kg[c] / sum(with(temp, with(slip.dat[match(mdid, slip.dat$mdid),], 
-                                                                  gear.ft * 0.3048 * numshuck) * numrake * numtow * avgtime / 60), na.rm = T), 2)	
+          dat$kg.h[c] <- dat$kg[c] / sum(with(temp, numtow * avgtime / 60), na.rm = T)
+          dat$kg.hm[c] <- dat$kg[c] / dat$hm[c]
+          dat$kg.crhm[c] <- dat$kg[c] / dat$crhm[c]
+          ## 2019-10-23: All rounding is going to occur AFTER the calculations are performed. This will result in some mismatches in the
+          ## output table, but they are simply due to rounding. You should note this in public-facing documents to avoid confusion.
+          ## "Small discrepancies are due to rounding"
           
           # Toss in some other useful id type data. Note that the m subscript on the old.dates is correct...
           dat$month[c] <- old.dates[m]
@@ -320,6 +321,10 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
         dat$month[c+1] <- "Total"
         dat$year[c+1] <- year[y]
         dat$fleet <- rep(fleet,length(dat[,1]))
+        
+        # Now round all the values in the table
+        dat[, c("h", "hm", "crhm", "lbs", "kg", "mt")] <- apply(dat[, c("h", "hm", "crhm", "lbs", "kg", "mt")], 2, round)
+        dat[, c("kg.h", "kg.hm", "kg.crhm")] <- apply(dat[, c("kg.h", "kg.hm", "kg.crhm")], 2, function(x) round(x, 2))
         
         # And put the data into a list
         month.list[[y]] <- dat
