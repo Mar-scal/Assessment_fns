@@ -3,6 +3,7 @@
 # Revision history
 # DK September 2016, cleaned up file names/locations and tidied up layout of function in general.
 # DK/FK August 2017, fixed the observer calculations to allow for split trips (it was calculating all values for just 1 bank previously)
+# Catch and Effort should match OSAC values, but CPUE will be different since "total CPUE" here is a MEAN not a calculated value.
 #####################################  File Summary ########################################################
 ####  
 ##  This function is used in these files (a.k.a. 'dependent files') 
@@ -311,6 +312,7 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
         } # end for(m in months)
         
         # Now in the final row we place the totals or averages for the year.
+        ##### NOTE!!! THIS CALCULATES AVERAGE CPUE! NOT "TRUE" CPUE BASED ON THE TOTALS
         dat[length(months)+1,names(dat)%in%sum.names]  <- colSums(dat[1:length(months),names(dat)%in%sum.names],na.rm=T)
         dat[length(months)+1,names(dat)%in%avg.names]  <- round(colMeans(dat[1:length(months),names(dat)%in%avg.names],na.rm=T),2)
         # get rownames for the totals too. fill in NA's if no fishing occured in that location that month.
