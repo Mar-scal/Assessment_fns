@@ -1075,7 +1075,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       lined.survey.obj$model.dat$RS <- RS
     }# end if(bnk == "Ger")
     
-    
     # Get the survey estimates for the banks for which we have strata. 
     if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
     {
@@ -1182,6 +1181,18 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     
     pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
     
+    # Set biomass and condition to NA for years with no detailed sampling data
+    survey.obj[[bnk]]$model.dat[!survey.obj[[bnk]]$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                                c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv", "CF", "w.bar", "w.k")] <- NA
+    survey.obj[[bnk]]$shf.dat$w.yst[!survey.obj[[bnk]]$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year)] <- NA
+    
+    if(bnk == 'Ger') {
+      merged.survey.obj[!merged.survey.obj$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                        c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv", "CF", "w.bar", "w.k")] <- NA
+      lined.survey.obj$model.dat[!lined.survey.obj$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                        c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv")] <- NA
+    }
+    
     } # end "else" for all surveys other than BanIceSpring
     
     
@@ -1261,7 +1272,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),
                                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))
   } # end if(testing ==F) 
-  
+  s
   return(list(survey.obj = survey.obj,
               SHF.summary = SHF.summary,
               SS.summary = SS.summary,

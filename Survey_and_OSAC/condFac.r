@@ -115,8 +115,10 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	# If we want to make predictions on some new data...
 	if(!is.null(pred.dat) ==T)
 	{
-	  # check to make sure surveyed years WITHOUT sampling data are not predicted - remove them.
-	  pred.dat <- pred.dat[pred.dat$year %in% yrs,]
+	  if(length(pred.dat$year[!pred.dat$year %in% yrs]) >0 ) {
+	    message("The following years are survey years without sampling data. Make sure they are not plotted in biomass figures or condition figures because these are very uncertain estimates!")
+	    print(unique(pred.dat$year[!pred.dat$year %in% yrs]))
+	  }
 	  
 	  # Which depth are we using, this would be making sure we are using meters.
 	  if(ADJ_depth==T) pred.dat$depth<-pred.dat$ADJ_depth
@@ -127,6 +129,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
   		# Make predictions based on model.
   		pred.dat$CF<- predict(CF.fit,pre.dat)
   		pred.dat$CFse.fit <- predict(CF.fit,pre.dat, se=T)$se.fit
+  		
 	  } # end if(!is.null(pred.dat))
   
 	# return the results to the function calling this.

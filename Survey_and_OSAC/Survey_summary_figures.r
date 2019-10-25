@@ -143,8 +143,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
 { 
- 
-   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
+    tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
   if(season == "testing") 
   {
@@ -191,7 +190,6 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-      survey.obj.last <- survey.obj
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
   } # end if(season == "both") 
@@ -368,8 +366,7 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,#Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | 
-               Bank == banks[i] & Active=="Yes")
+  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
   if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
@@ -600,7 +597,6 @@ for(i in 1:len)
         if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.05))
         if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.075))
         windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
-        
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
         A <- inla.spde.make.A(mesh, loc)
@@ -622,7 +618,7 @@ for(i in 1:len)
         }
        
         ## All of our abundance spatial plots are counts, moving to a negative binomial model
-        family1 = "poisson"
+        family1 = "nbinomial"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
         # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
@@ -1029,11 +1025,10 @@ for(i in 1:len)
           # Now for the condition factor
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
-           
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
-            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T))) - 1 # -1 makes it show the bin below the minimum bin.
+            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
             max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
             lvls <- base.lvls[min.lvl:max.lvl]
             cols <- cols[min.lvl:(max.lvl-1)]
@@ -1715,7 +1710,6 @@ for(i in 1:len)
     if(add.title == F) MWSH.title <- ""
     if(add.title == F) CF.ts.title <- ""
     
-    # Because name of BanIce is longer than other banks I added this so the figure title doesn't go off screen.
     cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
     
     ############
@@ -1724,7 +1718,6 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
                          units="in",width = 13,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
-    
     
     par(mfrow=c(1,2))
     shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
@@ -1776,7 +1769,7 @@ for(i in 1:len)
         lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1), 
               x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
       } # end if(season="both")
-      legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
+      legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,NA),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
     } # end if(banks[i] == "GBa")
     # Here I'm adding in the cf for August into the spring survey data.
     if(banks[i] == "GB")
