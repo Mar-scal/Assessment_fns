@@ -192,6 +192,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      survey.obj.last <- survey.obj
       season <- tmp.season # Needed b/c there is a season in the object I'm loading too..
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
   } # end if(season == "both") 
@@ -369,7 +370,8 @@ for(i in 1:len)
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
   sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
-  if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
+  if(banks[i] == "GB")  sb <- subset(seedboxes,#Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| 
+                                     Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
@@ -1712,6 +1714,7 @@ for(i in 1:len)
     if(add.title == F) MWSH.title <- ""
     if(add.title == F) CF.ts.title <- ""
     
+    # Because name of BanIce is longer than other banks I added this so the figure title doesn't go off screen.
     cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
     
     ############
