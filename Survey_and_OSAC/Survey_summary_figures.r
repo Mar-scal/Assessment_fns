@@ -143,8 +143,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
 { 
- 
-   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
+    tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
   # Load the appropriate data.
   if(season == "testing") 
   {
@@ -372,7 +371,8 @@ for(i in 1:len)
   # presentations (maybe OSAC, but this isn't OSAC)....
   sb <- subset(seedboxes,#Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | 
                Bank == banks[i] & Active=="Yes")
-  if(banks[i] == "GB")  sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| Bank %in% c("GBa","GBb") & Active=="Yes")
+  if(banks[i] == "GB")  sb <- subset(seedboxes, Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| 
+                                     Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
   # Get the  bank survey boundary polygon
@@ -602,7 +602,6 @@ for(i in 1:len)
         if(banks[i] == "Sab") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.05))
         if(banks[i] %in% c("Ban", "BanIce")) mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.075))
         windows(11,11) ; plot(mesh) ; plot(bound.poly.surv.sp.buff,add=T,lwd=2); plot(bound.poly.surv.sp,add=T,lwd=2)
-        
         cat("Mesh successful, woot woot!!")
         # Now make the A matrix
         A <- inla.spde.make.A(mesh, loc)
@@ -623,7 +622,7 @@ for(i in 1:len)
                                     prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
         }
        
-        ## All of our abundance spatial plots are counts, moving to a negative binomial model
+        ## All of our abundance spatial plots are counts
         family1 = "poisson"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
@@ -1031,7 +1030,6 @@ for(i in 1:len)
           # Now for the condition factor
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
-           
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
@@ -1726,7 +1724,6 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
                          units="in",width = 13,height = 8.5,res=420,bg = "transparent")
     if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
-    
     
     par(mfrow=c(1,2))
     shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
