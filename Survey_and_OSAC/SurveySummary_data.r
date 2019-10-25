@@ -521,7 +521,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank == survey.4.spatial)
     } # end if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
     
-    
     # Since we are missing 2015 we need to do this for GB spring survey...
     if(bnk == "GB") bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank == surveys[i] & year != 2015)
     
@@ -737,8 +736,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
       
       cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
-      
-      
+
       if(mwsh.test == T) {
         browser()
         source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
@@ -1077,7 +1075,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       lined.survey.obj$model.dat$RS <- RS
     }# end if(bnk == "Ger")
     
-    
     # Get the survey estimates for the banks for which we have strata. 
     if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
     {
@@ -1183,6 +1180,18 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # Now let's calculate the average size and growth potential by bank, use surv.Live b/c we want to look at this for all tows.
     
     pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
+    
+    # Set biomass and condition to NA for years with no detailed sampling data
+    survey.obj[[bnk]]$model.dat[!survey.obj[[bnk]]$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                                c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv", "CF", "w.bar", "w.k")] <- NA
+    survey.obj[[bnk]]$shf.dat$w.yst[!survey.obj[[bnk]]$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year)] <- NA
+    
+    if(bnk == 'Ger') {
+      merged.survey.obj[!merged.survey.obj$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                        c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv", "CF", "w.bar", "w.k")] <- NA
+      lined.survey.obj$model.dat[!lined.survey.obj$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
+                        c("I","I.cv", "IR","IR.cv", "IPR", "IPR.cv")] <- NA
+    }
     
     } # end "else" for all surveys other than BanIceSpring
     

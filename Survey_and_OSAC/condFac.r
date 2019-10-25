@@ -76,7 +76,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 	
 	# Calculate the meat weight shell height relationship, remember if b.par = 3 this assumes an allometric realtionship.
 	# Notice that we use a different random effect here, it is ID not tow, this is done since we may have the same tow # in different years.
-	#$browser()
+	
 	SpatHtWt.fit<-shwt.lme(wgt.dat,random.effect='ID',b.par=b.par,verbose=F)
 
 	# Merge the raw data with the model fit, just keep the first sample for each tow in which we have multiple samples.
@@ -114,16 +114,22 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 
 	# If we want to make predictions on some new data...
 	if(!is.null(pred.dat) ==T)
-	  {
-	    # Which depth are we using, this would be making sure we are using meters.
-  		if(ADJ_depth==T) pred.dat$depth<-pred.dat$ADJ_depth
-  		# Give object a new name
+	{
+	  if(length(pred.dat$year[!pred.dat$year %in% yrs]) >0 ) {
+	    message("The following years are survey years without sampling data. Make sure they are not plotted in biomass figures or condition figures because these are very uncertain estimates!")
+	    print(unique(pred.dat$year[!pred.dat$year %in% yrs]))
+	  }
+	  
+	  # Which depth are we using, this would be making sure we are using meters.
+	  if(ADJ_depth==T) pred.dat$depth<-pred.dat$ADJ_depth
+	  # Give object a new name
   		pre.dat<-as.data.frame(pred.dat)
   		# Make sure we have data for a year, if we don't put in the minimum year as the year.
   		if(sum(!unique(pre.dat$year) %in% yrs) > 0) pre.dat$year[!pre.dat$year %in% yrs]<-min(yrs)
   		# Make predictions based on model.
   		pred.dat$CF<- predict(CF.fit,pre.dat)
   		pred.dat$CFse.fit <- predict(CF.fit,pre.dat, se=T)$se.fit
+  		
 	  } # end if(!is.null(pred.dat))
   
 	# return the results to the function calling this.

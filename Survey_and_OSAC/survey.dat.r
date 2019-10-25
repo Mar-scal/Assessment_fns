@@ -192,6 +192,7 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  #  Now multiply by the total bank area to determine the survey estimated abundance(biomass).
 	  # The abundance is actual numbers 
 	  n.Yst <- n.yst[i,] * sum(N.tu) 
+	
 	  if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- w.stratmeans[[i]]
 	  if(!is.null(nrow(w.stratmeans[[i]]))) w.yst[i,] <- apply(sapply(1:nrow(w.stratmeans[[i]]), function(x){w.stratmeans[[i]][x,] * pstrat[x]}),1,sum)
 	  w.Yst <- w.yst[i,] * sum(N.tu)
