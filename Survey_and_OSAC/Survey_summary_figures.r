@@ -1030,7 +1030,7 @@ for(i in 1:len)
             base.lvls <- c(0,5,8,10,12,14,16,18,50)
             cols <- rev(inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct            
-            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T)))
+            min.lvl <- max(which(base.lvls <= min(mod.res[[maps.to.make[m]]],na.rm=T))) - 1 # -1 makes it show the bin below the minimum bin.
             max.lvl <- min(which(base.lvls >= max(mod.res[[maps.to.make[m]]],na.rm=T)))
             lvls <- base.lvls[min.lvl:max.lvl]
             cols <- cols[min.lvl:(max.lvl-1)]
