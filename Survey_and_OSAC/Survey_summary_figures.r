@@ -619,8 +619,8 @@ for(i in 1:len)
                                     prior.range=c(0.1,0.5)) # The Meidan range and the probability that the range is less than this..
         }
        
-        ## All of our abundance spatial plots are counts, moving to a negative binomial model
-        family1 = "nbinomial"
+        ## All of our abundance spatial plots are counts
+        family1 = "poisson"
         family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
         family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
         # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
