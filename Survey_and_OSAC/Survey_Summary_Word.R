@@ -266,7 +266,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     if(!file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       fitted.x <- NULL
     }
-    
+    browser()
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
     if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
@@ -284,7 +284,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     if(!banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
                                                                    surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsabovePR3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$pre>PR3Q &
-                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
+                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
 
     maxRtow <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxRtow_LY <- max(surv.Rand[banks[i]][[1]]$rec[surv.Rand[banks[i]][[1]]$year==lastyear])

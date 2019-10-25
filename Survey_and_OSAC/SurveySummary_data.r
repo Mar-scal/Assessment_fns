@@ -521,7 +521,6 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank == survey.4.spatial)
     } # end if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
     
-    
     # Since we are missing 2015 we need to do this for GB spring survey...
     if(bnk == "GB") bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank == surveys[i] & year != 2015)
     
@@ -737,8 +736,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
       
       cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
-      
-      
+
       if(mwsh.test == T) {
         browser()
         source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
