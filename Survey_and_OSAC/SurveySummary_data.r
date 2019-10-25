@@ -1272,7 +1272,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if(season == "summer" && num.surveys !=2)		  save(list = ls(all.names = TRUE),
                                                       file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Selected_summer_survey_results.Rdata",sep=""))
   } # end if(testing ==F) 
-  s
+  
   return(list(survey.obj = survey.obj,
               SHF.summary = SHF.summary,
               SS.summary = SS.summary,
