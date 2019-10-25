@@ -369,8 +369,9 @@ for(i in 1:len)
   # will have information about it.  The only reason I'm putting this closed bit in is for cases in which
   # I am making plots from previous years, so a box closed in Nov or December never would have been included in one of our
   # presentations (maybe OSAC, but this isn't OSAC)....
-  sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | Bank == banks[i] & Active=="Yes")
-  if(banks[i] == "GB")  sb <- subset(seedboxes,#Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| 
+  sb <- subset(seedboxes,#Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="") | 
+               Bank == banks[i] & Active=="Yes")
+  if(banks[i] == "GB")  sb <- subset(seedboxes, Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep="")| 
                                      Bank %in% c("GBa","GBb") & Active=="Yes")
   
   ###  Now for the plots, first the survey data...
