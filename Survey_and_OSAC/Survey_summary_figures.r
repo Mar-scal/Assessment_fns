@@ -2072,6 +2072,8 @@ for(i in 1:len)
                 add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5, yl2=c(3000,3000,6000))
       
       legend("topright",c("unlined","lined"),pch=c(23,24),pt.bg = c("blue","red"),cex=1.4,lty=c(2,1),col=c("blue","red"),bty="n")
+      
+      message("WARNING: This figure should be edited to hide 1999 estimate since the only MWSH data collected in 1999 was commercial samples in July. We do not show a CF value for 1999 in the MWSH figure because of this, so this should match that, but currently does not!")
     } # end if(banks[i] == "Ger")
     
     # For sable bank (due to restratification)
