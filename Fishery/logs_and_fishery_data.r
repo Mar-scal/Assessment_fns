@@ -51,6 +51,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
   if(is.null(direct.in)) direct.in <- paste(direct,"Data/Inshore/Logs/Processed/",sep="")
   if(get.marfis == T) source(paste0(direct,"/Assessment_fns/Other_functions/ScallopQuery.R"))
   require(splancs) || stop("Package splancs cannot be found")
+  require(lubridate) || stop("Package lubridate cannot be found")
   
   # First get the current year from your computer, need for some of the if/table writing options.
   current.year <- as.numeric(format(Sys.Date(),"%Y"))
@@ -261,7 +262,14 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                                         sep=",",header=T,stringsAsFactors = F,quote='')
             }# end if(file.exists(paste(direct.off,
             
-            
+            # to deal with the addition of the TOTAL_MEAT_KGS column to handle roe-on scallop:
+            if("TOTAL_MEAT_KGS" %in% names(log.lst[[i]])) {
+              # replace the pro.repwt column with the total meat kgs
+              log.lst[[i]]$PRORATED_RPTD_WEIGHT_KGS <- log.lst[[i]]$TOTAL_MEAT_KGS
+              
+              # remove the total_meat_kgs column so that our dimensions match between years
+              log.lst[[i]] <- log.lst[[i]][, !names(log.lst[[i]]) %in% "TOTAL_MEAT_KGS"]
+            }
            
           } # end for 1:length(new.yr)
           #browser()
@@ -289,7 +297,6 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     # Grab the data from 2008 onwards, these are flat files which are SQL data fixed.
     if(max(log.year) > 2008 )
       {
-
         new.log.dat <- log
         slip.dat <- slip
      
