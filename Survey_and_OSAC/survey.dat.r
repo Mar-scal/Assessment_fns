@@ -49,7 +49,7 @@
 
 survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw.par='annual',err='str',user.bins = NULL)
 {
-  
+
   # Sable gets special treatment due to restratification, so do NOT use survey.dat on it. Must use survey.dat.restrat
   if(bk=="Sab"){
     print("Something's wrong in SurveySummary_data.r because you should be running survey.dat.restrat for Sable, not survey.dat")
@@ -225,8 +225,7 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  strat.res$IPR[i] <- IPR.tmp$yst* sum(N.tu)/10^6			#g to t
 	  if(err=='str') strat.res$IPR.cv[i] <- IPR.tmp$se.yst /  IPR.tmp$yst
 	  if(err=='ran') strat.res$IPR.cv[i] <- sqrt(IPR.tmp$var.ran) /  IPR.tmp$yst
-	  
-	  
+
 	  # Strata calculations for abundance for commerical size Scallops
 	  Strata.obj$N[[i]]<-PEDstrata(num, HSIstrata.obj,'STRATA.ID',num$com)
 	  N.tmp <- summary(Strata.obj$N[[i]],effic=T)
@@ -251,7 +250,8 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  
 	  # Save the bank-wide per tow estimates
 	  bankpertow <- rbind(bankpertow, data.frame(year=years[i], N = N.tmp$`yst`, NR = NR.tmp$`yst`, NPR = NPR.tmp$`yst`, 
-	                                             I=I.tmp$`yst`, IR=IR.tmp$`yst`, IPR=IPR.tmp$`yst`))
+	                                             I=I.tmp$`yst`, IR=IR.tmp$`yst`, IPR=IPR.tmp$`yst`, N.se = N.tmp$`se.yst`, NR.se = NR.tmp$`se.yst`, NPR.se = NPR.tmp$`se.yst`, 
+	                                             I.se=I.tmp$`se.yst`, IR.se=IR.tmp$`se.yst`, IPR.se=IPR.tmp$`se.yst`))
 	  
 	  # Average weight of fully recruited scallop by year
 	  strat.res$w.bar[i] <- sum(w.yst[i,which(mw.bin==CS[i]):which(mw.bin==200)]) /

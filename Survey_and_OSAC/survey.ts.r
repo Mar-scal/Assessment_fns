@@ -384,6 +384,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
       #mtext("Year", 1, 4, outer = T, cex = 1.2)	
     } # end if(i == length(mn.tmp))  
   } # end for(i in 1:length(mn.tmp))
+  
   # if pdf =T  then shut down the plotting device
   if(pdf==T) dev.off()
   # Return the object to R, not entirely sure why?

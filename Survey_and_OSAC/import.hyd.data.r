@@ -105,7 +105,7 @@ import.hyd.data <- function(Bank=c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid
 
 
 	# if BANK or mths are not the defaults this subsets the data into the Bank/month combinations requested.
-	wgt.dat<-subset(wgt.dat,bank%in%Bank&year%in%yrs&month%in%mths)
+   wgt.dat<-subset(wgt.dat,bank%in%Bank&year%in%yrs&month%in%mths)
 	
 	# if we want to make a new table with these data, we export it here.  It appears this was last done in 2011 for BBn from 1983-2010
 	# DK Note August 2015:  So there is no reason we couldn't just run this one more time and export everything to a flatfile and 
