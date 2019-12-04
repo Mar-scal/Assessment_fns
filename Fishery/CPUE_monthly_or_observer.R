@@ -73,7 +73,7 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
   if(get.marfis == T) logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = T, un=un, pw=pw, db.con=db.con, direct=direct)
   # For these monthly calculations we need to know the month fishing occured
   new.log.dat$month <- as.numeric(format(new.log.dat$fished,"%m"))
-  
+  browser()
   # This large section is run if CPUE = "month" or "both", this calculates the monthly CPUE for different Banks.
   if(CPUE == "month" || CPUE == "both")
   {
