@@ -193,22 +193,43 @@ for(i in 1:num.banks)
 	  # if you want to save the tow lists you can export them to csv's.
   	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
   	{
-  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  if(!seed == yr-2000) {
+  	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	    } #Write1
+  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
   	} # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
   	if(export == T && bnk %in% c("GBa","GBb")) 
   	{  
-  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write2
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  if(!seed == yr-2000) {
+  	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	  } #Write1
+  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
   	} # end if(export == T && bnk %in% c("GBa,GBb")) 
 	  
   	# Now if you want to make the plots do all of this.
   	if(plot == T)
   	{
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  
   	  # Where do yo want the plot to go?
   	  if(fig=="screen") windows(11,8.5)
-  	  if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-  	                        height = 8.5,bg = "transparent")
-  	  if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
-  	                        height = 8.5,bg = "transparent")
+  	  if(seed == yr-2000){
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+  	                          height = 8.5,bg = "transparent")
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+  	                          height = 8.5,bg = "transparent")
+  	  }
+  	  if(!seed == yr-2000){
+  	    dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+  	                          height = 8.5,bg = "transparent")
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+  	                          height = 8.5,bg = "transparent")
+  	  }
   	  
   	  # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
   	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
@@ -533,21 +554,45 @@ if(bnk == "Ger")
     
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {
-      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
-      write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      
+      if(!seed == yr-2000) seedlab <- seed
+      if(!seed == yr-2000) {
+        dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+        write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+        write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      } #Write1
+      if(seed == yr-2000) {
+        write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
+        write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      }
     }
     # Plot this bad boy up if you want to do such things
     if(plot==T)
     {
+      if(!seed == yr-2000) seedlab <- seed
+      
+      # Where do yo want the plot to go?
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                            height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
-                            height = 8.5,bg = "transparent")  
+      
+      if(seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
+      
+      if(!seed == yr-2000){
+        dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
+      
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-
+      
       # Add points, station numbers, or both.
       if(point.style == "points") addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
       #browser()
@@ -591,10 +636,19 @@ if(bnk == "Ger")
       
       ### PLOTS BACKUP REPEATS
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
-                            height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
-                            height = 8.5,bg = "transparent")  
+      
+      if(seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
+      if(!seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
       ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
       # Add the German bank boundary and then add the survey points
       addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
