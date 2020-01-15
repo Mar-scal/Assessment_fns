@@ -43,8 +43,8 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 	require(PBSmapping) || stop("You'll need to install PBSmapping if you wanna do this thang")
   source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
   source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
-  
-	# This ignores all warnings
+
+  # This ignores all warnings
 	options(warn=-1)
 	# create pool of random points, if we haven't specified the number of points the second element of the poly list needs to have an allocation table in
   # it so we can figure out the total number of tows.
@@ -150,7 +150,7 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 	  # these are then subset to the appropriate number of tows in the next step
 		LocSet<-findPolys(pool.EventData,subset(strataPolys.dat,PName==strata[i]))
 		# Create the final list of tows, this is a subset of the tows created by genran based on the allocation scheme calculated for towsi.
-		strataTows.lst[[i]]<-data.frame(subset(pool.EventData,EID %in% LocSet$EID)[1:towsi[strata[i]],c("EID","X","Y")],Poly.ID=Poly.ID[i],STRATA=strata[i])
+		strataTows.lst[[i]]<-data.frame(subset(pool.EventData,EID %in% LocSet$EID)[1:towsi[strata[i]],c("EID","X","Y")],Poly.ID=poly.lst[[2]]$PID[poly.lst[[2]]$PName==strata[i]],STRATA=strata[i])
 	} # end for(i in 1:length(strata))
 	# Unwrap the strata tows list into a dataframe
 	Tows<-do.call("rbind",strataTows.lst)

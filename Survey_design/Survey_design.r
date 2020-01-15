@@ -584,9 +584,7 @@ if(bnk == "Ger")
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
 
-      #browser()
-      if(ger.rep<21) legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
-      if(ger.rep>20) legend('top',legend=c('new','repeated', 'repeated-backup'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
+      legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
 
       # Turn off the plot device if not plotting to screen
       if(fig != "screen") dev.off()
@@ -620,12 +618,20 @@ if(bnk == "Ger")
       # If the seed was set display this on the plot so you know later how you made that plot!!
       if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
       
+      # legend
+      if(ger.rep<21) legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
+      if(ger.rep>20) legend('top',legend=c('repeated', 'repeated-backup'),bty='n',pch=c(17,24), inset = .02)
+      
       if(fig != "screen") dev.off()
     } # end if(plot==T)
     
     # Now if you want to make these new fangled relief plots... source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
     if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
+    
+    # finally, append Ger.tow.dat into towlst
+    towlst[[i]] <- Ger.tow.dat
   }# end if(bnk== "Ger")
 } # end for(i in 1:num.banks)
+
 return(towlst[[i]]) # Return the last object in case I want to look at it...
 } # end function
