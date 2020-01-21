@@ -159,7 +159,6 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 	# Have the rownames match the EID and then make the Tows object a PBSmapping object
 	rownames(Tows)<-1:sum(towsi)
 	attr(Tows,"projection")<-"LL"
-
 	
 	# If there are repeated tows this will randomly select stations from last years	survey (repeated.tows)
 	if(!is.null(repeated.tows))
