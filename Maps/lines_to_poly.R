@@ -1,5 +1,9 @@
 lines_to_poly <- function(direct=direct, folder=folder, file=file, splitlayers=T,
                           saveas=NULL) {
+  require(rgdal)
+  require(sp)
+  require(rgeos)
+  
   shp <- readOGR(dsn = paste0(direct, folder, file), layer = paste0(gsub(x=file, pattern=".shp", replacement="", fixed=T)))
   if(class(shp) == "SpatialLinesDataFrame"){
     shp_df <- as.data.frame(shp)
@@ -22,7 +26,8 @@ lines_to_poly <- function(direct=direct, folder=folder, file=file, splitlayers=T
     if(!is.null(saveas) & splitlayers==T) {
       for(i in 1:length(shp$ID)) {
         saveas_ID <- gsub(x = saveas, pattern = ".shp", replacement = paste0("_", i, ".shp"))
-        writeOGR(obj = shp, dsn = paste0(direct, folder, saveas_ID), layer = paste0(gsub(x=saveas_ID, pattern=".shp", replacement="", fixed=T)),
+        shp_sub <- shp[i,]
+        writeOGR(obj = shp_sub, dsn = paste0(direct, folder, saveas_ID), layer = paste0(gsub(x=saveas_ID, pattern=".shp", replacement="", fixed=T)),
                  driver="ESRI Shapefile")
       }
       
@@ -30,4 +35,3 @@ lines_to_poly <- function(direct=direct, folder=folder, file=file, splitlayers=T
     return(shp)
   }
 }
-

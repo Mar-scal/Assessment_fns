@@ -37,7 +37,7 @@
 ###############################################################################################################
 # Arguments
 # yr:            The year of interest for making survey design.  Default is the current year as.numeric(format(Sys.time(), "%Y"))
-# direct:        The directory to load/save all the data, Default is the network offshore scallop "Y:/Offshore scallop/Assessment_fns/"
+# direct:        The directory to load/save all the data, Default is the network Offshore "Y:/Offshore/Assessment_fns/"
 # export:        Do you want to export the survey design locations.  T/F Default is F
 # seed:          If you want to reproduce results you can specify the random seed used for allocating these.  Default = NULL which will use R's 
 #                internal random number generators.  
@@ -63,7 +63,7 @@
 # language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {
@@ -141,6 +141,13 @@ for(i in 1:num.banks)
     polydata[[i]] <- subset(surv.polydata,label==bnk)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
     polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
+    if(fig=="leaflet") {
+      source(paste0(direct_fn, "Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
+      shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
+      shp_strata <- st_cast(st_as_sf(shp_strata), to="MULTIPOLYGON")
+      shp_strata <- st_transform(shp_strata, crs = 4326)
+    }
+    
     # For GBa we actually want a different allocation scheme, I've set the number of tows in each strata to be what we had in 2016, this is similar to what we've
     # observed since 2010, but every year has varied slightly (in the north).
     # This scheme is based on a vague comment in the 2013 GBa Assessment about preferntially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
@@ -157,28 +164,39 @@ for(i in 1:num.banks)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
+    if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
    
      if(bnk == "GBa" & yr==2019) {
       # manually shift 3 stations in 2019:
-      towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
-    }
-  
+     }
+    
     # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
     # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
     # This was done manually using the CSV and script below.
-    # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
-    # And emails in Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification
+    # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
+    # And emails in Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification
     if(bnk=="Sab" & yr ==2019) {
       tows2019edited <- read.csv(paste0(direct, "/Data/Survey_data/2019/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab_edited.csv"))
       towlst[[i]]$Tows$X <- tows2019edited$X[!tows2019edited$STRATA %in% "extra"]
       towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
     }
     
-      #get the deg dec minutes coordinates too
+    if(bnk == "Sab" & yr==2020) {
+      # manually shift 3 stations in 2019:
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==23, "Y"] <- 43.365
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==63, "Y"] <- 43.675
+    }
+    
+    if(bnk == "BBs" & yr==2020) {
+      # manually shift 3 stations in 2019:
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==24, c("X", "Y")] <- c(-65.835, 42.516)
+    }
+    
+          #get the deg dec minutes coordinates too
     if(!bnk == "Ger")  {
       writetows <- towlst[[i]]$Tows
       if(add.extras==T) {
@@ -235,10 +253,10 @@ for(i in 1:num.banks)
   	  
   	  if(fig == "leaflet"){
   	    require(leaflet)
-  	    
   	    print(leaflet() %>%
-  	      setView(-62, 45, 5)%>%
+  	      #setView(-62, 45, 5)%>%
   	      addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+  	      #addPolygons(data=shp_strata) %>% # doesn't work :(
   	      addCircles(lng = towlst[[i]]$Tows$X, 
   	                 lat = towlst[[i]]$Tows$Y, 
   	                 label= paste0(towlst[[i]]$Tows$EID, "_", towlst[[i]]$Tows$STRATA), 
