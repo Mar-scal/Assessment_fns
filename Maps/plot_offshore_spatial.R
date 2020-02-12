@@ -22,11 +22,11 @@ load_offshore_spatial <- function(direct_data,
 }
 
 
-offshore_data <- load_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
-                                       direct_fns = "C:/Users/keyserf/Documents/Github/",
-                                       survey=T,
-                                       fishery=T,
-                                       load_years=2018)
+# offshore_data <- load_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
+#                                        direct_fns = "C:/Users/keyserf/Documents/Github/",
+#                                        survey=T,
+#                                        fishery=T,
+#                                        load_years=2018)
 
 
 plot_offshore_spatial<- function(direct_data,
@@ -36,12 +36,14 @@ plot_offshore_spatial<- function(direct_data,
                                  station_years,
                                  survey_years,
                                  fishery_years,
+                                 size_class,
                                  bank) {
   
   # You need the following packages:
   require(leaflet)
   require(tidyverse)
   require(sf)
+  require(plotly)
   
   # tidy up the survey data if that's the data you want to overlay
   if(overlay_data=="survey"){
@@ -77,111 +79,101 @@ plot_offshore_spatial<- function(direct_data,
   
   # so now the plan is to set up some dynamic variables for plotting the point size and facets relative to the data you decided to plot
   size.var <- NULL
-  facet_var_x <- NULL
-  facet_var_y <- NULL
   
   # if you're overlaying fishery data, then the point size is going to be the pro.repwt.  
   if(overlay_data=="fishery") {
     size_var <- "pro.repwt"
     plotdat <- fishery
+    if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
   }
   # if you're overlaying survey data, then the stratified estimate is going to be the pro.repwt. we're also going to facet by size class in this case.
   if(overlay_data=="survey") {
     size_var <- "value"
     plotdat <- surv.Live.sub
+    if(!is.null(size_class)) plotdat <- plotdat[plotdat$name %in% size_class,]
+    if(is.null(size_class)) size_class <- c("pre", "rec", "com", "tot")
+    if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
+    plotdat$name <- factor(plotdat$name, levels=c("pre", 'rec', "com", "tot"))
   }
   
-  # now we'll make the point data into an sf object, to make sure its projected right.
-  plotdat <- st_as_sf(plotdat, coords = c("lon", "lat"), crs = 4326)
+  # set up the basemap if there are strata, and a separate one if it's German, or if there are no strata
+  if(bank %in% strata_banks){
+    strata <- st_cast(strata, "MULTIPOLYGON")
+    
+    # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
+    basemap <- ggplot() +
+      theme_bw() +
+      geom_sf(data=strata, colour=NA, aes(fill=as.factor(ID)), alpha=0.5) +
+      geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+  }
   
-  browser()
+  if(bank == "Ger"){
+    strata <- st_cast(strata, "MULTIPOLYGON")
+    
+    # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
+    basemap <- ggplot() +
+      theme_bw() +
+      geom_sf(data=strata, colour=NA, alpha=0.5, fill="grey") +
+      geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+  }
   
-  # now for the dynamic facetting. 
+  if(!bank == "Ger" & !bank %in% strata_banks){
+    # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
+    basemap <- ggplot() +
+      theme_bw() +
+      geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+  }
+  
+  # for the point size variable
+  mapping <- aes(lon, lat, size = .data[[size_var]])
+  if (is.null(size_var)) {
+    mapping$size <- NULL
+  }
+  
+  # now for the dynamic facetting. can't figure out how to make this go with the sf layers so I'm doing multiple versions
   # if you have more than one year of overlay data, facet by year
-  if(length(survey_years) > 1){
-    facet_var_x <- "year"
-    strata_bind <- NULL
-    for(i in 1:length(survey_years)){
-      if(i==1) {
-        strata_bind <- strata
-        strata_bind$strata <- strata$ID
-        strata_bind$year <- survey_years[i]
-      }
-      if(i>1) {
-        strata$year <- survey_years[i]
-        strata$strata <- strata$ID
-        strata$ID <- max(strata_bind$ID) + as.numeric(unique(strata$strata))
-        strata_bind <- st_sfc(strata_bind, strata,)
-      }
-    }
-  }
-  
-  if(length(fishery_years) > 1){
-    facet_var_x <- "year"
-    for(i in 1:length(fishery_years)){
-      if(i==1) {
-        strata_bind <- strata
-        strata_bind$year <- fishery_years[i]
-      }
-      if(i>1) {
-        strata$year <- fishery_years[i]
-        strata_bind <- st_union(strata_bind, strata)
-      }
-    }
+  if(overlay_data=="fishery"){
+    finalplot <- basemap + 
+      theme_bw() +
+      geom_point(data=plotdat, mapping, alpha=0.25) +
+      facet_wrap(~year) +
+      scale_size_continuous(name=size_var, guide = "legend") +
+      scale_fill_discrete(guide=FALSE) +
+      ggtitle("Fishery data")
   }
   
   # if you're overlaying survey data, and the then we have to use a second facetting variable. 
-  if(length(survey_years) > 1 & overlay_data == "survey"){
-    facet_var_y <- "name"
-  }
-  # but only if you have multiple years
-  if(length(survey_years) == 1 & overlay_data == "survey"){
-    facet_var_x <- "name"
-  }
-  
-  browser()
-  # here's the plotting function
-  plotting <- function(size_var, facet_var_x, facet_var_y) {
-    
-    # for the point size variable
-    mapping <- aes(size = .data[[size_var]])
-    if (is.null(size_var)) {
-      mapping$size <- NULL
-    }
-    
-    # for the facetting by year or survey data type
-    if (!is.null(facet_var_x) & is.null(facet_var_y)) {
-      facet <- facet_wrap(vars(.data[[facet_var_x]]))}
-    if (!is.null(facet_var_x) & !is.null(facet_var_y)) {
-      facet <- facet_grid(rows=vars(.data[[facet_var_x]]), cols=vars(.data[[facet_var_y]]))}
-    if (is.null(facet_var_x) & is.null(facet_var_y)) {
-      facet <- NULL}
-  
-    # basemap <- ggplot() +
-    #   theme_bw() +
-    #   geom_sf(data=st_cast(strata, "MULTIPOLYGON"), colour=NA, aes(fill=as.factor(ID)), alpha=0.5)
-
-    ggplot(plotdat) + 
+  if(overlay_data == "survey" & (length(survey_years) <= length(size_class))){
+    finalplot <- basemap + 
       theme_bw() +
-      geom_sf(data=st_cast(strata, "MULTIPOLYGON"), colour=NA, aes(fill=as.factor(ID)), alpha=0.5)+
-      geom_sf(mapping, alpha=0.25) #+
-      #geom_point(data=stations, aes(X, Y), colour="black", fill="white", shape=21) +
-     # facet
-    
+      geom_point(data=plotdat, mapping, alpha=0.25) +
+      facet_grid(year~name) +
+      scale_size_continuous(name=size_var, guide = "legend")+
+      scale_fill_discrete(guide=FALSE) +
+      ggtitle("Survey data (stratified n per tow)")
+  }
+  if(overlay_data == "survey" & (length(survey_years) > length(size_class))){
+    finalplot <- basemap + 
+      theme_bw() +
+      geom_point(data=plotdat, mapping, alpha=0.25) +
+      facet_grid(name~year) +
+      scale_size_continuous(name=size_var, guide = "legend")+
+      scale_fill_discrete(guide=FALSE) +
+      ggtitle("Survey data (stratified n per tow)")
   }
   
-  print(plotting(size_var=size_var, facet_var_x=facet_var_x, facet_var_y=facet_var_y))
-  
+  print(ggplotly(finalplot))
 }
 
 
 
-plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
-                      direct_fns = "C:/Users/keyserf/Documents/Github/",
-                      offshore_data=offshore_data,
-                      overlay_data="survey",
-                      survey_years=c(2016,2018),
-                      fishery_years=2019,
-                      station_years=2020,
-                      bank="BBs")
+# plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
+#                       direct_fns = "C:/Users/keyserf/Documents/Github/",
+#                       offshore_data=offshore_data,
+#                       overlay_data="survey",
+#                       survey_years=2018,
+#                       fishery_years=2018,
+#                       station_years=2020,
+#                       size_class=NULL,
+#                       bank="Ger")
 
