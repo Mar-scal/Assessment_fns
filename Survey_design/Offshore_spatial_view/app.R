@@ -1,13 +1,7 @@
-#
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 
 library(shiny)
+require(lubridate)
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -24,7 +18,7 @@ ui <- fluidPage(
             
             textInput(inputId="direct_fns",
                       label="Code directory",
-                      value="C:/Users/keyserf/Documents/Github/"),
+                      value="C:/Documents/Offshore/Assessment/"),
             
             selectInput(inputId = "data_type",
                         label = "Which data to load?",
@@ -74,36 +68,34 @@ ui <- fluidPage(
 # Define server logic required to draw a histogram
 server <- function(input, output) {
 
-        observeEvent(input$load, {
-    
+    params <- eventReactive(
+        
+        #action button dependency
+        input$load, {
+        
+        # pop up notification
         showNotification("... loading data now", action = NULL, duration = NULL, closeButton = F,
                          id = "loading", type = "message",
                          session = getDefaultReactiveDomain())
-    
         
-            source(paste0(input$direct_fns, "Assessment_fns/Maps/plot_offshore_spatial.R"))
+        
+        source(paste0(input$direct_fns, "Assessment_fns/Maps/plot_offshore_spatial.R"))
+        if("survey" %in% input$data_type) {survey <- T}
+        if("fishery" %in% input$data_type) {fishery <- T}
+        # isolate(offshore_data <- load_offshore_spatial(direct_data = input$direct_data,
+        #                                                direct_fns = input$direct_fns,
+        #                                                survey = survey,
+        #                                                fishery = fishery,
+        #                                                load_years = input$load_years))
+        
+        
+    })
 
-            
-            #### THIS DOES NOT WORK
-            renderText({
-                if("survey" %in% input$data_type) {survey <- T}
-                if("fishery" %in% input$data_type) {fishery <- T}
-            })
-            
-        offshore_data <- load_offshore_spatial(direct_data = input$direct_data,
-                                               direct_fns = input$direct_fns,
-                                               survey = survey,
-                                               fishery = fishery,
-                                               load_years = input$load_years)
-
-        removeNotification("loading", session = getDefaultReactiveDomain())
-        
-        showNotification("Data loaded successfully", action = NULL, duration = NULL, closeButton = F,
-                         id = "loading", type = "message",
-                         session = getDefaultReactiveDomain())
-        
-        })
-    
+    output$files <- renderText(print(list.files(paste0(input$direct_data))))
+    removeNotification("loading", session = getDefaultReactiveDomain())
+    showNotification("Data loaded successfully", action = NULL, duration = NULL, closeButton = F,
+                     id = "loading", type = "message",
+                     session = getDefaultReactiveDomain())
     
     # output$distPlot <- renderPlot({
     #     # generate bins based on input$bins from ui.R

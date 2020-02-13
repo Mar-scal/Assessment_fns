@@ -1,0 +1,72 @@
+---
+title: "Browns Bank South spatial data checks for 2020 survey"
+output: html_document
+---
+
+```{r, include=F}
+direct_fns <- "C:/Documents/Offshore/Assessment/"
+
+source(paste0(direct_fns, "Assessment_fns/Maps/plot_offshore_spatial.R"))
+
+```
+
+
+# Load the data
+```{r, echo=F}
+offshore_data <- load_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
+                                       direct_fns = "C:/Documents/Offshore/Assessment/",
+                                       survey=T,
+                                       fishery=T,
+                                       survey_year=2018,
+                                       fishery_years=2010:2019)
+```
+
+
+# Plot survey data with stations
+```{r, echo=F}
+plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
+                      direct_fns = "C:/Documents/Offshore/Assessment/",
+                      offshore_data=offshore_data,
+                      overlay_data="survey",
+                      survey_years=c(2013),
+                      fishery_years=2018,
+                      station_years=2020,
+                      size_class=NULL,
+                      bank="BBs")
+
+plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
+                      direct_fns = "C:/Documents/Offshore/Assessment/",
+                      offshore_data=offshore_data,
+                      overlay_data="survey",
+                      survey_years=c(2016),
+                      fishery_years=2018,
+                      station_years=2020,
+                      size_class=NULL,
+                      bank="BBs")
+
+plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
+                      direct_fns = "C:/Documents/Offshore/Assessment/",
+                      offshore_data=offshore_data,
+                      overlay_data="survey",
+                      survey_years=c(2018),
+                      fishery_years=2018,
+                      station_years=2020,
+                      size_class=NULL,
+                      bank="BBs")
+```
+
+
+# Plot fishery data with stations
+```{r, echo=F}
+plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
+                      direct_fns = "C:/Documents/Offshore/Assessment/",
+                      offshore_data=offshore_data,
+                      overlay_data="fishery",
+                      survey_years=c(2013, 2016, 2018),
+                      fishery_years=2008:2019,
+                      station_years=2020,
+                      size_class=NULL,
+                      bank="BBs")
+```
+
+

@@ -4,29 +4,24 @@ load_offshore_spatial <- function(direct_data,
                                   direct_fns,
                                   survey,
                                   fishery, 
-                                  load_years) {
+                                  survey_year,
+                                  fishery_years) {
   
   # if survey_years isn't null, then get the data. This will always pull in the Survey_all_results data
   if(survey == T){
-    load(paste0(direct_data, "Data/Survey_data/", max(as.numeric(load_years)), "/Survey_summary_output/Survey_all_results.Rdata"))
+    load(paste0(direct_data, "Data/Survey_data/", survey_year, "/Survey_summary_output/Survey_all_results.Rdata"))
   }    
   
   # if fishery_years isn't null, then get the data. This only works for >2008. Pulls in the new.log.dat
   if(fishery == T){
     source(paste0(direct_fns, "Assessment_fns/Fishery/logs_and_fishery_data.r"))
-    logs_and_fish(loc="offshore", year = load_years, get.marfis = F, export = F, direct = direct_data)
+    logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data)
   }
   
   return(list(surv.Live=surv.Live, new.log.dat=new.log.dat))
   
 }
 
-
-# offshore_data <- load_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
-#                                        direct_fns = "C:/Users/keyserf/Documents/Github/",
-#                                        survey=T,
-#                                        fishery=T,
-#                                        load_years=2018)
 
 
 plot_offshore_spatial<- function(direct_data,
@@ -37,7 +32,8 @@ plot_offshore_spatial<- function(direct_data,
                                  survey_years,
                                  fishery_years,
                                  size_class,
-                                 bank) {
+                                 bank, 
+                                 plotly=F) {
   
   # You need the following packages:
   require(leaflet)
@@ -162,18 +158,9 @@ plot_offshore_spatial<- function(direct_data,
       ggtitle("Survey data (stratified n per tow)")
   }
   
-  print(ggplotly(finalplot))
+  if(plotly==F) print(finalplot)
+  if(plotly==T) print(ggplotly(finalplot))
 }
 
 
-
-# plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/", 
-#                       direct_fns = "C:/Users/keyserf/Documents/Github/",
-#                       offshore_data=offshore_data,
-#                       overlay_data="survey",
-#                       survey_years=2018,
-#                       fishery_years=2018,
-#                       station_years=2020,
-#                       size_class=NULL,
-#                       bank="Ger")
 
