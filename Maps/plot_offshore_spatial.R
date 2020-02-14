@@ -66,10 +66,10 @@ plot_offshore_spatial<- function(direct_data,
   strata_banks <- c("GBa", "GBb", "BBn", "BBs", "Sab")
   if(any(strata_banks %in% bank)){
     strata_banks <- strata_banks[which(strata_banks %in% bank)]
-    strata <- st_read(paste0(direct_data, "Data/Maps/approved/GIS_layers/offshore_survey_strata/", strata_banks, ".shp"))
+    strata <- st_read(paste0(direct_data, "Data/Maps/approved/GIS_layers/offshore_survey_strata/", strata_banks, ".shp"), quiet=T)
   }
   if("Ger" %in% bank){
-    strata <- st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"))
+    strata <- st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T)
   }
   
   
@@ -128,11 +128,21 @@ plot_offshore_spatial<- function(direct_data,
   
   # now for the dynamic facetting. can't figure out how to make this go with the sf layers so I'm doing multiple versions
   # if you have more than one year of overlay data, facet by year
-  if(overlay_data=="fishery"){
+  if(overlay_data=="fishery" & length(unique(plotdat$year))> 4){
     finalplot <- basemap + 
       theme_bw() +
       geom_point(data=plotdat, mapping, alpha=0.25) +
-      facet_wrap(~year) +
+      facet_wrap(~year, nrow=2) +
+      scale_size_continuous(name=size_var, guide = "legend") +
+      scale_fill_discrete(guide=FALSE) +
+      ggtitle("Fishery data")
+  }
+  
+  if(overlay_data=="fishery" & length(unique(plotdat$year))<= 4){
+    finalplot <- basemap + 
+      theme_bw() +
+      geom_point(data=plotdat, mapping, alpha=0.25) +
+      facet_wrap(~year, nrow=1) +
       scale_size_continuous(name=size_var, guide = "legend") +
       scale_fill_discrete(guide=FALSE) +
       ggtitle("Fishery data")
@@ -158,8 +168,8 @@ plot_offshore_spatial<- function(direct_data,
       ggtitle("Survey data (stratified n per tow)")
   }
   
-  if(plotly==F) print(finalplot)
-  if(plotly==T) print(ggplotly(finalplot))
+  if(plotly==F) return(finalplot)
+  if(plotly==T) return(ggplotly(finalplot))
 }
 
 
