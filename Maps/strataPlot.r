@@ -29,7 +29,6 @@ require(RODBC) || stop("Install RODBC Package")
 
 
 
-
 ################################### Section 1  Import + Process Data ##############################################################
 # Load and process the data from the SQL database.  This ensures that we loc using the latest strata boundaries for both
 # the inshore and offshore fisheries.
