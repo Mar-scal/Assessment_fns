@@ -31,7 +31,7 @@
 # plot.strata:  Plot the strata? (T/F) default is False
 # plot.bathy:   Plot the Bathymetry? (T/F) default is False  
 # plot.boundries:  Plot the management area boudaries? (T/F) default is False
-# direct:     the directory to choose.  Default is "Y:/Offshore scallop/Assessment/Assessment_fns/"
+# direct:     the directory to choose.  Default is "Y:/Offshore/Assessment/Assessment_fns/"
 #             If running locally copy the "Maps" folder, and the "data/maps" folder to a common location then change direct
 #             to that location.  For example, if you copy these 2 folders to d:/maps, set direct = d:/maps and this should work 
 
@@ -121,7 +121,7 @@
 ScallopMap<-function(area='custom',
                      ylim=c(40,46),xlim=c(-68,-55), 
                      plot.strata=F,  plot.bathy=F, plot.boundries=F,  # plot strata, bathymetry, or management boundaries?
-                     direct = "Y:/Offshore scallop/Assessment/",   # The default working directory, note that
+                     direct = "Y:/Offshore/Assessment/",   # The default working directory, note that
                      # this is set a level above the "Maps" subfolder.
                     
                      # Strata Options

@@ -1,0 +1,88 @@
+---
+title: "Offshore scallop spatial visualization tool"
+author: "Freya"
+date: "February 13, 2020"
+output: 
+    flexdashboard::flex_dashboard:
+    orientation: rows
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(lubridate)
+require(shiny)
+require(tidyverse)
+require(DT)
+```
+
+Parameters {data-icon="fa-map"}
+=======================================
+
+Column {.sidebar}
+-------------------------------------
+
+```{r, echo=F}
+
+textInput(inputId="direct_data",
+          label="Data directory",
+          value="Y:/Offshore/Assessment/")
+
+textInput(inputId="direct_fns",
+          label="Code directory",
+          value="C:/Documents/Offshore/Assessment/")
+
+selectInput(inputId = "data_type",
+            label = "Which data to load?",
+            choices = c("survey", "fishery"),
+            multiple=T)
+
+selectInput(inputId = "load_years",
+            label="Load from which year's files?",
+            choice=2008:year(Sys.Date()))
+
+actionButton('load', 'Load data')
+
+
+# notification "loading"
+observeEvent(input$load, {
+  showNotification("... loading data now", action = NULL, duration = NULL, closeButton = F,
+                   id = "loading", type = "message",
+                   session = getDefaultReactiveDomain())
+})
+
+
+# eventReactive() tells this chunk of code to update when the action button is clicked
+loadit <- eventReactive(input$load, {
+
+  data_type <- reactive(input$data_type)
+  
+  survey <- reactive( if("survey" %in% data_type()) TRUE else FALSE)
+})
+  
+  # offshore_data <- load_offshore_spatial(direct_data = direct_data(),
+  #                                                      direct_fns = direct_fns(),
+  #                                                      survey = survey,
+  #                                                      fishery = fishery,
+  #                                                      load_years = load_years())
+  # 
+  # removeNotification("loading", session = getDefaultReactiveDomain())
+  # showNotification("Data loaded successfully", action = NULL, duration = NULL, closeButton = F,
+  #                  id = "loading", type = "message",
+  #                  session = getDefaultReactiveDomain())
+
+
+
+```
+
+Row
+-------------------------------------
+### result
+
+```{r, echo=F}
+renderText(survey)
+
+```
+
+
+

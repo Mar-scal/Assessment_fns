@@ -272,7 +272,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
             }
            
           } # end for 1:length(new.yr)
-          #browser()
+          
           log1 <- do.call("rbind",log.lst)
           slip1 <- do.call("rbind",slip.lst)
 

@@ -542,7 +542,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
   
   # make a ggplot2 obj
   if(plot_package == "ggplot2" && is.null(field) && is.null(add_obj) && !is.null(add_EEZ) &&
-      is.null(add_bathy) && add_sfas=="all" && is.null(add_strata) &&
+      is.null(add_strata) &&
       is.null(add_custom)){
     require(ggplot2)
     
@@ -585,7 +585,13 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+
         for(i in 1:length(offshore.spa)){
           ext <- as(extent(x1, x2, y1, y2), "SpatialPolygons")
           crs(ext) <- crs(offshore.spa[[i]])
-          offshore.spa_ext <- gIntersection(offshore.spa[[i]], ext, byid=T)
+          
+          if(!i==8){
+            offshore.spa_ext <- gIntersection(offshore.spa[[i]], ext, byid=T)
+          }
+          if(i==8){
+            offshore.spa_ext <- NULL
+          }
           if(!is.null(offshore.spa_ext)){
             offshore.spa_f <- fortify(model = offshore.spa_ext, region = "ID")
             pect_ggplot <- pect_ggplot + geom_polygon(data=offshore.spa_f, aes(x=long, y=lat, group=group), fill=NA, colour="blue")

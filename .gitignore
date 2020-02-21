@@ -46,6 +46,9 @@ Archive/
 *.xls
 *.docx
 *.doc
+*.pdf
+*.png
+
 
 # ignore these script files which we will change regularly and don't need to deal with
 RUNME_Survey_OSAC_Model/OSAC_Summary_script.r

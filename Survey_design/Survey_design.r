@@ -37,12 +37,12 @@
 ###############################################################################################################
 # Arguments
 # yr:            The year of interest for making survey design.  Default is the current year as.numeric(format(Sys.time(), "%Y"))
-# direct:        The directory to load/save all the data, Default is the network offshore scallop "Y:/Offshore scallop/Assessment_fns/"
+# direct:        The directory to load/save all the data, Default is the network Offshore "Y:/Offshore/Assessment_fns/"
 # export:        Do you want to export the survey design locations.  T/F Default is F
 # seed:          If you want to reproduce results you can specify the random seed used for allocating these.  Default = NULL which will use R's 
 #                internal random number generators.  
 # plot:          Do you want to plot the results.  T/F Default is T
-# fig:           Where do you want to plot the figures.  Three options, includes the default print to your "screen" optionally can do "pdf" or "png".
+# fig:           Where do you want to plot the figures.  FOUR options, includes the default print to your "screen" optionally can do "pdf" or "png". As of                  2020, you can now also make an interactive leaflet plot. 
 # legend:        Add a legend to the figure.  T/F Default  is T
 # zoom:          Do you want to produce magnified maps for GBa tow locations.  T/F default is T
 # banks:         What banks do you want to run this on.  Default banks are "BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger" (note no option for Ban yet)
@@ -63,7 +63,7 @@
 # language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, point.style = "points",
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore/Assessment/",export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {
@@ -72,6 +72,7 @@ options(stringsAsFactors=F)
 # load required packages
 require(PBSmapping) || stop("Install PBSmapping Package bub")
 require(lubridate) || stop("Install the lubridate Package before it's too late!")
+if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 
 source(paste(direct,"Assessment_fns/Survey_design/alloc.poly.r",sep=""))
@@ -140,6 +141,13 @@ for(i in 1:num.banks)
     polydata[[i]] <- subset(surv.polydata,label==bnk)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
     polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
+    if(fig=="leaflet") {
+      source(paste0(direct, "Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
+      shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
+      shp_strata <- st_cast(st_as_sf(shp_strata), to="MULTIPOLYGON")
+      shp_strata <- st_transform(shp_strata, crs = 4326)
+    }
+    
     # For GBa we actually want a different allocation scheme, I've set the number of tows in each strata to be what we had in 2016, this is similar to what we've
     # observed since 2010, but every year has varied slightly (in the north).
     # This scheme is based on a vague comment in the 2013 GBa Assessment about preferntially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
@@ -156,28 +164,39 @@ for(i in 1:num.banks)
     if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
     if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
+    if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
    
      if(bnk == "GBa" & yr==2019) {
       # manually shift 3 stations in 2019:
-      towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
-    }
-  
+     }
+    
     # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
     # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
     # This was done manually using the CSV and script below.
-    # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
-    # And emails in Y:/Offshore scallop/Assessment/2018/Misc/Sable_re_stratification
+    # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
+    # And emails in Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification
     if(bnk=="Sab" & yr ==2019) {
       tows2019edited <- read.csv(paste0(direct, "/Data/Survey_data/2019/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab_edited.csv"))
       towlst[[i]]$Tows$X <- tows2019edited$X[!tows2019edited$STRATA %in% "extra"]
       towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
     }
     
-      #get the deg dec minutes coordinates too
+    if(bnk == "Sab" & yr==2020) {
+      # manually shift 3 stations in 2019:
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==23, "Y"] <- 43.365
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==63, "Y"] <- 43.675
+    }
+    
+    if(bnk == "BBs" & yr==2020) {
+      # manually shift 3 stations in 2019:
+      towlst[[i]]$Tows[towlst[[i]]$Tows$EID==24, c("X", "Y")] <- c(-65.835, 42.516)
+    }
+    
+          #get the deg dec minutes coordinates too
     if(!bnk == "Ger")  {
       writetows <- towlst[[i]]$Tows
       if(add.extras==T) {
@@ -193,75 +212,112 @@ for(i in 1:num.banks)
 	  # if you want to save the tow lists you can export them to csv's.
   	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
   	{
-  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  if(!seed == yr-2000) {
+  	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	    } #Write1
+  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
   	} # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
   	if(export == T && bnk %in% c("GBa","GBb")) 
   	{  
-  	  write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write2
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  if(!seed == yr-2000) {
+  	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	  } #Write1
+  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
   	} # end if(export == T && bnk %in% c("GBa,GBb")) 
 	  
   	# Now if you want to make the plots do all of this.
   	if(plot == T)
   	{
+  	  if(!seed == yr-2000) seedlab <- seed
+  	  
   	  # Where do yo want the plot to go?
   	  if(fig=="screen") windows(11,8.5)
-  	  if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-  	                        height = 8.5,bg = "transparent")
-  	  if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
-  	                        height = 8.5,bg = "transparent")
   	  
-  	  # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
-  	  ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F)
+  	  if(seed == yr-2000){
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+  	                          height = 8.5,bg = "transparent")
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+  	                          height = 8.5,bg = "transparent")
+  	  }
+  	  if(!seed == yr-2000){
+  	    dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+  	                          height = 8.5,bg = "transparent")
+  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+  	                          height = 8.5,bg = "transparent")
+  	  }
   	  
-  	  title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-
-  	  # So what do we want to do with the points, first plots the station numbers
-  	  if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-  	  # This just plots the points
-  	  if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	  # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
-  	  # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
-  	  # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
+  	  if(fig == "leaflet"){
+  	    require(leaflet)
+  	    print(leaflet() %>%
+  	      #setView(-62, 45, 5)%>%
+  	      addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+  	      #addPolygons(data=shp_strata) %>% # doesn't work :(
+  	      addCircles(lng = towlst[[i]]$Tows$X, 
+  	                 lat = towlst[[i]]$Tows$Y, 
+  	                 label= paste0(towlst[[i]]$Tows$EID, "_", towlst[[i]]$Tows$STRATA), 
+  	                 popup =  paste0(round(towlst[[i]]$Tows$X, 4), ",", round(towlst[[i]]$Tows$Y, 4))))
+  	    
+  	  }
   	  
-  	  # This does both, if it doesn't look pretty change the x.adj and y.adj options
-  	  if(point.style == "both" ) 
-  	  {
-  	    addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-  	    labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
-  	    x.range <- max(abs(labs$X)) - min(abs(labs$X))
-  	    y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-  	    labs$X.adj <- labs$X + x.adj*x.range
-  	    labs$Y.adj <- labs$Y + y.adj*y.range
-  	    text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-  	  } # end if(point.style == "both") 
-
-  	  #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-  	  #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
-
-  	  if(nrow(extras) > 0) {
-  	    if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	  if(!fig == "leaflet") {
+  	    # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
+  	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct)
+  	    
+  	    title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+  	    
+  	    # So what do we want to do with the points, first plots the station numbers
+  	    if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    # This just plots the points
+  	    if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
+  	    # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
+  	    # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
+  	    
+  	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
   	    if(point.style == "both" ) 
   	    {
-  	      addPoints(extras,pch=24, cex=1,bg="darkorange")
-  	      labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	      addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	      labs <- data.frame(X=towlst[[i]]$Tows$X,Y=towlst[[i]]$Tows$Y,text=towlst[[i]]$Tows$EID)
+  	      x.range <- max(abs(labs$X)) - min(abs(labs$X))
+  	      y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
   	      labs$X.adj <- labs$X + x.adj*x.range
   	      labs$Y.adj <- labs$Y + y.adj*y.range
   	      text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	    } # end if(point.style == "both") 
+  	    
+  	    #if(point.style != "points") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    #if(point.style == "points") addPoints(towlst[[i]]$Tows,pch=21, cex=1, bg = polydata[[i]]$col[towlst[[i]]$Tows$Poly.ID])
+  	    
+  	    if(nrow(extras) > 0) {
+  	      if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	      if(point.style == "both" ) 
+  	      {
+  	        addPoints(extras,pch=24, cex=1,bg="darkorange")
+  	        labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+  	        labs$X.adj <- labs$X + x.adj*x.range
+  	        labs$Y.adj <- labs$Y + y.adj*y.range
+  	        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+  	      }
   	    }
+  	    if(cables==T){
+  	      cables <- rgdal::readOGR("Z:/Maps/Undersea_cables/AllKnownCables2015.shp")
+  	      lines(cables, col="red", lty="dashed")
+  	    }
+  	    if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+  	    if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
+  	    if(legend == T && bnk %in% c("GBa","GBb")) legend('bottomleft',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
+  	    if(legend == T) legend('top',paste("Survey stations (n = ",length(towlst[[i]]$Tows$Y),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+  	    if(nrow(extras) > 0 && legend == T) legend('topright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
+  	                                               pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
+  	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	  }
-  	  if(cables==T){
-  	    cables <- rgdal::readOGR("Y:/Maps/Undersea_cables/AllKnownCables2015.shp")
-  	    lines(cables, col="red", lty="dashed")
-  	  }
-  	  if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-  	  if(legend == T && bnk != "GBa" && bnk!= "GBb") legend('bottomright',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
-  	  if(legend == T && bnk %in% c("GBa","GBb")) legend('bottomleft',legend=polydata[[i]]$PName,pch=21,pt.bg=polydata[[i]]$col,bty='n',cex=0.9, inset = .01)
-  	  if(legend == T) legend('top',paste("Survey stations (n = ",length(towlst[[i]]$Tows$Y),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-  	  if(nrow(extras) > 0 && legend == T) legend('topright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
-  	                                             pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
-  	  legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	  # Turn the device off if necessary.  
-  	  if(fig != "screen") dev.off()
+  	  if(!fig %in% c("screen", "leaflet")) dev.off()
   	  
   	  # For Georges Bank in the summer we also create some maps that focus in on certain areas, if you set zoom = T this will happen.
   	  if(zoom == T && bnk == "GBa") 
@@ -273,7 +329,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
-  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2)
+  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -315,7 +371,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -360,7 +416,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -432,40 +488,55 @@ for(i in 1:num.banks)
                             height = 8.5,bg = "transparent")
       if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
                             height = 8.5,bg = "transparent")
-      ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
-      title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-      # Add the points, or text or both
-      if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
-      if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-      # This does both, if it doesn't look pretty change the x.adj and y.adj options
-      if(point.style == "both" ) 
-      {
-        addPoints(towlst[[i]],pch=21, cex=1)
-        labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
-        x.range <- max(abs(labs$X)) - min(abs(labs$X))
-        y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-        labs$X.adj <- labs$X + x.adj*x.range
-        labs$Y.adj <- labs$Y + y.adj*y.range
-        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+      
+      if(fig == "leaflet"){
+        require(leaflet)
+
+        print(leaflet() %>%
+          setView(-62, 45, 5)%>%
+          addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+          addCircles(lng = towlst[[i]]$X, 
+                     lat = towlst[[i]]$Y, 
+                     label= paste0(towlst[[i]]$EID), 
+                     popup =  paste0(round(towlst[[i]]$X, 4), ",", round(towlst[[i]]$Y, 4))))
       }
       
-      if(nrow(extras) > 0) {
-        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+      if(!fig == "leaflet") {
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+        # Add the points, or text or both
+        if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
+        if(point.style == "stn_num") text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+        # This does both, if it doesn't look pretty change the x.adj and y.adj options
         if(point.style == "both" ) 
         {
-          addPoints(extras,pch=24, cex=1,bg="darkorange")
-          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+          addPoints(towlst[[i]],pch=21, cex=1)
+          labs <- data.frame(X=towlst[[i]]$X,Y=towlst[[i]]$Y,text=towlst[[i]]$EID)
+          x.range <- max(abs(labs$X)) - min(abs(labs$X))
+          y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
           labs$X.adj <- labs$X + x.adj*x.range
           labs$Y.adj <- labs$Y + y.adj*y.range
           text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
         }
+        
+        if(nrow(extras) > 0) {
+          if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+          if(point.style == "both" ) 
+          {
+            addPoints(extras,pch=24, cex=1,bg="darkorange")
+            labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+            labs$X.adj <- labs$X + x.adj*x.range
+            labs$Y.adj <- labs$Y + y.adj*y.range
+            text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+          }
+        }
+        if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+        if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+        if(legend == T && bnk == "Ban") legend('topright',paste("Exploratory repeat stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
+        if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
+                                                   pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
       }
-      if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-      if(legend == T && bnk != "Ban") legend('bottomleft',paste("Fixed stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-      if(legend == T && bnk == "Ban") legend('topright',paste("Exploratory repeat stations (n = ",length(towlst[[i]]$EID),")",sep=""),pch=21,bty='n',cex=0.9, inset = .01)
-      if(nrow(extras) > 0 && legend == T) legend('bottomright',paste("Extra stations (n = ",nrow(extras),")",sep=""),
-                                                 pch=24,bty='n',cex=0.9, inset = .01,pt.bg = "darkorange")
-      if(fig != "screen") dev.off()
+      if(!fig %in% c("screen", "leaflet")) dev.off()
     }# end if(plot==T)
   } # end if(bnk %in% c("Mid","GB", "Ban")) 
   
@@ -533,99 +604,164 @@ if(bnk == "Ger")
     
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {
-      write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
-      write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      
+      if(!seed == yr-2000) seedlab <- seed
+      if(!seed == yr-2000) {
+        dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+        write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+        write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      } #Write1
+      if(seed == yr-2000) {
+        write.csv(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,".csv",sep=""),row.names=F)
+        write.csv(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
+      }
     }
     # Plot this bad boy up if you want to do such things
     if(plot==T)
     {
+      if(!seed == yr-2000) seedlab <- seed
+      
+      # Where do yo want the plot to go?
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                            height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
-                            height = 8.5,bg = "transparent")  
-      ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
-      # Add the German bank boundary and then add the survey points
-      addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-
-      # Add points, station numbers, or both.
-      if(point.style == "points") addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
-      #browser()
-      if(point.style == "stn_num") text(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
-                                        Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
-                                        label=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID,col='black', cex=0.6)
-      # This does both, if it doesn't look pretty change the x.adj and y.adj options
-      if(point.style == "both") 
-      {
-        addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
-        labs <- data.frame(X=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
-                           Y=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
-                           text=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID)
-        x.range <- max(abs(labs$X)) - min(abs(labs$X))
-        y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
-        labs$X.adj <- labs$X + x.adj*x.range
-        labs$Y.adj <- labs$Y + y.adj*y.range
-        text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+      
+      if(seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
       }
-      title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-      # If there are extra tows or seedboxes plot them
-      if(nrow(extras) > 0) {
-        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
-        if(point.style == "both" ) 
+      
+      if(!seed == yr-2000){
+        dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
+      
+      if(fig == "leaflet"){
+        require(leaflet)
+        print(leaflet() %>%
+          setView(-62, 45, 5)%>%
+          addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+          addCircles(lng = Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X, 
+                     lat = Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y, 
+                     label= paste0(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID, "_", Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$STRATA), 
+                     popup =  paste0(round(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X, 4), ",", round(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y, 4))))
+        
+      }
+       
+      if(!fig == "leaflet") {   
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        # Add the German bank boundary and then add the survey points
+        addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
+        
+        # Add points, station numbers, or both.
+        if(point.style == "points") addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
+        #browser()
+        if(point.style == "stn_num") text(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
+                                          Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
+                                          label=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID,col='black', cex=0.6)
+        # This does both, if it doesn't look pretty change the x.adj and y.adj options
+        if(point.style == "both") 
         {
-          addPoints(extras,pch=24, cex=1,bg="darkorange")
-          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+          addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Poly.ID)
+          labs <- data.frame(X=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$X,
+                             Y=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$Y,
+                             text=Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]$EID)
+          x.range <- max(abs(labs$X)) - min(abs(labs$X))
+          y.range <- max(abs(labs$Y)) - min(abs(labs$Y))
           labs$X.adj <- labs$X + x.adj*x.range
           labs$Y.adj <- labs$Y + y.adj*y.range
           text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
         }
+        title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+        # If there are extra tows or seedboxes plot them
+        if(nrow(extras) > 0) {
+          if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+          if(point.style == "both" ) 
+          {
+            addPoints(extras,pch=24, cex=1,bg="darkorange")
+            labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+            labs$X.adj <- labs$X + x.adj*x.range
+            labs$Y.adj <- labs$Y + y.adj*y.range
+            text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+          }
+        }
+        if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+        # If the seed was set display this on the plot so you know later how you made that plot!!
+        if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
+        
+        legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
       }
-      if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-      # If the seed was set display this on the plot so you know later how you made that plot!!
-      if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
-
-      #browser()
-      if(ger.rep<21) legend('top',legend=c('new','repeated'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
-      if(ger.rep>20) legend('top',legend=c('new','repeated', 'repeated-backup'),bty='n',pch=unique(Ger.tow.dat$Poly.ID), inset = .02)
-
       # Turn off the plot device if not plotting to screen
-      if(fig != "screen") dev.off()
+      if(!fig %in% c("screen", "leaflet")) dev.off()
       
       ### PLOTS BACKUP REPEATS
       if(fig=="screen") windows(11,8.5)
-      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
-                            height = 8.5,bg = "transparent")
-      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
-                            height = 8.5,bg = "transparent")  
-      ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F)
-      # Add the German bank boundary and then add the survey points
-      addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-      addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)
-      addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",]$Poly.ID, bg="black")
       
-      title(paste("Repeat backups (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
-      # If there are extra tows or seedboxes plot them
-      if(nrow(extras) > 0) {
-        if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
-        if(point.style == "both" ) 
-        {
-          addPoints(extras,pch=24, cex=1,bg="darkorange")
-          labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
-          labs$X.adj <- labs$X + x.adj*x.range
-          labs$Y.adj <- labs$Y + y.adj*y.range
-          text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
-        }
+      if(seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
       }
-      if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
-      # If the seed was set display this on the plot so you know later how you made that plot!!
-      if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
+      if(!seed == yr-2000){
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
+                              height = 8.5,bg = "transparent")
+        if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
+                              height = 8.5,bg = "transparent")
+      }
       
-      if(fig != "screen") dev.off()
+      if(fig == "leaflet"){
+        require(leaflet)
+        print(leaflet() %>%
+          setView(-62, 45, 5)%>%
+          addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+          addCircles(lng = Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$X, 
+                     lat = Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$Y, 
+                     label= paste0(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$EID, "_", Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$STRATA), 
+                     popup =  paste0(round(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$X, 4), ",", round(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("repeated", "repeated-backup"),]$Y, 4))))
+        
+      }
+      
+      if(!fig == "leaflet") {
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        # Add the German bank boundary and then add the survey points
+        addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
+        addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)
+        addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",]$Poly.ID, bg="black")
+        
+        title(paste("Repeat backups (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
+        # If there are extra tows or seedboxes plot them
+        if(nrow(extras) > 0) {
+          if(point.style == "points") addPoints(extras,pch=24, cex=1,bg="darkorange")
+          if(point.style == "both" ) 
+          {
+            addPoints(extras,pch=24, cex=1,bg="darkorange")
+            labs <- data.frame(X=extras$X,Y=extras$Y,text=extras$EID)
+            labs$X.adj <- labs$X + x.adj*x.range
+            labs$Y.adj <- labs$Y + y.adj*y.range
+            text(labs$X.adj,labs$Y.adj,label=labs$text,col='black', cex=0.6)
+          }
+        }
+        if(nrow(sb) > 0) addPolys(sb,lty=2,lwd=2)
+        # If the seed was set display this on the plot so you know later how you made that plot!!
+        if(!is.null(seed)) legend('bottomleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
+        
+        # legend
+        legend('top',legend=c('repeated', 'repeated-backup'),bty='n',pch=c(17,24), inset = .02)
+      }
+      if(!fig %in% c("screen", "leaflet")) dev.off()
     } # end if(plot==T)
     
     # Now if you want to make these new fangled relief plots... source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
     if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
+    
+    # finally, append Ger.tow.dat into towlst
+    towlst[[i]] <- Ger.tow.dat
   }# end if(bnk== "Ger")
 } # end for(i in 1:num.banks)
+
 return(towlst[[i]]) # Return the last object in case I want to look at it...
 } # end function
