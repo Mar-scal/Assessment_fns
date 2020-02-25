@@ -100,7 +100,7 @@
 
 ###############################################################################################################
 
-update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
+update_JAGS <- function(direct_fns = direct_fns, direct=direct, yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
                    bank = c("GBa","BBn") , use.final = F,fig="screen",
                    # The output options (note that export tables only works if run.mod=T)
                    preprocessed = F, run.mod = T, make.update.figs=T,make.diag.figs = T,
@@ -118,19 +118,19 @@ update_JAGS <- function(direct = "Y:/Offshore scallop/Assessment/", yr = as.nume
 {
   
 # Load in the functions needed for this function to run.
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
-source(paste(direct,"Assessment_fns/Fishery/fishery.dat.r",sep=""))  
-source(paste(direct,"Assessment_fns/Model/projections.r",sep=""))
-source(paste(direct,"Assessment_fns/Model/decision.r",sep=""))
-source(paste(direct,"Assessment_fns/Model/post.plt.R",sep=""))
-source(paste(direct,"Assessment_fns/Model/exploit.plt.r",sep=""))
-source(paste(direct,"Assessment_fns/Model/fit.plt.R",sep=""))
-source(paste(direct,"Assessment_fns/Model/diag.plt.R",sep=""))
-source(paste(direct,"Assessment_fns/Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
-source(paste(direct,"Assessment_fns/Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
-source(paste(direct,"Assessment_fns/Model/biomass.plt.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
-source(paste(direct,"Assessment_fns/Contour/contour.gen.r",sep="")) 
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
+source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))  
+source(paste(direct_fns,"Model/projections.r",sep=""))
+source(paste(direct_fns,"Model/decision.r",sep=""))
+source(paste(direct_fns,"Model/post.plt.R",sep=""))
+source(paste(direct_fns,"Model/exploit.plt.r",sep=""))
+source(paste(direct_fns,"Model/fit.plt.R",sep=""))
+source(paste(direct_fns,"Model/diag.plt.R",sep=""))
+source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
+source(paste(direct_fns,"Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
+source(paste(direct_fns,"Model/biomass.plt.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Contour/contour.gen.r",sep="")) 
 # The necesary library
 require(R2jags) || stop("You need the R2jags package installed or this ain't gonna work")
 require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
@@ -194,7 +194,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
   direct <- direct.real
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con,direct=direct)
+    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -237,7 +237,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
       cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
-                                         direct=direct,period = "survyr") 	
+                                         period = "survyr") 	
       
       # Now on Browns North the survey usually happens in June so the projection is actually different
       # But in 2015 the survey was messed so the above is the solution used for 2015, 
@@ -245,7 +245,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       # It really makes very little difference which way this is done as the catch in June-August
       # has averaged around just 40 tonnes since about 1996.
       if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
-                                                                                method='jackknife',direct=direct,period = "survyr") 	
+                                                                                method='jackknife',period = "survyr") 	
       # Combine the survey and Fishery data here.
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
       # Get the CV for the CPUE...
@@ -261,7 +261,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
                                                                  %in% c("June","July","August","September","October","November","December"))
       # Now calculate the fishery statistics for the projection period
       proj.dat[[bank[i]]] <- fishery.dat(proj.sub,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
-                                         direct=direct,period = "calyr") 	
+                                         period = "calyr") 	
       
       # This little snippet I ran to compare the median difference between using BBn from June-Dec vs
       # BBn from Sept-Dec.  On average about 22% more catch came out if including June-August while CPUE was essentially identical

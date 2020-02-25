@@ -52,7 +52,8 @@
 #period:  	Are we looking at the calendar year or the survey year.  Calendar year = 'calyr' while	survey year ='survyr'    
 #surv: 	    If period = 'survyr' do you want to split the data using the spring 'May" or summer 
               #"August" survey.
-#direct:    Working directory "Y:/Offshore scallop/Assessment/Assessment_fns/"
+#direct:    Working directory for data and outputs "Y:/Offshore scallop/Assessment/Assessment_fns/"
+#direct_fns: the directory from which to source functions
 
 
 
@@ -60,7 +61,7 @@
 
 fishery.dat<-function(fishery.data,yr=1955:as.numeric(format(Sys.Date(),"%Y")),bk='GBa',nafo.div=bk,Gin=F,export=F,
                       method='avgdaily',model.out=F,period='calyr',surv='August',
-                      direct = "Y:/Offshore scallop/Assessment/")
+                      direct = direct, direct_fns=direct_fns)
 {
 		
 ######################################### Section 1: Processing data #####################################################
@@ -68,7 +69,7 @@ fishery.dat<-function(fishery.data,yr=1955:as.numeric(format(Sys.Date(),"%Y")),b
 	require(splancs) || stop("This won't work unless you install splancs... thanks") 
   
   # Only needed if method = "jackknife"
-  if(method == "jackknife") source(paste(direct,"Assessment_fns/Fishery/jackknife.r",sep=""),local=T)
+  if(method == "jackknife") source(paste(direct_fns,"Fishery/jackknife.r",sep=""),local=T)
   
   # Add a column to the fishery.data called year.act which will house the original year.
 	fishery.data$year.act<-fishery.data$year
