@@ -152,6 +152,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
     } # end if(file.exists(paste(direct,"Data/... == T
     
+    direct <- direct.real
+    
     # If we haven't created this file then there are a couple of places to look for the data... Note that we need to do
     # this up here to avoid overwriting the logs/fishery data...
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==F)
@@ -181,6 +183,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
         stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
       } # if(length(bank) > 1) 
     }  # end if(file.exists(paste(direct,"Data/... == F
+    
+    direct <- direct.real
     
     if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
       # read in data
