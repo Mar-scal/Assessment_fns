@@ -197,7 +197,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   
   if(mwsh.test.ban == T) {
     browser()
-    source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+    source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
     mwsh.test.dat <- mw.dat.all[[bnk]]
     if(!any(mwsh.test.dat$sh > 10)) mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
     mwshtest <- mwsh.sensit(mwdat=na.omit(mwsh.test.dat[, !names(mwsh.test.dat) %in% c("month", "species")]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
@@ -219,7 +219,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
   
   ######## Calculate biomasses by tow ###########################################################
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/surv.by.tow.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/surv.by.tow.r"))
   surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
 
     
@@ -256,7 +256,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
   
   ########### Make survey.obj for Ban (mimicking Middle bank method) ###########################
   
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/simple.surv.R"))
+  source(paste0(direct_fns, "Survey_and_OSAC/simple.surv.R"))
   survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
   survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
                                       function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),

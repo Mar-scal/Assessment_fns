@@ -78,9 +78,9 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   if(repo == "local")
   {
-    source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
-    source(paste(direct,"Assessment_fns/Maps/pectinid_projector.R",sep="")) # The new scallopMap
-    source(paste(direct,"Assessment_fns/Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
+    source(paste(direct_fns,"Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
+    source(paste(direct_fns,"Maps/pectinid_projector.R",sep="")) # The new scallopMap
+    source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
   }
   
   # The necesary library
@@ -517,7 +517,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   } # end if(!is.null(export))
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
-    source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
+    source(paste0(direct_fns, "Fishery/Log_spatial_checks/app.R"))
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
   }
   

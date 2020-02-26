@@ -21,7 +21,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   require(sp) || stop("Make sure you have sp package installed to run this")
   
   ### other functions
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
 
   ### load the data
   ## from the xlsx template:

@@ -85,19 +85,19 @@ atow<-800*2.4384/10^6 # area of standard tow in km2
 # so we can easily tie the function call to the script for that function.
 # The  functions are in this directory unless explicitly specified
 # These 8 functions are pre-processing functions used to bring in and arrange various pieces of data
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/import.survey.data.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/import.hyd.data.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/import.survey.data.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/import.hyd.data.r",sep="")) 
 
 # These are the functions used to within the heart of the code to make stuff happen
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/getdis.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/condFac.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/restratwp.r",sep=""),local=T) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/restratwp.r",sep=""),local=T) 
+source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
 
 
 ################################## End Load Functions   #######################################################
@@ -231,14 +231,14 @@ if(preprocessed == T)
     load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
     direct <- dirc
     # These are the functions used to within the heart of the code to make stuff happen
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/getdis.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/condFac.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/restratwp.r",sep=""),local=T) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/restratwp.r",sep=""),local=T) 
+    source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
     surveys <- tmp
     num.surveys <- length(surveys)
   } # end if(preprocessed == T) 

@@ -8,8 +8,8 @@
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
-# 1: source(paste(direct,"Assessment_fns/Survey_design/Survey_design_test.r",sep=""))
-# 2: source(paste(direct,"Assessment_fns/Survey_design/alloc.poly.r",sep=""))
+# 1: source(paste(direct_fns,"Survey_design/Survey_design_test.r",sep=""))
+# 2: source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
 ###############################################################################################################
 
 ###############################################################################################################

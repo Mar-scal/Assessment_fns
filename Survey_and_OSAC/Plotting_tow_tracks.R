@@ -30,9 +30,9 @@ if(bk == 'spring' || bk == 'all') cat("Hallow wonderful human!  Note that bk='sp
 if(bk == 'all') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'spring') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'summer') bk <- c("GBa","GBb")
-source(paste0(direct,"Assessment_fns/Survey_and_OSAC/getdis.r"))
-source(paste0(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
-source(paste0(direct,"Assessment_fns/Maps/ScallopMap.r"))
+source(paste0(direct_fns,"Survey_and_OSAC/getdis.r"))
+source(paste0(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r"))
+source(paste0(direct_fns,"Maps/ScallopMap.r"))
 library(reshape2)
 library(PBSmapping)
 

@@ -37,8 +37,8 @@ image.prep<-function(X,Y,Z,dat,res=0.02,summary.dat=F,log.dat=T,method='gstat',m
   require (gstat)       || stop("You need to install the gstat package for this to work!")
   require (fields)      || stop("You need to install the fields package for this to work!")
   require (PBSmapping)  || stop("You need to install PBSmapping for this function to work!")
-  #Source1 source(paste(direct,"Contour/grid.data.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/grid.data.r",sep=""))
+  #Source1 source(paste(direct_fns,"Contour/grid.data.r",sep=""))
+  source(paste(direct_fns,"Contour/grid.data.r",sep=""))
   
   # Print information about run time.
   print("image.prep start")
@@ -92,7 +92,7 @@ image.prep<-function(X,Y,Z,dat,res=0.02,summary.dat=F,log.dat=T,method='gstat',m
   # If we have covariate data use that as our grid.dat object or call the grid.data function and krige the covariate data.
   if(is.null(covariate.dat) == F)
       {
-        #Source1 source(paste(direct,"Contour/grid.data.r",sep=""))
+        #Source1 source(paste(direct_fns,"Contour/grid.data.r",sep=""))
         if(regrid==T)grid.dat <- grid.data(covariate.dat,grid.dat)
         if(regrid==F)grid.dat <- covariate.dat
       }	# end if(is.null(covariate.dat) == F)

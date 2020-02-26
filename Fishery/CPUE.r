@@ -21,8 +21,8 @@
 ###############################################################################################################
 direct = "d:/R/" 
 
-source(paste(direct,("Assessment_fns/Fishery/CPUE_monthly_or_observer.r"),sep=""))
-#source(paste(direct,("Assessment_fns/Fishery/FishMonth.r"),sep=""))
+source(paste(direct_fns,("Fishery/CPUE_monthly_or_observer.r"),sep=""))
+#source(paste(direct_fns,("Fishery/FishMonth.r"),sep=""))
 
 # Sample CPUE.mon calls...
 # Note if running 64 bit you'll need a new db.con name (DK don't forget yours is called ptran64)

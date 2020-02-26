@@ -65,7 +65,7 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
   require(RODBC) || stop("Package RODBC cannot be found")
   require(plyr)
   require(lubridate)
-  source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
+  source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
   
   if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")
   #Source1 source("d:/R/fn/logs_and_fishery_data_DK.r") get data from logs and fish function

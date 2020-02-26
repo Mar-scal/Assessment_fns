@@ -16,8 +16,8 @@ load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_resu
 yr <- 2016
 direct <- "d:/r/"
 
-source(paste(direct,"Assessment_fns/Contour/contour.gen.r",sep="")) 
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Contour/contour.gen.r",sep="")) 
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 
 
 i=1

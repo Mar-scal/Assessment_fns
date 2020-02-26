@@ -61,7 +61,7 @@ CPUE.mon <- function(CPUE = "month", bank = "GBBB", year = as.numeric(format(Sys
   
 require(splancs)  || stop("You need the package splancs... thanks")
 require(RODBC) || stop("Package RODBC cannot be found")
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
   
   
 if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")

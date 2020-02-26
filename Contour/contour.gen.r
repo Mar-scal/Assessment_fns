@@ -130,11 +130,11 @@ contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore 
   require(spatstat)      || stop("You need to install the spatstat package for this to work!")
   
   # Load the required subfunctions. #Source1 - #Source5
-  source(paste(direct,"Assessment_fns/Contour/smooth.bank.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/tick.def.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/blank.bank.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/image.prep.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/area.cal.r",sep=""))
+  source(paste(direct_fns,"Contour/smooth.bank.r",sep=""))
+  source(paste(direct_fns,"Contour/tick.def.r",sep=""))
+  source(paste(direct_fns,"Contour/blank.bank.r",sep=""))
+  source(paste(direct_fns,"Contour/image.prep.r",sep=""))
+  source(paste(direct_fns,"Contour/area.cal.r",sep=""))
   
   print("contour start")
 	print(Sys.time())

@@ -28,11 +28,11 @@
 # suggestion: compare condmod$CFyrs$CFse.fit between runs (error bars on the CF time series plot. how do they change with diff data subsets?)
 
 mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                        plot = T, seed=1234, direct=direct) {
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.lme.r"))
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/condFac.R"))
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/shwt.plt1.R"))
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/stdts.plt.R"))
+                        plot = T, seed=1234, direct, direct_fns) {
+  source(paste0(direct_fns, "Survey_and_OSAC/shwt.lme.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/condFac.R"))
+  source(paste0(direct_fns, "Survey_and_OSAC/shwt.plt1.R"))
+  source(paste0(direct_fns, "Survey_and_OSAC/stdts.plt.R"))
   browser()
   if(missing(mwdat) & missing(shfdat)) {
     print("mwdat and shfdat not specified, using pre-loaded mw.dat.all[[bank]] and bank.dat[[bank]] from Survey Summary RData.")

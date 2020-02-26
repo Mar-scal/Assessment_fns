@@ -2,10 +2,10 @@
 
 direct = "d:/r/"
 yr = 2016
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct,"Assessment_fns/Fishery/fishery.dat.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 library(PBSmapping)
 
 # These are the coordinates for the much anticipated "Star box"

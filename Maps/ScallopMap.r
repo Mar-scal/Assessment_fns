@@ -175,10 +175,10 @@ ScallopMap<-function(area='custom',
   #require(GISTools) ||  stop("Install GISTools Package")
 
   # Load the 4 custom functions
-  source(paste(direct,"Assessment_fns/Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
-  source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep="")) #Source2 add the managment details
-  source(paste(direct,"Assessment_fns/Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
+  source(paste(direct_fns,"Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
+  source(paste(direct_fns,"Maps/managePlot.r",sep="")) #Source2 add the managment details
+  source(paste(direct_fns,"Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
   
 ######################  Section 1 - This relates to the "area"  and  "shore" arguements in the function call + 
 #######################    Opens the plotting device ###################################  

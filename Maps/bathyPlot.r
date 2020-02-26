@@ -75,7 +75,7 @@ bathyPlot<-function(db = "quick", un = un.ID, pw = pwd.ID, db.con = "ptran",isob
   if(db=='CHS')
     {
       # Source1 CHS needs to processed by local get.bathy.r function this doesn't work with inshore set up!
-      source(paste(direct,"Assessment_fns/Maps/get.bathy.r",sep=""),local=T)
+      source(paste(direct_fns,"Maps/get.bathy.r",sep=""),local=T)
       # Use the "custom" section of get.bathy function.  Sets up the xlim and ylim to be slightly larger than specified
       # in this function, likely to ensure  contour lines converage is complete on this map.  Data extracted via SQL call in get.bathy.r
       bathy.dat<-get.bathy('custom',un=un, pw=pw,db.con= db.con,xl=c(xlim[1]-0.5,xlim[2]+0.5),yl=c(ylim[1]-0.5,ylim[2]+0.5))

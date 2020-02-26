@@ -16,7 +16,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   
   ### other functions
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
   
   if(season=="spring") {
     banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB")

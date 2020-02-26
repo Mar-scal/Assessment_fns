@@ -28,10 +28,10 @@
 
 ###############################################################################################################
 ## This function needs these functions to work (a.k.a. "support files")
-# 1: source(paste(direct,"Assessment_fns/Survey_design/alloc.poly_new.r",sep=""))
-# 2: source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
-# 3: source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-# 4: source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+# 1: source(paste(direct_fns,"Survey_design/alloc.poly_new.r",sep=""))
+# 2: source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
+# 3: source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+# 4: source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 ###############################################################################################################
 
 ###############################################################################################################
@@ -75,11 +75,11 @@ require(lubridate) || stop("Install the lubridate Package before it's too late!"
 if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 
-source(paste(direct,"Assessment_fns/Survey_design/alloc.poly.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
+source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
+source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
@@ -142,7 +142,7 @@ for(i in 1:num.banks)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
     polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
     if(fig=="leaflet") {
-      source(paste0(direct, "Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
+      source(paste0(direct_fns, "Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
       shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
       shp_strata <- st_cast(st_as_sf(shp_strata), to="MULTIPOLYGON")
       shp_strata <- st_transform(shp_strata, crs = 4326)
@@ -755,7 +755,7 @@ if(bnk == "Ger")
       if(!fig %in% c("screen", "leaflet")) dev.off()
     } # end if(plot==T)
     
-    # Now if you want to make these new fangled relief plots... source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
+    # Now if you want to make these new fangled relief plots... source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
     if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
     
     # finally, append Ger.tow.dat into towlst
