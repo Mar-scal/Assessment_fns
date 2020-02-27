@@ -95,7 +95,7 @@
 #                 log.cont = continuous log scale
 
 
-contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore scallop/Assessment/",
+contour.gen<-function(contour.dat,interp.method='interp', direct, direct_fns,
                       res=0.01,log.dat=F,  subset.eff=NA,subscale=res,plot=F,
                       # These function calls are needed for smooth.bank subfunction
                       smooth=F,smooth.fun=median, sres=1/60.1, no.data='0', subset.poly=NULL, procedure=1, 

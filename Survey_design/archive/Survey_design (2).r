@@ -49,7 +49,7 @@
 #                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore scallop/Assessment/",export = F,seed = NULL, text.points = F,
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, direct_fns, export = F,seed = NULL, text.points = F,
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60)
 {

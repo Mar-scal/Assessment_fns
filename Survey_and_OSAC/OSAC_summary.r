@@ -54,7 +54,7 @@ OSAC_summary <- function(yr = as.numeric(format(Sys.time(), "%Y")), mx.dt = as.D
                          low = 1,high = 10, extreme = 50,
                          poly.brd = "black", mini.figs=F, add.titles = T,
                          save.fig = F,save.res=F, rdata.logs=F, export=F,calc.mc = T, 
-                         mc.path = "default",direct = "Y:/Offshore scallop/Assessment",
+                         mc.path = "default",direct, direct_fns,
                          un=NULL,pw=NULL,db.con="ptran")
 {
 

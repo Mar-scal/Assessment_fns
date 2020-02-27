@@ -38,7 +38,7 @@ surv.info <- subset(survey.info,label== "Sab")
 pdf(paste(direct,"2017/Survey_Design/Sab/History_of_sable_tows.pdf",sep=""),onefile=T,width = 11, height = 8.5,bg = "transparent")
   #windows(11,8.5)
   #par(mfrow=c(1,1))
-  ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+  ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                nafo.bord = F,nafo.lab = F,title="Historic Survey Tows Sable",dec.deg = F)
   # This gets all the points ever...
@@ -52,7 +52,7 @@ pdf(paste(direct,"2017/Survey_Design/Sab/History_of_sable_tows.pdf",sep=""),onef
   par(mfrow=c(2,2))
   for(j in 1:length(years))
   {
-    ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+    ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                nafo.bord = F,nafo.lab = F,title=paste("Survey Tows Sable",years[j]),dec.deg = F)
    # This gets all the points ever...
@@ -81,7 +81,7 @@ pdf(paste(direct,"2017/Survey_Design/Sab/History_of_sable_tows.pdf",sep=""),onef
   fish.dat$ID<-1:nrow(fish.dat)
   
   pdf(paste(direct,"2017/Survey_Design/Sab/Sable_log_records.pdf",sep=""),onefile=T,width = 11, height = 8.5,bg = "transparent")
-  ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+  ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
              plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
              nafo.bord = F,nafo.lab = F,title="Historic Sable Logbook Records",dec.deg = F)
   # This gets all the points ever...
@@ -94,7 +94,7 @@ pdf(paste(direct,"2017/Survey_Design/Sab/History_of_sable_tows.pdf",sep=""),onef
   par(mfrow=c(2,2))
   for(j in 1:length(years))
   {
-    ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+    ScallopMap("Sab",poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                plot.bathy=T,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                nafo.bord = F,nafo.lab = F,title=paste("Annual Logs Sable",years[j]),dec.deg = F)
     # This gets all the points ever...

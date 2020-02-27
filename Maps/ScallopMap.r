@@ -121,7 +121,7 @@
 ScallopMap<-function(area='custom',
                      ylim=c(40,46),xlim=c(-68,-55), 
                      plot.strata=F,  plot.bathy=F, plot.boundries=F,  # plot strata, bathymetry, or management boundaries?
-                     direct = "Y:/Offshore/Assessment/",   # The default working directory, note that
+                     direct, direct_fns,  # The default working directory, note that
                      # this is set a level above the "Maps" subfolder.
                     
                      # Strata Options
@@ -294,7 +294,7 @@ ScallopMap<-function(area='custom',
   {
     #Source1 source(paste(direct,"Maps/strataPlot.r",sep=""))
     strataPlot(loc = strata, plot.add=T, un = un, pw=pw, db.con = db.con,strata.colors=strata.colors,strata.cex = strata.cex,
-               direct = direct)
+               direct = direct, direct_fns = direct_fns)
   } # end if(plot.strata==T)
   
   # Now we can bring in the bathymetry
@@ -409,7 +409,7 @@ ScallopMap<-function(area='custom',
   {
     #Source1 source(paste(direct,"Maps/strataPlot.r",sep=""))
     strataPlot(loc = strata, plot.add=T, un = un, pw=pw, db.con = db.con,strata.colors=strata.colors,strata.cex = strata.cex,
-               direct = direct)
+               direct = direct, direct_fns = direct_fns)
   } # end if(plot.strata==T)
   
   

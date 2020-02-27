@@ -29,7 +29,7 @@
 #asp:          The aspect ratio:  Default is aspr.
 image.prep<-function(X,Y,Z,dat,res=0.02,summary.dat=F,log.dat=T,method='gstat',matrix.dat=T,id.par=0.5,nmax=7,maxdist=Inf,
                      linear=F, subset.poly=NULL, covariate.dat=NULL,regrid=F,mod.type="Sph",subscale=0.01,asp=aspr,
-                     direct = "Y:/Offshore scallop/Assessment/")
+                     direct, direct_fns)
 {
   
   require (splancs)     || stop("You need to install splancs... thanks!")

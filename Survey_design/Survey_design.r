@@ -63,7 +63,7 @@
 # language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore/Assessment/",export = F,seed = NULL, point.style = "points",
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, direct_fns, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {

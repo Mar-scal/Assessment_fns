@@ -138,7 +138,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                                   "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"),
                        banks = "all" ,
                        s.res = "low",add.scale = F, 
-                       direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
+                       direct, direct_fns, yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F,
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
@@ -1452,7 +1452,7 @@ for(i in 1:len)
       if(fig == "png") png(paste(plot.dir,"/survey_strata_overlay.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata_overlay.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
-      ScallopMap(banks[i],poly.lst=NULL,direct = direct,cex.mn=2, boundries="offshore",
+      ScallopMap(banks[i],poly.lst=NULL,direct = direct, direct_fns = direct_fns, cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title="  ",dec.deg = F,add.scale = add.scale)
       lapply(bound.poly.surv.GBsub[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) addPolys(x)) 
@@ -1476,14 +1476,14 @@ for(i in 1:len)
     if(!is.null(strata.areas))
     {
       # I need to move the scale bar for Sable and GBb...
-      if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct,cex.mn=2, boundries="offshore",
+      if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
       
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("Sab","GBb")) 
       {
-        ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+        ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                    plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
       } # end if(banks[i] %in% c("Sab","GBb")) 
@@ -1492,7 +1492,7 @@ for(i in 1:len)
         {
             x.bound <- range(bound.poly.surv$X)
             y.bound <- range(bound.poly.surv$Y)
-            ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+            ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                        plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                        nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
           
@@ -1509,10 +1509,10 @@ for(i in 1:len)
     
     if(is.null(strata.areas))
     {
-      if(banks[i] =="BanIce") ScallopMap("Ban",direct = direct,cex.mn=2,boundries="offshore",
+      if(banks[i] =="BanIce") ScallopMap("Ban",direct = direct, direct_fns = direct_fns,cex.mn=2,boundries="offshore",
                  plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
-      if(!banks[i] =="BanIce") ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
+      if(!banks[i] =="BanIce") ScallopMap(banks[i],direct = direct, direct_fns = direct_fns,cex.mn=2,boundries="offshore",
                                          plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                                          nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
     } # end if(nrow(strata.areas) == 0)
@@ -2858,7 +2858,7 @@ for(i in 1:len)
         x.range <- c(min(this.box$X) - 2*diff.x, max(this.box$X) + 2*diff.x)
         y.range <- c(min(this.box$Y) - 2*diff.y, max(this.box$Y) + 2*diff.y)
         ScallopMap(xlim = x.range,ylim = y.range,
-                            poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+                            poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                    plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,dec.deg = F,add.scale = F)
         if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),

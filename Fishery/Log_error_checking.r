@@ -59,7 +59,7 @@
 #               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
 ###############################################################################################################
 
-log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , marfis=T, repo = "github",
+log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github",
                        db.con="ptran",un=NULL,pw=NULL,db.lib = "ROracle", 
                        bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time = c(3,80),trip.tol = 1 ,
                        spatial = T,reg.2.plot = NULL, plot = "shiny", export = NULL
@@ -406,7 +406,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         
         if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
         {
-          pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+          pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct, direct_fns = direct_fns,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
         } 
         else {
           pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct, direct_fns=direct_fns,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")

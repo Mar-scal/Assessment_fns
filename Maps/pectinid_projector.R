@@ -62,7 +62,7 @@
 pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326"),repo = "github",c_sys = "ll", 
                      add_EEZ = NULL, add_bathy = NULL,add_land = F,add_nafo="no",add_sfas = NULL, 
                      add_strata = NULL, add_obj = NULL,add_custom = NULL,
-                     direct = "Y:/Offshore scallop/Assessment",
+                     direct, direct_fns,
                      # The below control the INLA surface added to the figure.
                      field = NULL, mesh=NULL, 
                      zlim = c(0,1), dims = c(50, 50), trans= "none", clip= NULL,

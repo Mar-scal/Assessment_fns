@@ -38,7 +38,7 @@
 
 
 dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,smooth=T,plt=F,meh=0,
-                    printtow=F,direct = "Y:/Offshore scallop/Assessment/")
+                    printtow=F,direct, direct_fns)
 {
   #browser()
   require(PBSmapping)  || stop("Install PBSmapping Package")

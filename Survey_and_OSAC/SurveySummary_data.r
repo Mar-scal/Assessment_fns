@@ -86,7 +86,7 @@
 # 14: nickname:     if testing = T, adds a nickname to your Rdata file for testing purposes (so that you don't overwrite one of the hard-coded versions)
 ###############################################################################################################
 
-survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
+survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
                         surveys = "all", survey.year= NULL,preprocessed = F,un.ID=un.ID,pwd.ID=pwd.ID,db.con="ptran",
                         season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T, mwsh.test = F, nickname)
 {  
