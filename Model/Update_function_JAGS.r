@@ -143,7 +143,9 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
 
   if(preprocessed==F)
   {
-    direct.real <- direct  
+    direct.real <- direct 
+    nickname1 <- nickname
+    
     # Bring in the survey results for the current year, this also includes the fishery data..
     # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
@@ -153,6 +155,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     } # end if(file.exists(paste(direct,"Data/... == T
     
     direct <- direct.real
+    nickname <- nickname1
     
     # If we haven't created this file then there are a couple of places to look for the data... Note that we need to do
     # this up here to avoid overwriting the logs/fishery data...
@@ -185,6 +188,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     }  # end if(file.exists(paste(direct,"Data/... == F
     
     direct <- direct.real
+    nickname <- nickname1
     
     if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
       # read in data
@@ -192,6 +196,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     }
   
   direct <- direct.real
+  nickname <- nickname1
   
     # Now bring in the latest fishery data
     logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con, direct=direct, direct_fns=direct_fns)
@@ -718,11 +723,11 @@ for(j in 1:num.banks)
     if(make.diag.figs == T)
     {
       # posterior densities for model parameters
-      # post.plt(DD.out[[bnk]],DDpriors[[bnk]],years=yrs[[bnk]], graphic=fig,multi=T,path=plotsGo)
-      # dev.off()
-      # #exploitaiton time series
-      # exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
-      # dev.off()
+      post.plt(DD.out[[bnk]],DDpriors[[bnk]],years=yrs[[bnk]], graphic=fig,multi=T,path=plotsGo)
+      #dev.off()
+      #exploitaiton time series
+      exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
+      #dev.off()
       
       # model biomass fit to survey
       fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
@@ -738,7 +743,6 @@ for(j in 1:num.banks)
       # Make the pdf, given the number of parameters in the model you don't get an option for making this plot print to screen
       # if you run diagnostics you get this pdf
       
-      # First we can set the dimensions for the plotting device.
       # Set the number of rows
       nr <- ceiling(sqrt(nchains))
       # Set the number of columns, the funky little command is used to add one to the nc if nchains is a perfect square
