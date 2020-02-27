@@ -243,7 +243,7 @@ contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore 
   	  #Source4 source(paste(direct,"Contour/image.prep.r",sep=""))
   		image.lst<-image.prep(dat=contour.dat,method=interp.method,nmax=nmax,id.par=id.par,log.dat=log.dat,res=res,
   		                      linear=linear,covariate.dat=covariate.dat,regrid=regrid,mod.type=mod.type,
-  		                      subscale=subscale, subset.poly=subset.poly,asp=aspr,direct=direct) # aspr=aspr,
+  		                      subscale=subscale, subset.poly=subset.poly,asp=aspr,direct=direct, direct_fns=direct_fns) # aspr=aspr,
   		
   		# Make an object of the data 
   		image.dat<-image.lst[[1]]

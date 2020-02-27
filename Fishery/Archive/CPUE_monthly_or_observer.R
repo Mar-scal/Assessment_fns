@@ -54,7 +54,7 @@
 CPUE.mon <- function(CPUE = "month", bank = "GBBB", year = as.numeric(format(Sys.Date(),"%Y")), fleet = "ALL", boxes=NULL,
                      print=F,output=T, export.tables = "F", export.logs="F",months = c(1:12),nafo.div =NULL,obs.vnum = NULL,
                      obs.land.date = NULL, obs.export=F,un=un.ID,pw=pwd.ID,db.con="ptran",
-                     direct="Y:/Offshore scallop/Assessment/")
+                     direct, direct_fns)
 {
 
 ########################################################## Section 1 Monthly CPUE calculations ##########################################	

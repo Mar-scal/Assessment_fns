@@ -932,7 +932,7 @@ for(j in 1:num.banks)
       if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=11,height=8.5)
       if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=11,height=8.5,res=920,units="in")
       ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
-                                      direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
+                                      direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
       # Turn off the plot device if making a pdf.
       if(fig != "screen") dev.off()
       #} # end if(bnk %in% c("GBa","BBn"))
@@ -958,10 +958,10 @@ for(j in 1:num.banks)
     pe.years <- rev(sort(pe.years))
     #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
     pred.eval(input = DD.lst[[bnk]], priors = DD.out[[bnk]]$priors, pe.years= pe.years, growth="both",model = jags.model,  bank=bnk,
-              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct)
+              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct, direct_fns=direct_fns)
 
     # Now we make the figures and save them...
-    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
+    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, direct_fns=direct_fns,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
     #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     
     print("done running prediction evaluation")

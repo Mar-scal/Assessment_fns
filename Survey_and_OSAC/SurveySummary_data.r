@@ -244,7 +244,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # From Whatever year we have the data loaded into SQL database we are getting the data directly from the SQL server.
     # As of Winter 2016 this was an ongoing process.
     #Source6 source("fn/get.offshore.survey.r") Get the data directly from SQL
-    SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)
+    SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct, direct_fns=direct_fns)
     # subset by yr to cut off data past specified yr
     
     SurvDB$SHF <- SurvDB$SHF[SurvDB$SHF$YEAR < (yr+1),]
@@ -742,7 +742,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
         source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
         mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                 sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                                direct=direct, seed=1234)
+                                direct=direct, seed=1234, direct_fns=direct_fns)
         cf.data[[bnk]] <- mwshtest$condmod
       }
     } # end if(bnk %in% c("Mid", "Ban"))
@@ -794,7 +794,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
       mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                               sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                              direct=direct, seed=1234)
+                              direct=direct, seed=1234, direct_fns=direct_fns)
       cf.data[[bnk]] <- mwshtest$condmod
     }
 

@@ -39,7 +39,7 @@
 ### currently standardized live shell height frequency
 
 # DK August 20, 2015, function call altered so DB credentials are entered directly into function call.
-get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/", ...)
+get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct, direct_fns, ...)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	

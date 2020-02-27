@@ -20,8 +20,8 @@
 ## ** The point is that the model itself was built with a reduced sample size, and reduced sample size should mean increased uncertainty. We want to know just how much it increases. 
 
 # examples
-# runfull <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, direct="C:/Documents/Offshore scallop/Assessment/")
-# rundropped <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, sub.tows=0.20, direct="C:/Documents/Offshore scallop/Assessment/")
+# runfull <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, direct=direct, direct_fns=direct_fns)
+# rundropped <- mwsh.sensit(bank="Ger", mwdat=mwger_0, shfdat=shfger_0, sub.tows=0.20, direct=direct, direct_fns=direct_fns)
 
 # outputs:
 # mwshmod and condmod objects
@@ -143,7 +143,7 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
 ## year: the year of the survey data (folder where testing_results found)
 ## bank: the bank of interest
 # example: 
-# mwsh.survey.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
+# mwsh.survey.extract(nickname="GBaFinal", direct=direct, direct_fns=direct_fns, year=2019, bank="GBa")
 mwsh.survey.extract <- function(nickname, direct, year, bank) {
 
   # read in data
@@ -176,7 +176,7 @@ mwsh.survey.extract <- function(nickname, direct, year, bank) {
 ## year: the year of the model run (folder where Model_results found (not survey year))
 ## bank: the bank of interest
 # example: 
-# mwsh.DDmodel.extract(nickname="GBaFinal", direct=direct, year=2019, bank="GBa")
+# mwsh.DDmodel.extract(nickname="GBaFinal", direct=direct, direct_fns=direct_fns, year=2019, bank="GBa")
 
 mwsh.DDmodel.extract <- function(nickname, direct, year, bank) {
   

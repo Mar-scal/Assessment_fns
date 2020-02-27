@@ -202,7 +202,7 @@ BanIce_SurveySummary_data <- function(yr=yr, survey.year=survey.year, surveydata
     if(!any(mwsh.test.dat$sh > 10)) mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
     mwshtest <- mwsh.sensit(mwdat=na.omit(mwsh.test.dat[, !names(mwsh.test.dat) %in% c("month", "species")]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                             sub.size=NULL, sub.year=c(NA, 2012), sub.tows=NULL, sub.samples=NULL, 
-                            direct=direct, seed=1234)
+                            direct=direct, direct_fns=direct_fns, seed=1234)
     cf.data[[bnk]] <- mwshtest$condmod
   }
   

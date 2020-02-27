@@ -4,7 +4,7 @@
 ### This is run to check data across surveys/banks within a single CRUISE.
 
 scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, 
-                                 year, direct="Y:/Offshore scallop/Assessment/",
+                                 year, direct=direct, direct_fns=direct_fns,
                                  type="xlsx", cruise, season, nickname=NULL) {
   
   ### packages

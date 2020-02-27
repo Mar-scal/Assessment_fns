@@ -1274,11 +1274,11 @@ for(i in 1:len)
           # This is one figure to rule all
           if(!banks[i] %in% c("BanIce", "Ban")) ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
-                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                     direct=direct, direct_fns=direct_fns,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           
           if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
+                                              direct=direct, direct_fns=direct_fns,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -3024,7 +3024,7 @@ for(i in 1:len)
             if(b ==3) fig.title <- fr.title.seed
             # Make the map
             ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct, direct_fns=direct_fns,
                        title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = F)
             if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
                                                min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
@@ -3142,7 +3142,7 @@ for(i in 1:len)
         #     
         #     # Make the map
         #     ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-        #                isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+        #                isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct, direct_fns=direct_fns,
         #                title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = add.scale)
         # 
         #     # Add the contours

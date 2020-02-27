@@ -27,7 +27,7 @@
 
 # rm(list=ls(all=T))
 bathyPlot<-function(db = "quick", un = un.ID, pw = pwd.ID, db.con = "ptran",isobath = seq(50,200,50), plot.add=T, 
-                    bounds = "inshore", b.col = 'lightblue',direct="Y:/Offshore scallop/Assessment/")
+                    bounds = "inshore", b.col = 'lightblue',direct, direct_fns)
 {
   
 ######################################  Section 1 Set up plot if plot.add=F ##########################################  

@@ -266,7 +266,7 @@ for(i in 1:num.banks)
   	  
   	  if(!fig == "leaflet") {
   	    # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
-  	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct)
+  	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct, direct_fns=direct_fns)
   	    
   	    title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
   	    
@@ -329,7 +329,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
-  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -371,7 +371,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -416,7 +416,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -502,7 +502,7 @@ for(i in 1:num.banks)
       }
       
       if(!fig == "leaflet") {
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
         # Add the points, or text or both
         if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
@@ -652,7 +652,7 @@ if(bnk == "Ger")
       }
        
       if(!fig == "leaflet") {   
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
         
@@ -726,7 +726,7 @@ if(bnk == "Ger")
       }
       
       if(!fig == "leaflet") {
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
         addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)

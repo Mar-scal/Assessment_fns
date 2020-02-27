@@ -385,14 +385,14 @@ ScallopMap<-function(area='custom',
      {
       #Source2 source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep=""))
        managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-                plot.color = bound.color,direct=direct,manage.colors = manage.colors)
+                plot.color = bound.color,direct=direct, direct_fns=direct_fns,manage.colors = manage.colors)
       } # end if(plot.strata==T)
 
   if(plot.bathy==T)
   {
     #Source3 source(paste(direct,"Maps/bathyPlot.r",sep=""))
     bathyPlot(db = bathy.source,isobath = isobath, plot.add=T, un = un, pw = pw, db.con = db.con,bounds = boundries,
-              b.col=bathcol,direct=direct)
+              b.col=bathcol,direct=direct, direct_fns=direct_fns)
   } # end if(plot.bathy==T)
   
   # Replot the managment boundries This just makes the boundary lines show up a bit better, could switch order
@@ -402,7 +402,7 @@ ScallopMap<-function(area='custom',
   {
     #Source2 source(paste(direct,"Maps/managePlot.r",sep=""))
     managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-               plot.color = F,direct=direct,manage.colors=manage.colors)
+               plot.color = F,direct=direct, direct_fns=direct_fns,manage.colors=manage.colors)
   } # end if(plot.strata==T)
   
   if(plot.strata==T && plot.boundries==T)

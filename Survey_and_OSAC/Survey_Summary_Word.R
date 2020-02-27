@@ -9,7 +9,7 @@
 
 
 ## use model.dat cf for all cf measurements!
-Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata", direct=direct){
+Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, data="E:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/testing_results.Rdata", direct=direct, direct_fns=direct_fns){
   options(scipen=999)
   require(lubridate)
   require(plyr)

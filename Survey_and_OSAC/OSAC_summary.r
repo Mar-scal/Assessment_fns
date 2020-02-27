@@ -91,7 +91,7 @@ if(!is.null(bank))
   yr <- max(years)
   # So we update the fishery data with the lastest for this analysis in case the above is out of date.
   # This queries the offshore so gets the most up to date fishery information which we should be sure we are using!
-  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct)
+  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct, direct_fns=direct_fns)
   fish.dat<-merge(new.log.dat,old.log.dat,all=T)
   fish.dat$ID<-1:nrow(fish.dat)
   
@@ -215,9 +215,9 @@ if(!is.null(bank))
     # Now subset the fishery data if we need to remove some data (usually b/c recent data is not QA/QC ready) ...
     bank.fish <- subset(fish.dat, bank == bnk[i] & date < mx.dt)
     
-    cpue.ts    <- fishery.dat(bank.fish,bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
-    cpue.ts.WF <- fishery.dat(subset(bank.fish,fleet=="WF"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
-    cpue.ts.FT <- fishery.dat(subset(bank.fish,fleet=="FT"),bk=bnk[i],yr=years,method='jackknife',direct=direct) 			
+    cpue.ts    <- fishery.dat(bank.fish,bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns) 			
+    cpue.ts.WF <- fishery.dat(subset(bank.fish,fleet=="WF"),bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns) 			
+    cpue.ts.FT <- fishery.dat(subset(bank.fish,fleet=="FT"),bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns) 			
     
     effort <- c(cpue.ts$effort[cpue.ts$year == max(cpue.ts$year)],
                 ifelse(max(cpue.ts$year) %in% cpue.ts.WF$year, cpue.ts.WF$effort[cpue.ts.WF$year == max(cpue.ts$year)],NA),
@@ -333,7 +333,7 @@ if(!is.null(bank))
       {
         ScallopMap(area=bnk[j],plot.bathy=T,bathy.source = "quick",boundries = "offshore",shore="nwatlHR",
                 bound.color = T,plot.boundries = T,label.boundries = F,offshore.names=F,xlab="",ylab="",bathcol = "darkblue",
-                title="",cex.mn=2,dec.deg = F,direct=direct,manage.colors = pastel.colors(60,seed=2))
+                title="",cex.mn=2,dec.deg = F,direct=direct,manage.colors = pastel.colors(60,seed=2), direct_fns=direct_fns)
       } # end if(nrow(surv.dets)==0)
     # If there is survey strata we do this...
     if(nrow(surv.dets)>0)
@@ -341,7 +341,7 @@ if(!is.null(bank))
         ScallopMap(area=bnk[j],plot.bathy=T,bathy.source = "quick",boundries = "offshore",shore="nwatlHR",
                    poly.lst=list(surv.dets,surv.info),
                    bound.color = F,plot.boundries = T,label.boundries = F,offshore.names=F,xlab="",ylab="",bathcol = "darkblue",
-                   title="",cex.mn=2,dec.deg = F,direct=direct,manage.colors = pastel.colors(60,seed=2))
+                   title="",cex.mn=2,dec.deg = F,direct=direct,manage.colors = pastel.colors(60,seed=2), direct_fns=direct_fns)
       } # end if(nrow(surv.dets)==0)
     
   # This excludes banks (i.e. Banqueareau..) for which we don't have surv.Live, really is a temporary fix until we have Banquereau
