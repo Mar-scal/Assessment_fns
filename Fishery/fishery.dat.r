@@ -61,7 +61,7 @@
 
 fishery.dat<-function(fishery.data,yr=1955:as.numeric(format(Sys.Date(),"%Y")),bk='GBa',nafo.div=bk,Gin=F,export=F,
                       method='avgdaily',model.out=F,period='calyr',surv='August',
-                      direct = direct, direct_fns=direct_fns)
+                      direct, direct_fns)
 {
 		
 ######################################### Section 1: Processing data #####################################################

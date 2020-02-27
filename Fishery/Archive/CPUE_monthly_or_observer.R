@@ -54,14 +54,14 @@
 CPUE.mon <- function(CPUE = "month", bank = "GBBB", year = as.numeric(format(Sys.Date(),"%Y")), fleet = "ALL", boxes=NULL,
                      print=F,output=T, export.tables = "F", export.logs="F",months = c(1:12),nafo.div =NULL,obs.vnum = NULL,
                      obs.land.date = NULL, obs.export=F,un=un.ID,pw=pwd.ID,db.con="ptran",
-                     direct="Y:/Offshore scallop/Assessment/")
+                     direct, direct_fns)
 {
 
 ########################################################## Section 1 Monthly CPUE calculations ##########################################	
   
 require(splancs)  || stop("You need the package splancs... thanks")
 require(RODBC) || stop("Package RODBC cannot be found")
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
   
   
 if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")

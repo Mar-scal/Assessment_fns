@@ -100,7 +100,7 @@
 
 ###############################################################################################################
 
-update_JAGS <- function(direct_fns = direct_fns, direct=direct, yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
+update_JAGS <- function(direct_fns, direct, yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
                    bank = c("GBa","BBn") , use.final = F,fig="screen",
                    # The output options (note that export tables only works if run.mod=T)
                    preprocessed = F, run.mod = T, make.update.figs=T,make.diag.figs = T,
@@ -194,7 +194,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
   direct <- direct.real
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con)
+    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con, direct=direct, direct_fns=direct_fns)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -237,7 +237,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
       cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
-                                         period = "survyr") 	
+                                         period = "survyr", direct=direct, direct_fns=direct_fns) 	
       
       # Now on Browns North the survey usually happens in June so the projection is actually different
       # But in 2015 the survey was messed so the above is the solution used for 2015, 
@@ -245,7 +245,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       # It really makes very little difference which way this is done as the catch in June-August
       # has averaged around just 40 tonnes since about 1996.
       if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
-                                                                                method='jackknife',period = "survyr") 	
+                                                                                method='jackknife',period = "survyr", direct=direct, direct_fns=direct_fns) 	
       # Combine the survey and Fishery data here.
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
       # Get the CV for the CPUE...
@@ -261,7 +261,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
                                                                  %in% c("June","July","August","September","October","November","December"))
       # Now calculate the fishery statistics for the projection period
       proj.dat[[bank[i]]] <- fishery.dat(proj.sub,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
-                                         period = "calyr") 	
+                                         period = "calyr", direct=direct, direct_fns=direct_fns) 	
       
       # This little snippet I ran to compare the median difference between using BBn from June-Dec vs
       # BBn from Sept-Dec.  On average about 22% more catch came out if including June-August while CPUE was essentially identical
@@ -932,7 +932,7 @@ for(j in 1:num.banks)
       if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=11,height=8.5)
       if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=11,height=8.5,res=920,units="in")
       ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
-                                      direct=direct,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
+                                      direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
       # Turn off the plot device if making a pdf.
       if(fig != "screen") dev.off()
       #} # end if(bnk %in% c("GBa","BBn"))
@@ -958,10 +958,10 @@ for(j in 1:num.banks)
     pe.years <- rev(sort(pe.years))
     #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
     pred.eval(input = DD.lst[[bnk]], priors = DD.out[[bnk]]$priors, pe.years= pe.years, growth="both",model = jags.model,  bank=bnk,
-              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct)
+              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct, direct_fns=direct_fns)
 
     # Now we make the figures and save them...
-    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
+    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, direct_fns=direct_fns,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
     #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     
     print("done running prediction evaluation")

@@ -23,8 +23,8 @@ library(geosphere)
 library(animation)
 library(lattice)
 library(mgcv)
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))#source the ScallopMap script (function containing maps and parameters)
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))#source the ScallopMap script (function containing maps and parameters)
 
 # Bring in the 2016 data, this is our test data from are 29, this is the first data that was analyzed so much to be learned from this!
 

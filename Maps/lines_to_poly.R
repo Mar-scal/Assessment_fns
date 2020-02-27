@@ -1,4 +1,4 @@
-lines_to_poly <- function(direct=direct, folder=folder, file=file, splitlayers=T,
+lines_to_poly <- function(direct, direct_fns, folder=folder, file=file, splitlayers=T,
                           saveas=NULL) {
   require(rgdal)
   require(sp)

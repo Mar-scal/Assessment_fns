@@ -19,7 +19,7 @@
 # rm(list=ls(all=T))
 managePlot<-function(bounds = "inshore",plot.add=T,area.labels=F,offshore.names=F,plot.EEZ=F,plot.color=F,
                      manage.colors = pastel.colors(n=60,seed=2),manage.cex = 0.7, 
-                     direct = "Y:/Offshore scallop/Assessment/", language="en")
+                     direct, direct_fns, language="en")
 {
   # Load the necesasry librarys
   require(PBSmapping)|| stop("Install PBSmapping Package")

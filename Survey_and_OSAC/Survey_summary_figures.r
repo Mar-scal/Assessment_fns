@@ -138,7 +138,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
                                   "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial"),
                        banks = "all" ,
                        s.res = "low",add.scale = F, 
-                       direct = "Y:/Offshore scallop/Assessment/", yr = as.numeric(format(Sys.time(), "%Y"))  ,
+                       direct, direct_fns, yr = as.numeric(format(Sys.time(), "%Y"))  ,
                        add.title = T,fig="screen",season="both",INLA = "run" ,contour =F,
                        plt.bath = T,sub.area=T, colour.bins=NULL,
                        keep.full.GB=F, nickname=NULL)
@@ -268,14 +268,14 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
   
   # These are the functions used to within the heart of the code to make stuff happen
-  source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/stdts.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts.r",sep=""),local=T)
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.plt1.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/Clap3.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/gridPlot.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/stdts.plt.R",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/survey.ts.r",sep=""),local=T)
+  source(paste(direct_fns,"Survey_and_OSAC/shf.plt.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/shwt.plt1.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")
@@ -1274,11 +1274,11 @@ for(i in 1:len)
           # This is one figure to rule all
           if(!banks[i] %in% c("BanIce", "Ban")) ScallopMap(banks[i],title=fig.title,bathy.source=bath,isobath = iso,
                      plot.bathy = T,plot.boundries=T,boundries="offshore",
-                     direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
+                     direct=direct, direct_fns=direct_fns,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = add.scale)
           
           if(banks[i] %in% c("Ban", "BanIce")) ScallopMap("Ban",title=fig.title,bathy.source=bath,isobath = iso,
                                               plot.bathy = T,plot.boundries=T,boundries="offshore",
-                                              direct=direct,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
+                                              direct=direct, direct_fns=direct_fns,cex.mn=2,xlab="",ylab="",dec.deg = F,add.scale = F)
           
           # If we have a layer to add add it...
           if(!is.null(mod.res[[maps.to.make[m]]])) 
@@ -1452,7 +1452,7 @@ for(i in 1:len)
       if(fig == "png") png(paste(plot.dir,"/survey_strata_overlay.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata_overlay.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
-      ScallopMap(banks[i],poly.lst=NULL,direct = direct,cex.mn=2, boundries="offshore",
+      ScallopMap(banks[i],poly.lst=NULL,direct = direct, direct_fns = direct_fns, cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title="  ",dec.deg = F,add.scale = add.scale)
       lapply(bound.poly.surv.GBsub[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) addPolys(x)) 
@@ -1476,14 +1476,14 @@ for(i in 1:len)
     if(!is.null(strata.areas))
     {
       # I need to move the scale bar for Sable and GBb...
-      if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct,cex.mn=2, boundries="offshore",
+      if(banks[i] %in% c("GBa","BBn","BBs")) ScallopMap(banks[i],poly.lst=list(as.PolySet(detail.poly.surv),surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                  plot.bathy=F,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
       
       # I need to move the scale bar for Sable and GBb...
       if(banks[i] %in% c("Sab","GBb")) 
       {
-        ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+        ScallopMap(banks[i],poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                    plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = F)
       } # end if(banks[i] %in% c("Sab","GBb")) 
@@ -1492,7 +1492,7 @@ for(i in 1:len)
         {
             x.bound <- range(bound.poly.surv$X)
             y.bound <- range(bound.poly.surv$Y)
-            ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+            ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                        plot.bathy=plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                        nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
           
@@ -1509,10 +1509,10 @@ for(i in 1:len)
     
     if(is.null(strata.areas))
     {
-      if(banks[i] =="BanIce") ScallopMap("Ban",direct = direct,cex.mn=2,boundries="offshore",
+      if(banks[i] =="BanIce") ScallopMap("Ban",direct = direct, direct_fns = direct_fns,cex.mn=2,boundries="offshore",
                  plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                  nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
-      if(!banks[i] =="BanIce") ScallopMap(banks[i],direct = direct,cex.mn=2,boundries="offshore",
+      if(!banks[i] =="BanIce") ScallopMap(banks[i],direct = direct, direct_fns = direct_fns,cex.mn=2,boundries="offshore",
                                          plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                                          nafo.bord = F,nafo.lab = F,title=survey.title,dec.deg = F,add.scale = add.scale)
     } # end if(nrow(strata.areas) == 0)
@@ -2858,7 +2858,7 @@ for(i in 1:len)
         x.range <- c(min(this.box$X) - 2*diff.x, max(this.box$X) + 2*diff.x)
         y.range <- c(min(this.box$Y) - 2*diff.y, max(this.box$Y) + 2*diff.y)
         ScallopMap(xlim = x.range,ylim = y.range,
-                            poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+                            poly.lst=list(detail.poly.surv,surv.info),direct = direct, direct_fns = direct_fns,cex.mn=2, boundries="offshore",
                    plot.bathy = plt.bath,plot.boundries = T,bathy.source="quick", xlab="",ylab="",
                    nafo.bord = F,nafo.lab = F,dec.deg = F,add.scale = F)
         if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
@@ -3024,7 +3024,7 @@ for(i in 1:len)
             if(b ==3) fig.title <- fr.title.seed
             # Make the map
             ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+                       isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct, direct_fns=direct_fns,
                        title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = F)
             if(add.scale == T) maps::map.scale(min(smap.xlim)+0.1*(max(smap.xlim)-min(smap.xlim)),
                                                min(smap.ylim)+0.1*(max(smap.ylim)-min(smap.ylim)),relwidth = 0.15,cex=1,ratio=F)
@@ -3142,7 +3142,7 @@ for(i in 1:len)
         #     
         #     # Make the map
         #     ScallopMap(ylim=c(min(this.box$Y),max(this.box$Y)),xlim=c(min(this.box$X),max(this.box$X)),bathy.source="usgs",
-        #                isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct,
+        #                isobath = c(seq(40,140,by=20)),plot.bathy = T,plot.boundries = T,direct=direct, direct_fns=direct_fns,
         #                title=fig.title,dec.deg = F,ylab="",xlab="",cex.mn=1.3,add.scale = add.scale)
         # 
         #     # Add the contours

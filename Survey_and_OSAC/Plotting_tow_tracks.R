@@ -23,16 +23,16 @@
 
 
 tow.track.plots <- function(bk = c("Mid","Sab","Ger","BBn","BBs","GB","GBa","GBb"), year = format(Sys.Date(),"%Y"),extras = T, export = F, fig=NULL, 
-                        file.loc = NULL,extras.loc = NULL,compare =F,labels = F,direct = "Y:/Offshore scallop/Assessment/")
+                        file.loc = NULL,extras.loc = NULL,compare =F,labels = F,direct, direct_fns)
 {
 
 if(bk == 'spring' || bk == 'all') cat("Hallow wonderful human!  Note that bk='spring' and bk = 'all' doesn't include BBs.\n If there was a survey on BBs this year please run the function with bk = 'BBs'.  Thanks for being you! \n")
 if(bk == 'all') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'spring') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'summer') bk <- c("GBa","GBb")
-source(paste0(direct,"Assessment_fns/Survey_and_OSAC/getdis.r"))
-source(paste0(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
-source(paste0(direct,"Assessment_fns/Maps/ScallopMap.r"))
+source(paste0(direct_fns,"Survey_and_OSAC/getdis.r"))
+source(paste0(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r"))
+source(paste0(direct_fns,"Maps/ScallopMap.r"))
 library(reshape2)
 library(PBSmapping)
 

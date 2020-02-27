@@ -1,7 +1,7 @@
 ## SHP to GEOTIFF FOR SURVEY STRATA
 ## Adjust resolution as needed by changing ncols and nrows within the function
 
-shp_to_tiff() <- function(direct=direct, folder=folder, file=file, bank=bank, res="low", 
+shp_to_tiff() <- function(direct=direct, direct_fns=direct_fns, folder=folder, file=file, bank=bank, res="low", 
                           saveas=NULL){
   require(rgdal)
   require(rgeos)
@@ -17,8 +17,8 @@ shp_to_tiff() <- function(direct=direct, folder=folder, file=file, bank=bank, re
   extentshp <- c(min(shp_f$long), max(shp_f$long), min(shp_f$lat), max(shp_f$lat))
   
   if(class(shp) == "SpatialLinesDataFrame") {
-    source(paste0(direct, "/Assessment_fns/Maps/lines_to_poly.R"))
-    shp <- lines_to_poly(direct=direct, folder=folder, file=file, splitlayers=F, saveas=NULL)
+    source(paste0(direct_fns, "/Maps/lines_to_poly.R"))
+    shp <- lines_to_poly(direct=direct, direct_fns=direct_fns, folder=folder, file=file, splitlayers=F, saveas=NULL)
   }
   
   ## convert SpatialPolygonsDataFrame to SpatialPolygons

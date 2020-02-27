@@ -86,7 +86,7 @@
 # 14: nickname:     if testing = T, adds a nickname to your Rdata file for testing purposes (so that you don't overwrite one of the hard-coded versions)
 ###############################################################################################################
 
-survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
+survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
                         surveys = "all", survey.year= NULL,preprocessed = F,un.ID=un.ID,pwd.ID=pwd.ID,db.con="ptran",
                         season = "both",bins = "bank_default",testing = T,spatial = T, commercialsampling = T, mwsh.test = F, nickname)
 {  
@@ -125,23 +125,23 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
   # so we can easily tie the function call to the script for that function.
   # The  functions are in this directory unless explicitly specified
   # These 8 functions are pre-processing functions used to bring in and arrange various pieces of data
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/import.survey.data.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/import.hyd.data.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/import.survey.data.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/import.hyd.data.r",sep="")) 
   
   # These are the functions used to within the heart of the code to make stuff happen
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/getdis.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/condFac.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
   
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
+  source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
   
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/growth_potential.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/growth_potential.r",sep="")) 
   ################################## End Load Functions   #######################################################
   
   ################################## Update the run log   #######################################################
@@ -244,7 +244,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # From Whatever year we have the data loaded into SQL database we are getting the data directly from the SQL server.
     # As of Winter 2016 this was an ongoing process.
     #Source6 source("fn/get.offshore.survey.r") Get the data directly from SQL
-    SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)
+    SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct, direct_fns=direct_fns)
     # subset by yr to cut off data past specified yr
     
     SurvDB$SHF <- SurvDB$SHF[SurvDB$SHF$YEAR < (yr+1),]
@@ -348,19 +348,19 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
     # These are the functions used to within the heart of the code to make stuff happen
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/getdis.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/condFac.r",sep="")) 
-    #source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
-    #source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
-    #source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
-    #source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep=""))
+    source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
+    #source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+    #source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
+    #source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+    #source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep=""))
     
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.dat.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/sprSurv.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/surv.by.tow.r",sep="")) 
-    source(paste(direct,"Assessment_fns/Survey_and_OSAC/simple.surv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
     surveys <- tmp
     num.surveys <- length(surveys)
     survey.year <- s.year
@@ -459,7 +459,7 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
       BanIceSurvey_new <- all.surv.dat[all.surv.dat$year>2012 & all.surv.dat$bank=="BanIce",]
       BanIceMW_new <- MW.dat.new[MW.dat.new$year>2012 & MW.dat.new$bank=="BanIce",]
       
-      source(paste0(direct, "Assessment_fns/Survey_and_OSAC/BanIce_SurveySummary_data.R"))
+      source(paste0(direct_fns, "Survey_and_OSAC/BanIce_SurveySummary_data.R"))
       BanIce <- BanIce_SurveySummary_data(yr=yr, survey.year=survey.year, surveydata=BanIceSurvey2012,
                                           meatweightdata_2012 = paste0(direct, "Data/Survey_data/2012/Spring/TE13mtwt.csv"),
                                           positionsdata_2012=paste0(direct, "Data/Survey_data/2012/Spring/TE13positions.csv"),
@@ -739,10 +739,10 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
 
       if(mwsh.test == T) {
         browser()
-        source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+        source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
         mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                 sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                                direct=direct, seed=1234)
+                                direct=direct, seed=1234, direct_fns=direct_fns)
         cf.data[[bnk]] <- mwshtest$condmod
       }
     } # end if(bnk %in% c("Mid", "Ban"))
@@ -790,10 +790,11 @@ survey.data <- function(direct = "Y:/Offshore scallop/Assessment/", yr.start = 1
     if(mwsh.test == T) {
       
       browser()
-      source(paste0(direct, "Assessment_fns/Survey_and_OSAC/mwsh.sensit.R"))
+      source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
+      source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
       mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                               sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
-                              direct=direct, seed=1234)
+                              direct=direct, seed=1234, direct_fns=direct_fns)
       cf.data[[bnk]] <- mwshtest$condmod
     }
 

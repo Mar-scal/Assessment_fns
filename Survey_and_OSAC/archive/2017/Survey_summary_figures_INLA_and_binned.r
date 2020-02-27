@@ -137,14 +137,14 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
   
   # These are the functions used to within the heart of the code to make stuff happen
-  source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/stdts.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/survey.ts_bin_option.r",sep=""),local=T) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/shf.plt.r",sep=""))
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/shwt.plt1.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/Clap3.plt.R",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/gridPlot.r",sep="")) 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/stdts.plt.R",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/survey.ts_bin_option.r",sep=""),local=T) 
+  source(paste(direct_fns,"Survey_and_OSAC/shf.plt.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/shwt.plt1.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")

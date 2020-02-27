@@ -121,7 +121,7 @@
 ScallopMap<-function(area='custom',
                      ylim=c(40,46),xlim=c(-68,-55), 
                      plot.strata=F,  plot.bathy=F, plot.boundries=F,  # plot strata, bathymetry, or management boundaries?
-                     direct = "Y:/Offshore/Assessment/",   # The default working directory, note that
+                     direct, direct_fns,  # The default working directory, note that
                      # this is set a level above the "Maps" subfolder.
                     
                      # Strata Options
@@ -175,10 +175,10 @@ ScallopMap<-function(area='custom',
   #require(GISTools) ||  stop("Install GISTools Package")
 
   # Load the 4 custom functions
-  source(paste(direct,"Assessment_fns/Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
-  source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep="")) #Source2 add the managment details
-  source(paste(direct,"Assessment_fns/Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
+  source(paste(direct_fns,"Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
+  source(paste(direct_fns,"Maps/managePlot.r",sep="")) #Source2 add the managment details
+  source(paste(direct_fns,"Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
   
 ######################  Section 1 - This relates to the "area"  and  "shore" arguements in the function call + 
 #######################    Opens the plotting device ###################################  
@@ -294,7 +294,7 @@ ScallopMap<-function(area='custom',
   {
     #Source1 source(paste(direct,"Maps/strataPlot.r",sep=""))
     strataPlot(loc = strata, plot.add=T, un = un, pw=pw, db.con = db.con,strata.colors=strata.colors,strata.cex = strata.cex,
-               direct = direct)
+               direct = direct, direct_fns = direct_fns)
   } # end if(plot.strata==T)
   
   # Now we can bring in the bathymetry
@@ -385,14 +385,14 @@ ScallopMap<-function(area='custom',
      {
       #Source2 source(paste(direct,"Assessment_fns/Maps/managePlot.r",sep=""))
        managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-                plot.color = bound.color,direct=direct,manage.colors = manage.colors)
+                plot.color = bound.color,direct=direct, direct_fns=direct_fns,manage.colors = manage.colors)
       } # end if(plot.strata==T)
 
   if(plot.bathy==T)
   {
     #Source3 source(paste(direct,"Maps/bathyPlot.r",sep=""))
     bathyPlot(db = bathy.source,isobath = isobath, plot.add=T, un = un, pw = pw, db.con = db.con,bounds = boundries,
-              b.col=bathcol,direct=direct)
+              b.col=bathcol,direct=direct, direct_fns=direct_fns)
   } # end if(plot.bathy==T)
   
   # Replot the managment boundries This just makes the boundary lines show up a bit better, could switch order
@@ -402,14 +402,14 @@ ScallopMap<-function(area='custom',
   {
     #Source2 source(paste(direct,"Maps/managePlot.r",sep=""))
     managePlot(bounds = boundries,plot.add=T,area.labels = label.boundries,offshore.names = offshore.names, 
-               plot.color = F,direct=direct,manage.colors=manage.colors)
+               plot.color = F,direct=direct, direct_fns=direct_fns,manage.colors=manage.colors)
   } # end if(plot.strata==T)
   
   if(plot.strata==T && plot.boundries==T)
   {
     #Source1 source(paste(direct,"Maps/strataPlot.r",sep=""))
     strataPlot(loc = strata, plot.add=T, un = un, pw=pw, db.con = db.con,strata.colors=strata.colors,strata.cex = strata.cex,
-               direct = direct)
+               direct = direct, direct_fns = direct_fns)
   } # end if(plot.strata==T)
   
   

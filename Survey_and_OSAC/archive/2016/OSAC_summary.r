@@ -27,10 +27,10 @@ years = 1981:yr # The years of interest
 direct = "d:/r/"
 #direct = "e:/fn/"
 # Load functions and external datafiles we might need
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct,"Assessment_fns/Fishery/fishery.dat.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 
 # The fishery regulations are here
 fish.regs <- read.csv(paste(direct,"data/Fishery_regulations_by_bank.csv",sep=""))

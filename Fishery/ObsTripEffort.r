@@ -39,7 +39,7 @@ ObsTripEffort <- function(ves.ID, land.date,un=un.ID,pw=pw.ID,db.con="ptran")
   #
   
   # get log data. 
-  source(paste(direct,"logs_and_fishery_data.r",sep=""))
+  source(paste(direct_fns,"logs_and_fishery_data.r",sep=""))
   
   # Get the offshore log information for the current year. 
   logs_and_fish(loc="offshore",un=un,pw=pw,db.con=db.con)

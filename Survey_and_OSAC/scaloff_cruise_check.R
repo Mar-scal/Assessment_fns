@@ -4,7 +4,7 @@
 ### This is run to check data across surveys/banks within a single CRUISE.
 
 scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, 
-                                 year, direct="Y:/Offshore scallop/Assessment/",
+                                 year, direct=direct, direct_fns=direct_fns,
                                  type="xlsx", cruise, season, nickname=NULL) {
   
   ### packages
@@ -16,7 +16,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   
   ### other functions
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
   
   if(season=="spring") {
     banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB")

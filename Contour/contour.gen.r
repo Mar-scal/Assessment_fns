@@ -95,7 +95,7 @@
 #                 log.cont = continuous log scale
 
 
-contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore scallop/Assessment/",
+contour.gen<-function(contour.dat,interp.method='interp', direct, direct_fns,
                       res=0.01,log.dat=F,  subset.eff=NA,subscale=res,plot=F,
                       # These function calls are needed for smooth.bank subfunction
                       smooth=F,smooth.fun=median, sres=1/60.1, no.data='0', subset.poly=NULL, procedure=1, 
@@ -130,11 +130,11 @@ contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore 
   require(spatstat)      || stop("You need to install the spatstat package for this to work!")
   
   # Load the required subfunctions. #Source1 - #Source5
-  source(paste(direct,"Assessment_fns/Contour/smooth.bank.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/tick.def.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/blank.bank.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/image.prep.r",sep=""))
-  source(paste(direct,"Assessment_fns/Contour/area.cal.r",sep=""))
+  source(paste(direct_fns,"Contour/smooth.bank.r",sep=""))
+  source(paste(direct_fns,"Contour/tick.def.r",sep=""))
+  source(paste(direct_fns,"Contour/blank.bank.r",sep=""))
+  source(paste(direct_fns,"Contour/image.prep.r",sep=""))
+  source(paste(direct_fns,"Contour/area.cal.r",sep=""))
   
   print("contour start")
 	print(Sys.time())
@@ -243,7 +243,7 @@ contour.gen<-function(contour.dat,interp.method='interp', direct = "Y:/Offshore 
   	  #Source4 source(paste(direct,"Contour/image.prep.r",sep=""))
   		image.lst<-image.prep(dat=contour.dat,method=interp.method,nmax=nmax,id.par=id.par,log.dat=log.dat,res=res,
   		                      linear=linear,covariate.dat=covariate.dat,regrid=regrid,mod.type=mod.type,
-  		                      subscale=subscale, subset.poly=subset.poly,asp=aspr,direct=direct) # aspr=aspr,
+  		                      subscale=subscale, subset.poly=subset.poly,asp=aspr,direct=direct, direct_fns=direct_fns) # aspr=aspr,
   		
   		# Make an object of the data 
   		image.dat<-image.lst[[1]]

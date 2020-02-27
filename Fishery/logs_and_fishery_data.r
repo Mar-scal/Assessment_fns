@@ -43,7 +43,7 @@
 
 
 logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
-                          direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct=direct, direct_fns=direct_fns)
+                          direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct, direct_fns)
 {
  
   # Set up the directories
