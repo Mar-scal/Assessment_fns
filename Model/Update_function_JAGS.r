@@ -140,7 +140,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
 #############  Section 1  Compile the data for the banks ######  Section 1  Compile the data for the banks################## 
 #############  Section 1  Compile the data for the banks ######  Section 1  Compile the data for the banks################## 
 # If you have already run section 1 no need to do it again set preprocessed = T
-HI
+
   if(preprocessed==F)
   {
     direct.real <- direct 
