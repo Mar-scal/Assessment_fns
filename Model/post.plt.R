@@ -37,7 +37,7 @@
 post.plt <- function(model.out, priors, years, nr=NULL, nc=NULL, wd=8.5, ht=11, graphic='screen',xl.type=1, multi=T,path='')
                      
 {
-browser()
+
   # If graphic is a pdf make the pdf file
 	if(graphic=='pdf') pdf(paste0(path,"post_single.pdf"), width = wd, height = ht, pointsize = 16)
   if(graphic=='png') png(paste0(path,"post_single.png"), width = wd, height = ht,res=920,units="in")
