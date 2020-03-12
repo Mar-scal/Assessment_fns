@@ -191,8 +191,19 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     
     if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
       # read in data
-      load(paste(direct,"Data/Survey_data/" ,year, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+      load(paste(direct,"Data/Survey_data/" ,yr, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
     }
+  
+  direct <- direct.real
+  nickname <- nickname1
+  
+  if(!bank %in% names(survey.obj)) {
+    message("The bank you want is not in the survey.obj. Specify a different path to a survey.obj Rdata file or re-run survey summary to include the bank (or subarea) you requested")
+    #browser()
+    load(paste0(direct, "Data/Survey_data/", yr, "/Survey_summary_output/testing_results_SCALOFF_LE10.RData"))
+    if(!bank %in% names(survey.obj)) {
+      stop("Still not there... try again.")
+  }
   
   direct <- direct.real
   nickname <- nickname1
