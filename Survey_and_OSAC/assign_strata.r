@@ -32,6 +32,7 @@ assign.strata<-function(surv.dat,polys,State='live')
 {
   # Load package
 	require(PBSmapping)  || stop("You need PBSmapping package installed for this to work")
+  #HI
 	# Subset the data into the state chosen, i.e. alive or dead
   survlive.dat<-subset(surv.dat,state==State)
 	# Make a temporaty dataframe with locations, ID's, years and tow number
