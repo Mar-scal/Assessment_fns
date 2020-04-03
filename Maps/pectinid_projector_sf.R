@@ -82,7 +82,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = 43
   require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   require(rgdal)|| stop("You need rgdal pal")
-  require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
+  if(any(names(add_layer) == 'bathy')) require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
@@ -533,5 +533,5 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = 43
     # Some finishing touches...
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
     print(pect_plot)
-    return(pect_plot = pect_plot)
+    return(pect_plot=pect_plot)
  } # end function
