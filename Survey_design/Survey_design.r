@@ -28,10 +28,10 @@
 
 ###############################################################################################################
 ## This function needs these functions to work (a.k.a. "support files")
-# 1: source(paste(direct,"Assessment_fns/Survey_design/alloc.poly_new.r",sep=""))
-# 2: source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
-# 3: source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-# 4: source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+# 1: source(paste(direct_fns,"Survey_design/alloc.poly_new.r",sep=""))
+# 2: source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
+# 3: source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+# 4: source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 ###############################################################################################################
 
 ###############################################################################################################
@@ -63,7 +63,7 @@
 # language:      had to add a language option so that managePlot will still work. 
 ##### SURVEY DESIGN
 
-Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct = "Y:/Offshore/Assessment/",export = F,seed = NULL, point.style = "points",
+Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, direct_fns, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.02, y.adj=0.02,ger.rep=20, cables=F, language="en")
 {
@@ -75,11 +75,11 @@ require(lubridate) || stop("Install the lubridate Package before it's too late!"
 if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 
-source(paste(direct,"Assessment_fns/Survey_design/alloc.poly.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
+source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
+source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
@@ -142,7 +142,7 @@ for(i in 1:num.banks)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
     polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
     if(fig=="leaflet") {
-      source(paste0(direct, "Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
+      source(paste0(direct_fns, "Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
       shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
       shp_strata <- st_cast(st_as_sf(shp_strata), to="MULTIPOLYGON")
       shp_strata <- st_transform(shp_strata, crs = 4326)
@@ -266,7 +266,7 @@ for(i in 1:num.banks)
   	  
   	  if(!fig == "leaflet") {
   	    # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
-  	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct)
+  	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct, direct_fns=direct_fns)
   	    
   	    title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
   	    
@@ -329,7 +329,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
-  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -371,7 +371,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -416,7 +416,7 @@ for(i in 1:num.banks)
   	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
   	                          height = 8.5,bg = "transparent")  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
-  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct)
+  	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
   	    # Note that the addPoints function has some sort of error in it as the bg color does not get assigned properly 
   	    # only happens when some of the points are missing from the figure so it is something with the subsetting in there...
@@ -502,7 +502,7 @@ for(i in 1:num.banks)
       }
       
       if(!fig == "leaflet") {
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
         # Add the points, or text or both
         if(point.style == "points") addPoints(towlst[[i]],pch=21, cex=1)
@@ -652,7 +652,7 @@ if(bnk == "Ger")
       }
        
       if(!fig == "leaflet") {   
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
         
@@ -726,7 +726,7 @@ if(bnk == "Ger")
       }
       
       if(!fig == "leaflet") {
-        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct)
+        ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
         addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)
@@ -755,7 +755,7 @@ if(bnk == "Ger")
       if(!fig %in% c("screen", "leaflet")) dev.off()
     } # end if(plot==T)
     
-    # Now if you want to make these new fangled relief plots... source(paste(direct,"Assessment_fns/Survey_design/Relief.plots.r",sep=""))
+    # Now if you want to make these new fangled relief plots... source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
     if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
     
     # finally, append Ger.tow.dat into towlst

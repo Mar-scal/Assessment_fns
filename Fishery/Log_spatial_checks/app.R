@@ -10,7 +10,7 @@
 
 
 # Define UI for application
-shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct=direct, repo=repo, pect_ggplot=pect_ggplot) {
+shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, repo=repo, pect_ggplot=pect_ggplot) {
   require(shiny)
   
   trips <- NULL

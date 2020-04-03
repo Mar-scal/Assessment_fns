@@ -8,7 +8,7 @@ classoption: landscape
 direct_fns <- "C:/Documents/Offshore/Assessment/"
 direct_data="Y:/Offshore/Assessment/"
 
-source(paste0(direct_fns, "Assessment_fns/Maps/plot_offshore_spatial.R"))
+source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 
 ```
 

@@ -59,7 +59,7 @@
 #               highlight what you have tested, alternatively you can enter your own name and save it wherever you'd like.
 ###############################################################################################################
 
-log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , marfis=T, repo = "github",
+log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github",
                        db.con="ptran",un=NULL,pw=NULL,db.lib = "ROracle", 
                        bank = NULL ,trips = NULL, dates = NULL, vrnum = NULL,tow.time = c(3,80),trip.tol = 1 ,
                        spatial = T,reg.2.plot = NULL, plot = "shiny", export = NULL
@@ -78,9 +78,9 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   
   if(repo == "local")
   {
-    source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
-    source(paste(direct,"Assessment_fns/Maps/pectinid_projector.R",sep="")) # The new scallopMap
-    source(paste(direct,"Assessment_fns/Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
+    source(paste(direct_fns,"Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
+    source(paste(direct_fns,"Maps/pectinid_projector.R",sep="")) # The new scallopMap
+    source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
   }
   
   # The necesary library
@@ -102,7 +102,7 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   # If you didn't specify years we pick all years from 2008 to current (this won't work before 2008!)
   if(is.null(yrs)) yrs <- 2008:as.numeric(format(Sys.Date(),"%Y"))
   # Now bring in the fishery data you want to look at.
-  logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct,get.marfis = marfis,export=F,db.lib=db.lib)
+  logs_and_fish(loc="offshore",year = yrs,un=un,pw=pw,db.con=db.con,direct=direct, direct_fns=direct_fns,get.marfis = marfis,export=F,db.lib=db.lib)
   # the marfis data
   if(marfis==T) dat.log <- marfis.log
   if(marfis==F) dat.log <- new.log.dat
@@ -406,10 +406,10 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
         
         if(nrow(trip.log@data) == 1 && is.null(reg.2.plot)) 
         {
-          pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+          pecjector(area = trip.area,add_sfas = "all",add_land = T,repo=repo,direct = direct, direct_fns = direct_fns,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
         } 
         else {
-          pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
+          pecjector(area = pr,add_sfas = "all",add_land = T,repo=repo,direct=direct, direct_fns=direct_fns,add_EEZ = TRUE, plot_package=plot_package,add_nafo = "sub")
         }
         
         if(plot_package=="base" | is.null(plot_package)){ 
@@ -517,8 +517,8 @@ log_checks <- function(direct = "Y:/Offshore scallop/Assessment/", yrs = NULL , 
   } # end if(!is.null(export))
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
-    source(paste0(direct, "Assessment_fns/Fishery/Log_spatial_checks/app.R"))
-    shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, repo=repo, pect_ggplot=pect_ggplot.all)
+    source(paste0(direct_fns, "Fishery/Log_spatial_checks/app.R"))
+    shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_ggplot=pect_ggplot.all)
   }
   
 } # end function
