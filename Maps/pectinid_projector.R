@@ -1,6 +1,8 @@
 # This is a hack of a function the INLA lasses/lads use to plot their INLA model results
 # Stand-alone function created by DK in Nov 2018
 
+# Revisions to make the script be more integrated with SF in Feb 2020
+
 # Note that we need a couple of cute little functions for this to work.  Be sure to all call "addalpha" , "convert_coords", and "all.layers"
 # Before running this function, but I haven't settled on a directory for them quite yet...
 

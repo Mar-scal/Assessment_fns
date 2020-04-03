@@ -14,9 +14,9 @@
 #               directory as a series of files (i.e. GIS shapefiles.)
 #7 env.object:  Would you rather save the object to your R environment, instead of saving to a file? (T or F)
 #8 spdf:        Do you want a SpatialPolygonsDataFrame object? (T) Or just a SpatialPolygons object (F)
+#9 make.sf:     Do you want to make this an SF obejct.  Only works if env.object = T (i.e. you want to return object to R workspace). Default = F for compatibility with older scripts.
 
-
-pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc, env.object=F, spdf=T)
+pbs.2.gis = function(dat, proj = "LL",c_sys = "WGS84",type = "lines",layer.names = NULL,save.loc, env.object=F, spdf=T,make.sf = F)
 {
 
 options(stringsAsFactors = F)
@@ -103,7 +103,7 @@ for(i in 1:length(layer.name))
   # Now you can save this wonderful Spatial data frame into something that any old GIS program can read.
   
   if(env.object==F) writeOGR(dat.sdf,save.loc,driver = "ESRI Shapefile",layer =layer.name[i])
-  
+  if(make.sf == T && env.object==T) dat.sdf <- st_as_sf(dat.sdf)
   if(env.object==T) return(dat.sdf)
   
 } # end for(i in 1:length(layer.name))
