@@ -514,7 +514,7 @@ pecjector = function(area = data.frame(y = c(40,46),x = c(-68,-55),proj_sys = 43
   } # end if(!is.null(field))
   #browser()
     pect_plot <- ggplot() + 
-      geom_sf(data=b.box, fill=NA) +
+      #geom_sf(data=b.box, fill=NA) +
       theme_minimal() + xlab("") + ylab("")+
       scale_x_continuous(expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) 

@@ -210,6 +210,50 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   pr.all <- list()
   if(plot == "shiny") pect_ggplot.all <- list()
   
+  #set this up so it doesn't happen over and over again for each trip in the loop
+  if(spatial==T){
+    # First we bring in the shapefiles if we haven't already...
+    if(!exists("offshore.spa"))
+    {
+      
+      # Figure out where your tempfiles are stored
+      temp <- tempfile()
+      # Download this to the temp directory you created above
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore/offshore.zip", temp)
+      # Figure out what this file was saved as
+      temp2 <- tempfile()
+      # Unzip it
+      unzip(zipfile=temp, exdir=temp2)
+      # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
+      offshore.spa <- suppressMessages(all.layers(temp2, make.sf = T))
+      offshore.spa <- st_transform(offshore.spa, CRS("+init=epsg:4326"))
+      
+      # Pop this into the global environment so we don't make it a bunch of times..
+      assign('offshore.spa',offshore.spa,pos=1)
+      # We also want to bring in the survey strata for the banks with a survey strata
+      # Figure out where your tempfiles are stored
+    } # end  if(!exists("offshore.spa"))
+    
+    if(!exists("nafo.subs"))
+    {
+      
+      # Figure out where your tempfiles are stored
+      temp <- tempfile()
+      # Download this to the temp directory you created above
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas.zip", temp)
+      # Figure out what this file was saved as
+      temp2 <- tempfile()
+      # Unzip it
+      unzip(zipfile=temp, exdir=temp2)
+      # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
+      nafo.subs <- suppressMessages(all.layers(temp2, make.sf = T))
+      nafo.subs <- st_transform(nafo.subs, CRS("+init=epsg:4326"))
+      # Pop this into the global environment so we don't make it a bunch of times..
+      assign('nafo.subs',nafo.subs,pos=1)
+      # Figure out where your tempfiles are stored
+    } # end  if(!exists("offshore.spa"))
+  }
+  
   
   for(i in 1:num.trips) # this is going through trips
   {
@@ -259,47 +303,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     
     if(spatial==T)
     {
-      # First we bring in the shapefiles if we haven't already...
-      if(!exists("offshore.spa"))
-      {
-        
-        # Figure out where your tempfiles are stored
-        temp <- tempfile()
-        # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore/offshore.zip", temp)
-        # Figure out what this file was saved as
-        temp2 <- tempfile()
-        # Unzip it
-        unzip(zipfile=temp, exdir=temp2)
-        # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
-        offshore.spa <- all.layers(temp2, make.sf = T)
-        offshore.spa <- st_transform(offshore.spa, CRS("+init=epsg:4326"))
-        
-        # Pop this into the global environment so we don't make it a bunch of times..
-        assign('offshore.spa',offshore.spa,pos=1)
-        # We also want to bring in the survey strata for the banks with a survey strata
-        # Figure out where your tempfiles are stored
-      } # end  if(!exists("offshore.spa"))
-      
-      if(!exists("nafo.subs"))
-      {
-        
-        # Figure out where your tempfiles are stored
-        temp <- tempfile()
-        # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas.zip", temp)
-        # Figure out what this file was saved as
-        temp2 <- tempfile()
-        # Unzip it
-        unzip(zipfile=temp, exdir=temp2)
-        # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
-        nafo.subs <- all.layers(temp2, make.sf = T)
-        nafo.subs <- st_transform(nafo.subs, CRS("+init=epsg:4326"))
-        # Pop this into the global environment so we don't make it a bunch of times..
-        assign('nafo.subs',nafo.subs,pos=1)
-        # Figure out where your tempfiles are stored
-      } # end  if(!exists("offshore.spa"))
-      
       # Now we want to see if any of the data in the logs falls outside the region we think it is in.
       # For split trips I consider the first bank only, so this will pretty much flag all split trips, which I think is fine!
       trip.area <- na.omit(unique(trip.log$bank))[1]
@@ -354,11 +357,12 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         
       } else {
         # We  still need to turn the trip.log into a spatial object with projection
-        coordinates(trip.log) <- ~ lon + lat
+        trip.log <- st_as_sf(trip.log, coords = c("lon", "lat"), remove=F)
         # project it, logs are all WGS84 as I understand it and Lat Lon
-        proj4string(trip.log) <- CRS("+init=epsg:4326")
-        trip.log <- st_as_sf(trip.log)
-        osa <- trip.log[which(st_disjoint(trip.log,  offshore.spa[offshore.spa$ID %in% trip.area,], sparse=F)),]
+        trip.log <- st_set_crs(trip.log, value=4326)
+        osa <- trip.log[which(suppressMessages(st_disjoint(trip.log,  offshore.spa[offshore.spa$ID %in% trip.area,], sparse=F))),]
+        st_geometry(osa) <- NULL
+        osa <- as.data.frame(osa)
         watches.outside.sa[[as.character(trip.ids[i])]] <- osa
         
       } # end else which is everywhere outside SPB.
@@ -390,16 +394,17 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
           nafo.loc <- nafo.reg[nafo.reg$id  ==sp.slot,]
           # Then we need to match on the level that the nafo.area is, this is a little different, but
           # basically if our watch is flagged as in the wrong NAFO area then we keep it.
-          if(st_disjoint(trip.log[n,],nafo.loc,sparse=F)) os.nafo[[as.character(n)]] <- trip.log[n,]
+          if(suppressMessages(st_disjoint(trip.log[n,],nafo.loc,sparse=F))) os.nafo[[as.character(n)]] <- trip.log[n,]
         } # end if(!is.na(nafo.area))
         
       } # end for(n in 1:length(trip.log))
       
       # Tidy up the os.nafo list...
+      
       #if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
-      if(length(os.nafo) >1) os.nafo <- do.call("rbind",os.nafo)
-      if(length(os.nafo) == 1) os.nafo <- os.nafo[[1]]
-      if(!is.null(os.nafo)) watches.outside.nafo[[as.character(trip.ids[i])]] <- os.nafo
+      if(length(os.nafo) >1) os.nafo <- do.call("rbind",as.data.frame(os.nafo))
+      if(length(os.nafo) == 1) os.nafo <- as.data.frame(os.nafo[[1]])
+      if(!is.null(os.nafo)) watches.outside.nafo[[as.character(trip.ids[i])]] <- as.data.frame(os.nafo)
       
       # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
       if(is.null(reg.2.plot)) pr <- data.frame(y=c(st_bbox(trip.log)$ymin, st_bbox(trip.log)$ymax), 
@@ -415,25 +420,27 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         
         if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
         {
-          pect_plot <- pecjector(area = trip.area, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo,direct=direct, 
-                    direct_fns=direct_fns, plot_package=plot_package)
-          print(pect_plot)
+          pect_plot <- suppressMessages(pecjector(area = trip.area, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo,direct=direct, 
+                    direct_fns=direct_fns, plot_package=plot_package))
         } 
         else {
-          pect_plot <- pecjector(area = pr, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo="github",direct=direct, 
-                                                direct_fns=direct_fns, plot_package=plot_package)
-          print(pect_plot)
+          pect_plot <- suppressMessages(pecjector(area = pr, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo="github",direct=direct, 
+                                                  direct_fns=direct_fns, plot_package=plot_package))
         }
         
-        if(plot_package=="base" | is.null(plot_package)){ 
-          plot(trip.log,add=T,pch=19,cex=1)
-          
-          #pect_ggplot  + geom_point(data=fortify(as.data.frame(trip.log)), aes(lon, lat)) + scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
-          if(nrow(osa) > 0) plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
-          
-          if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
-          title(paste0(trip.log@data$ves[1],"_",trip.log@data$vrnum[1],"_",min(trip.log@data$fished,na.rm=T),"-",max(trip.log@data$fished,na.rm=T)),cex.main=1)
-        }
+        trip_plot <- pect_plot  + geom_point(data=trip.log, aes(lon, lat)) + 
+          ggtitle(paste0(trip.log$ves[1],"_",trip.log$vrnum[1],"_",min(trip.log$fished,na.rm=T),"-",max(trip.log$fished,na.rm=T))) +
+          scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
+        
+        if(nrow(osa) > 0) trip_plot <- trip_plot + geom_point(data=osa, aes(lon, lat), colour="blue", shape=20) + # these are any points outside the survey domain
+        if(!is.null(os.nafo))  trip_plot <- trip_plot + geom_point(data=os.nafo, aes(lon, lat), colour="red", shape=21) + # these are any points outside the expected nafo subregion.
+        
+        print(trip_plot)
+        
+        # plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
+        
+        # if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
+        
       }
     } # end if(spatial==T)
     print(paste0("Trip ID:",trip.ids[i],"  count=",i))
@@ -476,13 +483,13 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         if(pr$y[2] > 0) pr$y[2] <- pr$y[2] - 0.005*pr$y[2]
       } # end else and the if tied to ylim
       pr.all[[i]] <- pr
-      browser()
-      if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- pect_plot
+      
+      if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- trip_plot
     }
     
   } # end for(i in 1:num.trips)
   
-  if(spatial==T & plot==T) dev.off() # close PDF device
+  if(spatial==T & plot=="pdf") dev.off() # close PDF device
   
   # if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
   if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
@@ -503,10 +510,10 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   weight.slip.wrong <- NA
   if(!is.null(weight.mismatch.slips)) weight.slip.wrong <- do.call("rbind",weight.mismatch.slips)
   
-  
-  
-  if(spatial == T) watches.outside.survey.bounds <- do.call("rbind",watches.outside.sa)
-  if(spatial == T) watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
+  if(spatial == T) {
+     watches.outside.survey.bounds<- do.call("rbind",watches.outside.sa)
+    watches.outside.nafo.bounds <- do.call("rbind",watches.outside.nafo)
+  }
   # A list we need for exporting...
   
   if(spatial == F) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
@@ -532,7 +539,8 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
     source(paste0(direct_fns, "Fishery/Log_spatial_checks/app.R"))
-    shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_plot=pect_ggplot.all)
+    browser()
+    shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_ggplot = pect_ggplot.all)
   }
   
 } # end function

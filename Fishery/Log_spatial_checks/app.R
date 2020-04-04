@@ -12,26 +12,19 @@
 # Define UI for application
 shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, repo=repo, pect_ggplot=pect_ggplot) {
   require(shiny)
-  
   trips <- NULL
   trip.log_f <- list()
   osa_f <- list()
   for(i in 1:length(trip.log)){
-    trip<-unique(trip.log[[i]]@data$tripnum)
+    trip<-unique(trip.log[[i]]$tripnum)
     trips <- c(trips,trip)
-    
-    trip.log_f[[i]] <- fortify(trip.log[[i]]@data)
-    trip.log_f[[i]]$lon <- as.data.frame(coordinates(trip.log[[i]]))$lon
-    trip.log_f[[i]]$lat <- as.data.frame(coordinates(trip.log[[i]]))$lat
-    
+    trip.log_f[[i]] <- trip.log[[i]]
     trip.log_f[[i]]$date.sail <- as.character(format(trip.log_f[[i]]$date.sail,'%Y-%m-%d'))
     trip.log_f[[i]]$date.land <- as.character(format(trip.log_f[[i]]$date.land,'%Y-%m-%d'))
     trip.log_f[[i]]$date <- as.character(format(trip.log_f[[i]]$date,'%Y-%m-%d'))
     trip.log_f[[i]]$lbs <- trip.log_f[[i]]$pro.repwt * 2.2046
     
-    osa_f[[i]] <- fortify(osa[[i]]@data)
-    osa_f[[i]]$lon <- as.data.frame(coordinates(osa[[i]]))$lon
-    osa_f[[i]]$lat <- as.data.frame(coordinates(osa[[i]]))$lat
+    osa_f[[i]] <- osa[[i]]
   }
   
   ui <- fluidPage(
