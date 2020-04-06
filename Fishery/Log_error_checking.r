@@ -414,20 +414,18 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # This assumes that you are asking to plot a certain region that pecjector understands (e.g. "GBa","GB","SS", etc) or
       # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
       if(!is.null(reg.2.plot)) pr <- reg.2.plot
-      
+      browser()
       # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
-      if(spatial ==T) {
-        
-        if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
+      if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
         {
-          pect_plot <- suppressMessages(pecjector(area = trip.area, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo,direct=direct, 
-                    direct_fns=direct_fns, plot_package=plot_package))
+          pect_plot <- pecjector(area = trip.area, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo,direct=direct, 
+                    direct_fns=direct_fns)
         } 
         else {
-          pect_plot <- suppressMessages(pecjector(area = pr, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo="github",direct=direct, 
-                                                  direct_fns=direct_fns, plot_package=plot_package))
+          pect_plot <- pecjector(area = pr, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo="github",direct=direct, 
+                                                  direct_fns=direct_fns)
         }
-        
+
         trip_plot <- pect_plot  + geom_point(data=trip.log, aes(lon, lat)) + 
           ggtitle(paste0(trip.log$ves[1],"_",trip.log$vrnum[1],"_",min(trip.log$fished,na.rm=T),"-",max(trip.log$fished,na.rm=T))) +
           scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
@@ -440,12 +438,18 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         # plot(osa,add=T,pch=20,cex=2,col="blue") # These are any points outside the survey domain, if there are any
         
         # if(!is.null(os.nafo)) points(os.nafo$lon,os.nafo$lat,pch=21,cex=2,col="red") # These are any points outside the expected nafo subregion.
-        
-      }
-    } # end if(spatial==T)
-    print(paste0("Trip ID:",trip.ids[i],"  count=",i))
+      
+      #message(paste0("Trip ID:",trip.ids[i],"  count=",i))
+   
+         } # end if (spatial==T)
+    browser()
     
-    if(plot == "shiny"){
+    } # end for(i in 1:num.trips)
+    
+    if(spatial==T & plot=="pdf") dev.off() # close PDF device
+    
+    
+    if(spatial==T & plot == "shiny"){
       # for use in shiny
       trip.log.all[[i]] <- trip.log
       osa.all[[i]] <- osa
@@ -484,12 +488,10 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       } # end else and the if tied to ylim
       pr.all[[i]] <- pr
       
-      if(plot_package=="ggplot2") pect_ggplot.all[[i]] <- trip_plot
+      pect_ggplot.all[[i]] <- trip_plot
     }
     
-  } # end for(i in 1:num.trips)
-  
-  if(spatial==T & plot=="pdf") dev.off() # close PDF device
+
   
   # if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
   if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
