@@ -147,7 +147,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
-  if(is.data.frame(area)) coords <- convert.coords(plot.extent = area[,c("x","y")],in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(is.data.frame(area)) coords <- convert.coords(plot.extent = area[,c("x","y")],in.csys = unique(area$crs),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
   if(!is.data.frame(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   # All I need from the coords call above is the bounding box.
@@ -670,7 +670,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   if(is.null(gg.obj))
   {
     pect_plot <- ggplot() + 
-      geom_sf(data=b.box, fill=NA) +
+      #geom_sf(data=b.box, fill=NA) +
       theme_minimal() + xlab("") + ylab("")+
       scale_x_continuous(expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) 

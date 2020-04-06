@@ -11,17 +11,17 @@
 #                 5% of this distance.  Default is 0 which no buffer.
 #  make.sf:       Do you want the output to be an sf object, default = F to ensure backwards compatibility to other
 
-convert.coords <- function(plot.extent= data.frame(y = c(40,46),x = c(-68,-55)),in.csys = 4326, out.csys= 4326,bbox.buf = 0,make.sf=F)
+convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csys = 4326, out.csys= 4326,bbox.buf = 0,make.sf=F)
 {
   # You'll need the sp library for this to work
   require(sp) || stop("You need sp, thanks!")
   require(sf) || stop("Get with it cuz, you need sf package")
   
   # Custom plot.extent used if you want to enter your own y and x 
-  if(is.data.frame(plot.extent))	{ y=plot.extent$y; 			x=plot.extent$x}
+  if(is.list(plot.extent))	{ y=plot.extent$y; 			x=plot.extent$x}
   
   ## These are the predfined lists used to define y and x for the plot created below
-  if(!is.data.frame(plot.extent))
+  if(!is.list(plot.extent))
   {
     #offshore
     # This includes southern Newfoundland, this is a nice map of everywhere 
@@ -51,9 +51,10 @@ convert.coords <- function(plot.extent= data.frame(y = c(40,46),x = c(-68,-55)),
     if(plot.extent%in% c('West',"WEST","west","Western","WESTERN","western"))                      {y=c(43.00,44.10);x=c(-62.20,-60.40)}
     # We need to be slight careful that we don't get mixed up between middle bank and mid bay
     if(plot.extent%in% c('Mid',"mid","MID","Middle","middle","MIDDLE"))		                         {y=c(44.20,44.90);x=c(-61.30,-60.10)}
-    if(plot.extent%in% c('Ban',"BAN","ban","Banquereau","BANQUEREAU",'banquereau'))                {y=c(43.90,44.80);x=c(-60.25,-58.50)}
+    if(plot.extent%in% c('Ban-Nar',"BAN-Nar","ban-nar"))                                           {y=c(43.90,44.80);x=c(-60.25,-58.50)}
     if(plot.extent%in% c('Sab-West','SAB-WEST',"SAB WEST","sab west","sab-west"))                  {y=c(42.80,44.50);x=c(-62.50,-58.80)}
-    if(plot.extent%in% c('Ban-Wide','BAN-WIDE','BAN WIDE',"ban wide","ban-wide"))                  {y=c(43.70,45.20);x=c(-60.50,-57.00)}
+    if(plot.extent%in% c('Ban-Wide','BAN-WIDE','BAN WIDE',"ban wide","ban-wide","Ban",
+                         "Banquereau","BANQUEREAU",'banquereau',"BAN",'ban'))                      {y=c(43.70,45.20);x=c(-60.50,-57.00)}
     if(plot.extent%in% c('GOM','gom','Gulf of Maine',"gulf of maine","GULF OF MAINE"))             {y=c(40.00,45.00);x=c(-70.60,-65.80)}
     
     
@@ -92,5 +93,5 @@ convert.coords <- function(plot.extent= data.frame(y = c(40,46),x = c(-68,-55)),
     b.box <- st_transform(box.buf,crs = out.csys) # And transform back to the system we want
   } # end if(bbox.buf > 0)
   return(list(coords = coords, b.box = b.box))
-    
+  
 }

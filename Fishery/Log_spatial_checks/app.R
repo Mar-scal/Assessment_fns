@@ -75,23 +75,21 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     output$maplog <- renderPlot({
 
       pect_ggplot[[which(trips==input$trip)]] + 
-        geom_point(data=trip.log_f[[which(trips==input$trip)]], aes(lon, lat)) +
-       coord_map(xlim = c(pr[[which(trips==input$trip)]]["min", "x"], pr[[which(trips==input$trip)]]["max", "x"]), 
-                       ylim=c(pr[[which(trips==input$trip)]]["min", "y"], pr[[which(trips==input$trip)]]["max", "y"]), 
-                      clip = "on") 
+        geom_point(data=trip.log_f[[which(trips==input$trip)]], aes(lon, lat))# +
+       #coord_map(clip = "on") 
         
     })
     
     output$notes <- NULL
-    
+
     output$click_info <- renderTable({
       nearPoints(df=trip.log_f[[which(trips==input$trip)]], xvar = "lon", yvar="lat", coordinfo = input$plot1_click, addDist=TRUE)
-    })     
-    
+    })
+
     output$brush_info <- renderTable({
       brushedPoints(df=trip.log_f[[which(trips==input$trip)]], xvar = "lon", yvar="lat", brush = input$plot1_brush)
     })
-    
+
   }
 
   app <- shinyApp(ui, server)
