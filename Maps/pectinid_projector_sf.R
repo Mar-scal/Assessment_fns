@@ -33,10 +33,15 @@
 #               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
 ###  a: eez       Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes wil work, looking for eez object in add_layer)
 
-###  b: bathy     Do you want to add in the bathymetry, if so if you put in a number you will get a contour plot with intervals between contours of the nubmer you enter
-#######             along with a continuous smooth surface. e.g. bathy = 50 gives 50 meter contour grids + underlying bathy colours.  
-#######             If you enter any character value (say 's') you will get just a smoothed continuous surface.
-#######             This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
+###  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
+#######            The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
+#######            you will get both the smooth surface and the contours with a maximum depht of 500 m
+#######            The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
+#######             or 'c' which only plots the depth contour lines
+#######            The final is the maximum depth you want for the contours, you can leave this out, defaut is 500 meters which looks good.
+#######            bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
+#######            bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max deth of 500 meters. 
+#######            This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
 
 ###  c: nafo      Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######             while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
@@ -204,12 +209,15 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     land.sf <- st_transform(land.sf,crs=c_sys)
   } # end if(c_sys != "+init=epsg:4326") 
   
-  
+  if(!is.null(add_layer$bathy))
+  {
   # The bathymetry comes in now as a raster.  Thanks to sf wonderfulness we can handle this now
   if(any(layers == 'bathy')) # This would need done everytime as the boundng box could change for each call
   {
-    # Set the maximum depth that you show in the bathymetry.
-    if(is.na(add_layer$bathy[2])) add_layer$bathy[2] <- -500 # If you didn't set a maximum layer depth then it defaults to -500
+    # If you have not specified teh type of surface you want then you get both
+    if(is.na(add_layer$bathy[2])) add_layer$bathy[2] <- 'both' 
+    #If you didn't set a maximum layer depth then it defaults to -500
+    if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
     # I need coordinates for the bathy
     bath.box <- st_bbox(b.box)
     if(st_crs(b.box)[1]$epsg != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() 
@@ -220,23 +228,27 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
    
     bathy <- marmap::as.raster(bathy.org)
+    
     #Now if we want smooth contours we do this...
     # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
-    bathy.s <- bathy.org
-    bathy.s[which(bathy.s < -abs(add_layer$bathy[2]))] <- -abs(add_layer$bathy[2])
-    bathy.s[which(bathy.s > 0)] <- 0
-    bathy.s <- marmap::as.raster(bathy.s)
-    # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
-    if(c_sys != 4326)
+    if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
     {
-      bathy.st <- st_as_stars(bathy.s)
-      b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
-      # Now warp the existing raster to the new projection grid.
-      bathy.smooth <- bathy.st %>% st_warp(b.new)
-    } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
+      bathy.s <- bathy.org
+      bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
+      bathy.s[which(bathy.s > 0)] <- 0
+      bathy.s <- marmap::as.raster(bathy.s)
+      # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
+      if(c_sys != 4326)
+      {
+        bathy.st <- st_as_stars(bathy.s)
+        b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
+        # Now warp the existing raster to the new projection grid.
+        bathy.smooth <- bathy.st %>% st_warp(b.new)
+      } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
+    } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
     
     # Are we adding in the bathy contour lines, if so do all this fun.
-    if(is.numeric(add_layer$bathy[1]))
+    if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
     {
       # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
       if(c_sys != 4326)
@@ -256,13 +268,10 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         bathy.gg <- fortify(re.proj.bathy)
       } else { bathy.gg <- fortify(bathy)}
       # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
-      bathy.breaks <- seq(0, -abs(add_layer$bathy[2]), -abs(add_layer$bathy[1]))
-  
+      bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
       }
-      
-     
   } # end if(any(layers == 'bathy'))
-  
+  } # end the is.null()
   # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "repo = 'github'", for NAFO this is actually going
   # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "repo = 'local'"
   #browser()
@@ -700,6 +709,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
 
     # Some finishing touches...
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
-    if(plot == T) print(pect_plot) # If you want to immediately display the plot
-    return(pect_plot = pect_plot)
+    if(plot == T) 
+    {
+      print(pect_plot) # If you want to immediately display the plot
+      return(pect_plot = pect_plot)
+    }
  } # end function
