@@ -14,8 +14,8 @@ load_offshore_spatial <- function(direct_data,
   
   # if fishery_years isn't null, then get the data. This only works for >2008. Pulls in the new.log.dat
   if(fishery == T){
-    source(paste0(direct_fns, "Assessment_fns/Fishery/logs_and_fishery_data.r"))
-    logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data)
+    source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
+    logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data, direct_fns = direct_fns)
   }
   
   return(list(surv.Live=surv.Live, new.log.dat=new.log.dat))

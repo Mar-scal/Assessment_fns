@@ -8,13 +8,13 @@
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
-# 1: source(paste(direct,"Assessment_fns/Survey_design/Survey_design_test.r",sep=""))
+# 1: source(paste(direct_fns,"Survey_design/Survey_design_test.r",sep=""))
 ###############################################################################################################
 
 ###############################################################################################################
 ## This function needs these functions to work (a.k.a. "support files")
-# 1:   source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-# 2:   source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+# 1:   source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+# 2:   source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 ###############################################################################################################
 
 
@@ -41,8 +41,8 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
                      repeated.tows=NULL,lplace='bottomleft',show.pool=F,seed = NULL)
 {
 	require(PBSmapping) || stop("You'll need to install PBSmapping if you wanna do this thang")
-  source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
-  source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+  source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 
   # This ignores all warnings
 	options(warn=-1)
@@ -76,7 +76,7 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 	
 	# Now generate a large number of random points within this survey boundary polygon.
 	# This retuns the tow ID, X & Y coordinates and the nearest neighbour distance.
-	#source(paste(direct,"Assessment_fns/Survey_design/genran.r",sep=""))
+	#source(paste(direct_fns,"Survey_design/genran.r",sep=""))
 	pool.EventData <- genran(npool,bounding.poly,mindist=mindist,seed=seed)
 	
 	# Make a Poly ID object for each unique strata
@@ -202,7 +202,7 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 	# If you want to make the bank plot 
 	if(bank.plot==T)
 	{
-    #	source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+    #	source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
     # Make the plot
 	  ScallopMap(bank.plot,poly.lst=list(surveyed.polys,poly.lst[[2]]))
 		# Make a background color for the points

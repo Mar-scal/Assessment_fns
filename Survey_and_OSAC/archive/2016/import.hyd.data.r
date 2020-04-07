@@ -40,8 +40,8 @@ import.hyd.data <- function(Bank=c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid
 	#Source1
 	#source("Assessment_fns/Survey/convert.dd.dddd.r")
   #Source2
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.new.hyd.r",sep=""))
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/get.new.hyd.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
   
   # After 2008 we use source("Assessment_fns/Survey/get.new.hyd.r") to obtain the "new" hydration data, which... 
   # isn't really new anymore... stopped in 2010

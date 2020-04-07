@@ -17,7 +17,7 @@
 
 # rm(list=ls(all=T))
 strataPlot<-function(loc = "inshore", plot.add=T, un = un.ID, pw=pwd.ID, db.con = "ptran",strata.colors = pastel.colors(64,seed=2),
-                     strata.cex=0.5,direct = "Y:/Offshore scallop/Assessment/")
+                     strata.cex=0.5,direct, direct_fns)
 {
 ################################### Start Load Packages ##############################################################
 ###

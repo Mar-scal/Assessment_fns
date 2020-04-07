@@ -38,12 +38,12 @@
 
 
 dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,smooth=T,plt=F,meh=0,
-                    printtow=F,direct = "Y:/Offshore scallop/Assessment/")
+                    printtow=F,direct, direct_fns)
 {
   #browser()
   require(PBSmapping)  || stop("Install PBSmapping Package")
   #Source1 
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) 
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) 
   
   # Initialize objects to use in for loop.
 	towtracks<-list(NULL)

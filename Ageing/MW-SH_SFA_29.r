@@ -25,8 +25,8 @@ library(viridis)
 library(plyr)
 library(geosphere)
 library(mgcv)
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))#source the ScallopMap script (function containing maps and parameters)
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))#source the ScallopMap script (function containing maps and parameters)
 
 #############
 # read in shell height and meat weight data from database

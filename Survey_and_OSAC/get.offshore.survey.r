@@ -39,7 +39,7 @@
 ### currently standardized live shell height frequency
 
 # DK August 20, 2015, function call altered so DB credentials are entered directly into function call.
-get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct="Y:Offshore scallop/Assessment/", ...)
+get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct, direct_fns, ...)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	
@@ -47,7 +47,7 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
 #	chan <- odbcConnect("bank.canso3", "scaloff", "fgb256k")
 
   ### DK:  I believe I need this, but maybe not?
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
 
   #DK August 20, 2015 Note: Need this to open the channel, we need to get one more view, or more general access to the OSTOWS table
   # so that the .rProfile method works, for now the workaround would be to put the general (admin?) un/pw into your rprofile...

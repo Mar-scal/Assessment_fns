@@ -39,8 +39,8 @@ import.hyd.data <- function(Bank=c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid
 	#Source1
 	#source("Assessment_fns/Survey/convert.dd.dddd.r")
   #Source2
-  #source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.new.hyd.r",sep=""))
-  source(paste(direct,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  #source(paste(direct_fns,"Survey_and_OSAC/get.new.hyd.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
   
   # Get's the data for the years before 2009.
 	if(sum(yrs<2009)>0)

@@ -51,10 +51,10 @@ OSAC_summary <- function(yr = as.numeric(format(Sys.time(), "%Y"))-1, direct = "
 years.t = 1981:yr # The years of interest make temporary as this could be overwritten when I bring in the survey results...
 
 # Load functions and external datafiles we might need
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
-source(paste(direct,"Assessment_fns/Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct,"Assessment_fns/Fishery/fishery.dat.r",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
+source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 
 # Read1 The fishery regulations are located here.
 fish.regs <- read.csv(paste(direct,"data/Fishery_regulations_by_bank.csv",sep=""))

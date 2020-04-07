@@ -9,9 +9,9 @@ load(file="Y:/INSHORE SCALLOP/BoF/2016/SPA6/ModelOutput/GM_Model_2016.RData")
 load(file="Y:/INSHORE SCALLOP/BoF/2016/SPA4 and 5/ModelOutput/SPA4Model.RData")
 
 # You'll need to put in your directory here!
-source(paste(direct,"Assessment_fns/Inshore/SSModel_plot_median.r",sep=""))
+source(paste(direct_fns,"Inshore/SSModel_plot_median.r",sep=""))
 #source("/SSModel_predict.r")
-source(paste(direct,"Assessment_fns/Inshore/SSModel_predict_summary_median.r",sep=""))
+source(paste(direct_fns,"Inshore/SSModel_predict_summary_median.r",sep=""))
 
 # Load in the data you want
 dat <- Spa1A.2016 # Spa6.2016 Spa4.2016

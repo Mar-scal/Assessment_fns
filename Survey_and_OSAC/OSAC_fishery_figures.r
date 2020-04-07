@@ -40,14 +40,14 @@
 fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),years = 1981:format(Sys.time(), "%Y"),
                             bnk = c("Ban","Mid","Sab","Ger","BBs","BBn","GBa","GBb"),log.ts =F, grids = 1/60, fun = sum,
                             lvl = c(10,50,100,500,1000,5000,10000,50000),add.titles = T, poly.brd = NULL,
-                            dirct = "Y:/Offshore scallop/Assessment/",save.fig = T)
+                            direct, direct_fns, save.fig = T)
 {
   # Load required packages and local functions.
   
-  source(paste(dirct,"Assessment_fns/Fishery/fishsum.plt.r",sep="")) #Source1
-  source(paste(dirct,"Assessment_fns/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
-  source(paste(dirct,"Assessment_fns/Fishery/fishery.dat.r",sep="")) #Source3 
-  source(paste(dirct,"Assessment_fns/Maps/ScallopMap.r",sep="")) #Source3 
+  source(paste(direct_fns,"Assessment_fns/Fishery/fishsum.plt.r",sep="")) #Source1
+  source(paste(direct_fns,"Assessment_fns/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
+  source(paste(direct_fns,"Assessment_fns/Fishery/fishery.dat.r",sep="")) #Source3 
+  source(paste(direct_fns,"Assessment_fns/Maps/ScallopMap.r",sep="")) #Source3 
   
   require(PBSmapping)
   require(RColorBrewer)
@@ -78,9 +78,9 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   {
     print(bnk[i])
     # Get the CPUE for the bank
-    cpue.combo[[bnk[i]]] <- fishery.dat(fish.dat,bk=bnk[i],yr=years,method='jackknife',direct=dirct)
-    cpue.wf[[bnk[i]]] <- fishery.dat(fish.dat[fish.dat$fleet == "WF",],bk=bnk[i],yr=years,method='jackknife',direct=dirct)
-    cpue.ft[[bnk[i]]] <- fishery.dat(fish.dat[fish.dat$fleet == "FT",],bk=bnk[i],yr=years,method='jackknife',direct=dirct)
+    cpue.combo[[bnk[i]]] <- fishery.dat(fish.dat,bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns)
+    cpue.wf[[bnk[i]]] <- fishery.dat(fish.dat[fish.dat$fleet == "WF",],bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns)
+    cpue.ft[[bnk[i]]] <- fishery.dat(fish.dat[fish.dat$fleet == "FT",],bk=bnk[i],yr=years,method='jackknife',direct=direct, direct_fns=direct_fns)
     
     tmp1 <- merge(cpue.combo[[bnk[i]]],cpue.wf[[bnk[i]]],by="year",all.x =T)
     cpue.ts[[bnk[i]]] <- merge(tmp1,cpue.ft[[bnk[i]]],by="year",all.x=T)
@@ -180,15 +180,15 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       if(add.titles== F) titl <- c("")
       if(bnk[i] != "SPB"  && bnk[i] != "Sab") ScallopMap(bnk[i],poly.lst=bnk.polys[1:2],poly.border=bnk.polys[[2]]$border,xlab="",ylab="",
                                                           title=titl, bathy.source="quick",
-                                                          plot.bathy = T,plot.boundries = T,boundries="offshore",direct=dirct,cex.mn=2,dec.deg = F)
+                                                          plot.bathy = T,plot.boundries = T,boundries="offshore",direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F)
       if(bnk[i] == "SPB") ScallopMap("SPB-banks",poly.lst=bnk.polys[1:2],poly.border=bnk.polys[[2]]$border,xlab="",ylab="",
                                    title=titl, bathy.source="quick",
-                                   plot.bathy = T,plot.boundries = T,boundries="offshore",direct=dirct,cex.mn=2,dec.deg = F)
+                                   plot.bathy = T,plot.boundries = T,boundries="offshore",direct=direct, direct_fns=direct_fns, cex.mn=2,dec.deg = F)
       # This is a quick fix for 2017 only, I don't want the Sable boundaries with the Western-Emerald Conservation Area included since 
       # it wasn't in place in 2017.
       if(bnk[i] == "Sab") ScallopMap(bnk[i],poly.lst=bnk.polys[1:2],poly.border=bnk.polys[[2]]$border,xlab="",ylab="",
                                      title=titl, bathy.source="quick",
-                                     plot.bathy = T,plot.boundries = F,direct=dirct,cex.mn=2,dec.deg = F)
+                                     plot.bathy = T,plot.boundries = F,direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F)
       
       tlvls<-lvls/1000
       legend("bottomleft",c(paste(tlvls[-length(tlvls)],'-',tlvls[-1],sep=''),paste(tlvls[length(tlvls)],'+',sep='')),

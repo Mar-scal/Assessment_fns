@@ -57,7 +57,7 @@
 
 pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessment_fns/Model/DDwSE3_jags.bug",  growth = "both",
                       niter = NULL, nburn = NULL, nthin = NULL,nchains=NULL, 
-                      direct="Y:/Offshore scallop/Assessment/",j.seed=123,parallel=T,bank=NULL,save.res = "default")
+                      direct,direct_fns,j.seed=123,parallel=T,bank=NULL,save.res = "default")
 {
 
 # The functions to load

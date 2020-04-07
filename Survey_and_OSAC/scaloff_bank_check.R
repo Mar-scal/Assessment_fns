@@ -3,7 +3,7 @@
 ### Script to run pre-loading checks on csv files generated from xlsx templates prior to loading to scaloff database
 ### This is run to check data WITHIN a single bank.
 
-scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Offshore scallop/Assessment/",
+scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct, direct_fns=direct_fns,
                                type="csv", 
                                cruise, bank, survey_name, nickname=NULL,
                                spatialplot=TRUE) {
@@ -21,7 +21,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct="Y:/Of
   require(sp) || stop("Make sure you have sp package installed to run this")
   
   ### other functions
-  source(paste0(direct, "Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
 
   ### load the data
   ## from the xlsx template:
