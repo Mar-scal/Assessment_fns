@@ -203,6 +203,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     load(paste0(direct, "Data/Survey_data/", yr, "/Survey_summary_output/testing_results_SCALOFF_LE10.RData"))
     if(!bank %in% names(survey.obj)) {
       stop("Still not there... try again.")
+    }
   }
   
   direct <- direct.real
@@ -335,6 +336,7 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     if(!is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input_", nickname, ".RData",sep=""))
     print("done pre-processing")
   } # end if(preprocessed == F)
+  
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 
 #############  End Section 1  Compile the data for the banks ######  End Section 1  Compile the data for the banks################## 

@@ -320,40 +320,43 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         sfa.visited <- unique(trip.log$sfa)
         num.sfas <- length(sfa.visited)
         osa.spb <- NULL
+        browser()
         for(spb in 1:num.sfas)
         {
           trip.tmp <- trip.log[trip.log$sfa == sfa.visited[spb],]
           spb.area <- paste0("SFA",sfa.visited[spb],collapse = "")
           # Now if we are in an area with a survey strata we want to flag any tows that fall outside the the sfa
           # Turn the trip.log into a spatial object
-          coordinates(trip.tmp) <- ~ lon + lat
+          trip.tmp <- st_as_sf(trip.tmp, coords = c("lon", "lat"), remove=F)
           # project it, logs are all WGS84 as I understand it and Lat Lon
-          proj4string(trip.tmp) <- CRS("+init=epsg:4326")
+          trip.tmp <- st_set_crs(trip.tmp, value=4326)
           if(sfa.visited[spb] %in% c("10","11","12"))
           {
-            tmp.res <- trip.tmp[which(gDisjoint(trip.tmp,offshore.spa[[spb.area]],byid=T)),]
-            osa.spb[[spb.area]] <- cbind(tmp.res@data,tmp.res@coords)
+            osa.spb <- trip.tmp[which(suppressMessages(st_disjoint(trip.tmp,  offshore.spa[offshore.spa$ID %in% spb.area,], sparse=F))),]
+            st_geometry(osa.spb) <- NULL
+            osa.spb <- as.data.frame(osa.spb)
           }# end if(sfa.visited %in% c("10","11","12"))
           # If the SFA is not one of these then it's mislabelled and needs fixed so output them all
           if(!sfa.visited[spb] %in% c("10","11","12"))
           {
-            osa.spb[[spb.area]] <- cbind(trip.tmp@data,trip.tmp@coords)
+            osa.spb <- trip.tmp
           } # end if(!sfa.visited %in% c("10","11","12"))
         } # end for(spb in 1:num.sfas)
         
         # Now get the data pulled together and plop it in an object with the rest of the missing trips.
-        osa <- do.call("rbind",osa.spb)
-        watches.outside.sa[[as.character(trip.ids[i])]] <- osa
+        watches.outside.sa[[as.character(trip.ids[i])]] <- osa.spb
         # Need to make this osa and trip.log spatial beasts.
         # We need to turn the trip.log into a spatial object with projection
-        coordinates(trip.log) <- ~ lon + lat
-        if(nrow(osa) > 0) 
-        {
-          coordinates(osa) <- ~ lon + lat
-          proj4string(osa) <- CRS("+init=epsg:4326")
-        } # end if(nrow(osa > 1) 
+        trip.log <- st_as_sf(trip.log, coords = c("lon", "lat"), remove=F)
         # project it, logs are all WGS84 as I understand it and Lat Lon
-        proj4string(trip.log) <- CRS("+init=epsg:4326")
+        trip.log <- st_set_crs(trip.log, value=4326)
+        if(nrow(osa.spb) > 0) 
+        {
+          # We need to turn the osa into a spatial object with projection
+          osa<- st_as_sf(osa.spb, coords = c("lon", "lat"), remove=F)
+          # project it, logs are all WGS84 as I understand it and Lat Lon
+          osa <- st_set_crs(osa.spb, value=4326)
+        } # end if(nrow(osa > 1) 
         
       } else {
         # We  still need to turn the trip.log into a spatial object with projection

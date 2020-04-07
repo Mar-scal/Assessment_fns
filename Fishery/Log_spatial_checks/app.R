@@ -23,8 +23,10 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     trip.log_f[[i]]$date.land <- as.character(format(trip.log_f[[i]]$date.land,'%Y-%m-%d'))
     trip.log_f[[i]]$date <- as.character(format(trip.log_f[[i]]$date,'%Y-%m-%d'))
     trip.log_f[[i]]$lbs <- trip.log_f[[i]]$pro.repwt * 2.2046
-    
-    osa_f[[i]] <- osa[[i]]
+    trip.log_f[[i]] <- as.data.frame(trip.log_f[[i]])
+    trip.log_f[[i]] <- trip.log_f[[i]][, which(!names(trip.log_f[[i]]) == "geometry")]
+    osa_f[[i]] <- as.data.frame(osa[[i]])
+    osa_f[[i]] <- osa_f[[i]][, which(!names(osa_f[[i]]) == "geometry")]
   }
   
   ui <- fluidPage(
@@ -83,11 +85,11 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     output$notes <- NULL
 
     output$click_info <- renderTable({
-      nearPoints(df=trip.log_f[[which(trips==input$trip)]], xvar = "lon", yvar="lat", coordinfo = input$plot1_click, addDist=TRUE)
+     nearPoints(df=as.data.frame(trip.log_f[[which(trips==input$trip)]]), xvar = "lon", yvar="lat", coordinfo = input$plot1_click, addDist=TRUE)
     })
 
     output$brush_info <- renderTable({
-      brushedPoints(df=trip.log_f[[which(trips==input$trip)]], xvar = "lon", yvar="lat", brush = input$plot1_brush)
+      brushedPoints(df=as.data.frame(trip.log_f[[which(trips==input$trip)]]), xvar = "lon", yvar="lat", brush = input$plot1_brush)
     })
 
   }
