@@ -29,7 +29,7 @@
 # Nov 2017:     Updated the INLA based on what we did with SPERA project, the models now run many times quicker than they did...
 # July 2018:    Numererous changes, see Github for full description/history of modifications
 # Oct 2018:     Updated to enable plotting of small user defined sub-areas.
-# Nov 2018:     Created keep.full.GB option which allows you to create INLA spatial maps for ALL of GB, not just GBa and GBb separately. 
+# Nov 2018:     Created keep.full.GB option (dk changed to full.GB in 2020) which allows you to create INLA spatial maps for ALL of GB, not just GBa and GBb separately. 
 # Aug 2019:     Various updates, see github, included moving models to negative binomials for abundance spatial figures, and tidying up seedboxes
 # April 2020:   Massive SF overhaul, removed seedboxes spatial figures, started saving all gg.objects so these can be pulled in elsewhere               
 #####################################  Function Summary ########################################################
@@ -54,82 +54,101 @@
 
 ###############################################################################################################
 # Arguments
-# 1:  plots:    What plots do you want to make.  Defaults to all plots options include
-  # -aaa: all              - This makes all the plots so you don't have to mess about
-  #-aa:  spatial           - This makes all the spatial plots, just a wrapper to save you from writting all these out every time
-  # -a:  simple           - This will make all non-spatial figures, like time series, SHF, breakdown fig
-  # a:  PR-spatial        - Spatial Pre-recruits 
-  # b:  Rec-spatial       - Spatial Recruits
-  # c:  FR-spatial        - Spatial fully recruited
-  # d:  CF-spatial        - Spatial condition factor
-  # e:  MC-spatial        - Spatial Meat count
-  # f:  Clap-spatial      - Spatial clappers (%), Recruits + Fully recruited
-  # g:  Survey            - Spatial survey tow locations + strata where applicable
-  # h:  MW-SH             - Meat Weight Shell Height 2 panel plot, MW-SH by tow (left panel) + Condition time series (right panel)
-  # i:  abund-ts          - Survey estimated abundance (#/tow) time series of Pre recruits, recruits and fully recruited
-  # j:  biomass-ts        - Survey estimated biomass (kg/tow) time series of Pre recruits, recruits and fully recruited
-  # k:  SHF               - Shell height frequency for the last 6 years
-  # l:  SHF-large         - SHell height frequency for the last 6 years for SH bins > 70 mm.
-  # m:  SHF-split         - Shell height frequency for the last 6 years, split at 60 mm to enable re-scaling of large SHF size bins
-  # n:  clapper-abund-ts  - Clapper abundance (#/tow) time series of Pre recruits, recruits and fully recruited
-  # o:  clapper-per-ts    - Average % clappers per tow time series all 3 size classes
-  # p:  SH-MW-CF-ts       - Time series of average shell height, meat weight, and condition factor.
-  # q:  breakdown         - Plot of biomass by shell height + meat count
-  # r:  seedboxes         - Plot of the seedboxes, this includes several plots which will all be produced if there is currently an open seedbox
-  # s:  user.SH.bins      - Make plots for the selected SH bins by the you (the user), Shell height bins that you set up
-  # t:  MW-spatial        - Make a plot of the average meat weight across the bank (includes all individuals)
-  # u:  SH-spatial        - Make a plot of the average shell height across the bank (includes all individuals)
-  # v:  MW.GP-spatial     - Make a plot of the meat weight growth potential across the bank (all individuals).
-  # w:  SH.GP-spatial     - Make a plot of the shell height growth potential across the bank (all individuals).
-#                           in the SurveySummary_data.r function call will be plotted.
-# 2:  banks:    The banks to create figures for.  Option are "BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB" 
-#               (note Banquereau is not supported yet and the GB is Georges Bank Spring
-# 3:  s.res:    The spatial resolution for any spatial plots.  Default = "low" which will quickly produce the spatial plots, but
-#               the detail will be low.  Options are
-  # a: "low"    Quick low resolution plots, this options sets up a 50 X 50 prediction grid.
-  # b: "high"   Slow high resolution plots, this option sets up a 250 X 250 prediction grid, this can take a while so only run for final figures.
-  # c: c(X,Y)   Where X and Y are numbers that user inputs, (e.g. s.res = c(250,250) would give the same result as setting this to "high")
-# 4: add.scale: Add a scale to the spatial figures?  T/F, default =F
-# 5:  direct:   The working directory to put figures are from which to grab data.  Default = "Y:/Offshore scallop/Assessment/", 
-# 6:  yr:       The survey year of interest.  Default = as.numeric(format(Sys.time(), "%Y")) which attempts to produce plots for the current year.
-#               NB: If trying to reproduce figures from previous years make sure the Rdata output from SurverySummary_data.r for that year exists!
-# 7:  add.title:Add titles to the figures; T/F.  Default = T
-# 8:  fig:      Plot the figures to "screen", to a "pdf" or a "png" file. If fig = "pdf" or "png" figures are placed in this directory (which must exist!!) 
-#               (direct/yr/Presentations/Survey_summary/bank - e.g.Y:/Offshore scallop/Assessment/2015/Presentations/Survey_summary/GBa/)
-#               unless season == "testing" in which they get saved to a testing folder (see below for exact directory).
-# 9:  season:   For the spring survey we need to identify that we don't have all the results in yet.  When running the scripts with only spring  
-#               survey data set to "spring".  If just running GBa and GBb you can set this to "summer" if you've already created the Rdata file.
-#               When summer survey is complete you can also set this to the default of "both".  I've also added the option during preliminary
-#               runs or when altering the function to use a "testing" option so it loads the proper data.  You'll need to have created the 
-#               testing R data when running the SurveySummary_data.r.  Additionally when set to "testing" the figures (if being saved) will be
-#               saved in the folder... direct,yr,"/Presentations/Survey_summary/test_figures/",banks[i].
-# 10: INLA:     What to you want to do with the spatial modelling.  Three options, the default is INLA= "run.full"  
-#               1:  "run"       This will run the INLA for the spatial plot requested, 
-#               2: "run.full"   THIS WILL RUN AND SAVE the models for ALL spatial figures, not just the models specified by the "plots" arguement above.
-#                               This can be slow (depends on computer), but shouldn't take more than an hour for all banks based on my testing
-#                               The results are saved with the Bank name and spatial resolution in the file name so that high and low runs can be saved and 
-#                               recalled as necessary.  This uses the prediction stack in INLA and provides the results on a fine spatial mesh
-#                               but with a proper mesh which minimizes any edge effects.
-#               3: "load"  This loads in the spatial models saved and avoids having to re-run the "run.full" option whenever you want to
-#                               remake figures.  These will be saved by bank and will include the spatial resolution used in model. This excludes any 
-#                               special monitoring boxes (i.e. the "Starbox on Sable).  Regular seeedbox results will typically be 
-#                               saved as subset of the bank.
-# 13: sub.area Do you want to make plots of the user specfied sub areas.  T/F, default = T
-# 14: bathy    Do you want to add the bathymetry, options are identical to the options used in pectinid for easy compatability
-#######           See pectinid help for more details.  Default is bathy = 50 which is same as bathy = c(50,'both',500)  which will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
-#######           If you don't want to plot the bathy go with bathy = NULL              
-# 15. keep.full.GB Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
-# XX: nickname  
-# XX:  save.gg  Do you want to save the ggplots you made for later in life....
+#1: plots     What plots do you want to make.  Defaults to all plots options include plots = 'all'
+####  a:  all               - This makes all the plots so you don't have to mess about
+####  b:  spatial           - This makes all the spatial plots, just a wrapper to save you from writting all these out every time
+####  c:  simple            - This will make all non-spatial figures, like time series, SHF, breakdown fig
+####  d:  PR-spatial        - Spatial Pre-recruits 
+####  e:  Rec-spatial       - Spatial Recruits
+####  f:  FR-spatial        - Spatial fully recruited
+####  g:  CF-spatial        - Spatial condition factor
+####  h:  MC-spatial        - Spatial Meat count
+####  i:  Clap-spatial      - Spatial clappers (%), Recruits + Fully recruited
+####  j:  Survey            - Spatial survey tow locations + strata where applicable
+####  k:  MW-SH             - Meat Weight Shell Height 2 panel plot, MW-SH by tow (left panel) + Condition time series (right panel)
+####  l:  abund-ts          - Survey estimated abundance (#/tow) time series of Pre recruits, recruits and fully recruited
+####  m:  biomass-ts        - Survey estimated biomass (kg/tow) time series of Pre recruits, recruits and fully recruited
+####  n:  SHF               - Shell height frequency for the last 6 years
+####  o:  SHF-large         - SHell height frequency for the last 6 years for SH bins > 70 mm.
+####  p:  SHF-split         - Shell height frequency for the last 6 years, split at 60 mm to enable re-scaling of large SHF size bins
+####  q:  clapper-abund-ts  - Clapper abundance (#/tow) time series of Pre recruits, recruits and fully recruited
+####  r:  clapper-per-ts    - Average % clappers per tow time series all 3 size classes
+####  s:  SH-MW-CF-ts       - Time series of average shell height, meat weight, and condition factor.
+####  t:  breakdown         - Plot of biomass by shell height + meat count
+####  u:  seedboxes         - Plot of the seedboxes, this includes several plots which will all be produced if there is currently an open seedbox
+####  v:  user.SH.bins      - Make plots for the selected SH bins by the you (the user), Shell height bins that you set up
+####  w:  MW-spatial        - Make a plot of the average meat weight across the bank (includes all individuals)
+####  x:  SH-spatial        - Make a plot of the average shell height across the bank (includes all individuals)
+####  y:  MW.GP-spatial     - Make a plot of the meat weight growth potential across the bank (all individuals).
+####  z:  SH.GP-spatial     - Make a plot of the shell height growth potential across the bank (all individuals).
+#########################################
+
+#2: banks     The banks to create figures for.  Option are "BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB" 
+######          (note Banquereau is not supported yet and the GB is Georges Bank Spring
+
+#3: yr        The survey year of interest.  Default = as.numeric(format(Sys.time(), "%Y")) which attempts to produce plots for the current year.
+
+#4: fig       Plot the figures to "screen", to a "pdf" or a "png" file. If fig = "pdf" or "png" figures are placed in this directory (which must exist!!) 
+###              (direct/yr/Presentations/Survey_summary/bank - e.g.Y:/Offshore scallop/Assessment/2015/Presentations/Survey_summary/GBa/)
+###              unless season == "testing" in which they get saved to a testing folder (see below for exact directory).
+
+#5: scale.bar  Do you want to add a scale bar, it also pops in a fancy north arrow . Default of NULL does nothing.
+###              If you want one you put in same options as what is in pectinid.
+###              To add it you specify what corner you want it in and optionally it's size as a second option.
+###              scale.bar = 'bl' will put it in bottom left (options are bl,bc,br,tl,tc,tr) 
+###              scale.bar = c('bl',0.5) will put in a scale bar that is half the length of the figure in the bottom left corner.
+
+#6: bathy      Do you want to add the bathymetry, options are identical to the options used in pectinid for easy compatability
+###             See pectinid help for more details.  Default is bathy = 50 which is same as bathy = c(50,'both',500)  which will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
+###             If you don't want to plot the bathy go with bathy = NULL              
+
+#7: add.title Add titles to the figures; T/F.  Default = T
+
+#8: INLA:       What to you want to do with the spatial modelling.  Three options, the default is INLA= "run.full"  
+###               1:  "run"       This will run the INLA for the spatial plot requested, 
+###               2: "run.full"   THIS WILL RUN AND SAVE the models for ALL spatial figures, not just the models specified by the "plots" arguement above.
+###                               This can be slow (depends on computer), but shouldn't take more than an hour for all banks based on my testing
+###                               The results are saved with the Bank name and spatial resolution in the file name so that high and low runs can be saved and 
+###                               recalled as necessary.  This uses the prediction stack in INLA and provides the results on a fine spatial mesh
+###                               but with a proper mesh which minimizes any edge effects.
+###               3: "load"  This loads in the spatial models saved and avoids having to re-run the "run.full" option whenever you want to
+###                               remake figures.  These will be saved by bank and will include the spatial resolution used in model. This excludes any 
+###                               special monitoring boxes (i.e. the "Starbox on Sable).  Regular seeedbox results will typically be 
+###                               saved as subset of the bank.
+
+#9: s.res:      The spatial resolution for any spatial plots.  Default = "low" which will quickly produce the spatial plots, but the detail will be low.  Options are
+###                1: "low"    Quick low resolution plots, this options sets up a 50 X 50 prediction grid.
+###                2: "high"   Slow high resolution plots, this option sets up a 250 X 250 prediction grid, this can take a while so only run for final figures.
+###                3: c(X,Y)   Where X and Y are numbers that user inputs, (e.g. s.res = c(250,250) would give the same result as setting this to "high")
+
+#10: direct     The working directory to put figures are from which to grab data.  Default = "Y:/Offshore scallop/Assessment/", 
+
+#11: direct_fns The working that the functions are located in.  Default = "Y:/Offshore scallop/Assessment/", 
+
+#12: save.gg    Do you want to save the ggplots you made for later in life....
+
+#13: season    For the spring survey we need to identify that we don't have all the results in yet.  When running the scripts with only spring  
+###              survey data set to "spring".  If just running GBa and GBb you can set this to "summer" if you've already created the Rdata file.
+###              When summer survey is complete you can also set this to the default of "both".  I've also added the option during preliminary
+###              runs or when altering the function to use a "testing" option so it loads the proper data.  You'll need to have created the 
+###              testing R data when running the SurveySummary_data.r.  Additionally when set to "testing" the figures (if being saved) will be
+###              saved in the folder... direct,yr,"/Presentations/Survey_summary/test_figures/",banks[i].
+
+#14: nickname  This is used if you have a specific output from Survey_summary_data call.  You want this to be the same as what you used there, e.g. "GB_special_run"
+
+#15: sub.area  Do you want to make plots of the user specfied sub areas, currently only relevant for GBa.  T/F, default = F
+
+#16: full.GB    Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
 
 
-###############################################################################################################
+#############################################################################################################################################
+##### NB: If trying to reproduce figures from previous years make sure the Rdata output from SurverySummary_data.r for that year exists! ####
+#############################################################################################################################################
 
-survey.figs <- function(plots = 'all', banks = "all" ,
-                       s.res = "low",add.scale = F, 
-                       direct = "Y:/Offshore scallop/Assessment/", direct_fns = "Y:/Offshore scallop/Assessment/",
-                       yr = as.numeric(format(Sys.time(), "%Y"))  ,bathy = 50, save.gg = F,
-                       add.title = T,fig="screen",season="both",INLA = "run" ,sub.area=T, keep.full.GB=F, nickname=NULL)
+survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sys.time(), "%Y"))  ,
+                        fig="screen", ,scale.bar = NULL, bathy = 50, add.title = T, INLA = "run" , s.res = "low"
+                        direct = "Y:/Offshore scallop/Assessment/", direct_fns = "Y:/Offshore scallop/Assessment/",
+                        save.gg = F, season="both",nickname=NULL, sub.area=F, full.GB=F)
 { 
   options(scipen = 999,stringsAsFactors = F)
     tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
@@ -401,7 +420,7 @@ for(i in 1:len)
     if(sub.area==T) bound.poly.surv.GBsub <- lapply(bound.surv.poly[which(grepl(x=names(bound.surv.poly), "GBa-"))], function(x) as.PolySet(x, projection="LL"))
     bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
   }
-  if(!is.null(keep.full.GB) & keep.full.GB == T) {
+  if(!is.null(full.GB) & full.GB == T) {
     bound.poly.surv <- as.PolySet(rbind(bound.surv.poly$GBa, bound.surv.poly$GBb), projection ="LL")
   }
   # Need to treat Sable special...
@@ -969,7 +988,7 @@ for(i in 1:len)
         # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
         
         p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy))
+                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar= scale.bar))
         
        
         # Initialize a counter...
@@ -1012,16 +1031,16 @@ for(i in 1:len)
             # And the legend title
             leg.title <- N.tow.lab
           } # end if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial") 
-          #browser()
+          
           if(maps.to.make[m]  %in% c("CF-spatial"))   
           {
-            base.lvls <- c(0,5,8,10,12,14,16,18,round(max(mod.res[[maps.to.make[m]]])))
+            base.lvls <- c(0,5,8,10,12,14,16,18,max(c(20,ceiling(max(mod.res[[maps.to.make[m]]])))))
             cols <- rev(viridis::inferno(length(base.lvls)-1,alpha=0.7,begin=0.35,end=1))
             # Get the levels correct add extra levels to this to get a better resolution if we have levels > 18
             if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) 
             {
               byextra <- (round(max(mod.res[[maps.to.make[m]]], na.rm=T)) - max(base.lvls[-length(base.lvls)]))/3
-              extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra,  max(base.lvls[-length(base.lvls)]) + byextra*2,  round(max(mod.res[[maps.to.make[m]]])))
+              extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra,  max(base.lvls[-length(base.lvls)]) + byextra*2,  ceiling(max(mod.res[[maps.to.make[m]]])))
               extra.cols <- viridis::inferno(length(extra.lvls) + 1 ,alpha=0.7,begin=0.35,end=0.05)[-1]
               base.lvls <- c(base.lvls[-length(base.lvls)], extra.lvls)
               cols <- c(cols, extra.cols[-length(extra.cols)])
@@ -1242,9 +1261,9 @@ for(i in 1:len)
     if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
     if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
     if(fig == "screen") windows(11,8.5)
-    #browser()
+    
     p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                   add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy))
+                   add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar))
     #print(p)
 
     # For the banks with detailed strata...

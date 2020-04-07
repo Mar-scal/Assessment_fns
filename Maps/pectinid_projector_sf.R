@@ -6,65 +6,75 @@
 # Note that we need a couple of cute little functions for this to work.  Be sure to all call "addalpha" , "convert_coords", and "all.layers"
 # Before running this function, but I haven't settled on a directory for them quite yet...
 
-
 # Arguements:
 
 ## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
-#1:   gg.obj    If you have an existing gg.object that you want to load in as a base map you can pull that in here and just add additional components to that
-#               using the pectinid calls you want to use.
-#2:   area      The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
-#               the coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
-#               in lat/long coordinates and a WGS84 projection.
-#3:   plot      Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
-#2:   repo      The repository from which you will pull the data.  The default is "github" (which has all the main data) 
-#               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
-#3:   c_sys     What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
-#               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
-#               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
-#4:   buffer    Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
-#######           size of your area
-#5:  direct_fns The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
-#               "Y:/Offshore/Assessment/Assesment_fns/"
+#1: gg.obj     If you have an existing gg.object that you want to load in as a base map you can pull that in here and just add additional components to that
+###              using the pectinid calls you want to use.
+
+#2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
+###               the coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
+###               in lat/long coordinates and a WGS84 projection.
+
+#3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
+
+#4: repo       The repository from which you will pull the data.  The default is "github" (which has all the main data) 
+###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
+
+#5: c_sys      What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
+###               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
+###               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
+
+#6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
+###               size of your area
+
+#7: direct_fns  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
+###               "Y:/Offshore/Assessment/Assesment_fns/"
 
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
-#6:   add_layer Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
-#               they need to be added as a list with specific options broken out here. A complete example is
-#               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
-###  a: eez       Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes wil work, looking for eez object in add_layer)
+#6: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
+###               they need to be added as a list with specific options broken out here. A complete example is
+###               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
+####  a: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes wil work, looking for eez object in add_layer)
 
-###  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
-#######            The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
-#######            you will get both the smooth surface and the contours with a maximum depht of 500 m
-#######            The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
-#######             or 'c' which only plots the depth contour lines
-#######            The final is the maximum depth you want for the contours, you can leave this out, defaut is 500 meters which looks good.
-#######            bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
-#######            bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max deth of 500 meters. 
-#######            This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
+####  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
+#######              The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
+#######              you will get both the smooth surface and the contours with a maximum depht of 500 m
+#######              The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
+#######              or 'c' which only plots the depth contour lines
+#######              The final is the maximum depth you want for the contours, you can leave this out, defaut is 500 meters which looks good.
+#######              bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
+#######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max deth of 500 meters. 
+#######              This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
 
-###  c: nafo      Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
-#######             while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
+####  c: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
+#######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
 
-###  d: sfa       Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point repo to correct location
+####  d: sfa        Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point repo to correct location
 
-###  e:survey     Do you want to add the strata boundariesto the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
-#######             Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
-#######             So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
-######              If sourcing locally point repo to correct location.
+####  e: survey     Do you want to add the strata boundariesto the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+#######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
+#######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
+#######               If sourcing locally point repo to correct location.
 
-###  f:s.labels  Add labels to the figures?  Several options here I need to lay out.  
-######             s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
-######             s.labels = 'inshore' - Puts basic labels for inshore areas - Good for broad overview of inshore
-######             s.labels = 'all' - Puts the above two sets of labels - Good for broad overview of everywhere
-######             the next two options only work if you are looking at a zoomed in version of inshore, way too much detail for a figure covering everywhere.
-######             s.labels = 'ID' - Puts in detailed inshore labels for the areas
-######             s.labels = "IDS" - Puts in detailed inshore survey strata labesl for all the inshore areas
+####  f: s.labels  Add labels to the figures?  Several options here I need to lay out.  
+#######              s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
+#######              s.labels = 'inshore' - Puts basic labels for inshore areas - Good for broad overview of inshore
+#######              s.labels = 'all' - Puts the above two sets of labels - Good for broad overview of everywhere
+#######              the next two options only work if you are looking at a zoomed in version of inshore, way too much detail for a figure covering everywhere.
+#######              s.labels = 'ID' - Puts in detailed inshore labels for the areas
+#######              s.labels = "IDS" - Puts in detailed inshore survey strata labesl for all the inshore areas
 
-###  g: custom     Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
+####  g: custom     Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
 #######             custom layer/PBS massing object is. custom = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes"
 #######             If using PBSmapping this assumes that you have the data formatted properly in a csv or xlsx file and 
 #######             that the proection for the data is WGS84.  Default = NULL
+
+#### h:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  
+#######             To add it you specify what corner you want it in and optionally it's size as a second option.
+#######             scale.bar = 'bl' will put it in bottom left (options are bl,bc,br,tl,tc,tr) 
+#######             scale.bar = c('bl',0.5) will put in a scale bar that is half the length of the figure in the bottom left corner.
 
 #################################### INLA OPTIONS#################################### INLA OPTIONS#################################### INLA OPTIONS
 ## The INLA related inputs, if field and mesh are not supplied these won't do anything.  You do need field and mesh if plotting an INLA model result
@@ -76,7 +86,7 @@
 ###  b: mesh    The INLA mesh that corresponds to the values of field, which gets projected properly in this function .
 ######          Note that the field is assumed to be in the same projection as the mesh.
 
-###  c: range   The range of the dataThe range of values for the field plotted, default uses the full range of the data.
+###  c: range   The range of values for the field plotted, default uses the full range of the data.
 
 ###  d: clip    Do you want to clip the area plotted to something.  Default is no clipping, there are several options you have here...
 ######            clip = "D/Location/of/a/shape/file.shp" will read in a shapefile as an sf object.
@@ -86,15 +96,27 @@
 
 ###  e: dims    The number of X and Y values for the INLA surface.  Higher is better resolution, higher = slow. Default dims = c(50, 50) which is pretty low res but quick
 ###  f: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
-######          What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
+######            What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
 ######            If not NULL it is this...list(scale = 'c',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
 ######            Each of these fields is NULL able (i.e. you only need to specify what you want and let pecjector handle the rest)
 ######            $scale = list(scale = 'discrete',...) # if you want a discrete scale add scale = 'discrete', if not specified we get a continuous scale.
 ######            $scale = list(palette = viridis(100),...) Here is where you specify your colour palette and number of colours.  Number of colours should be > the number of breaks!
 ######            $scale = list(breaks = seq(0,1,by=0.05),...) Where do you want to put breaks, this is really for your legend mainly as the colour scheme is much more flexible.
 ######            $scale = list(limits = c(0,1),...) What are upper and lower bounds of data covered by your your colour palette, 
-#####             $scale = list(alpha = 0.8,...)     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque.
-#### g: leg.name What do you want the name of your legend to be.  
+######            $scale = list(alpha = 0.8,...)     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque.
+######            $scale =  list(leg.name = "Bill",...) What do you want the name of your legend to be.  
+
+# A working full example of a call to this function that should work without any modification as long
+# as you are connected to the NAS drive...
+#pecjector(gg.obj = NULL, area = "BBn",plot = T, 
+#          repo = 'local',c_sys = 32619, buffer =1000,direct_fns = "Y:/Offshore/Assessment/Assesment_fns/",
+#          add_layer = list(eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
+
+########## If you had an INLA layer, a full call to that would be to add this to the above..
+#         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
+#         scale= list(scale = 'discrete', palette = 'viridis::viridis(100)', breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
+
+
 
 pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
                      repo = "github",c_sys = "ll",  buffer = 0, direct_fns = "Y:/Offshore/Assessment/Assesment_fns/",
@@ -589,6 +611,14 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
     }
   }
+  # Finally add a scale bar if so desired.
+
+  if(any(layers == 'scale.bar') && !is.null(add_layer$scale.bar))
+  {
+    scal.loc <- add_layer$scale.bar[1]
+    # If we wanted to set the scale bar width ourselves
+    if(length(add_layer$scale.bar) ==2) {scal.width <- add_layer$scale.bar[2]} else {scale.width = 0.25}
+  }
   
   #browser()
   # If we have a field to plot, i.e. an INLA object and mesh, in here we convert it from a raster to an spatial DF in SF and then we plots it.
@@ -706,12 +736,13 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
       if(s.labels$region != 'offshore' || s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
     }
-
+    if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
+                                                    annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
+                                                    pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
+    
     # Some finishing touches...
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
-    if(plot == T) 
-    {
-      print(pect_plot) # If you want to immediately display the plot
+    
+    if(plot == T) print(pect_plot) # If you want to immediately display the plot
       return(pect_plot = pect_plot)
-    }
  } # end function
