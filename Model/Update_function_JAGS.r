@@ -930,7 +930,7 @@ for(j in 1:num.banks)
         # Now GBb
         if(bnk=="GBa" & language=="fr")
         {
-          plot(dat1$catch~dat1$year,type="n",ylab="",xlab="",las=1,xaxt="n",bty="n",ylim=c(0,1300))
+          plot(dat1$catch~dat1$year,type="n",ylab="",xlab="",las=1,xaxt="n",bty="n",ylim=c(0,2000))
           axis(1,pos=0)
           abline(h=0)
           points(dat1$catch~dat1$year,  type='h',pch=15,lwd=16,lend=3,col="grey50")
