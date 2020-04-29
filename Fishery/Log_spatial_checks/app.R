@@ -31,7 +31,7 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     osa_f[[i]] <- as.data.frame(osa[[i]])
     osa_f[[i]] <- osa_f[[i]][, which(!names(osa_f[[i]]) == "geometry")]
   }
-  browser()
+  
   ui <- fluidPage(
     
     # Application title
