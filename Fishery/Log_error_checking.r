@@ -257,7 +257,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   
   for(i in 1:num.trips) # this is going through trips
   {
-    #browser()
     trip.log <- dat.log[dat.log$tripnum == trip.ids[i],]
     trip.slip <- dat.slip[dat.slip$tripnum == trip.ids[i],]
     # Get the slip and trip landings
@@ -312,7 +311,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       trip.log <- trip.log[!is.na(trip.log$lat),]
       trip.log <- trip.log[!is.na(trip.log$lon),]
       # SPB is a pain as it is two different pieces, so if looking at SPB I switch to look at this by SFA
-      
       if(trip.area == "SPB")
       {
         #Pick it up here, I have logs that could be spread across 2-3 areas, so I think I need to loop through each of the SFA's and
@@ -320,7 +318,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         sfa.visited <- unique(trip.log$sfa)
         num.sfas <- length(sfa.visited)
         osa.spb <- NULL
-        browser()
+        
         for(spb in 1:num.sfas)
         {
           trip.tmp <- trip.log[trip.log$sfa == sfa.visited[spb],]
@@ -333,8 +331,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
           if(sfa.visited[spb] %in% c("10","11","12"))
           {
             osa.spb <- trip.tmp[which(suppressMessages(st_disjoint(trip.tmp,  offshore.spa[offshore.spa$ID %in% spb.area,], sparse=F))),]
-            st_geometry(osa.spb) <- NULL
-            osa.spb <- as.data.frame(osa.spb)
           }# end if(sfa.visited %in% c("10","11","12"))
           # If the SFA is not one of these then it's mislabelled and needs fixed so output them all
           if(!sfa.visited[spb] %in% c("10","11","12"))
@@ -343,6 +339,22 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
           } # end if(!sfa.visited %in% c("10","11","12"))
         } # end for(spb in 1:num.sfas)
         
+        if(nrow(osa.spb)>0){
+          # We need to turn the osa into a spatial object with projection
+          osa<- st_as_sf(osa.spb, coords = c("lon", "lat"), remove=F)
+          # project it, logs are all WGS84 as I understand it and Lat Lon
+          osa <- st_set_crs(osa.spb, value=4326)
+          st_geometry(osa) <- NULL  
+          osa <- as.data.frame(osa)
+        }
+        
+        st_geometry(osa.spb) <- NULL  
+        osa.spb <- as.data.frame(osa.spb)
+        
+        if(nrow(osa.spb)==0){
+          osa <- osa.spb
+        }
+        
         # Now get the data pulled together and plop it in an object with the rest of the missing trips.
         watches.outside.sa[[as.character(trip.ids[i])]] <- osa.spb
         # Need to make this osa and trip.log spatial beasts.
@@ -350,15 +362,8 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         trip.log <- st_as_sf(trip.log, coords = c("lon", "lat"), remove=F)
         # project it, logs are all WGS84 as I understand it and Lat Lon
         trip.log <- st_set_crs(trip.log, value=4326)
-        if(nrow(osa.spb) > 0) 
-        {
-          # We need to turn the osa into a spatial object with projection
-          osa<- st_as_sf(osa.spb, coords = c("lon", "lat"), remove=F)
-          # project it, logs are all WGS84 as I understand it and Lat Lon
-          osa <- st_set_crs(osa.spb, value=4326)
-        } # end if(nrow(osa > 1) 
-        
-      } else {
+      } 
+      else {
         # We  still need to turn the trip.log into a spatial object with projection
         trip.log <- st_as_sf(trip.log, coords = c("lon", "lat"), remove=F)
         # project it, logs are all WGS84 as I understand it and Lat Lon
@@ -367,7 +372,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         st_geometry(osa) <- NULL
         osa <- as.data.frame(osa)
         watches.outside.sa[[as.character(trip.ids[i])]] <- osa
-        
+
       } # end else which is everywhere outside SPB.
       
       # Now I need to do somethign similar for the NAFO sub-regions.  Because I don't want to flag every trip on GBa that
@@ -397,7 +402,12 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
           nafo.loc <- nafo.reg[nafo.reg$id  ==sp.slot,]
           # Then we need to match on the level that the nafo.area is, this is a little different, but
           # basically if our watch is flagged as in the wrong NAFO area then we keep it.
-          if(suppressMessages(st_disjoint(trip.log[n,],nafo.loc,sparse=F))) os.nafo[[as.character(n)]] <- trip.log[n,]
+          
+          if(suppressMessages(st_disjoint(trip.log[n,],nafo.loc,sparse=F))) {
+            trip.log.tmp <- trip.log[n,]
+            st_geometry(trip.log.tmp) <- NULL
+            os.nafo[[as.character(n)]] <- trip.log.tmp
+          }
         } # end if(!is.na(nafo.area))
         
       } # end for(n in 1:length(trip.log))
@@ -405,9 +415,12 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # Tidy up the os.nafo list...
       
       #if(is.null(os.nafo)) os.nafo <- cbind(tmp@data,tmp@coords)
-      if(length(os.nafo) >1) os.nafo <- do.call("rbind",as.data.frame(os.nafo))
-      if(length(os.nafo) == 1) os.nafo <- as.data.frame(os.nafo[[1]])
-      if(!is.null(os.nafo)) watches.outside.nafo[[as.character(trip.ids[i])]] <- as.data.frame(os.nafo)
+      if(length(os.nafo) >1) os.nafo.df <- do.call("rbind",os.nafo)
+      if(length(os.nafo) == 1) os.nafo.df <- as.data.frame(os.nafo[[1]])
+      if(!is.null(os.nafo)) {
+        watches.outside.nafo[[as.character(trip.ids[i])]] <- as.data.frame(os.nafo.df)
+        os.nafo <- os.nafo.df
+      }
       
       # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
       if(is.null(reg.2.plot)) pr <- data.frame(y=c(st_bbox(trip.log)$ymin, st_bbox(trip.log)$ymax), 
@@ -433,7 +446,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         ggtitle(paste0(trip.log$ves[1],"_",trip.log$vrnum[1],"_",min(trip.log$fished,na.rm=T),"-",max(trip.log$fished,na.rm=T))) +
         scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
       
-      if(nrow(osa) > 0) trip_plot <- trip_plot + geom_point(data=osa, aes(lon, lat), colour="blue", shape=20)  # these are any points outside the survey domain
+      if(nrow(osa) > 0) trip_plot <- trip_plot + geom_point(data=osa, aes(lon, lat), colour="blue", shape=21)  # these are any points outside the survey domain
       if(!is.null(os.nafo))  trip_plot <- trip_plot + geom_point(data=os.nafo, aes(lon, lat), colour="red", shape=21)  # these are any points outside the expected nafo subregion.
       
       
@@ -447,7 +460,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       print(paste0("Trip ID:",trip.ids[i],"  count=",i))
       
     } # end if (spatial==T)
-    
     
     #} # end for(i in 1:num.trips)
     
@@ -499,7 +511,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   
   # if we don't have any bad nafo watches we need to do this so the do.call later doesn't blow up.
   if(is.null(watches.outside.nafo)) watches.outside.nafo <- list(watches.outside.nafo)
-  
   
   # Missing data is anything that is missing the vrnum, bank, date fished, or trip number
   missing.dat <- NA

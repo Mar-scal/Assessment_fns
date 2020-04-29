@@ -7,6 +7,8 @@
 #    http://shiny.rstudio.com/
 #
 
+# 506003
+# 507315
 
 
 # Define UI for application
@@ -15,6 +17,7 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
   trips <- NULL
   trip.log_f <- list()
   osa_f <- list()
+  
   for(i in 1:length(trip.log)){
     trip<-unique(trip.log[[i]]$tripnum)
     trips <- c(trips,trip)
@@ -28,7 +31,7 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     osa_f[[i]] <- as.data.frame(osa[[i]])
     osa_f[[i]] <- osa_f[[i]][, which(!names(osa_f[[i]]) == "geometry")]
   }
-  
+  browser()
   ui <- fluidPage(
     
     # Application title
