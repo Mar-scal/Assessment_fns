@@ -7,8 +7,6 @@
 #    http://shiny.rstudio.com/
 #
 
-# 506003
-# 507315
 
 
 # Define UI for application
