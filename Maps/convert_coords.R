@@ -93,5 +93,5 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     b.box <- st_transform(box.buf,crs = out.csys) # And transform back to the system we want
   } # end if(bbox.buf > 0)
   return(list(coords = coords, b.box = b.box))
-    
+  
 }

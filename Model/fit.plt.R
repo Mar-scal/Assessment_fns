@@ -145,7 +145,7 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   	axis(4, lab = F, tcl = -0.3)
   	
   	if(language=="en") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
-  	if(language=="fr") mtext("Prises commerciales par\n unit\u00E9 d’effort (kg/hm) ", 2, 2.5, cex = 1.25)
+  	if(language=="fr") mtext("Prises commerciales par\n unit\u00E9 d'effort (kg/hm) ", 2, 2.5, cex = 1.25)
   	#DK Note: I have removed the confidence intervals around the CPUE data as they are not correct.  It's something we need to
   	# revisit going forward.
   	#if(CI==T)
