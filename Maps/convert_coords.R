@@ -37,7 +37,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     if(plot.extent%in% c('BBs','bbs','BBS','Browns S','browns s','BROWNS S',
                          'Browns s','26B',"SFA26B","26S","SFA26S"))                                {y=c(42.25,42.75);x=c(-66.00,-65.25)}
     if(plot.extent%in% c('BB','bb','Bb',"Browns","browns",'BROWNS'))                               {y=c(42.25,43.00);x=c(-66.50,-65.25)}
-    if(plot.extent%in% c('GBa',"GB","gb","Georges","georges","GEORGES",
+    if(plot.extent%in% c("GB","gb","Georges","georges","GEORGES",
                          "27B","27","SFA27B","SFA27"))		                                         {y=c(41.10,42.30);x=c(-67.30,-65.60)}
     if(plot.extent%in% c('GBa',"GBa","gba","Georges A","georges a",
                          "GEORGES A","Georges a","27A","SFA27A"))                                  {y=c(41.20,42.30);x=c(-67.15,-65.85)}

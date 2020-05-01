@@ -140,6 +140,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
+  require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
+  #require(rmapshaper) || stop ("Please install rmapshaper, has a nice means of cleaning up that ugly German survey figure...")
   #require(scales) || stop ("Please install scales, needed to make legend in discrete ggplot not be in scientific notation")
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
   # if(repo == "github")
@@ -479,8 +481,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.strata  <- st_transform(inshore.strata,c_sys)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
         #trim to bbox
-        #inshore.strata <- st_intersection(inshore.strata, b.box)
+        inshore.strata <- st_intersection(inshore.strata, b.box)
       } # end if(add_strata != "offshore")
       
       if(add_layer$survey[1]  != "inshore")
@@ -510,9 +513,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         # Now transform all the layers in the object to the correct coordinate system
         offshore.strata  <- st_transform(offshore.strata,c_sys) 
         offshore.strata <- offshore.strata %>% dplyr::select(Strt_ID,ID,col)
-        
+        offshore.strata <- st_buffer(offshore.strata,dist=0)
         # Trimming these to the bbox always trips up so just skip it
-        #offshore.strata <- st_intersection(offshore.strata, b.box)
+        offshore.strata <- st_intersection(offshore.strata, b.box)
         
       } # end if(add_strata != "offshore")  
       
@@ -530,6 +533,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
         inshore.strata <- inshore.strata %>% dplyr::select(Strt_ID,ID,col)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
+        inshore.strata <- st_intersection(inshore.strata, b.box)
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
@@ -538,6 +543,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         
         # This pulls in all the layers from the above location
         offshore.strata <- all.layers(loc,make.sf=T,make.polys=F)
+ 
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
         {
@@ -547,8 +553,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.strata  <- st_transform(offshore.strata,c_sys) # Convert back
         offshore.strata <- offshore.strata %>% dplyr::select(Strt_ID,ID,col)
+        offshore.strata <- st_buffer(offshore.strata,dist=0)
         #trim to bbox
-        #offshore.strata <- st_intersection(offshore.strata, b.box)
+        offshore.strata <- st_intersection(offshore.strata, b.box)
         
       } # end if(detailed != "offshore")
     } # end if(repo == 'local')
@@ -585,18 +592,20 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     if(repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels/labels.zip", temp)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       s.labels <- all.layers(temp2,make.sf=T,make.polys=F)
+      s.labels <- st_transform(s.labels,c_sys)
 
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      s.labels <- st_intersection(s.labels, b.box)
     }
 
     # If not going through Github it's easy!
@@ -609,6 +618,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      s.labels <- st_intersection(s.labels, b.box)
     }
   }
   # Finally add a scale bar if so desired.
@@ -617,7 +627,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   {
     scal.loc <- add_layer$scale.bar[1]
     # If we wanted to set the scale bar width ourselves
-    if(length(add_layer$scale.bar) ==2) {scal.width <- add_layer$scale.bar[2]} else {scale.width = 0.25}
+    if(length(add_layer$scale.bar) ==2) {scale.width <- as.numeric(add_layer$scale.bar[2])} else {scale.width = 0.25}
   }
   
   #browser()
@@ -710,8 +720,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   {
     pect_plot <- ggplot() + 
       geom_sf(data=b.box, fill=NA) +
-      theme_minimal() + xlab("") + ylab("")+
-      scale_x_continuous(expand = c(0,0)) +
+      theme_minimal() + xlab("") + ylab("") +
+      scale_x_continuous(expand = c(0,0)) + # Not sure either of these scale additions is needed...
       scale_y_continuous(expand = c(0,0)) 
   } # end if(!is.null(gg.obj))
     #browser()
@@ -725,22 +735,23 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     if(exists("final.strata"))
     {
       if(add_layer$survey[2] == "detailed") pect_plot <- pect_plot + new_scale("fill")  + geom_sf(data=final.strata,aes(fill= Strt_ID)) + scale_fill_manual(values = col.codes$col)
-      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=final.strata,fill = NA) 
+      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=final.strata,fill = 'gray95') 
     }
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
-    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick")
+    if(exists("custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=NA)
+    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.25)
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill="grey")   
     if(exists("s.labels")) 
     {
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
-      if(s.labels$region != 'offshore' || s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
+      if(s.labels$region != 'offshore' && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
     }
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
                                                     annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
                                                     pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
-    # Some finishing touches...
+    # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
     
     if(plot == T) print(pect_plot) # If you want to immediately display the plot
