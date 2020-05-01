@@ -9,6 +9,7 @@
 # Arguements:
 
 ## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
+
 #1: gg.obj     If you have an existing gg.object that you want to load in as a base map you can pull that in here and just add additional components to that
 ###              using the pectinid calls you want to use.
 
@@ -116,8 +117,6 @@
 #         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
 #         scale= list(scale = 'discrete', palette = 'viridis::viridis(100)', breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
-
-
 pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
                      repo = "github",c_sys = "ll",  buffer = 0, direct_fns = "Y:/Offshore/Assessment/Assesment_fns/",
                      # Controls what layers to add to the figure (eez, nafo, sfa's, labels, )
@@ -125,7 +124,6 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
                      ...) 
-
 { 
   require(marmap) || stop("You need the marmap function to get the bathymetry")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
@@ -164,9 +162,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   # Don't do this if the field and mesh lengths differ.
   if(!is.null(add_inla$field)) stopifnot(length(add_inla$field) == add_inla$mesh$n) 
   
-  
   # If we set area up as a ggplot we don't need to do any of this fun.
-
   # } # end if(repo == "local")
   # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
@@ -175,6 +171,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
   if(is.data.frame(area)) coords <- convert.coords(plot.extent = area[,c("x","y")],in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+
   # This is the case when we put a name in and let convert.coords sort it out.
   if(!is.data.frame(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   # All I need from the coords call above is the bounding box.
@@ -208,7 +205,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       loc <- paste0(repo,"/EEZ")
       eez.all <- st_read(loc)
     } # end the else
-
+    
     # We then need to transform these coordinates to the coordinates of the eez data
     eez.bbox <- b.box %>% st_transform(st_crs(eez.all))
     # Then intersect the coordiates so we only plot the part of the eez we want
@@ -216,11 +213,11 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
     if(!is.null(eez)) eez <- eez %>% st_transform(c_sys)
   } # end if(!is.null(add_EEZ)) 
-
+  
   # Now grab the land, note we're using the rnaturalearth package now
   # We also want to get the land
   land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
-
+  
   # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
   if(c_sys == "4326") land.sf <- st_intersection(land.all, b.box)
   # If we need to reproject do it...
@@ -243,12 +240,12 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     # I need coordinates for the bathy
     bath.box <- st_bbox(b.box)
     if(st_crs(b.box)[1]$epsg != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() 
-      
+    
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
     # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
     bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
-   
+    
     bathy <- marmap::as.raster(bathy.org)
     
     #Now if we want smooth contours we do this...
@@ -292,6 +289,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
       bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
       }
+
   } # end if(any(layers == 'bathy'))
   } # end the is.null()
   # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "repo = 'github'", for NAFO this is actually going
@@ -460,7 +458,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     {
       if(add_layer$survey[1] != "offshore")
       {
-      
+        
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -487,7 +485,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       {
         # Note we only do this if there is no offshore.strata object already loaded, this will really speed up using this function multiple times as you only will load these data once.
         # The only problem with this would be if offshore strata was loaded as an object but it wasn't the offshore strata we wanted!
-
+        
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -572,10 +570,10 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
       custom <- st_as_sf(temp)
     } else { custom <- all.layers(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
-      # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
-      custom  <- st_transform(custom,c_sys)
-      #trim to bbox
-      custom <- st_intersection(custom, b.box)
+    # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
+    custom  <- st_transform(custom,c_sys)
+    #trim to bbox
+    custom <- st_intersection(custom, b.box)
   } # end  if(!is.null(add_custom))
   #browser()
   
@@ -611,6 +609,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
     }
   }
+
   # Finally add a scale bar if so desired.
 
   if(any(layers == 'scale.bar') && !is.null(add_layer$scale.bar))
@@ -679,6 +678,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     # First I'll make a couple of generic colour ramps 
     #I'll set one up using 100 colours and a maximium of 10 breaks, break locations based on the data.
     #browser()
+
       if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
       if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),1)
       if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
@@ -709,11 +709,12 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   if(is.null(gg.obj))
   {
     pect_plot <- ggplot() + 
-      geom_sf(data=b.box, fill=NA) +
+      #geom_sf(data=b.box, fill=NA) +
       theme_minimal() + xlab("") + ylab("")+
       scale_x_continuous(expand = c(0,0)) +
       scale_y_continuous(expand = c(0,0)) 
   } # end if(!is.null(gg.obj))
+  
     #browser()
     
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
