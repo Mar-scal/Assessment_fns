@@ -240,6 +240,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     #If you didn't set a maximum layer depth then it defaults to -500
     if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
     # I need coordinates for the bathy
+    browser()
     bath.box <- st_bbox(b.box)
     if(st_crs(b.box)[1]$epsg != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() 
     
