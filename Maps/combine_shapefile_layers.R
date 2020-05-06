@@ -19,6 +19,12 @@ all.layers <- function(loc,make.sf = F,make.polys=F)
   for (i in 1:length(lyr)) 
   {
     my.shp[[i]] <- st_read(paste0(loc,"/",lyr[i], ".shp"))
+    # If your shapefile doesn't have a CRS set it to 4326 and print a warning
+    if(is.na(st_crs(my.shp[[i]]))) 
+    {
+      my.shp[[i]] <- my.shp[[i]] %>% st_set_crs(4326) 
+      print("Heads up that your shapefile did not have a CRS set, it was set to EPSG 4326")
+    } 
     # If you want to return the layer as a polygon, should be a multilinesegment or similar.
     if(make.polys == T) 
     {
