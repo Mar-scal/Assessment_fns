@@ -138,6 +138,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
+  require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
+  #require(rmapshaper) || stop ("Please install rmapshaper, has a nice means of cleaning up that ugly German survey figure...")
   #require(scales) || stop ("Please install scales, needed to make legend in discrete ggplot not be in scientific notation")
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
   # if(repo == "github")
@@ -239,7 +241,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
     # I need coordinates for the bathy
     bath.box <- st_bbox(b.box)
-    if(st_crs(b.box)[1]$epsg != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() 
+    
+    if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=c_sys) %>% st_bbox() 
     
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
@@ -477,8 +480,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.strata  <- st_transform(inshore.strata,c_sys)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
         #trim to bbox
-        #inshore.strata <- st_intersection(inshore.strata, b.box)
+        inshore.strata <- st_intersection(inshore.strata, b.box)
       } # end if(add_strata != "offshore")
       
       if(add_layer$survey[1]  != "inshore")
@@ -508,9 +512,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         # Now transform all the layers in the object to the correct coordinate system
         offshore.strata  <- st_transform(offshore.strata,c_sys) 
         offshore.strata <- offshore.strata %>% dplyr::select(Strt_ID,ID,col)
-        
+        offshore.strata <- st_buffer(offshore.strata,dist=0)
         # Trimming these to the bbox always trips up so just skip it
-        #offshore.strata <- st_intersection(offshore.strata, b.box)
+        offshore.strata <- st_intersection(offshore.strata, b.box)
         
       } # end if(add_strata != "offshore")  
       
@@ -528,6 +532,8 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
         inshore.strata <- inshore.strata %>% dplyr::select(Strt_ID,ID,col)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
+        inshore.strata <- st_intersection(inshore.strata, b.box)
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
@@ -536,6 +542,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         
         # This pulls in all the layers from the above location
         offshore.strata <- all.layers(loc,make.sf=T,make.polys=F)
+ 
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
         {
@@ -545,8 +552,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.strata  <- st_transform(offshore.strata,c_sys) # Convert back
         offshore.strata <- offshore.strata %>% dplyr::select(Strt_ID,ID,col)
+        offshore.strata <- st_buffer(offshore.strata,dist=0)
         #trim to bbox
-        #offshore.strata <- st_intersection(offshore.strata, b.box)
+        offshore.strata <- st_intersection(offshore.strata, b.box)
         
       } # end if(detailed != "offshore")
     } # end if(repo == 'local')
@@ -575,26 +583,27 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     #trim to bbox
     custom <- st_intersection(custom, b.box)
   } # end  if(!is.null(add_custom))
-  #browser()
-  
+
   # Do we want to add the labels to the figure he's what ya gotta do...
   if(any(layers == 's.labels')) 
   {
     if(repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels/labels.zip", temp)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       s.labels <- all.layers(temp2,make.sf=T,make.polys=F)
+      s.labels <- st_transform(s.labels,c_sys)
 
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      s.labels <- st_intersection(s.labels, b.box)
     }
 
     # If not going through Github it's easy!
@@ -607,6 +616,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      s.labels <- st_intersection(s.labels, b.box)
     }
   }
 
@@ -616,27 +626,27 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   {
     scal.loc <- add_layer$scale.bar[1]
     # If we wanted to set the scale bar width ourselves
-    if(length(add_layer$scale.bar) ==2) {scal.width <- add_layer$scale.bar[2]} else {scale.width = 0.25}
+    if(length(add_layer$scale.bar) ==2) {scale.width <- as.numeric(add_layer$scale.bar[2])} else {scale.width = 0.25}
   }
   
-  #browser()
   # If we have a field to plot, i.e. an INLA object and mesh, in here we convert it from a raster to an spatial DF in SF and then we plots it.
   if(!is.null(add_inla$field) && !is.null(add_inla$mesh))
   {
-    #browser()
     # The mesh needs to have a CRS identified
     if(is.null(add_inla$mesh$crs)) 
     {
       # If we have a value < 0 or that the maximum value of the mesh is < 180 I assume we are in lat/lon WGS84, which should be close at least for
       # anything in the maritime region.
-      if(min(add_inla$mesh$loc[,1]) < 0 || max(add_inla$mesh$loc[,1] < 180)) add_inla$mesh$crs <- mesh.csys <-  crs(st_crs(4326)[2]$proj4string)
-      if(max(add_inla$mesh$loc[,1]) > 20000) add_inla$mesh$crs <- mesh.csys <- crs(st_crs(32620)[2]$proj4string)
+      if(min(add_inla$mesh$loc[,1]) < 0 || max(add_inla$mesh$loc[,1] < 180)) add_inla$mesh$crs <- mesh.csys <-  crs("+init=epsg:4326")
+      # If you have really big numbers I'm going for it being UTM, assuming you are doing something in the Maritimes this is fine...
+      if(max(add_inla$mesh$loc[,1]) > 20000) add_inla$mesh$crs <- mesh.csys <- crs("+init=epsg:32620")
       # if I was successful in making a mesh warn the user if we automatically added a CRS to the mesh
       if(exists("mesh.csys")) cat(paste0("Hello, local Programmer, You did not specify the mesh CRS, I used the coordinates in the mesh to take 
-                                                    a guess that the coordinate system is ", st_crs(st_crs(mesh.csys)[2]$proj4string)[1]$epsg , " please confirm!!"))
+                                                    a guess that the coordinate system is ", mesh.csys , " please confirm!!"))
       # If not successful in making a mesh we shut er down.
-      if(!exists("mesh.csys")) cat(paste0("Hello, local Programmer, You did not specify the mesh CRS, I used the coordinates in the mesh to take 
-                                                    a guess that the coordinate system is ",st_crs(st_crs(mesh.csys)[2]$proj4string)[1]$epsg, " please confirm!!"))
+      if(!exists("mesh.csys")) cat(paste0("Hello, local Programmer, You did not specify the mesh CRS and I was unable to figure out what it should be, you'll
+                                           probably get an error before finishing reading this message, or maybe your plot will look dumb... 
+                                           please fix and have a nice day!"))
     } # end  if(is.null(add_inla$mesh$crs)) 
     # Add in the dims option if that isn't there, low resolution to start.
     if(is.null(add_inla$dims)) add_inla$dims <- c(50,50)
@@ -709,9 +719,9 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   if(is.null(gg.obj))
   {
     pect_plot <- ggplot() + 
-      #geom_sf(data=b.box, fill=NA) +
-      theme_minimal() + xlab("") + ylab("")+
-      scale_x_continuous(expand = c(0,0)) +
+      geom_sf(data=b.box, fill=NA) +
+      theme_minimal() + xlab("") + ylab("") +
+      scale_x_continuous(expand = c(0,0)) + # Not sure either of these scale additions is needed...
       scale_y_continuous(expand = c(0,0)) 
   } # end if(!is.null(gg.obj))
   
@@ -726,22 +736,23 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
     if(exists("final.strata"))
     {
       if(add_layer$survey[2] == "detailed") pect_plot <- pect_plot + new_scale("fill")  + geom_sf(data=final.strata,aes(fill= Strt_ID)) + scale_fill_manual(values = col.codes$col)
-      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=final.strata,fill = NA) 
+      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=final.strata,fill = 'gray95') 
     }
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
-    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick")
+    if(exists("custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=NA)
+    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.25)
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill="grey")   
     if(exists("s.labels")) 
     {
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
-      if(s.labels$region != 'offshore' || s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
+      if(s.labels$region != 'offshore' && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
     }
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
                                                     annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
                                                     pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
-    # Some finishing touches...
+    # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
     
     if(plot == T) print(pect_plot) # If you want to immediately display the plot
