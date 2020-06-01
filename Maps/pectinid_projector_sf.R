@@ -3,9 +3,6 @@
 # Major revision to work with sf package undertaken in 2020, DK joined the party in March 2020, attempt to make this more user friendly 
 # removed option add_land (we always want land...)
 
-# Note that we need a couple of cute little functions for this to work.  Be sure to all call "addalpha" , "convert_coords", and "all.layers"
-# Before running this function, but I haven't settled on a directory for them quite yet...
-
 # Arguements:
 
 ## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
@@ -19,7 +16,7 @@
 
 #3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
 
-#4: repo       The repository from which you will pull the data.  The default is "github" (which has all the main data) 
+#4: repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
 
 #5: c_sys      What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
@@ -30,7 +27,7 @@
 ###               size of your area
 
 #7: direct_fns  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
-###               "Y:/Offshore/Assessment/Assesment_fns/"
+###               "Y:/Offshore/Assessment/Assesment_fns/".  If you set to direct_fns = 'github' it will grab the functions from our Mar-Scal repo.
 
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
@@ -139,6 +136,7 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
   require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
+  require(RCurl) || stop ("Please install RCurl so yo you can pull functions from github")
   #require(rmapshaper) || stop ("Please install rmapshaper, has a nice means of cleaning up that ugly German survey figure...")
   #require(scales) || stop ("Please install scales, needed to make legend in discrete ggplot not be in scientific notation")
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
@@ -154,9 +152,24 @@ pecjector = function(gg.obj = NULL,area = list(y = c(40,46),x = c(-68,-55),crs =
   # if(repo == "local")
   # {
   ## always pull from local... these should be in the same location as pectinid_projector, right?  
-  source(paste(direct_fns,"Maps/convert_coords.R",sep="")) 
-  source(paste(direct_fns,"Maps/add_alpha_function.R",sep="")) 
-  source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) 
+  if(direct_fns != 'github')
+  {
+    source(paste(direct_fns,"Maps/convert_coords.R",sep="")) 
+    source(paste(direct_fns,"Maps/add_alpha_function.R",sep="")) 
+    source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) 
+  }
+  if(direct_fns == 'github')
+  {
+  #browser()
+    # Download this to the temp directory you created above
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R",ssl.verifypeer = FALSE)
+    eval(parse(text = sc))
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",ssl.verifypeer = FALSE)
+    eval(parse(text = sc))
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R",ssl.verifypeer = FALSE)
+    eval(parse(text = sc))  
+  }
+  
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
   options(scipen=999)# Avoid scientific notation
