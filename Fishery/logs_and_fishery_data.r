@@ -271,8 +271,33 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
               # remove the total_meat_kgs column so that our dimensions match between years
               log.lst[[i]] <- log.lst[[i]][, !names(log.lst[[i]]) %in% "TOTAL_MEAT_KGS"]
             }
-           
+            
           } # end for 1:length(new.yr)
+          
+          # check for extra columns
+          for(i in 1:length(log.lst)){
+            if(any(names(log.lst[[i]]) == "X")) {
+              if(all(grep(x = names(log.lst[[i]]), pattern="X") > 35) & # if the offending columns are towards the end of the df
+                 all(nchar(names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")]) <4) &# if the names are shorter than 4 characters (e.g. X.1)
+                 all(is.na(log.lst[[i]][grep(x = names(log.lst[[i]]), pattern="X")]))) # and if the columns only contain NAs
+              {
+                message(paste0("Extra empty columns ", paste(names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")], sep=",", collapse = ", "), " were removed from log.lst[[", i, "]]"))
+                log.lst[[i]] <- select(log.lst[[i]], -names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")])
+              }
+            }
+          }
+          for(i in 1:length(slip.lst)){
+            if(any(names(slip.lst[[i]]) == "X")) {
+              if(all(grep(x = names(slip.lst[[i]]), pattern="X") > 35) & # if the offending columns are towards the end of the df
+                 all(nchar(names(slip.lst[[i]])[grep(x = names(slip.lst[[i]]), pattern="X")]) <4) &# if the names are shorter than 4 characters (e.g. X.1)
+                 all(is.na(slip.lst[[i]][grep(x = names(slip.lst[[i]]), pattern="X")]))) # and if the columns only contain NAs
+              {
+                message(paste0("Extra empty columns ", paste(names(slip.lst[[i]])[grep(x = names(slip.lst), pattern="X")], sep=",", collapse = ", "), " were removed from slip.lst[[", i, "]]"))
+                slip.lst[[i]] <- select(slip.lst[[i]], -names(slip.lst[[i]])[grep(x = names(slip.lst[[i]]), pattern="X")])
+              }
+            }
+          }
+          
           
           log1 <- do.call("rbind",log.lst)
           slip1 <- do.call("rbind",slip.lst)
