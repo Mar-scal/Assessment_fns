@@ -25,7 +25,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
   {
     #offshore
     # This includes southern Newfoundland, this is a nice map of everywhere 
-    if(plot.extent %in% c('NL','nl',"Newfoundland","NEWFOUNDLAND","newfoundland"))                 {y=c(40.00,48.00);x=c(-68.00,-54.00)} 
+    if(plot.extent %in% c('NL','nl',"Newfoundland","NEWFOUNDLAND","newfoundland",'nf',"NF","NFLD")){y=c(40.00,48.00);x=c(-68.00,-54.00)} 
     # This is the Martime offshore, includes most of the inshore too just due to nature of area
     if(plot.extent%in% c('offshore',"OFFSHORE","Offshore"))                                        {y=c(40.00,46.00);x=c(-68.00,-55.00)}
     if(plot.extent%in% c('SS','ss','Scotian Shelf','scotian shelf',"SCOTIAN SHELF"))		           {y=c(40.50,47.00);x=c(-68.00,-57.00)}
