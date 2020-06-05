@@ -164,7 +164,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   {
     source(paste(direct_fns,"Maps/convert_coords.R",sep="")) 
     source(paste(direct_fns,"Maps/add_alpha_function.R",sep="")) 
-    source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) 
+    source(paste(direct_fns,"Maps/combo_shp.R",sep="")) 
   }
   if(direct_fns == 'github')
   {
@@ -350,7 +350,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
+<<<<<<< HEAD
+      nafo.divs <- combo.shp(temp2,make.sf=T)
+=======
       nafo.divs <- all.layers(temp2,make.sf=T,make.lines=T)
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -364,7 +368,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(repo != 'github' && add_layer$nafo == "main")
     {
       loc <- paste0(repo,"/NAFO/Divisions")
+<<<<<<< HEAD
+      nafo.divs <- combo.shp(loc,make.sf=T)
+=======
       nafo.divs <- all.layers(loc,make.sf=T,make.lines=T)
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -385,7 +393,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
+<<<<<<< HEAD
+      nafo.subs <- combo.shp(temp2,make.sf=T)
+=======
       nafo.sub <- all.layers(temp2,make.sf=T,make.lines=T)
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -399,7 +411,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       # Now if we want the nafo sub-areas we do this...
       loc <- paste0(repo,"/NAFO/Subareas")
+<<<<<<< HEAD
+      nafo.subs <- combo.shp(loc,make.sf=T)
+=======
       nafo.sub <- all.layers(loc,make.sf=T,make.lines=T)
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -429,9 +445,16 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
+<<<<<<< HEAD
+        
+        # This pulls in all the layers from the above location
+        inshore.spa <- combo.shp(temp2,make.sf=T)
+        
+=======
         # Not that we want these as lines not boxes...
         inshore.spa <- all.layers(temp2,make.sf=T,make.lines = T)
 
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
@@ -453,7 +476,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         
         # This pulls in all the layers from the above location
+<<<<<<< HEAD
+        offshore.spa <- combo.shp(temp2,make.sf=T)
+=======
         offshore.spa <- all.layers(temp2,make.sf=T,make.lines = F)
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         #trim to bbox
@@ -478,8 +505,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$sfa != "offshore")
       {
         loc <- paste0(repo,"inshore")
+<<<<<<< HEAD
+        inshore.spa <- combo.shp(loc,make.sf=T)
+        
+=======
         inshore.spa <- all.layers(loc,make.sf=T,make.lines = T)
   
+>>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
@@ -493,7 +525,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       {
         loc <- paste0(repo,"offshore")
         # This pulls in all the layers from the above location
-        offshore.spa <- all.layers(loc,make.sf=T)
+        offshore.spa <- combo.shp(loc,make.sf=T)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         #trim to bbox
@@ -532,7 +564,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         #browser()
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
-        inshore.strata <- all.layers(temp2,make.sf=T,make.polys=F)
+        inshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
         inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
@@ -564,7 +596,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         #browser()
         # This pulls in all the layers from the above location
-        offshore.strata <- all.layers(temp2,make.sf=T,make.polys=F)
+        offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
         #browser()
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
@@ -592,7 +624,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       {
         loc <- paste0(repo,"inshore_survey_strata")
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
-        inshore.strata <- all.layers(loc,make.sf=T,make.polys=F)
+        inshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
         inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
@@ -609,7 +641,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'outline') loc <- paste0(repo,"survey_boundaries")
         
         # This pulls in all the layers from the above location
-        offshore.strata <- all.layers(loc,make.sf=T,make.polys=F)
+        offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
  
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
@@ -648,7 +680,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
       temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
       custom <- st_as_sf(temp)
-    } else { custom <- all.layers(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+    } else { custom <- combo.shp(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
     #trim to bbox
@@ -666,7 +698,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
-      s.labels <- all.layers(temp2,make.sf=T,make.polys=F)
+      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F)
       s.labels <- st_transform(s.labels,c_sys)
 
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
