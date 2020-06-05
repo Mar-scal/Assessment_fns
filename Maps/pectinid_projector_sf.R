@@ -385,7 +385,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
-      nafo.subs <- combo.shp(temp2,make.sf=T)
+      nafo.sub <- combo.shp(temp2,make.sf=T)
 
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
@@ -400,7 +400,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       # Now if we want the nafo sub-areas we do this...
       loc <- paste0(repo,"/NAFO/Subareas")
-      nafo.subs <- combo.shp(loc,make.sf=T)
+      nafo.sub <- combo.shp(loc,make.sf=T)
 
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
