@@ -350,11 +350,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
-<<<<<<< HEAD
       nafo.divs <- combo.shp(temp2,make.sf=T)
-=======
-      nafo.divs <- all.layers(temp2,make.sf=T,make.lines=T)
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -368,11 +364,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(repo != 'github' && add_layer$nafo == "main")
     {
       loc <- paste0(repo,"/NAFO/Divisions")
-<<<<<<< HEAD
       nafo.divs <- combo.shp(loc,make.sf=T)
-=======
-      nafo.divs <- all.layers(loc,make.sf=T,make.lines=T)
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -393,11 +385,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
-<<<<<<< HEAD
       nafo.subs <- combo.shp(temp2,make.sf=T)
-=======
-      nafo.sub <- all.layers(temp2,make.sf=T,make.lines=T)
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
+
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -411,11 +400,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       # Now if we want the nafo sub-areas we do this...
       loc <- paste0(repo,"/NAFO/Subareas")
-<<<<<<< HEAD
       nafo.subs <- combo.shp(loc,make.sf=T)
-=======
-      nafo.sub <- all.layers(loc,make.sf=T,make.lines=T)
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
+
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -445,16 +431,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
-<<<<<<< HEAD
-        
         # This pulls in all the layers from the above location
         inshore.spa <- combo.shp(temp2,make.sf=T)
-        
-=======
-        # Not that we want these as lines not boxes...
-        inshore.spa <- all.layers(temp2,make.sf=T,make.lines = T)
-
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
@@ -476,11 +454,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         
         # This pulls in all the layers from the above location
-<<<<<<< HEAD
         offshore.spa <- combo.shp(temp2,make.sf=T)
-=======
-        offshore.spa <- all.layers(temp2,make.sf=T,make.lines = F)
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         #trim to bbox
@@ -505,13 +479,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$sfa != "offshore")
       {
         loc <- paste0(repo,"inshore")
-<<<<<<< HEAD
+
         inshore.spa <- combo.shp(loc,make.sf=T)
-        
-=======
-        inshore.spa <- all.layers(loc,make.sf=T,make.lines = T)
-  
->>>>>>> parent of 959bb0b... Revert "Made Pectinid Plotly friendly"
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
