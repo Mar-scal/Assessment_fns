@@ -634,7 +634,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("inshore.strata") & exists("offshore.strata")) final.strata <- rbind(offshore.strata,inshore.strata)
     
     # I need to re-order the strata so the colour render correctly...
-    if(exists("final.strata")) col.codes <- final.strata[order(final.strata$Strt_ID),]
+    if(exists("final.strata")) {
+      col.codes <- final.strata[order(final.strata$Strt_ID),]
+     if(is.factor(col.codes$col)) col.codes$col <- as.character(col.codes$col)
+    }
   } # end if(!is.null(add_strata)) 
   
   # Here you can add a custom PBSmapping object or shapefile here
@@ -912,13 +915,13 @@ if(plot_as == "plotly2")
   if(exists("land.sf")) pect_plot <- pect_plot %>% add_sf(data=land.sf,color=I("grey40"))  %>% hide_legend()
   if(exists("final.strata"))
   {
-    #browser()
     if(add_layer$survey[2] == "detailed") 
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
       #final.strata$col3 <- 1:nrow(final.strata)
+      if(is.factor(final.strata$col)) final.strata$col <- as.character(final.strata$col)
       pect_plot <- pect_plot  %>%  
-                         add_sf(data=final.strata, split = ~ strat_ID, color = ~strat_ID, colors=~toRGB(col), text = ~paste("Strata is:", strat_ID),
+                         add_sf(data=final.strata, split = ~ strat_ID, color = ~strat_ID, colors=final.strata$col, text = ~paste("Strata is:", strat_ID),
                                 line = list(width=0.5,color='black'),
                                 hoveron = "fills",
                                 hoverinfo = "text") %>% hide_legend()
