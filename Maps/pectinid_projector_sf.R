@@ -10,8 +10,8 @@
 #1: gg.obj        If you have an existing plot object that you want to load in as a base map you can pull that in here and just add additional components to that
 ###              using the pectinid calls you want to use.  Currently only supports a ggplot object, not plotly
 
-#1b: plot_as   What type of plot do you want to make?  Currently supports plot_as = "ggplot" (default), and plot_as = 'plotly' which just uses ggplotly()
-#              plot_as = 'plotly2" is my development code trying to make a native plotly map, rather than using ggplotly
+#1b: plot_as   What type of plot do you want to make?  Currently supports plot_as = "ggplot" (default), and plot_as = 'plotly' uses the 
+#              native plotly code to make the figure.  Also, "ggplotly" is an option which runs the ggplot code and sticks a plotly wrapper around it
 
 #2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
 ###               the coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
@@ -772,12 +772,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(is.null(add_inla$scale$scale)) # If not specified it's a continuous ramp
     {
     #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk)
-    if(plot_as == "ggplot") sfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
-    if(plot_as == "plotly2") 
-    {
-      spd$col <- as.integer(spd$layer)
-    }
-    }
+      if(plot_as == "ggplot") sfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
+      if(plot_as == "plotly")  spd$col <- as.integer(spd$layer)
+    } # end if(is.null(add_inla$scale$scale)) 
     #browser()
     if(!is.null(add_inla$scale$scale)) # If you put anything in there it is a discrete ramp.
     {
@@ -786,16 +783,16 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
          n.breaks <- length(unique(spd$brk))
          #scd <- scale_colour_manual(values = col[1:n.breaks])
          if(plot_as == "ggplot") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
-         if(plot_as == "plotly2") 
+         if(plot_as == "plotly") 
          {
            combo <- data.frame(brk = levels(spd$brk),col = col)
            spd <- left_join(spd,combo,by = "brk")
-         }
+         } # end if(plot_as == "plotly") 
     }
     
   } # end  if(!is.null(add_inla$field) && !is.null(add_inla$mesh))
 # Development of native plotly figure.
-if(plot_as != "plotly2")
+if(plot_as != "plotly")
 {
   # If you have an existing object to use as a base plot pull that in here
   if(!is.null(gg.obj)) pect_plot <- gg.obj
@@ -833,17 +830,17 @@ if(plot_as != "plotly2")
     {
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
       if(s.labels$region != 'offshore' && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
-    }
+    } # end if(exists("s.labels")) 
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
                                                     annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
                                                     pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
-} # end if(plot_as = 'ggplot')
+} # end if(plot_as != 'plotly')
   
  # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
-if(plot_as == "plotly2")
+if(plot_as == "plotly")
 {
   # First we want to stitch all the line objects into one object, makes plotly more efficient...
   multi.lines.base <- st_as_sf(data.frame(ID = "box",geometry = data.frame(st_geometry(b.box)))) %>% st_cast(to="MULTILINESTRING")
@@ -917,25 +914,28 @@ if(plot_as == "plotly2")
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
       #final.strata$col3 <- 1:nrow(final.strata)
-      pect_plot <- pect_plot  %>%  
-                         add_sf(data=final.strata, split = ~ strat_ID, color = ~strat_ID, colors=~toRGB(col), text = ~paste("Strata is:", strat_ID),
-                                line = list(width=0.5,color='black'),
+      pect_plot <- pect_plot  %>%
+                         add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
+                                 line = list(width=0.5,color='black'), fillcolor = ~col,
                                 hoveron = "fills",
-                                hoverinfo = "text") %>% hide_legend()
+                                hoverinfo = "text") %>% 
+                                hide_legend()
       
     } # end if(exists("final.strata"))
     if(add_layer$survey[2] == "outline") pect_plot <- pect_plot %>% add_sf(data=final.strata,color = I('gray75'))  %>% hide_legend()
-  }
+  } # end if(exists("final.strata"))
   
   if(exists("spd"))
   {
-    pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk, colors = ~toRGB(col),color ~brk, text = ~paste("Values:", brk),
-                                    hoveron = "fills",
-                                    hoverinfo = "text")  %>% hide_legend()
+    #browser()
+    pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk,  text = ~paste("Values:", brk),
+                                      line = list(width=0), fillcolor = ~col,
+                                      hoveron = "fills",
+                                      hoverinfo = "text")  %>% hide_legend()
   } # end if(exists("spd"))
-}
+} # end if(plot_as == "plotly")
 
-  if(plot_as == 'plotly') 
+  if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
     pect_plot <- ggplotly(pect_plot) %>% hide_legend()
