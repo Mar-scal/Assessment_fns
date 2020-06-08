@@ -922,8 +922,9 @@ if(plot_as == "plotly2")
       pect_plot <- pect_plot  %>%
         add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
                line = list(width=0.5,color='black'), fillcolor = ~col,
-                                hoveron = "fills",
-                                hoverinfo = "text") %>% hide_legend()
+               hoveron = "fills",
+               hoverinfo = "text") %>% 
+        hide_legend()
       
     } # end if(exists("final.strata"))
     if(add_layer$survey[2] == "outline") pect_plot <- pect_plot %>% add_sf(data=final.strata,color = I('gray75'))  %>% hide_legend()
