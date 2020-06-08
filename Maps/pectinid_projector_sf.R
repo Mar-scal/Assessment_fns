@@ -915,6 +915,7 @@ if(plot_as == "plotly2")
   if(exists("land.sf")) pect_plot <- pect_plot %>% add_sf(data=land.sf,color=I("grey40"))  %>% hide_legend()
   if(exists("final.strata"))
   {
+    #browser()
     if(add_layer$survey[2] == "detailed") 
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
@@ -928,7 +929,8 @@ if(plot_as == "plotly2")
       
     } # end if(exists("final.strata"))
     if(add_layer$survey[2] == "outline") pect_plot <- pect_plot %>% add_sf(data=final.strata,color = I('gray75'))  %>% hide_legend()
-  }
+  } # end if(exists("final.strata"))
+  
   
   if(exists("spd"))
   {
