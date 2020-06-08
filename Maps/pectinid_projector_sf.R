@@ -919,7 +919,6 @@ if(plot_as == "plotly2")
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
       #final.strata$col3 <- 1:nrow(final.strata)
-      if(is.factor(final.strata$col)) final.strata$col <- as.character(final.strata$col)
       pect_plot <- pect_plot  %>%  
                          add_sf(data=final.strata, split = ~ strat_ID, color = ~strat_ID, colors=final.strata$col, text = ~paste("Strata is:", strat_ID),
                                 line = list(width=0.5,color='black'),
