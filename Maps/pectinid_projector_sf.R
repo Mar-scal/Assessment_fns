@@ -919,9 +919,9 @@ if(plot_as == "plotly2")
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
       #final.strata$col3 <- 1:nrow(final.strata)
-      pect_plot <- pect_plot  %>%  
-                         add_sf(data=final.strata, split = ~ strat_ID, color = ~strat_ID, colors=final.strata$col, text = ~paste("Strata is:", strat_ID),
-                                line = list(width=0.5,color='black'),
+      pect_plot <- pect_plot  %>%
+        add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
+               line = list(width=0.5,color='black'), fillcolor = ~col,
                                 hoveron = "fills",
                                 hoverinfo = "text") %>% hide_legend()
       
