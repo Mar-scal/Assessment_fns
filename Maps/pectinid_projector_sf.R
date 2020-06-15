@@ -174,7 +174,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     eval(parse(text = sc))
     sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R",ssl.verifypeer = FALSE)
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))  
   }
   
