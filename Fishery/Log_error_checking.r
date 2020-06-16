@@ -107,7 +107,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   # the marfis data
   if(marfis==T) dat.log <- marfis.log
   if(marfis==F) dat.log <- new.log.dat
-  
+
   dat.log$avgtime <- as.numeric(dat.log$avgtime)
   
   # extra time check column
@@ -277,7 +277,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     # If you specify a tolerance value you want to compare, default is 1 lb which is basically same a rounding
     if(is.numeric(trip.tol))
     {
-      # If the difference between these 2 values is > trip.tol then output the slip.
+     # If the difference between these 2 values is > trip.tol then output the slip.
       if(abs(sum.slip - sum.trip) > trip.tol)
       {
         weight.mismatch.logs[[as.character(trip.ids[i])]]  <- trip.log
