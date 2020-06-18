@@ -269,28 +269,26 @@ for(i in 1:num.banks)
   	  }
   	  
   	  if(fig == "plotly"){
+  	    browser()
   	   plotly_obj <- pecjector(area=bnk, repo="github", add_layer=list(
   	      bathy=c(100, 'c', 1000),
-  	      # eez="eez",
-  	      # nafo="main",
   	      survey=c("offshore", "detailed"),
   	      scale.bar = c("br", 0.3)),
-  	      #direct = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/",
   	      direct_fns=direct_fns,
   	      plot_as = "plotly",
   	      crs = 4326, 
-  	      plot=F)
+  	      plot=T)
   	   names(polydata[[i]])[which(names(polydata[[i]])=="PID")] <- "Poly.ID" 
   	   plotly_df <- dplyr::left_join(towlst[[i]]$Tows, select(polydata[[i]], col, Poly.ID), by="Poly.ID")
   	   plotly_obj %>% add_trace(x = plotly_df$X,
   	                            y = plotly_df$Y,
   	                            marker = list(
   	                              color = ~plotly_df$col,
-  	                              size = 5,
-  	                              line = list(
-  	                                color = "black",
-  	                                width = 1
-  	                              )
+  	                              size = 5#,
+  	                              #line = list(
+  	                               # color = "black",
+  	                                #width = 1
+  	                              #)
   	                            )
   	   )
   	   names(polydata[[i]])[which(names(polydata[[i]])=="Poly.ID")] <- "PID" 

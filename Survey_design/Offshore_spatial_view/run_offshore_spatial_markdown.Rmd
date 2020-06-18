@@ -1,12 +1,22 @@
 ---
-title: "Browns Bank South spatial data checks for 2020 survey"
-output: pdf_document
+title: "Georges Bank B spatial data checks for 2020 survey"
+editor_options:
+  chunk_output_type: console
+output:
+  html_document:
+    df_print: paged
 classoption: landscape
 ---
 
 ```{r, include=F, echo=F, message=F, warning=F}
-direct_fns <- "C:/Documents/Offshore/Assessment/"
-direct_data="Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_data <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+bank <- "GBb"
+year <- 2020 # this is for the folder save location
+survey_years <- 2017:2019
+fishery_years <- c(2018, 2019, 2020)
+station_years <- 2020
+
 
 source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 
@@ -14,77 +24,91 @@ source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 
 ```{r, echo=F, message=F, warning=F, include=F}
 # load the data
-offshore_data <- load_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
-                                       direct_fns = "C:/Documents/Offshore/Assessment/",
+offshore_data <- load_offshore_spatial(direct_data=direct_data,
+                                       direct_fns = direct_fns,
                                        survey=T,
                                        fishery=T,
-                                       survey_year=2018,
-                                       fishery_years=2010:2019)
+                                       survey_year=max(survey_years),
+                                       fishery_years=fishery_years)
 
 # make the figs
-# survey
-png(paste0(direct_data, "/2020/Survey_Design/BBs/survey1.png"), height=6, width=12, units="in", res=400)
-survey1 <- plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
-                      direct_fns = "C:/Documents/Offshore/Assessment/",
+# # survey
+# png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey1.png"), height=6, width=12, units="in", res=400)
+# survey1 <- plot_offshore_spatial(direct_data=direct_data,
+#                       direct_fns = direct_fns,
+#                       offshore_data=offshore_data,
+#                       overlay_data="survey",
+#                       survey_years=survey_years,
+#                       fishery_years=fishery_years,
+#                       station_years=station_years,
+#                       size_class=NULL,
+#                       bank=bank)
+# 
+# 
+# survey1 + 
+#   scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
+# dev.off()
+# 
+# png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey2.png"), height=6, width=12, units="in", res=400)
+# survey2 <- plot_offshore_spatial(direct_data=direct_data,
+#                       direct_fns = direct_fns,
+#                       offshore_data=offshore_data,
+#                       overlay_data="survey",
+#                       survey_years=survey_years-1,
+#                       fishery_years=fishery_years-1,
+#                       station_years=station_years,
+#                       size_class=NULL,
+#                       bank=bank)
+# 
+# 
+# survey2 + 
+#   scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
+# dev.off()
+# 
+# png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey3.png"), height=6, width=12, units="in", res=400)
+# survey3 <- plot_offshore_spatial(direct_data=direct_data,
+#                       direct_fns = direct_fns,
+#                       offshore_data=offshore_data,
+#                       overlay_data="survey",
+#                       survey_years=survey_years-2,
+#                       fishery_years=fishery_years-2,
+#                       station_years=station_years,
+#                       size_class=NULL,
+#                       bank=bank)
+# 
+# 
+# survey3 #+ 
+#  # scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
+# dev.off()
+
+png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey4.png"), height=8, width=18, units="in", res=400)
+survey4 <- plot_offshore_spatial(direct_data=direct_data,
+                      direct_fns = direct_fns,
                       offshore_data=offshore_data,
                       overlay_data="survey",
-                      survey_years=c(2013),
-                      fishery_years=2018,
-                      station_years=2020,
+                      survey_years=survey_years,
+                      fishery_years=NULL,
+                      station_years=station_years,
                       size_class=NULL,
-                      bank="BBs")
+                      bank=bank)
 
 
-survey1 + 
-  scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
-dev.off()
-
-png(paste0(direct_data, "/2020/Survey_Design/BBs/survey2.png"), height=6, width=12, units="in", res=400)
-survey2 <- plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
-                      direct_fns = "C:/Documents/Offshore/Assessment/",
-                      offshore_data=offshore_data,
-                      overlay_data="survey",
-                      survey_years=c(2016),
-                      fishery_years=2018,
-                      station_years=2020,
-                      size_class=NULL,
-                      bank="BBs")
-
-
-survey2 + 
-  scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
-dev.off()
-
-png(paste0(direct_data, "/2020/Survey_Design/BBs/survey3.png"), height=6, width=12, units="in", res=400)
-survey3 <- plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
-                      direct_fns = "C:/Documents/Offshore/Assessment/",
-                      offshore_data=offshore_data,
-                      overlay_data="survey",
-                      survey_years=c(2018),
-                      fishery_years=2018,
-                      station_years=2020,
-                      size_class=NULL,
-                      bank="BBs")
-
-
-survey3 + 
-  scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
+survey4 
 dev.off()
 
 # fishery
-png(paste0(direct_data, "/2020/Survey_Design/BBs/fishery.png"), height=6, width=12, units="in", res=400)
-fishery <- plot_offshore_spatial(direct_data="Y:/Offshore/Assessment/",
-                      direct_fns = "C:/Documents/Offshore/Assessment/",
+png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/fishery.png"), height=6, width=12, units="in", res=400)
+fishery <- plot_offshore_spatial(direct_data=direct_data,
+                      direct_fns = direct_fns,
                       offshore_data=offshore_data,
                       overlay_data="fishery",
-                      survey_years=c(2013, 2016, 2018),
-                      fishery_years=2008:2019,
-                      station_years=2020,
+                      survey_years=survey_years,
+                      fishery_years=fishery_years,
+                      station_years=station_years,
                       size_class=NULL,
-                      bank="BBs")
+                      bank=bank)
 
-fishery + 
-  scale_x_continuous(breaks=seq(-65.9, -65.5, 0.1))
+fishery 
 dev.off()
 
 
@@ -93,21 +117,23 @@ dev.off()
 
 # Plot survey data with stations
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/2020/Survey_Design/BBs/survey1.png"))
+#knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey1.png"))
 ```
 
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/2020/Survey_Design/BBs/survey2.png"))
+#knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey2.png"))
 ```
 
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/2020/Survey_Design/BBs/survey3.png"))
+#knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey3.png"))
 ```
 
+```{r, echo=F, message=F, warning=F, out.width="100%"}
+knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey4.png"))
+```
 
 # Plot fishery data with stations
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/2020/Survey_Design/BBs/fishery.png"))
+knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/fishery.png"))
 ```
-
 

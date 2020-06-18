@@ -49,7 +49,7 @@ plot_offshore_spatial<- function(direct_data,
                                     c("year", "tow", "lon", "lat", "pre", "rec", "com", "tot")], 
                                   cols=c("pre", "rec", "com", "tot"))
   }
-  
+
   # tidy up the fishery data if that's the data you want to overlay
   if(overlay_data=="fishery"){
     fishery <- offshore_data$new.log.dat[offshore_data$new.log.dat$bank==bank,]
@@ -57,9 +57,12 @@ plot_offshore_spatial<- function(direct_data,
   
   # if station_years isn't null (i.e. you want to plot some stations), then get the data. Pulls in the stations for the bank(s) you selected.
   if(!is.null(station_years)){
+    if(bank %in% c("GBa", "GBb")) season <- "Summer" else season <- "Spring"
     stations <- read.csv(paste0(direct_data, "Data/Survey_data/", max(as.numeric(station_years)), 
-                                "/Spring/", bank,"/Preliminary_Survey_design_Tow_locations_", bank, ".csv"))
+                                "/", season, "/", bank,"/Preliminary_Survey_design_Tow_locations_", bank, ".csv"))
   }
+  
+  print("data prep done")
   
   # now get the strata (if they exist)
   # the true strata are in the GIS_layers, but Ger "strata" (really bathymetry) are in a different location
@@ -72,6 +75,7 @@ plot_offshore_spatial<- function(direct_data,
     strata <- st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T)
   }
   
+  print("strata loaded")
   
   # so now the plan is to set up some dynamic variables for plotting the point size and facets relative to the data you decided to plot
   size.var <- NULL
@@ -92,15 +96,18 @@ plot_offshore_spatial<- function(direct_data,
     plotdat$name <- factor(plotdat$name, levels=c("pre", 'rec', "com", "tot"))
   }
   
+  print("figure pre-formatting done")
+  
   # set up the basemap if there are strata, and a separate one if it's German, or if there are no strata
   if(bank %in% strata_banks){
     strata <- st_cast(strata, "MULTIPOLYGON")
     
+    if("Strt_ID" %in% names(strata)) names(strata)[which(names(strata) == "Strt_ID")] <- "ID"
+    
     # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
     basemap <- ggplot() +
       theme_bw() +
-      geom_sf(data=strata, colour=NA, aes(fill=as.factor(ID)), alpha=0.5) +
-      geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+      geom_sf(data=strata, colour=NA, aes(fill=as.factor(ID)), alpha=0.5) 
   }
   
   if(bank == "Ger"){
@@ -119,6 +126,8 @@ plot_offshore_spatial<- function(direct_data,
       theme_bw() +
       geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
   }
+  
+  print("basemap created")
   
   # for the point size variable
   mapping <- aes(lon, lat, size = .data[[size_var]])
@@ -167,6 +176,12 @@ plot_offshore_spatial<- function(direct_data,
       scale_fill_discrete(guide=FALSE) +
       ggtitle("Survey data (stratified n per tow)")
   }
+  
+  # make sure stations plot on top
+  finalplot <- finalplot +
+    geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+  
+  print("dynamic plotting done")
   
   if(plotly==F) return(finalplot)
   if(plotly==T) return(ggplotly(finalplot))
