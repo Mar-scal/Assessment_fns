@@ -556,6 +556,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         
         # Figure out where your tempfiles are stored
         temp <- tempfile()
+        
         # Download this to the temp directory you created above
         if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
@@ -809,8 +810,6 @@ if(plot_as != "plotly")
       scale_x_continuous(expand = c(0,0)) + # Not sure either of these scale additions is needed...
       scale_y_continuous(expand = c(0,0)) 
   } # end if(!is.null(gg.obj))
-  
-    
 
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
      if(exists("final.strata"))
@@ -899,7 +898,7 @@ if(plot_as == "plotly")
   {
     bathy1 <- st_as_sf(rasterToContour(bathy,levels = c(-5000,-500,seq(-450,0,50))))
     # Clip to the land
-    bathy1 <- st_as_sf(rgeos::gDifference(as_Spatial(bathy1),as_Spatial(land.sf)))
+    if(exists("land.sf")) bathy1 <- st_as_sf(rgeos::gDifference(as_Spatial(bathy1),as_Spatial(land.sf)))
     pect_plot <- pect_plot %>%  add_sf(data=bathy1,color=I('light blue')) %>% hide_legend()
     
   } # end  if(exists("bathy.gg"))
@@ -912,7 +911,6 @@ if(plot_as == "plotly")
   if(exists("land.sf")) pect_plot <- pect_plot %>% add_sf(data=land.sf,color=I("grey40"))  %>% hide_legend()
   if(exists("final.strata"))
   {
-    #browser()
     if(add_layer$survey[2] == "detailed") 
     {
       final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
@@ -920,7 +918,9 @@ if(plot_as == "plotly")
       #final.strata$col3 <- 1:nrow(final.strata)
       pect_plot <- pect_plot  %>%
                          add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
-                                 line = list(width=0.5,color='black'), fillcolor = ~col,
+                                #line = list(width=0.5,color='black'), 
+                                line=~col,
+                                fillcolor = ~col,
                                 hoveron = "fills",
                                 hoverinfo = "text") %>% 
                                 hide_legend()
