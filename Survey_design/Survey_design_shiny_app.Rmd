@@ -31,9 +31,9 @@ require(RCurl)
 
 #D:/NAS/Offshore/Assessment/
 # Just grab the functions from github so you don't need to worry about directory structure...
-#sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Survey_design_sf.r",ssl.verifypeer = FALSE)
-#eval(parse(text = sc))
-source("D:/Github/Offshore/Assessment_fns/DK/Survey_design/Survey_design_sf.r")
+sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Survey_design_sf.r",ssl.verifypeer = FALSE)
+eval(parse(text = sc))
+#source("D:/Github/Offshore/Assessment_fns/DK/Survey_design/Survey_design_sf.r")
 # Convert a factor to a number
 factor.2.number <- function(x) {as.numeric(levels(x))[x]}
 
