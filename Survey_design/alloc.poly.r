@@ -33,16 +33,30 @@
 # show.pool:      Plot the entire pool of randomly generated points.  T/F default = F
 # seed:           Set a seed so that your results can be reproduced.  Default = NULL which uses R random number generation.  Any integer will result
 #                 in producing a reproducable random number draw.
+# repo:           Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
+#                 Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
 ###############################################################################################################
 
 
 
 alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.size=4,
-                     repeated.tows=NULL,lplace='bottomleft',show.pool=F,seed = NULL)
+                     repeated.tows=NULL,lplace='bottomleft',show.pool=F,seed = NULL,repo = 'github')
 {
 	require(PBSmapping) || stop("You'll need to install PBSmapping if you wanna do this thang")
-  source(paste(direct_fns,"Survey_design/genran.r",sep=""))
-  source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+  
+  if(repo != 'github')
+  {
+    source(paste(repo,"Survey_design/genran.r",sep=""))
+    source(paste(repo,"Maps/ScallopMap.r",sep=""))
+  } # end if(repo != 'github')
+  
+  if(repo == 'github')
+  {
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",ssl.verifypeer = FALSE)
+      eval(parse(text = sc))
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/ScallopMap.r",ssl.verifypeer = FALSE)
+      eval(parse(text = sc))
+  } # end if(repo == 'github')
 
   # This ignores all warnings
 	options(warn=-1)

@@ -1,0 +1,89 @@
+---
+title: "Survey Design"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: flatly
+  orientation: columns
+  vertical_layout: fill
+
+  # storyboard: true
+runtime: shiny
+---
+
+
+```{r global, include=FALSE}
+################Section 1    Load data and functions ########################## ################Section 1    Load data and functions ##########
+library(shiny)
+library(flexdashboard)
+library(readr)
+library(leaflet)
+library(DT)
+library(tidyverse)
+library(lubridate)
+library(plotly)
+library(sf)
+library(data.table)
+library(units)
+library(cowplot)
+library(knitr)
+library(animation)
+require(RCurl)
+
+# Just grab the functions from github so you don't need to worry about directory structure...
+sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Survey_design_sf.R",ssl.verifypeer = FALSE)
+eval(parse(text = sc))
+# Convert a factor to a number
+factor.2.number <- function(x) {as.numeric(levels(x))[x]}
+
+
+``` 
+
+
+
+Column {data-width=300 .sidebar}
+-----------------------------------------------------------------------
+
+```{r}
+
+numericInput("yr",label = "Year",min = 1900,max=2100,value =year(Sys.time()))
+selectInput("bank",label = "Bank",choices = c("Ban","BBn","BBs","GB","GBa","GBb","Ger","Mid","Sab"),selected="GBa")
+numericInput('seed', label = "Specify seed", value =year(Sys.time()-2000) , min = -1e12, max = 1e12, step = 1)
+selectInput("style","Point Style", 
+              choices = c("both","stn_num","points"))
+checkboxInput("extra",label = "Add extra stations",value =F)
+textInput("direct",label = "Data Directory",value = "github")
+textInput("repo",label = "Repo",value = 'github')
+sliderInput("text.size","Adjust text size", value = 1,min=0.5,max=10,step=0.5)
+sliderInput("ger.new","German new stations", value = 80,min=0,max=200,step=5)
+sliderInput("ger.rep","German Repeat stations", value = 20,min=0,max=100,step=5)
+actionButton("resample",label="Run new Inputs",icon =icon("redo"))
+
+```
+
+Column {.tabset}
+-----------------------------------------------------------------------
+
+### Survey Says
+
+```{r,fig.width=11,fig.height=11} 
+renderPlotly({
+#    # Set up my colour ramp for the maps, stolen from pectinid
+#   # Note we need a couple of isolates and an action button trigger in hear as we have 2 input$ calls
+        input$resample
+        plt <-  isolate(Survey.design(yr = input$yr, banks = input$bank,
+                                      direct = input$direct, repo = input$repo, ger.new = input$ger.new, ger.rep = input$ger.rep,
+                                      seed = input$seed,
+                                      point.style = input$style,
+                                      txt.sz = input$text.size, 
+                                      add.extras=input$extra,
+                                      export=F,
+                                      relief.plots = F,
+                                      fig="dashboard", zoom =F
+                       ))
+        ggplotly(plt)
+
+ })
+
+
+
+```
