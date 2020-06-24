@@ -20,27 +20,29 @@
 # Arguments
 #tows:      A dataframe containing the tow locations needed to make the relief plots.  Should contain an EID, X, and Y coordinate
 #MBdata:    Where to get the Bathymetry data from.  Default = "from.file" which gets the data from a file, I am only aware of this data existing
-#           for German Bank at the moment, but seemingly this could be done for SFA29 as well.  Alternative is to supply the information explicitly
-#           format would be EID,X,Y,Z, where Z is the depth.
+#             for German Bank at the moment, but seemingly this could be done for SFA29 as well.  Alternative is to supply the information explicitly
+#             format would be EID,X,Y,Z, where Z is the depth.
 #expd:      Used to expand or shrink the Z axis to make the plots look nicer.  Default = 1 which is no expansion or contraction in scale.
 #fig:       What type of figure to produce.  Default = "pdf", Options are to print to "screen", or "png".
 #digits:    The precision used for the X and Y coordinates.  Default = 4
 #dirt:      The base directory to run from.  Default is whatever you set "direct" to be.
+# repo:     Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
+#             Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
 #save.dir:  The directory to save the data to.  Default is paste(direct,yr,"/Survey_Design/",bnk,"/",sep=""), note
-#           that "direct", "yr" and "bnk" need to  be defined in your workspace for this to work.
+#             that "direct", "yr" and "bnk" need to  be defined in your workspace for this to work.
 #kms:       Used to rescale the distances, not sure when this would be anything other than the default which is 1
 #gerfiles:  The files from which to get the MBdata.  This only works for German Bank whose files are numbered from 1:77 (the default).
 #key.dir:   This key is used to determine which of the above gerfiles you should be pulling from.  
-#           It is housed on the network at Y:/Offshore scallop/Assessment_fns/Data/Environmental/Ger/Bathymetry/fileKey.csv
-#           Default = paste(direct,"Data/Environmental/Ger/Bathymetry/fileKey.csv",sep="") Note you need to define "direct" in your workspace
+#             It is housed on the network at Y:/Offshore scallop/Assessment_fns/Data/Environmental/Ger/Bathymetry/fileKey.csv
+#             Default = paste(direct,"Data/Environmental/Ger/Bathymetry/fileKey.csv",sep="") Note you need to define "direct" in your workspace
 #tracks:    Do you have the tow tracks?  T/F and defult is F (meaning you don't have the tow tracks)
 #trackPath: If you have the tow tracks where are they located? Default paste(direct,"Data/Tow_tracks/",yr,"/Spring/German/",sep="")
-#           note you need direct and  yr defined in your workspace.
+#             note you need direct and  yr defined in your workspace.
 ###############################################################################################################
 
 
 
-Relief.plots<-function(tows,MBdata='from.file',expd=1,fig="pdf",digits=4,dirt = direct,
+Relief.plots<-function(tows,MBdata='from.file',expd=1,fig="pdf",digits=4,dirt = direct,repo = 'github',
                        save.dir=paste(direct,yr,"/Survey_Design/Ger/",sep=""),
                        kms=1,gerfiles=1:77,key.dir=paste(direct,"Data/Environmental/Bathymetry/Ger/Bathymetry/fileKey.csv",sep=""),
                        tracks=F,trackPath=paste(direct,"Data/Tow_tracks/",yr,"/Spring/German/",sep=""))
@@ -54,8 +56,13 @@ require(CircStats)
   
 # Now load all functions in the program in one location.  
 # These are the functions used to within the heart of the code to make stuff happen
-source(paste(dirt,"Assessment_fns/Survey_and_OSAC/getdis.r",sep="")) 
-
+if(repo != "github") source(paste(repo,"Survey_and_OSAC/getdis.r",sep="")) 
+  
+if(repo == "github")
+{
+  sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",ssl.verifypeer = FALSE)
+  eval(parse(text = sc))  
+}  
 
 # DK doesn't have a clue what this conversion is but something distancy
 dpkm <- 0.008983346
