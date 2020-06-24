@@ -37,37 +37,54 @@
 ###############################################################################################################
 # Arguments
 # yr:            The year of interest for making survey design.  Default is the current year as.numeric(format(Sys.time(), "%Y"))
+#
 # direct:        The directory to load/save all the data, Default is the network Offshore "Y:/Offshore/Assessment/"
+#
 # export:        Do you want to export the survey design locations.  T/F Default is F
+#
 # seed:          If you want to reproduce results you can specify the random seed used for allocating these.  Default = NULL which will use R's 
-#                internal random number generators.  
+#####                internal random number generators.  
+#
 # plot:          Do you want to plot the results.  T/F Default is T
+#
 # fig:           Where do you want to plot the figures.  FOUR options, includes the default print to your "screen" optionally can do "pdf" or "png". As of                  2020, you can now also make an interactive leaflet plot. 
+#
 # legend:        Add a legend to the figure.  T/F Default  is T
+#
 # zoom:          Do you want to produce magnified maps for GBa tow locations.  T/F default is T
+#
 # banks:         What banks do you want to run this on.  Default banks are "BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger" (note no option for Ban yet)
+#
 # relief.plots:  For German bank do you want to make the "relief plots", note these take a long time to make!!.  T/F and default is F
+#
 # digits:        For the relief plots this controls the smoothing of the surface.  Basically this says how many digits to retain in the X and Y locations
-#                Default is 4 (which is very detailed, using 3 makes a very smooth surface.)
+#####                Default is 4 (which is very detailed, using 3 makes a very smooth surface.)
+#
 # point.style:   Do you want to have the points in the zoomed in GBa plots text of the numbers or just cute little cexy circles?  
-#                Three options, Default = "points" which plots filled circles, "stn_num" puts in station numbers, and "both" does both
-#                "both" uses the x.adj and y.adj proportion to place the ID next to the point.
+#####                Three options, Default = "points" which plots filled circles, "stn_num" puts in station numbers, and "both" does both
+#####                "both" uses the x.adj and y.adj proportion to place the ID next to the point.
+#
 # x.adj:         adjustment of ID placement relative to the full x-range (e.g. x.adj=0.02 will place ID 2% away from the point in the x direction.)
+#
 # y.adj:         adjustment of ID placement relative to the full y-range (e.g. y.adj=0.02 will place ID 2% away from the point in the y direction.)
-
+#
 # ger.new:       Number of new stations to generate on German bank, default is 60 (this must be <= 80, generally we only use 60 or 80), change the
-#                alloc.poly number of stations below if you need > 80 new tows
+#####                alloc.poly number of stations below if you need > 80 new tows
 # ger.rep:       Number of German repeat stations to assign. Default is 20 stations, but you can add more to be used as backup repeats
+#
 # add.extras:    Do we want to add the extra stations to the figures, the coordinates of these extra stations 
-#                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
-# repo:           Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
-#                 Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
+#####                would need to be in the file Data/Survey_data/Extra_stations.csv.  T/F with a default of F.
+#
+# pt.txt.sz:     Control the size of the points or the point text. To keep it simple you adjust one you adjust the other.  Default = 1
+#
+# repo:          Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
+#####                 Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
 ##### SURVEY DESIGN
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          txt.sz = 1,repo = 'github')
+                          pt.txt.sz = 1,repo = 'github')
 {
 # Make sure data imported doesn't become a factor
 options(stringsAsFactors=F)
@@ -308,12 +325,11 @@ for(i in 1:num.banks)
   	  
   	  if(!fig == "leaflet") 
   	  {
-  	    #browser()
   	    
   	    # Now to get the points and the colors all tidy here...
   	    tmp <- towlst[[i]]$Tows
   	    p.dat <- polydata[[i]] %>% dplyr::select(Strata_ID,col,area_km2,PName)
-  	    tmp <- left_join(tmp,p.dat, by = c("STRATA" = "PName"), keep = c("EID",'col','Strata_ID',"area_km2","STRATA"))
+  	    tmp <- left_join(tmp,p.dat, by = c("STRATA" = "PName"))
   	    tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
 
   	    # Make the base plot...
@@ -326,20 +342,20 @@ for(i in 1:num.banks)
   	    #plotly::ggplotly(bp)
   	    
   	    # So what do we want to do with the points, first plots the station numbers
-  	    if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+  	    if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
   	    # This just plots the points
-  	    if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf, color = tmp.sf$col,shape=1) + geom_sf(data=tmp.sf, shape=1)  #
+  	    if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz) + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz)  #
   	    # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
   	    # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
   	    # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
   	    #browser()
   	    # This does both, if it doesn't look pretty change the x.adj and y.adj options
-  	    if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=txt.sz) + geom_sf(data=tmp.sf, shape=1)
+  	    if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
   	    #print(bp2)
   	    if(nrow(extras.sf) > 0)
   	     {
-  	       if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" )
-  	       if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" )
+  	       if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange",size=pt.txt.sz )
+  	       if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" ,size=pt.txt.sz)
   	     }
   	     if(cables==T)
   	     {
@@ -413,19 +429,19 @@ for(i in 1:num.banks)
         bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore',survey=c('offshore','outline')),plot=F)# + 
         
         # So what do we want to do with the points, first plots the station numbers
-        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
         # This just plots the points
-        if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,shape=1) 
+        if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz) 
         # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
         # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
         # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
         
         # This does both, if it doesn't look pretty change the x.adj and y.adj options
-        if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,,size=txt.sz) + geom_sf(data=tmp.sf, shape=1)
+        if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz)
         if(nrow(extras.sf) > 0) 
         {
-          if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" )
-          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,,size=txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" )
+          if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" ,size=pt.txt.sz)
         }
         
         if(cables==T)
@@ -578,21 +594,21 @@ for(i in 1:num.banks)
         bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore',survey=c('offshore','outline')),plot=F)# + 
         
         # So what do we want to do with the points, first plots the station numbers
-        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
         # This just plots the points
-        if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`)) + scale_shape_manual(values = c(1,0))
+        if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz) + scale_shape_manual(values = c(1,0))
         # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
         # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
         # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
         # Add points, station numbers, or both.
-        if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
-          geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`)) + scale_shape_manual(values = c(1,0))
+        if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
+          geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz) + scale_shape_manual(values = c(1,0))
         
         if(nrow(extras.sf) > 0) 
         {
-          if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" )
-          if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras.sf,aes(label = EID),size=2) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" )
+          if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+          if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" ,size=pt.txt.sz)
         }
         
         if(cables==T)
@@ -656,21 +672,21 @@ for(i in 1:num.banks)
         tmp.sf.rpt$`Tow type` <- tmp.sf.rpt$STRATA
         # We can se the previous baseplot...
         # So what do we want to do with the points, first plots the station numbers
-        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+        if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
         # This just plots the points
         if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`)) + scale_shape_manual(values = c(0,3))
         # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
         # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
         # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
         # Add points, station numbers, or both.
-        if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
+        if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=pt.txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
           geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`)) + scale_shape_manual(values = c(0,3))
         
         if(nrow(extras.sf) > 0) 
         {
           if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras.sf, shape =24,fill = "darkorange" )
-          if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras.sf,aes(label = EID),size=txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" )
+          if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
+          if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras.sf, shape =24,fill = "darkorange" )
         }
         
         if(cables==T)
