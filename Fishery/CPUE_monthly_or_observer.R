@@ -534,11 +534,11 @@ if(CPUE == "obs" || CPUE == "both")
   {
     #Read2 Grab our observer trip data
     obs.metadata <- list.files(paste0(direct_bycatch, "data"))
-    obs.metadata <- obs.metadata[which(grepl(x=obs.metadata, pattern="Observed scallop trip metadata_2008-2018_tidy_"))]
-    metadataruns <- gsub(x=obs.metadata, pattern="Observed scallop trip metadata_2008-2018_tidy_", "")
+    obs.metadata <- obs.metadata[which(grepl(x=obs.metadata, pattern="Observed scallop trip metadata_tidy_"))]
+    metadataruns <- gsub(x=obs.metadata, pattern="Observed scallop trip metadata_tidy_", "")
     metadataruns <- max(ymd(gsub(x=metadataruns, pattern=".csv", ""))) #### IT USES THE MOST RECENT METADATA RUN
     
-    obs.trips <- read.table(paste0(direct_bycatch,"data/Observed scallop trip metadata_2008-2018_tidy_", metadataruns, ".csv"), sep = ",", header=T,stringsAsFactors = F)
+    obs.trips <- read.table(paste0(direct_bycatch,"data/Observed scallop trip metadata_tidy_", metadataruns, ".csv"), sep = ",", header=T,stringsAsFactors = F)
     # What years are we looking at here
     obs.trips$year <- year(ymd(obs.trips$LANDING_DATE))
     obs.trips <- obs.trips[obs.trips$year %in% year,]
