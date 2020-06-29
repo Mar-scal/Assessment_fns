@@ -94,6 +94,7 @@ require(lubridate) || stop("Install the lubridate Package before it's too late!"
 require(RCurl)|| stop("Install the RCurl Package please")
 require(sf) || stop("Install the sf package before you get lost")
 require(tidyverse) || stop("Install the tidyverse package so you can do everything")
+require(maptools)|| stop("Install maptools you fools")
 if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 

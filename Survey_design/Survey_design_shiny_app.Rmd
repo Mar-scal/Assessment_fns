@@ -36,8 +36,6 @@ eval(parse(text = sc))
 #source("D:/Github/Offshore/Assessment_fns/DK/Survey_design/Survey_design_sf.r")
 # Convert a factor to a number
 factor.2.number <- function(x) {as.numeric(levels(x))[x]}
-
-
 ``` 
 
 
