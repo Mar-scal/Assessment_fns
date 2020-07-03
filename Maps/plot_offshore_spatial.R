@@ -5,7 +5,8 @@ load_offshore_spatial <- function(direct_data,
                                   survey,
                                   fishery, 
                                   survey_year,
-                                  fishery_years) {
+                                  fishery_years,
+                                  detailedsampling=F) {
   
   # if survey_years isn't null, then get the data. This will always pull in the Survey_all_results data
   if(survey == T){
@@ -18,7 +19,8 @@ load_offshore_spatial <- function(direct_data,
     logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data, direct_fns = direct_fns)
   }
   
-  return(list(surv.Live=surv.Live, new.log.dat=new.log.dat))
+  if(detailedsampling==F) return(list(surv.Live=surv.Live, new.log.dat=new.log.dat))
+  if(detailedsampling==T) return(list(surv.Live=surv.Live, mw.dat.all=mw.dat.all, new.log.dat=new.log.dat))
   
 }
 
@@ -32,7 +34,7 @@ plot_offshore_spatial<- function(direct_data,
                                  survey_years,
                                  fishery_years,
                                  size_class,
-                                 bank, 
+                                 banks, 
                                  plotly=F) {
   
   # You need the following packages:
@@ -41,65 +43,71 @@ plot_offshore_spatial<- function(direct_data,
   require(sf)
   require(plotly)
   
-  # tidy up the survey data if that's the data you want to overlay
-  if(overlay_data=="survey"){
-    # this assumes you want to plot surv.Live stratified estimates per tow
-    surv.Live.sub <- pivot_longer(offshore_data$surv.Live[[bank]]
-                                  [offshore_data$surv.Live[[bank]]$year %in% survey_years,
-                                    c("year", "tow", "lon", "lat", "pre", "rec", "com", "tot")], 
-                                  cols=c("pre", "rec", "com", "tot"))
+  surv.Live.sub <- NULL
+  fishery <- NULL
+  stations <- NULL
+  strata_banks <- NULL
+  strata <- NULL
+  for(i in 1:length(banks)){
+    # tidy up the survey data if that's the data you want to overlay
+    if(overlay_data=="survey"){
+      # this assumes you want to plot surv.Live stratified estimates per tow
+      surv.Live.sub <- rbind(surv.Live.sub, pivot_longer(offshore_data$surv.Live[[banks[i]]]
+                                    [offshore_data$surv.Live[[banks[i]]]$year %in% survey_years,
+                                      c("year", "tow", "lon", "lat", "pre", "rec", "com", "tot")], 
+                                    cols=c("pre", "rec", "com", "tot")))
+    }
+    
+    # tidy up the fishery data if that's the data you want to overlay
+    if(overlay_data=="fishery"){
+      fishery <- rbind(fishery, offshore_data$new.log.dat[offshore_data$new.log.dat$bank==banks[i],])
+    }
+    
+    # if station_years isn't null (i.e. you want to plot some stations), then get the data. Pulls in the stations for the bank(s) you selected.
+    if(!is.null(station_years)){
+      if(banks[i] %in% c("GBa", "GBb")) season <- "Summer" else season <- "Spring"
+      stations <- rbind(stations, read.csv(paste0(direct_data, "Data/Survey_data/", max(as.numeric(station_years)), 
+                                  "/", season, "/", banks[i],"/Preliminary_Survey_design_Tow_locations_", banks[i], ".csv")))
+    }
+    
+    print("data prep done")
+    
+    # now get the strata (if they exist)
+    # the true strata are in the GIS_layers, but Ger "strata" (really bathymetry) are in a different location
+    strata_banks <- c("GBa", "GBb", "BBn", "BBs", "Sab")
+    if(any(strata_banks %in% banks[i])){
+      strata_banks <- strata_banks[which(strata_banks %in% banks[i])]
+      strata <- rbind(strata, st_read(paste0(direct_data, "Data/Maps/approved/GIS_layers/offshore_survey_strata/", strata_banks, ".shp"), quiet=T))
+    }
+    if("Ger" %in% banks[i]){
+      strata <- rbind(strata, st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T))
+    }
+    
+    print("strata loaded")
+    
+    # so now the plan is to set up some dynamic variables for plotting the point size and facets relative to the data you decided to plot
+    size.var <- NULL
+    
+    # if you're overlaying fishery data, then the point size is going to be the pro.repwt.  
+    if(overlay_data=="fishery") {
+      size_var <- "pro.repwt"
+      plotdat <- fishery
+      if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
+    }
+    # if you're overlaying survey data, then the stratified estimate is going to be the pro.repwt. we're also going to facet by size class in this case.
+    if(overlay_data=="survey") {
+      size_var <- "value"
+      plotdat <- surv.Live.sub
+      if(!is.null(size_class)) plotdat <- plotdat[plotdat$name %in% size_class,]
+      if(is.null(size_class)) size_class <- c("pre", "rec", "com", "tot")
+      if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
+      plotdat$name <- factor(plotdat$name, levels=c("pre", 'rec', "com", "tot"))
+    }
   }
-
-  # tidy up the fishery data if that's the data you want to overlay
-  if(overlay_data=="fishery"){
-    fishery <- offshore_data$new.log.dat[offshore_data$new.log.dat$bank==bank,]
-  }
-  
-  # if station_years isn't null (i.e. you want to plot some stations), then get the data. Pulls in the stations for the bank(s) you selected.
-  if(!is.null(station_years)){
-    if(bank %in% c("GBa", "GBb")) season <- "Summer" else season <- "Spring"
-    stations <- read.csv(paste0(direct_data, "Data/Survey_data/", max(as.numeric(station_years)), 
-                                "/", season, "/", bank,"/Preliminary_Survey_design_Tow_locations_", bank, ".csv"))
-  }
-  
-  print("data prep done")
-  
-  # now get the strata (if they exist)
-  # the true strata are in the GIS_layers, but Ger "strata" (really bathymetry) are in a different location
-  strata_banks <- c("GBa", "GBb", "BBn", "BBs", "Sab")
-  if(any(strata_banks %in% bank)){
-    strata_banks <- strata_banks[which(strata_banks %in% bank)]
-    strata <- st_read(paste0(direct_data, "Data/Maps/approved/GIS_layers/offshore_survey_strata/", strata_banks, ".shp"), quiet=T)
-  }
-  if("Ger" %in% bank){
-    strata <- st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T)
-  }
-  
-  print("strata loaded")
-  
-  # so now the plan is to set up some dynamic variables for plotting the point size and facets relative to the data you decided to plot
-  size.var <- NULL
-  
-  # if you're overlaying fishery data, then the point size is going to be the pro.repwt.  
-  if(overlay_data=="fishery") {
-    size_var <- "pro.repwt"
-    plotdat <- fishery
-    if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
-  }
-  # if you're overlaying survey data, then the stratified estimate is going to be the pro.repwt. we're also going to facet by size class in this case.
-  if(overlay_data=="survey") {
-    size_var <- "value"
-    plotdat <- surv.Live.sub
-    if(!is.null(size_class)) plotdat <- plotdat[plotdat$name %in% size_class,]
-    if(is.null(size_class)) size_class <- c("pre", "rec", "com", "tot")
-    if(dim(plotdat)[1] == 0) stop("Requested data does not exist. Check offshore_data object to make sure this data exists.")
-    plotdat$name <- factor(plotdat$name, levels=c("pre", 'rec', "com", "tot"))
-  }
-  
   print("figure pre-formatting done")
   
   # set up the basemap if there are strata, and a separate one if it's German, or if there are no strata
-  if(bank %in% strata_banks){
+  if(any(banks %in% strata_banks)){
     strata <- st_cast(strata, "MULTIPOLYGON")
     
     if("Strt_ID" %in% names(strata)) names(strata)[which(names(strata) == "Strt_ID")] <- "ID"
@@ -110,7 +118,7 @@ plot_offshore_spatial<- function(direct_data,
       geom_sf(data=strata, colour=NA, aes(fill=as.factor(ID)), alpha=0.5) 
   }
   
-  if(bank == "Ger"){
+  if(banks == "Ger" & !is.null(station_years)){
     strata <- st_cast(strata, "MULTIPOLYGON")
     
     # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
@@ -120,7 +128,7 @@ plot_offshore_spatial<- function(direct_data,
       geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
   }
   
-  if(!bank == "Ger" & !bank %in% strata_banks){
+  if(!banks == "Ger" & !banks %in% strata_banks & !is.null(station_years)){
     # set up the basemap. Keep the stations and points in normal dataframes because SF breaks the legends otherwise.
     basemap <- ggplot() +
       theme_bw() +
@@ -178,9 +186,11 @@ plot_offshore_spatial<- function(direct_data,
   }
   
   # make sure stations plot on top
-  finalplot <- finalplot +
-    geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
-  
+  if(!is.null(station_years)){
+    finalplot <- finalplot +
+      geom_point(data=stations, aes(X,Y), shape=21, colour="black", fill="white", size=2)
+  }
+
   print("dynamic plotting done")
   
   if(plotly==F) return(finalplot)
