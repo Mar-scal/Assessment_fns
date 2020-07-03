@@ -9,7 +9,8 @@ classoption: landscape
 ---
 
 DAVE - run first chunk (after adjusting directs), then skip down to line 241 when BBn starts. 
-I used a buffering approach for GB that might be helpful if you don't want to pick by eye (line 113-ish)
+I used a buffering approach for GB that might be helpful if you don't want to pick by eye (line 113-ish)... you can probably do better though!
+
 
 ```{r, include=F, echo=F, message=F, warning=F}
 direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
@@ -36,6 +37,7 @@ offshore_data <- load_offshore_spatial(direct_data=direct_data,
                                        fishery_years=fishery_years, 
                                        detailedsampling=T)
 ```
+
 # GB prep
 ```{r, echo=F, message=F, warning=F, include=F}
 # GBa 
@@ -56,7 +58,7 @@ stations2018 <- offshore_data$surv.Live$GBa %>%
   filter(year==2018 & cruise=="LE08" & random==1 & Strata_ID %in% c(1,2,3,4) & lat >= 41.83333) %>%
   st_as_sf(coords=c("lon", "lat"), crs=4326, remove=F)
 
-seedboxes <- read.csv("C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv")
+seedboxes <- read.csv(paste0(direct_data, "Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv"))
 
 ggplot() + geom_polygon(data=seedboxes[seedboxes$Bank=="GBa",], aes(X, Y, colour=ID), fill=NA) + coord_map() +
   geom_point(data=stations2019, aes(lon, lat)) +
@@ -265,7 +267,7 @@ stations2019 <- offshore_data$surv.Live$BBn %>%
 
 stations_bbn <- rbind(stations2018, stations2019)
 
-seedboxes <- read.csv("C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv")
+seedboxes <- read.csv(paste0(direct_data, "Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv"))
 
 seedboxes <- subset(seedboxes, ID %in% c("East of Happy Valley Sothwest corner", 
                                          "Happy Valley south seed box",
