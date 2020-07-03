@@ -382,37 +382,37 @@ require(plotly)
 ggplotly(map_stations_bin_B)
 
 png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed_binned.png", height=8.5, width=11, units="in", res=400)
-map_stations_bin
+map_stations_bin_B
 dev.off()
 
 ```
 
 
-# overlay fishery
+# overlay fishery (not done for BBn yet, code below is just copied from GB)
 ```{r}
-GB_fish <- offshore_data$new.log.dat
-GB_fish1920 <- subset(GB_fish, year%in% c(2019,2020) & sfa %in% c("27A", "27B"))
-
-map_stations_fish <- pecjector(area="GB", direct_fns = direct_fns, add_layer=list(sfas="all", survey=c("offshore", "outline"))) + 
-  geom_point(data=dplyr::select(GB_fish1920, lon, lat, pro.repwt, year), 
-             aes(lon, lat, colour=pro.repwt), 
-             size=2, shape=20, alpha=0.3) +
-  geom_point(data=dplyr::select(stations2020, lon, lat, sampled), 
-             aes(lon, lat, shape=sampled), 
-             size=4) +
-   # geom_text(data=dplyr::select(stations2020, lon, lat, sampled, tow, bin, com), aes(lon, lat, label=round(com, 0), colour=bin), size=3, vjust=1) +
-  scale_shape_manual(values=c(20, 4)) +
-  scale_colour_viridis_c(name="landed weight (per watch)", direction = -1) +
-  annotate(x=-66, y=42.05, geom = "text", label="GBa sampled = 26\nGBa unsampled = 72\nGBa total = 98\n \nGBb sampled = 4\nGBb unsampled = 11\nGBb total = 15", hjust=0) +
-   coord_sf(ylim=c(41.8, 42.2)) +
-  geom_hline(yintercept=41.83333, linetype="dashed") + 
-  facet_wrap(~year, ncol=1)
-
-require(plotly)
-ggplotly(map_stations_fish)
-
-png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed_fish.png", height=8.5, width=11, units="in", res=400)
-map_stations_fish
-dev.off()
+# GB_fish <- offshore_data$new.log.dat
+# GB_fish1920 <- subset(GB_fish, year%in% c(2019,2020) & sfa %in% c("27A", "27B"))
+# 
+# map_stations_fish <- pecjector(area="GB", direct_fns = direct_fns, add_layer=list(sfas="all", survey=c("offshore", "outline"))) + 
+#   geom_point(data=dplyr::select(GB_fish1920, lon, lat, pro.repwt, year), 
+#              aes(lon, lat, colour=pro.repwt), 
+#              size=2, shape=20, alpha=0.3) +
+#   geom_point(data=dplyr::select(stations2020, lon, lat, sampled), 
+#              aes(lon, lat, shape=sampled), 
+#              size=4) +
+#    # geom_text(data=dplyr::select(stations2020, lon, lat, sampled, tow, bin, com), aes(lon, lat, label=round(com, 0), colour=bin), size=3, vjust=1) +
+#   scale_shape_manual(values=c(20, 4)) +
+#   scale_colour_viridis_c(name="landed weight (per watch)", direction = -1) +
+#   annotate(x=-66, y=42.05, geom = "text", label="GBa sampled = 26\nGBa unsampled = 72\nGBa total = 98\n \nGBb sampled = 4\nGBb unsampled = 11\nGBb total = 15", hjust=0) +
+#    coord_sf(ylim=c(41.8, 42.2)) +
+#   geom_hline(yintercept=41.83333, linetype="dashed") + 
+#   facet_wrap(~year, ncol=1)
+# 
+# require(plotly)
+# ggplotly(map_stations_fish)
+# 
+# png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed_fish.png", height=8.5, width=11, units="in", res=400)
+# map_stations_fish
+# dev.off()
 
 ```
