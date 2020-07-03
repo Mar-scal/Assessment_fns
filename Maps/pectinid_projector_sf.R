@@ -19,7 +19,7 @@
 
 #3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
 
-#4: repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
+#4: gis.repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
 
 #5: c_sys      What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
@@ -29,8 +29,8 @@
 #6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
 ###               size of your area
 
-#7: direct_fns  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
-###               "Y:/Offshore/Assessment/Assesment_fns/".  If you set to direct_fns = 'github' it will grab the functions from our Mar-Scal repo.
+#7: repo  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
+###               "Y:/Offshore/Assessment/Assesment_fns/".  If you set to repo = 'github' it will grab the functions from our Mar-Scal repo.
 
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
@@ -52,12 +52,12 @@
 ####  c: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
 
-####  d: sfa        Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point repo to correct location
+####  d: sfa        Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
 
 ####  e: survey     Do you want to add the strata boundariesto the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
 #######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
 #######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
-#######               If sourcing locally point repo to correct location.
+#######               If sourcing locally point gis.repo to correct location.
 
 ####  f: s.labels  Add labels to the figures?  Several options here I need to lay out.  
 #######              s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
@@ -111,7 +111,7 @@
 # A working full example of a call to this function that should work without any modification as long
 # as you are connected to the NAS drive...
 #pecjector(obj = NULL, plot_as == "ggplot", area = "BBn",plot = T, 
-#          repo = 'local',c_sys = 32619, buffer =1000,direct_fns = "Y:/Offshore/Assessment/Assesment_fns/",
+#          gis.repo = 'local',c_sys = 32619, buffer =1000,repo = "Y:/Offshore/Assessment/Assesment_fns/",
 #          add_layer = list(eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
@@ -119,7 +119,7 @@
 #         scale= list(scale = 'discrete', palette = 'viridis::viridis(100)', breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
-                     repo = "github",c_sys = "ll",  buffer = 0, direct_fns = "Y:/Offshore/Assessment/Assesment_fns/",
+                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github",
                      # Controls what layers to add to the figure (eez, nafo, sfa's, labels, )
                      add_layer = list(),
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
@@ -160,13 +160,14 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # {
   ## always pull from local... these should be in the same location as pectinid_projector, right?  
   
-  if(direct_fns != 'github')
+  if(repo != 'github')
   {
-    source(paste(direct_fns,"Maps/convert_coords.R",sep="")) 
-    source(paste(direct_fns,"Maps/add_alpha_function.R",sep="")) 
-    source(paste(direct_fns,"Maps/combo_shp.R",sep="")) 
+    source(paste(repo,"Maps/convert_coords.R",sep="")) 
+    source(paste(repo,"Maps/add_alpha_function.R",sep="")) 
+    source(paste(repo,"Maps/combo_shp.R",sep="")) 
   }
-  if(direct_fns == 'github')
+  
+  if(repo == 'github')
   {
   #browser()
     # Download this to the temp directory you created above
@@ -174,7 +175,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     eval(parse(text = sc))
     sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R",ssl.verifypeer = FALSE)
+    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))  
   }
   
@@ -212,7 +213,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(any(layers == 'eez'))
   {
     # if we already have the full eez in the global environment we don't need to reload it, we do need to sub-set it and project it though
-    if(repo == 'github')
+    if(gis.repo == 'github')
     {
       # Figure out where your tempfiles are stored
       temp <- tempfile()
@@ -224,8 +225,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       unzip(zipfile=temp, exdir=temp2)
       # Now read in the shapefile
       eez.all <- st_read(paste0(temp2, "/EEZ.shp"))
-    } else { # end if(repo == 'github' )
-      loc <- paste0(repo,"/EEZ")
+    } else { # end if(gis.repo == 'github' )
+      loc <- paste0(gis.repo,"/EEZ")
       eez.all <- st_read(loc)
     } # end the else
     
@@ -238,11 +239,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(nrow(eez) == 0) rm(eez) # Get rid of the eez as it causes greif for plotly if it remains but is empty...
     
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
-    if(!is.null(eez)) 
-    {
-      eez <- eez %>% st_transform(c_sys)
-      if(nrow(eez) == 0) rm(eez) # Get rid of the eez as it causes greif for plotly if it remains but is empty...
-    } # end if(!is.null(eez)) 
+    if(exists('eez')) eez <- eez %>% st_transform(c_sys)
       
       
   } # end if(!is.null(add_EEZ)) 
@@ -278,17 +275,20 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # I need coordinates for the bathy
     #bath.box <- st_bbox(b.box) # Add a big buffer to this to avoid a weird issues with below... hopefuly a temp fix...
     # This gets all the Maritimes, sadly something is wrong with getNOAA currently so this is hard coded to be all the Maritimes for now...
-    # I really wanna fix this!!
+    # I really wanna fix this!! # Issue persists for marmap 1.0.4, rgdal 1.5-10, and raster 3.1-5 
     bath.box <- st_bbox(st_as_sf(data.frame(x = c(-70,-54), y = c(40,48)),coords = c('x','y')))
-    if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=c_sys) %>% st_bbox() 
+    #if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
     # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
+    # This is a lat/lon WGS84 object...
+    #browser()
     bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
     
     bathy <- marmap::as.raster(bathy.org)
-    # Now clip this to the bounding area...
-    bathy <- crop(bathy,as_Spatial(b.box))
+    
+    # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
+    bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
     #Now if we want smooth contours we do this...
     # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
     if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
@@ -333,13 +333,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
 
   } # end if(any(layers == 'bathy'))
   } # end the is.null()
-  # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "repo = 'github'", for NAFO this is actually going
-  # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "repo = 'local'"
+  # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "gis.repo = 'github'", for NAFO this is actually going
+  # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "gis.repo = 'local'"
   #browser()
   if(any(layers == 'nafo'))
   {
-    # If they don't already exist and our repo is github and we just want the main nafo division go get them from online
-    if(repo == 'github' && add_layer$nafo == "main")
+    # If they don't already exist and our gis.repo is github and we just want the main nafo division go get them from online
+    if(gis.repo == 'github' && add_layer$nafo == "main")
     {
       # Figure out where your tempfiles are stored
       temp <- tempfile()
@@ -358,12 +358,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       nafo.divs <- st_cast(nafo.divs,to= "MULTILINESTRING")
       if(nrow(nafo.divs) == 0) rm(nafo.divs) # Get rid of the nafo.divs object as it causes greif for plotly if it remains but is empty...
       
-    } # if(repo == 'github' && !exists("nafo.divs"))
+    } # if(gis.repo == 'github' && !exists("nafo.divs"))
     
     # if we want the main divisions from local
-    if(repo != 'github' && add_layer$nafo == "main")
+    if(gis.repo != 'github' && add_layer$nafo == "main")
     {
-      loc <- paste0(repo,"/NAFO/Divisions")
+      loc <- paste0(gis.repo,"/NAFO/Divisions")
       nafo.divs <- combo.shp(loc,make.sf=T)
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
@@ -371,10 +371,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       nafo.divs <- st_intersection(nafo.divs, b.box)
       nafo.divs <- st_cast(nafo.divs,to= "MULTILINESTRING")
       if(nrow(nafo.divs) == 0) rm(nafo.divs) # Get rid of the nafo.divs object as it causes greif for plotly if it remains but is empty...
-    } # end if(repo == 'local' && !exists("nafo.divs") && add_nafo = "main")
+    } # end if(gis.repo == 'local' && !exists("nafo.divs") && add_nafo = "main")
     
     # Now if we want the nafo sub-areas we do this, for the locals
-    if(repo == 'github' && !exists("nafo.sub") && add_layer$nafo == "sub")
+    if(gis.repo == 'github' && !exists("nafo.sub") && add_layer$nafo == "sub")
     {
       # Figure out where your tempfiles are stored
       temp <- tempfile()
@@ -396,10 +396,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end if(add_sfas != "offshore")
     
     # Now if we want the nafo sub-areas we do this, for the locals
-    if(repo != 'github' && add_layer$nafo == "sub")
+    if(gis.repo != 'github' && add_layer$nafo == "sub")
     {
       # Now if we want the nafo sub-areas we do this...
-      loc <- paste0(repo,"/NAFO/Subareas")
+      loc <- paste0(gis.repo,"/NAFO/Subareas")
       nafo.sub <- combo.shp(loc,make.sf=T)
 
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
@@ -409,7 +409,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       nafo.sub <- st_cast(nafo.sub,to= "MULTILINESTRING")
       if(nrow(nafo.sub) == 0) rm(nafo.sub) # Get rid of the nafo.sub object as it causes greif for plotly if it remains but is empty...
       
-    } # end if(repo == 'local' && !exists("nafo.sub") && add_nafo = "main")
+    } # end if(gis.repo == 'local' && !exists("nafo.sub") && add_nafo = "main")
     
   } # end if(add_nafo != "no")
   
@@ -418,7 +418,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # all NAD83 lat/lon's.  There are a bunch of shapefiles for inshore this this isn't always speedy
   if(any(layers == 'sfa')) 
   {
-    if(repo == 'github')
+    if(gis.repo == 'github')
     {
       if(add_layer$sfa != "offshore")
       {
@@ -471,14 +471,14 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         
       } # end if(add_sfas != "offshore")  
       
-    }# end if(repo = 'github')
+    }# end if(gis.repo = 'github')
     
     # Now if you aren't using github do this...
-    if(repo != 'github')
+    if(gis.repo != 'github')
     {
       if(add_layer$sfa != "offshore")
       {
-        loc <- paste0(repo,"inshore")
+        loc <- paste0(gis.repo,"inshore")
 
         inshore.spa <- combo.shp(loc,make.sf=T)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
@@ -492,7 +492,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$sfa != "inshore" )
       {
-        loc <- paste0(repo,"offshore")
+        loc <- paste0(gis.repo,"offshore")
         # This pulls in all the layers from the above location
         offshore.spa <- combo.shp(loc,make.sf=T)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
@@ -512,13 +512,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         
         # Now we don't have these nice shape files for SFA 29 sadly... I'll take these ones
       } # end if(detailed != "offshore")
-    } # end if(repo == 'local')
+    } # end if(gis.repo == 'local')
   } # end if(!is.null(add_sfas)) 
   #browser()
   # Now we do the same thing for the strata
   if(any(layers == 'survey')) 
   {
-    if(repo == 'github')
+    if(gis.repo == 'github')
     {
       if(add_layer$survey[1] != "offshore")
       {
@@ -585,14 +585,14 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         
       } # end if(add_strata != "offshore")  
       
-    }# end if(repo = 'github')
+    }# end if(gis.repo = 'github')
     #browser()
     # Now if you aren't using github do this...
-    if(repo != 'github')
+    if(gis.repo != 'github')
     {
       if(add_layer$survey[1]  != "offshore")
       {
-        loc <- paste0(repo,"inshore_survey_strata")
+        loc <- paste0(gis.repo,"inshore_survey_strata")
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
         inshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
         inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
@@ -607,8 +607,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
-        if(add_layer$survey[2] == 'detailed') loc <- paste0(repo,"offshore_survey_strata")
-        if(add_layer$survey[2] == 'outline') loc <- paste0(repo,"survey_boundaries")
+        if(add_layer$survey[2] == 'detailed') loc <- paste0(gis.repo,"offshore_survey_strata")
+        if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"survey_boundaries")
         
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
@@ -629,7 +629,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(nrow(offshore.strata) == 0) rm(offshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
         
       } # end if(detailed != "offshore")
-    } # end if(repo == 'local')
+    } # end if(gis.repo == 'local')
     if(exists("offshore.strata")) final.strata <- offshore.strata
     if(exists("inshore.strata")) final.strata <- inshore.strata
     if(exists("inshore.strata") & exists("offshore.strata")) final.strata <- rbind(offshore.strata,inshore.strata)
@@ -663,7 +663,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Do we want to add the labels to the figure he's what ya gotta do...
   if(any(layers == 's.labels')) 
   {
-    if(repo == 'github')
+    if(gis.repo == 'github')
     {
       temp <- tempfile()
       download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels/labels.zip", temp)
@@ -683,9 +683,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     }
 
     # If not going through Github it's easy!
-    if(repo != 'github')
+    if(gis.repo != 'github')
     {
-      loc <- paste0(repo,"other_boundaries/labels")
+      loc <- paste0(gis.repo,"other_boundaries/labels")
       s.labels <-   st_read(loc)
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')

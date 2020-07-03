@@ -16,6 +16,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
   # You'll need the sp library for this to work
   require(sp) || stop("You need sp, thanks!")
   require(sf) || stop("Get with it cuz, you need sf package")
+  require(tmaptools) ||  stop("Yo cuz, you need tmaptools package")
   
   # Custom plot.extent used if you want to enter your own y and x 
   if(is.list(plot.extent))	{ y=plot.extent$y; 			x=plot.extent$x}
