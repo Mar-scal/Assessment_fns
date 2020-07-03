@@ -232,3 +232,187 @@ map_stations_fish
 dev.off()
 
 ```
+
+# BBN
+I would propose to cover areas that are ‘meaningful’ (Happy Valley, east of Happy Valley, trapezoid, and the spot with Tricia’s babies) among others.  We could easily forget about Box 3 and likely Box 4 too.  The 2019 survey did not do justice to the western part of Happy Valley;  may be a few tows could cover that although not 2019 repeats.  Also, I would be hard to convince that the southern edge needs coverage because of the too - slow growth. 
+Repeating some of the 2019 tows will be most interesting…I think that choosing 50 out of the 100 done in 2019 would not be too difficult.
+```{r, echo=F, message=F, warning=F, include=F}
+# BBn 
+stations2019 <- offshore_data$surv.Live$BBn %>%
+  filter(year==2019 & cruise=="LE09" & random==1)# %>% tally
+
+sampled <- offshore_data$mw.dat.all$BBn %>% 
+  filter(year==2019)
+
+sampled$sampled <- "sampled"
+  
+stations2019 <- dplyr::left_join(stations2019, unique(sampled[, c("lat", "lon", "sampled")]), by=c("lat", "lon"))
+
+# focus on happy valley (esp W), E of happy valley, trapezoid and baby spot (276 from 2019):
+stations2018 <- offshore_data$surv.Live$BBn %>%
+  filter(year==2018 & cruise=="LE07" & random==1) %>%
+  st_as_sf(coords=c("lon", "lat"), crs=4326, remove=F)
+
+stations2019 <- offshore_data$surv.Live$BBn %>%
+  filter(year==2019 & cruise=="LE09" & random==1) %>%
+  st_as_sf(coords=c("lon", "lat"), crs=4326, remove=F)
+
+stations_bbn <- rbind(stations2018, stations2019)
+
+seedboxes <- read.csv("C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv")
+
+seedboxes <- subset(seedboxes, ID %in% c("East of Happy Valley Sothwest corner", 
+                                         "Happy Valley south seed box",
+                                         "Trapezoid - long (initial)"))
+
+HV <- seedboxes %>% filter(ID == "Happy Valley south seed box") %>%
+  st_as_sf(coords=c("X", "Y"), crs=4326) %>%
+  st_union() %>%
+  st_sfc() %>%
+  st_convex_hull()
+
+EHV <- seedboxes %>% filter(SCALLOP_Group_ID == "2008SWEHVclosure") %>%
+  st_as_sf(coords=c("X", "Y"), crs=4326) %>%
+  st_union() %>%
+  st_sfc() %>%
+  st_convex_hull()
+
+Trap <- seedboxes %>% filter(SCALLOP_Group_ID == "2008BBntrap") %>%
+  st_as_sf(coords=c("X", "Y"), crs=4326) %>%
+  st_union() %>%
+  st_sfc() %>%
+  st_convex_hull()
+
+BBn_hot <- st_union(st_union(HV, EHV), Trap)
+
+hot_tows <- st_intersection(stations_bbn, BBn_hot)
+hot_tows19 <- st_intersection(stations2019, BBn_hot)
+
+ggplot() + geom_sf(data=BBn_hot) + geom_sf(data=hot_tows) + geom_label(data=hot_tows, aes(lon, lat, label=ID))
+
+pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer=list(survey=c("offshore", "outline"))) +
+  scale_fill_manual(values=rep(NA, 9)) +
+  geom_sf(data=stations_bbn) + 
+  geom_sf(data=BBn_hot)+
+  geom_label(data=stations_bbn, aes(lon, lat, label=ID, colour=com)) +
+  coord_sf(xlim = c(-66.4, -65.8), ylim=c(42.5, 42.75)) 
+
+map2019 <- pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer=list(survey=c("offshore", "outline"))) +
+  #scale_fill_manual(values=rep(NA, 9)) +
+  geom_sf(data=BBn_hot, fill=NA, colour="red")+
+  geom_text(data=stations2019, aes(lon, lat, label=tow, colour=com), size=2) +
+  coord_sf(xlim = c(-66.4, -65.8), ylim=c(42.5, 42.9)) 
+ggplotly(map2019)
+add_ons <- c("2018.284", "2018.270", "2018.285", "2019.233", "2019.237", "2019.279", "2019.269", "2019.256", "2019.264", "2019.257", "2019.270")
+
+st_geometry(hot_tows19) <- NULL
+st_geometry(stations_bbn) <- NULL
+
+BBn_tows <- rbind(hot_tows19, subset(stations_bbn, ID %in% c("2019.274", '2019.276', "2019.277", add_ons)))
+
+BBn_tows <- BBn_tows %>%
+  filter(!ID == "2019.223") %>%
+  st_as_sf(coords=c("lon", "lat"), remove=F, crs=4326)
+
+BBn_tows$tow2020 <- 201:230
+
+pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer=list(survey=c("offshore", "outline"))) +
+  #scale_fill_manual(values=rep(NA, 9)) +
+  geom_sf(data=BBn_hot, fill=NA, colour="red")+
+  geom_text(data=BBn_tows, aes(lon, lat, label=tow2020))+
+  geom_point(data=BBn_tows, aes(lon, lat))
+
+st_geometry(BBn_tows) <- NULL
+towsfr2019 <- dplyr::select(subset(BBn_tows, year==2019), tow)
+towsfr2018 <- dplyr::select(subset(BBn_tows, year==2018), tow)
+
+#Add tows 274, 276, 277 from 2019 (one of which was sampled)
+sampled2019 <- offshore_data$mw.dat.all$BBn %>% 
+  filter(year==2019 & tow %in% towsfr2019$tow) %>%
+  distinct(tow) # 13
+
+sampled2018 <- offshore_data$mw.dat.all$BBn %>% 
+  filter(year==2018 & tow %in% towsfr2018$tow) %>%
+  distinct(tow) # 1
+
+sampled2018$ID <- paste0("2018.", sampled2018$tow)
+sampled2019$ID <- paste0("2019.", sampled2019$tow)
+
+sampled <- rbind(sampled2018, sampled2019)
+sampled$sampled <- "Y"
+
+BBn_tows <- left_join(BBn_tows, dplyr::select(sampled, ID, sampled))
+BBn_tows$sampled[is.na(BBn_tows$sampled)] <- "N"
+
+table(BBn_tows$sampled)
+```
+
+# Outputs
+```{r}
+map_stations_B <- pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer=list(survey=c("offshore", "outline")))  + 
+  geom_point(data=dplyr::select(BBn_tows, lon, lat), aes(lon, lat), colour="black", shape=21, size=3) +
+   # geom_text(data=dplyr::select(stations2020, lon, lat, sampled, tow), aes(lon, lat, label=tow), colour="black", size=3, hjust=0.5, vjust=0.25) +
+  scale_fill_viridis_d(begin=0.4, end=0.9) +
+  annotate(x=-65.8, y=42.95, geom = "text", label="Total = 30", hjust=0) 
+ # coord_sf(ylim=c(41.8, 42.2)) +
+ # geom_hline(yintercept=41.83333, linetype="dashed")
+
+png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.png", height=8.5, width=11, units="in", res=400)
+map_stations_B
+dev.off()
+
+write.csv(dplyr::select(BBn_tows, lat, lon, tow2020, bank), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.csv")
+```
+
+
+# overlay survey
+```{r}
+BBn_survey_2019 <- offshore_data$surv.Live$BBn
+options("scipen" = 999)
+BBn_tows$bin <- cut(BBn_tows$com, breaks=c(0,50,500, 1000))
+
+map_stations_bin_B <- pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer=list(survey=c("offshore", "outline"))) + 
+  geom_point(data=dplyr::select(BBn_tows, lon, lat, bin, com), aes(lon, lat, colour=bin), size=3) +
+   # geom_text(data=dplyr::select(stations2020, lon, lat, sampled, tow, bin, com), aes(lon, lat, label=round(com, 0), colour=bin), size=3, vjust=1) +
+  scale_shape_manual(values=c(20, 4)) +
+  scale_colour_manual(values=c("black", "purple", "red"), labels=c("0-50", "51-500", ">500"), name="Fully-recruited abundance") +
+ annotate(x=-65.8, y=42.95, geom = "text", label="Total = 30", hjust=0) 
+
+require(plotly)
+ggplotly(map_stations_bin_B)
+
+png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed_binned.png", height=8.5, width=11, units="in", res=400)
+map_stations_bin
+dev.off()
+
+```
+
+
+# overlay fishery
+```{r}
+GB_fish <- offshore_data$new.log.dat
+GB_fish1920 <- subset(GB_fish, year%in% c(2019,2020) & sfa %in% c("27A", "27B"))
+
+map_stations_fish <- pecjector(area="GB", direct_fns = direct_fns, add_layer=list(sfas="all", survey=c("offshore", "outline"))) + 
+  geom_point(data=dplyr::select(GB_fish1920, lon, lat, pro.repwt, year), 
+             aes(lon, lat, colour=pro.repwt), 
+             size=2, shape=20, alpha=0.3) +
+  geom_point(data=dplyr::select(stations2020, lon, lat, sampled), 
+             aes(lon, lat, shape=sampled), 
+             size=4) +
+   # geom_text(data=dplyr::select(stations2020, lon, lat, sampled, tow, bin, com), aes(lon, lat, label=round(com, 0), colour=bin), size=3, vjust=1) +
+  scale_shape_manual(values=c(20, 4)) +
+  scale_colour_viridis_c(name="landed weight (per watch)", direction = -1) +
+  annotate(x=-66, y=42.05, geom = "text", label="GBa sampled = 26\nGBa unsampled = 72\nGBa total = 98\n \nGBb sampled = 4\nGBb unsampled = 11\nGBb total = 15", hjust=0) +
+   coord_sf(ylim=c(41.8, 42.2)) +
+  geom_hline(yintercept=41.83333, linetype="dashed") + 
+  facet_wrap(~year, ncol=1)
+
+require(plotly)
+ggplotly(map_stations_fish)
+
+png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed_fish.png", height=8.5, width=11, units="in", res=400)
+map_stations_fish
+dev.off()
+
+```

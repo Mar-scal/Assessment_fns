@@ -567,7 +567,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         #browser()
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
-        #browser()
+        
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
         {
@@ -580,6 +580,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         offshore.strata <- st_buffer(offshore.strata,dist=0)
         # Trimming these to the bbox always trips up so just skip it
         offshore.strata <- st_intersection(offshore.strata, b.box)
+        if(any(offshore.strata$ID==0)) offshore.strata <- subset(offshore.strata, !ID==0)
         offshore.strata <- st_cast(offshore.strata,to = "MULTIPOLYGON")
         if(nrow(offshore.strata) == 0) rm(offshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
         
