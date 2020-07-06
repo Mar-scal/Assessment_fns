@@ -166,6 +166,21 @@ stations2020$sampled[stations2020$tow %in% c(33, 31, 27,
                                            89, 85)] <- "N"
 
 table(stations2020$sampled,stations2020$bank)
+
+stations2020$pastID <- as.character(stations2020$ID)
+
+stations2020$pastyear <- stations2020$year
+stations2020$pasttow <- stations2020$tow
+
+stations2020[stations2020$year==2018,]$pasttow <- stations2020[stations2020$year==2018,]$pasttow - 300
+
+stations2020$tow[stations2020$bank=="GBa"] <- 1:98
+stations2020$tow[stations2020$bank=="GBb"] <- 301:315
+
+stations2020$tow2020 <- stations2020$tow
+rownames(stations2020) <- NULL
+
+
 ```
 
 # Outputs
@@ -183,7 +198,7 @@ png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/20
 map_stations
 dev.off()
 
-write.csv(dplyr::select(stations2020, lat, lon, tow, bank, sampled), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed.csv")
+write.csv(dplyr::select(stations2020, bank, tow2020, lat, lon, sampled, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed.csv")
 ```
 
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
@@ -324,6 +339,9 @@ map2019 <- pecjector(area="BBn", gis.repo = "github", repo=direct_fns, add_layer
   #coord_sf(xlim = c(-66.4, -65.8), ylim=c(42.5, 42.9)) 
 #ggplotly(map2019)
 
+map2019 + xlim(-66.2, -65.9) + ylim(42.75, 42.9)
+
+
 add_ons <- c("2018.284", "2018.270", "2018.285", "2018.286", "2018.287", "2018.294", "2018.295",
              "2019.233", "2019.237", "2019.279", "2019.269", "2019.256", "2019.264", "2019.257", "2019.270",
              "2019.212", "2019.213", "2019.225", "2019.230", "2019.238", "2019.239", "2019.246", "2019.247", "2019.248", "2019.254",
@@ -349,6 +367,11 @@ st_geometry(BBn_tows) <- NULL
 towsfr2019 <- dplyr::select(subset(BBn_tows, year==2019), tow)
 towsfr2018 <- dplyr::select(subset(BBn_tows, year==2018), tow)
 
+BBn_tows$pastID <- as.character(BBn_tows$ID)
+rownames(BBn_tows) <- NULL
+BBn_tows$pastyear <- BBn_tows$year
+BBn_tows$pasttow <- BBn_tows$tow
+
 ```
 
 # Outputs
@@ -362,7 +385,7 @@ png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/20
 map_stations_B
 dev.off()
 
-write.csv(dplyr::select(BBn_tows, lat, lon, tow2020, bank), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.csv")
+write.csv(dplyr::select(BBn_tows, bank, tow2020, lat, lon, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.csv")
 ```
 
 
@@ -422,4 +445,9 @@ dev.off()
 
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
 knitr::include_graphics("C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed_fish.png")
+```
+
+Could swap a few stations for 2018 stations 268, 269, 276 and or 278?
+```{r, echo=F, message=F, warning=F, out.width="95%"}
+print(map2019 + xlim(-66.2, -65.9) + ylim(42.75, 42.9))
 ```
