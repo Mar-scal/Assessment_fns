@@ -93,7 +93,6 @@
 ######            clip = "D/Location/of/a/shape/file.shp" will read in a shapefile as an sf object.
 ######            clip = sf_or_sp_object will take in your sf or sp object and clip the field to this
 ######            clip = list(y = c(40,46),x = c(-68,-55),crs = 4326) will grab your coordinates
-######            clip = "D/Location/of/a/shape/file.shp" will read in a shapefile as an sf object.
 
 ###  e: dims    The number of X and Y values for the INLA surface.  Higher is better resolution, higher = slow. Default dims = c(50, 50) which is pretty low res but quick
 ###  f: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
@@ -116,7 +115,7 @@
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
 #         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
-#         scale= list(scale = 'discrete', palette = 'viridis::viridis(100)', breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
+#         scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github",
@@ -273,11 +272,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     #If you didn't set a maximum layer depth then it defaults to -500
     if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
     # I need coordinates for the bathy
-    #bath.box <- st_bbox(b.box) # Add a big buffer to this to avoid a weird issues with below... hopefuly a temp fix...
-    # This gets all the Maritimes, sadly something is wrong with getNOAA currently so this is hard coded to be all the Maritimes for now...
-    # I really wanna fix this!! # Issue persists for marmap 1.0.4, rgdal 1.5-10, and raster 3.1-5 
-    bath.box <- st_bbox(st_as_sf(data.frame(x = c(-70,-54), y = c(40,48)),coords = c('x','y')))
-    #if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+    bath.box <- st_bbox(b.box) 
+    # Add a small buffer to the area.  This might not always work if you are looking at a very small area
+    # But it does seem to work for all of our pre-defined areas, if you get an error in Marmap try and make your area larger 
+    # until the error goes away, then you can just use coord_sf from the ggspatial packages to trim the area back to what you want.
+    bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y')))
+    if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
     # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
@@ -767,7 +767,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     #browser()
 
       if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
-      if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),1)
+      if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
       if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
       if(!is.null(add_inla$scale$breaks))  {brk <- add_inla$scale$breaks}                   else brk <- pretty(spd$layer,n=10)
       if(!is.null(add_inla$scale$leg.name))  {leg <- add_inla$scale$leg.name}               else leg <- "Legend"
