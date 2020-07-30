@@ -25,7 +25,7 @@
 # format:  how to convert the data.  Default = 'dec.deg', also takes 'deg.min'
 ###############################################################################################################
 
-
+#### To convert from degree decimal minutes, enter like: 4515.30 NOT 451530
 
 convert.dd.dddd<-function(x,format='dec.deg')
   {
@@ -33,7 +33,7 @@ convert.dd.dddd<-function(x,format='dec.deg')
 	if(format=='dec.deg')
 	  {
 		dat<-data.frame(ddmm.mm=x,dd.dddd=NA)
-		
+
 			#convert from degrees-minutes-seconds -> degrees
 		  # Here we choose only data which are not NA's and data are > 9000, the 9000 tell us that it must be in ddmmss format 
 			ddmmss<-dat$ddmm.mm[!is.na(dat$ddmm.mm)&abs(dat$ddmm.mm)>9000]
