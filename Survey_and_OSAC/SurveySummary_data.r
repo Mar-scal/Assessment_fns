@@ -146,15 +146,15 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   ################################## Update the run log   #######################################################
   # add an entry into the run log
-  if(!file.exists(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
-  if(file.exists(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  if(!file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
+  if(file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
   runlog <- runlog[, !names(runlog) %in% "X"]
   rundate <- as.character(Sys.time())
   runfunction <- "data"
   runassigned <- paste(as.character(deparse(match.call())), collapse="")
   rundefaults <- paste(as.character(deparse(args(survey.data))), collapse="")
   runlog <- rbind(runlog, cbind(rundate, runfunction, runassigned, rundefaults))
-  write.csv(runlog, file = paste0(direct, "Assessment_fns/Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  write.csv(runlog, file = paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
   ################################# End update the runlog #######################################################
   
   ################################### START LOAD & PRE-PROCESS DATA ############################################
@@ -213,8 +213,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
     # Import 2006 for BanIce data, then we'll remove back to 2000 in a few lines.
-    survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,dirc=direct)
-    survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,dirc=direct)
+    browser()
+    survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,direct=direct, direct_fns=direct_fns)
+    survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,direct=direct, direct_fns=direct_fns)
     
     print("import.survey.data done")
     
@@ -343,6 +344,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins.tmp <- bins
     test <- testing
     mwsh <-mwsh.test
+    browser()
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
