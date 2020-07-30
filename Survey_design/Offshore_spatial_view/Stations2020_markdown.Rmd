@@ -28,6 +28,7 @@ require(plotly)
 
 source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
+source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
 
 # load the data
 offshore_data <- load_offshore_spatial(direct_data=direct_data,
@@ -180,6 +181,13 @@ stations2020$tow[stations2020$bank=="GBb"] <- 301:315
 stations2020$tow2020 <- stations2020$tow
 rownames(stations2020) <- NULL
 
+# deg dec min
+stations2020$slat_DDMM.mm <- round(convert.dd.dddd(x = stations2020$slat, format = "deg.min"), 4)
+stations2020$slon_DDMM.mm <- round(convert.dd.dddd(x = stations2020$slon, format = "deg.min"), 4)
+stations2020$elat_DDMM.mm <- round(convert.dd.dddd(x = stations2020$elat, format = "deg.min"), 4)
+stations2020$elon_DDMM.mm <- round(convert.dd.dddd(x = stations2020$elon, format = "deg.min"), 4)
+                           
+
 
 ```
 
@@ -198,7 +206,7 @@ png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/20
 map_stations
 dev.off()
 
-write.csv(dplyr::select(stations2020, bank, tow2020, lat, lon, sampled, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed.csv")
+write.csv(dplyr::select(stations2020, bank, tow2020, slat, slon, elat, elon, slat_DDMM.mm, slon_DDMM.mm, elat_DDMM.mm, elon_DDMM.mm,sampled, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/GB_stations2020_proposed.csv")
 ```
 
 ```{r, echo=F, message=F, warning=F, out.width="95%"}
@@ -372,6 +380,13 @@ rownames(BBn_tows) <- NULL
 BBn_tows$pastyear <- BBn_tows$year
 BBn_tows$pasttow <- BBn_tows$tow
 
+# deg dec min
+BBn_tows$slat_DDMM.mm <- round(convert.dd.dddd(x = BBn_tows$slat, format = "deg.min"), 4)
+BBn_tows$slon_DDMM.mm <- round(convert.dd.dddd(x = BBn_tows$slon, format = "deg.min"), 4)
+BBn_tows$elat_DDMM.mm <- round(convert.dd.dddd(x = BBn_tows$elat, format = "deg.min"), 4)
+BBn_tows$elon_DDMM.mm <- round(convert.dd.dddd(x = BBn_tows$elon, format = "deg.min"), 4)
+                           
+
 ```
 
 # Outputs
@@ -385,7 +400,7 @@ png(file="C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/20
 map_stations_B
 dev.off()
 
-write.csv(dplyr::select(BBn_tows, bank, tow2020, lat, lon, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.csv")
+write.csv(dplyr::select(BBn_tows, bank, tow2020, slat, slon, elat, elon, slat_DDMM.mm, slon_DDMM.mm, elat_DDMM.mm, elon_DDMM.mm, pastyear, pasttow), file = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Survey/2020/BBn_stations2020_proposed.csv")
 ```
 
 
