@@ -11,10 +11,12 @@
 ### NOTE: DOES NOT HANDLE SLIPS YET!
 
 compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_hm=T, incl_new=T, by="month", trip_ids="ALL"){
-  browser()
-  stop("Error: This function needs work. It is not matching up the rows properly to do the comparisons correctly. Fix it before using!")
+  
+  #stop("Error: This function needs work. It is not matching up the rows properly to do the comparisons correctly. Fix it before using!")
   
   require(compareDF)
+  require(dplyr)
+  require(plyr)
   
   # read in the old log (normally in the archive folder)
   db_old <- read.csv(old_log)
@@ -77,7 +79,7 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
     comparisondf <- rbind(comparisondf, test$comparison_df)
   }
   
-  if(!is.null(comparisondf)) {
+  if(!is.null(comparisondf) & dim(comparisondf)[1]>0) {
     comparisondf <- dplyr::select(comparisondf, -"chng_type")
     for(i in seq(1, dim(comparisondf)[1], 2)){
       print(paste0("TRIP_ID=", comparisondf[i,]$TRIP_ID, " Row number=", comparisondf[i,]$row))
@@ -86,7 +88,6 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
                    comparisondf[c(i+1),which(!comparisondf[i,] == comparisondf[i+1,])])
       print(prints[!which(grepl(prints, pattern="row"))])
     }
-    browser()
   }
   
   ## trip totals
@@ -99,20 +100,20 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
     
     if(by=="month") db_old_prorepwt <- ddply(.data=db_old, .(NAFO_UNIT_AREA, month),
                                              summarise,
-                                             totalrndwt = sum(PRORATED_RND_WEIGHT_KGS, na.rm=T),
+                                             totalrepwt = sum(PRORATED_RPTD_WEIGHT_KGS, na.rm=T),
                                              hmproxy = sum(hmproxy, na.rm=T))
     if(by=="month") db_new_prorepwt <- ddply(.data=db_new, .(NAFO_UNIT_AREA, month),
                                              summarise,
-                                             totalrndwt = sum(PRORATED_RND_WEIGHT_KGS, na.rm=T),
+                                             totalrepwt = sum(PRORATED_RPTD_WEIGHT_KGS, na.rm=T),
                                              hmproxy = sum(hmproxy, na.rm=T))
     
     if(by=="trip") db_old_prorepwt <- ddply(.data=db_old, .(TRIP_ID, NAFO_UNIT_AREA),
                                             summarise,
-                                            totalrndwt = sum(PRORATED_RND_WEIGHT_KGS, na.rm=T),
+                                            totalrepwt = sum(PRORATED_RPTD_WEIGHT_KGS, na.rm=T),
                                             hmproxy = sum(hmproxy, na.rm=T))
     if(by=="trip") db_new_prorepwt <- ddply(.data=db_new, .(TRIP_ID, NAFO_UNIT_AREA),
                                             summarise,
-                                            totalrndwt = sum(PRORATED_RND_WEIGHT_KGS, na.rm=T),
+                                            totalrepwt = sum(PRORATED_RPTD_WEIGHT_KGS, na.rm=T),
                                             hmproxy = sum(hmproxy, na.rm=T))
     
     db_old_prorepwt$row <- 1:nrow(db_old_prorepwt)
@@ -129,7 +130,7 @@ compare_logs <- function(old_log = PATH, new_log = PATH, check_all=T, check_kg_h
       print(test$html_output)
       comparisondf2 <- rbind(comparisondf2, test$comparison_df)
     }
-    browser()
+    
     comparisondf2 <- dplyr::select(comparisondf2, -"chng_type")
     for(i in seq(1, dim(comparisondf2)[1], 2)){
       if(by=="month") print(paste("month", comparisondf2[i,]$month, "NAFO", comparisondf2[i,]$NAFO_UNIT_AREA, sep=" "))
