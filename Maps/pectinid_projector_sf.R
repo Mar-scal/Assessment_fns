@@ -3,7 +3,7 @@
 # Major revision to work with sf package undertaken in 2020, DK joined the party in March 2020, attempt to make this more user friendly 
 # removed option add_land (we always want land...)
 
-# Arguements:
+# Arguments:
 
 ## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
 
@@ -14,10 +14,10 @@
 #              native plotly code to make the figure.  Also, "ggplotly" is an option which runs the ggplot code and sticks a plotly wrapper around it
 
 #2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
-###               the coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
+###               the coordinates and the projection of those coordinates specified.  Default provides Maritime Region boundaries
 ###               in lat/long coordinates and a WGS84 projection.
 
-#3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
+#3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a base layer.
 
 #4: gis.repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
@@ -37,24 +37,24 @@
 #6: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
 ###               they need to be added as a list with specific options broken out here. A complete example is
 ###               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
-####  a: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes wil work, looking for eez object in add_layer)
+####  a: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes will work, looking for eez object in add_layer)
 
 ####  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
 #######              The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
-#######              you will get both the smooth surface and the contours with a maximum depht of 500 m
+#######              you will get both the smooth surface and the contours with a maximum depth of 500 m
 #######              The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
 #######              or 'c' which only plots the depth contour lines
-#######              The final is the maximum depth you want for the contours, you can leave this out, defaut is 500 meters which looks good.
+#######              The final is the maximum depth you want for the contours, you can leave this out, default is 500 meters which looks good.
 #######              bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
-#######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max deth of 500 meters. 
+#######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max depth of 500 meters. 
 #######              This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
 
 ####  c: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
 
-####  d: sfa        Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
+####  d: sfa        Do you want to add the sfa boundaries to the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
 
-####  e: survey     Do you want to add the strata boundariesto the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+####  e: survey     Do you want to add the strata boundaries the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
 #######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
 #######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
 #######               If sourcing locally point gis.repo to correct location.
@@ -276,8 +276,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Add a small buffer to the area.  This might not always work if you are looking at a very small area
     # But it does seem to work for all of our pre-defined areas, if you get an error in Marmap try and make your area larger 
     # until the error goes away, then you can just use coord_sf from the ggspatial packages to trim the area back to what you want.
-    bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y')))
-    if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+    
+    # This covers NAD83 and WGS84 Lat/Lon
+    if(c_sys %in% c("4269","4326")) 
+    {
+      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y'),crs = c_sys))
+    }
+    # Assuming other c_sys to be UTM, could be wrong!
+    if(!c_sys %in% c("4269","4326")) 
+    {
+      bath.box <- b.box %>% st_transform(crs=4326)  # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(bath.box)$xmin),ceiling(st_bbox(bath.box)$xmax)), y = c(floor(st_bbox(bath.box)$ymin),ceiling(st_bbox(bath.box)$ymax))),coords = c('x','y'),crs = c_sys))
+    }
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
     # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
@@ -839,7 +849,7 @@ if(plot_as != "plotly")
                                                     pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
-    pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
+    pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none") #+ theme_minimal()
 } # end if(plot_as != 'plotly')
   
  # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
@@ -894,7 +904,7 @@ if(plot_as == "plotly")
 
   # Or add the lines to the existing plot
   if(is.null(gg.obj))  if(!exists("pect_plot")) pect_plot <- multi.lines %>% plot_ly() %>% add_sf(color=I("white"))
-  
+
   if(exists("bathy.gg")) 
   {
     bathy1 <- st_as_sf(rasterToContour(bathy,levels = c(-5000,-500,seq(-450,0,50))))
@@ -919,8 +929,8 @@ if(plot_as == "plotly")
       #final.strata$col3 <- 1:nrow(final.strata)
       pect_plot <- pect_plot  %>%
                          add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
-                                #line = list(width=0.5,color='black'), 
-                                line=~col,
+                                line = list(width=0,color='black'), 
+                                #line=~col, # For some reason this was causing problems in the summer of 2020 so removed and used above hack instead
                                 fillcolor = ~col,
                                 hoveron = "fills",
                                 hoverinfo = "text") %>% 
