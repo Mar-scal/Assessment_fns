@@ -282,7 +282,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                  all(is.na(log.lst[[i]][grep(x = names(log.lst[[i]]), pattern="X")]))) # and if the columns only contain NAs
               {
                 message(paste0("Extra empty columns ", paste(names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")], sep=",", collapse = ", "), " were removed from log.lst[[", i, "]]"))
-                log.lst[[i]] <- select(log.lst[[i]], -names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")])
+                log.lst[[i]] <- dplyr::select(log.lst[[i]], -names(log.lst[[i]])[grep(x = names(log.lst[[i]]), pattern="X")])
               }
             }
           }
@@ -293,7 +293,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                  all(is.na(slip.lst[[i]][grep(x = names(slip.lst[[i]]), pattern="X")]))) # and if the columns only contain NAs
               {
                 message(paste0("Extra empty columns ", paste(names(slip.lst[[i]])[grep(x = names(slip.lst), pattern="X")], sep=",", collapse = ", "), " were removed from slip.lst[[", i, "]]"))
-                slip.lst[[i]] <- select(slip.lst[[i]], -names(slip.lst[[i]])[grep(x = names(slip.lst[[i]]), pattern="X")])
+                slip.lst[[i]] <- dplyr::select(slip.lst[[i]], -names(slip.lst[[i]])[grep(x = names(slip.lst[[i]]), pattern="X")])
               }
             }
           }

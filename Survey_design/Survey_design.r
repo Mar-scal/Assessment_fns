@@ -73,6 +73,7 @@ options(stringsAsFactors=F)
 require(PBSmapping) || stop("Install PBSmapping Package bub")
 require(lubridate) || stop("Install the lubridate Package before it's too late!")
 if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
+if(fig == "leaflet") require(sf) || stop("Please install the sf package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 
 source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
@@ -80,6 +81,8 @@ source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
 source(paste(direct_fns,"Survey_design/genran.r",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
+  
 
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
@@ -107,6 +110,7 @@ if(plot == T && !is.null(dev.list())) dev.off(dev.list())
 # Get the index for the loop.
 num.banks <- length(banks)
 #browser()
+
 for(i in 1:num.banks)
 {
 
@@ -264,7 +268,33 @@ for(i in 1:num.banks)
   	    
   	  }
   	  
-  	  if(!fig == "leaflet") {
+  	  if(fig == "plotly"){
+  	    browser()
+  	   plotly_obj <- pecjector(area=bnk, repo="github", add_layer=list(
+  	      bathy=c(100, 'c', 1000),
+  	      survey=c("offshore", "detailed"),
+  	      scale.bar = c("br", 0.3)),
+  	      direct_fns=direct_fns,
+  	      plot_as = "plotly",
+  	      crs = 4326, 
+  	      plot=T)
+  	   names(polydata[[i]])[which(names(polydata[[i]])=="PID")] <- "Poly.ID" 
+  	   plotly_df <- dplyr::left_join(towlst[[i]]$Tows, select(polydata[[i]], col, Poly.ID), by="Poly.ID")
+  	   plotly_obj %>% add_trace(x = plotly_df$X,
+  	                            y = plotly_df$Y,
+  	                            marker = list(
+  	                              color = ~plotly_df$col,
+  	                              size = 5#,
+  	                              #line = list(
+  	                               # color = "black",
+  	                                #width = 1
+  	                              #)
+  	                            )
+  	   )
+  	   names(polydata[[i]])[which(names(polydata[[i]])=="Poly.ID")] <- "PID" 
+  	  }
+  	  
+  	  if(!fig %in% c("leaflet", "plotly")) {
   	    # Make the plot, add a title, the tow locations, any extra tows and any seedboxes + optionally a legend.
   	    ScallopMap(bnk,poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F, direct=direct, direct_fns=direct_fns)
   	    
@@ -317,17 +347,28 @@ for(i in 1:num.banks)
   	    legend('topleft',paste("Note: The random seed was set to ",seed,sep=""),cex=0.8,bty="n")
   	  }
   	  # Turn the device off if necessary.  
-  	  if(!fig %in% c("screen", "leaflet")) dev.off()
+  	  if(!fig %in% c("screen", "leaflet", "plotly")) dev.off()
   	  
   	  # For Georges Bank in the summer we also create some maps that focus in on certain areas, if you set zoom = T this will happen.
   	  if(zoom == T && bnk == "GBa") 
   	  {
   	    # This looks closely at GBa south.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".png"),width = 11, units="in", 
-  	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".pdf"),width = 11, 
-  	                          height = 8.5,bg = "transparent")
+  	    
+  	    if(seed == yr-2000){
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"south_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"south_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	    if(!seed == yr-2000){
+  	      dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"south_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"south_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	    
   	    ScallopMap(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85),poly.lst=list(surv.poly[[i]],polydata[[i]]),plot.bathy = T,plot.boundries = T,dec.deg = F,
   	               title=paste("GBa August Survey South (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
@@ -366,10 +407,20 @@ for(i in 1:num.banks)
   	    
   	    # This looks closely at GBa Northwest
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".png"),width = 11, units="in", 
-  	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".pdf"),width = 11, 
-  	                          height = 8.5,bg = "transparent")
+  	    if(seed == yr-2000){
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northwest_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"northwest_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	    if(!seed == yr-2000){
+  	      dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"northwest_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"northwest_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	    
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg = F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northwest (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
@@ -411,10 +462,21 @@ for(i in 1:num.banks)
   	    
   	    # And this looks closely at GBa in the Northeast.
   	    if(fig=="screen") windows(11,8.5)
-  	    if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".png"),width = 11, units="in", 
-  	                          res=420,height = 8.5,bg = "transparent")
-  	    if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".pdf"),width = 11, 
-  	                          height = 8.5,bg = "transparent")  	    
+  	    
+  	    if(seed == yr-2000){
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"northeast_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"northeast_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	    if(!seed == yr-2000){
+  	      dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+  	      if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"northeast_",point.style,".png"),width = 11, units="in", res=420,
+  	                            height = 8.5,bg = "transparent")
+  	      if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"northeast_",point.style,".pdf"),width = 11, 
+  	                            height = 8.5,bg = "transparent")
+  	    }
+  	   
   	    ScallopMap(ylim=c(41.833,42.2),xlim=c(-66.6,-66),bathy.source="usgs",isobath='usgs',bathcol=rgb(0,0,1,0.3),dec.deg=F,
   	               poly.lst=list(surv.poly[[i]],polydata[[i]]),title=paste("GBa August Survey Northeast (",yr,")",sep=""),cex=1.2, direct=direct, direct_fns=direct_fns)
   	    
@@ -501,7 +563,19 @@ for(i in 1:num.banks)
                      popup =  paste0(round(towlst[[i]]$X, 4), ",", round(towlst[[i]]$Y, 4))))
       }
       
-      if(!fig == "leaflet") {
+      if(fig == "plotly"){
+        pecjector(area=banks[i], repo="github", add_layer=list(
+          bathy=c(100, 'c', 1000),
+          eez="eez",
+          nafo="main",
+          survey=c("offshore", "detailed"),
+          scale.bar = c("br", 0.3)),
+          #direct = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/",
+          direct_fns=direct_fns,
+          plot_as = "plotly")
+      }
+      
+      if(!fig %in% c("leaflet", "plotly")) {
         ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         title(paste("Survey (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
         # Add the points, or text or both
@@ -651,7 +725,19 @@ if(bnk == "Ger")
         
       }
        
-      if(!fig == "leaflet") {   
+      if(fig == "plotly"){
+        pecjector(area=banks[i], repo="github", add_layer=list(
+          bathy=c(100, 'c', 1000),
+          eez="eez",
+          nafo="main",
+          survey=c("offshore", "detailed"),
+          scale.bar = c("br", 0.3)),
+          #direct = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/",
+          direct_fns=direct_fns,
+          plot_as = "plotly")
+      }
+      
+      if(!fig %in% c("leaflet", "plotly")) {   
         ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
@@ -725,7 +811,19 @@ if(bnk == "Ger")
         
       }
       
-      if(!fig == "leaflet") {
+      if(fig == "plotly"){
+        pecjector(area=banks[i], repo="github", add_layer=list(
+          bathy=c(100, 'c', 1000),
+          eez="eez",
+          nafo="main",
+          survey=c("offshore", "detailed"),
+          scale.bar = c("br", 0.3)),
+          #direct = "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/",
+          direct_fns=direct_fns,
+          plot_as = "plotly")
+      }
+      
+      if(!fig %in% c("leaflet", "plotly")) {
         ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
