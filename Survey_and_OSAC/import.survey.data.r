@@ -45,20 +45,20 @@
 ##### import.survey.data.r: Imports survey data from flat files
 
 import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=T, 
-                             export=T,dirc="Y:/Offshore scallop/Assessment/")
+                             export=T,direct, direct_fns)
   {
 	# Load in necessary packages
   require(chron) || stop("Install chron package")
   require(splancs)  || stop("Install splancs package")
-  
+  browser()
   # Call in the function to convert lat/long data to decimal degrees, used in sub-functions only.
-	source(paste(dirc,"Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+	source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 	
   
   # Here we bring in all the survey data loop runs through all the years chosen for the survey chosen (May vs. Aug) and the type chosen.
 	shf.lst<-list(NULL)
 	for(i in 1:length(years)){
-		shf.lst[[i]]<-import.hf.data(survey=survey,type=type,year=years[i],dirt=dirc)
+		shf.lst[[i]]<-import.hf.data(survey=survey,type=type,year=years[i],direct=direct)
 		print(unique(shf.lst[[i]]$bank))
 		print(years[i])	# just to check on your progress
 	}
@@ -114,17 +114,17 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 
 ##### import.hf.data.r: Imports single year of survey data by combining flat files in "d:/Data/Survey"
 
-import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dirc)
+import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, direct_fns)
 {
   require(splancs)  || stop("Install splancs package")
   # Imports Ginette's survey data
-	GBsurvey.gin <- read.table(paste(dirt,"/Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T)
+	GBsurvey.gin <- read.table(paste(direct,"Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T)
 		
 	### Run this section of code if we are looking at the may survey.
 	if(survey == 'May')
 	  {
 	  # Note where these files are stored
-	path = paste(dirt,"Data/Survey_data/Old_Spring/",sep="")
+	path = paste(direct,"Data/Survey_data/Old_Spring/",sep="")
 				
 	SHF.lst<-list(NULL)
 	
@@ -134,7 +134,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 		# The list of our banks
 	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce")
 		# The data
-	  tbb<-read.csv(paste(dirt,"Data/Survey_data/towbybank.csv",sep=""))
+	  tbb<-read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""))
 	  # Select the bank names that we have data for in a given year.
 	  bank<-banks[!is.na(tbb[tbb$Year==year,-c(1,6)])]
 	} # end if(missing(bank)) {
@@ -146,7 +146,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 			# read dis file (1994- ) If later than 1994 we need to run the parse.dis function to align the data. Contains data for distance coefficients.
 			if(year>1993)dis <- parse.dis(paste(path, year, "/dis", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
 			# read dtp file, and run with parse.dtp function.  returns the bearing information among other things
-			dtp <- parse.dtp(paste(path, year, "/dtp", bank[i], year, ".txt", sep = ""),survey=survey, yr = year,dirt = dirc)
+			dtp <- parse.dtp(paste(path, year, "/dtp", bank[i], year, ".txt", sep = ""),survey=survey, yr = year,direct=direct)
 			# adjust tow numbers to match between files (e.g. 403 = 003)
 			if(year<2009){
 				if(hf$tow[1]>199) hf$tow<-hf$tow-floor(hf$tow/100)*100
@@ -245,7 +245,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 		
 		if(type=='surv'){
 		  # The path differs here from May survey
-				path = paste(dirt,"Data/Survey_data/Old_Summer/",sep="")
+				path = paste(direct,"Data/Survey_data/Old_Summer/",sep="")
 			# Set the bank	
 			bank <- "GB"
 			# Account for 2009 split into GBa and GBb
@@ -256,7 +256,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 				# Get the shell height frequency data
 			  hf <- parse.shf(paste(path, year, "/survhf", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
 				# Get the bearing (and perhaps other info) data
-			  dtp <- parse.dtp(paste(path, year, "/survdtp", bank[i], year, ".txt", sep = ""),survey=survey, yr = year,dirt = dirc)
+			  dtp <- parse.dtp(paste(path, year, "/survdtp", bank[i], year, ".txt", sep = ""),survey=survey, yr = year,direct=direct)
 				# Get the distance coefficients
 			  if(year>1993){
 					dis <- parse.dis(paste(path, year, "/survdis", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
@@ -307,12 +307,12 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',dirt=dir
 	  # If instead of type = survey we chose type= grid (reasons for doing this are unclear) this section is how one would make the GB SHF object.
 	  # There is grid information available for GB.
 		if(type=='grid'){
-				path = paste(dirt,"Data/Survey_data/Old_Summer/",sep="")
+				path = paste(direct,"Data/Survey_data/Old_Summer/",sep="")
 			
 			bank <- "GB"
 			# So here we chose the grid flat files instead of the regular ones and we process the data similar to how we did above.
 			hf <- parse.shf(paste(path, year, "/gridhf", bank, year, ".txt", sep = ""),survey=survey, yr = year)
-			dtp <- parse.dtp(paste(path, year, "/griddtp", bank, year, ".txt", sep = ""),survey=survey, yr = year,dirt=dirc)
+			dtp <- parse.dtp(paste(path, year, "/griddtp", bank, year, ".txt", sep = ""),survey=survey, yr = year,direct=dirc)
 			if(year>1993){
 				dis <- parse.dis(paste(path, year, "/griddis", bank, year, ".txt", sep = ""),survey=survey, yr = year)
 				shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',dis$dc2))
@@ -524,7 +524,7 @@ parse.dis <- function(dis, survey, yr){
 ####### parse.dtp.r: reads dtp file, this gives us information about the bearing of the tow, this is all detailed manipulation to get the dataframes in the correct alignment
 #  no detailed comments on this section of code have been performed.
 
-parse.dtp <- function(dtpfile, yr, survey='May',dirt=dirc){
+parse.dtp <- function(dtpfile, yr, survey='May',direct, direct_fns){
 	
   require(chron) || stop("Install chron package")
 

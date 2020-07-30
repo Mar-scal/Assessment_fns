@@ -73,14 +73,14 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     require(RCurl)|| stop("You need RCurl or this will all unfurl!")
     eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.R", ssl.verifypeer = FALSE)))
     eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combine_shapefile_layers.R", ssl.verifypeer = FALSE)))
+    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R", ssl.verifypeer = FALSE)))
   } # end if(repo == "github")
   
   if(repo == "local")
   {
     source(paste(direct_fns,"Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
     source(paste(direct_fns,"Maps/pectinid_projector_sf.R",sep="")) # The new scallopMap
-    source(paste(direct_fns,"Maps/combine_shapefile_layers.R",sep="")) # The new scallopMap
+    source(paste(direct_fns,"Maps/combo_shp.R",sep="")) # The new scallopMap
   }
   
   # The necesary library
@@ -107,7 +107,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   # the marfis data
   if(marfis==T) dat.log <- marfis.log
   if(marfis==F) dat.log <- new.log.dat
-  
+
   dat.log$avgtime <- as.numeric(dat.log$avgtime)
   
   # extra time check column
@@ -225,7 +225,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
-      offshore.spa <- suppressMessages(all.layers(temp2, make.sf = T))
+      offshore.spa <- suppressMessages(combo.shp(temp2, make.sf = T))
       offshore.spa <- st_transform(offshore.spa, CRS("+init=epsg:4326"))
       
       # Pop this into the global environment so we don't make it a bunch of times..
@@ -246,7 +246,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This little all_layers function brings in all the shapefiles we have currently and makes sure theya are WGS 84 and lat-lon
-      nafo.subs <- suppressMessages(all.layers(temp2, make.sf = T))
+      nafo.subs <- suppressMessages(combo.shp(temp2, make.sf = T))
       nafo.subs <- st_transform(nafo.subs, CRS("+init=epsg:4326"))
       # Pop this into the global environment so we don't make it a bunch of times..
       assign('nafo.subs',nafo.subs,pos=1)
@@ -277,7 +277,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     # If you specify a tolerance value you want to compare, default is 1 lb which is basically same a rounding
     if(is.numeric(trip.tol))
     {
-      # If the difference between these 2 values is > trip.tol then output the slip.
+     # If the difference between these 2 values is > trip.tol then output the slip.
       if(abs(sum.slip - sum.trip) > trip.tol)
       {
         weight.mismatch.logs[[as.character(trip.ids[i])]]  <- trip.log
