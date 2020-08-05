@@ -75,6 +75,6 @@ bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',
 
 
 
-pecjector(area = "NL",add_layer = list(bathy= c(50,'c'),survey = c('all','detailed')),
-          repo = 'D:/Github/Offshore/Assessment_fns/DK/',c_sys = 32620,plot_as='ggplotly')
+pecjector(area = "inshore",add_layer = list(bathy= c(50,'c'),survey = c('all','detailed')),
+          repo = 'D:/Github/Offshore/Assessment_fns/DK/',c_sys = 32620,plot_as='plotly')
 
