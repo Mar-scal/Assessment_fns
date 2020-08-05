@@ -22,15 +22,15 @@
 #4: gis.repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
 
-#5: c_sys      What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
-###               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
-###               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
+#5: c_sys      What coordinate system are you using, options are "ll" which is lat/lon and WGS84 (uses EPSG 4326) or "utm_zone" which is utm, you put in the zone yourself
+###               for example if you want utm_20 you can enter "32620" which will use utm zone 20 which is best for BoF and SS 
+###               for utm_19  use "32619", this is best for GB, SPA3 and 6, if you  are using something else go nuts!
 
 #6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
 ###               size of your area
 
-#7: repo  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
-###               "Y:/Offshore/Assessment/Assesment_fns/".  If you set to repo = 'github' it will grab the functions from our Mar-Scal repo.
+#7: repo  The directory that our local functions reside in, this now defaults to 'github so it pulls in the stable master version of the function on github
+###               If you set to repo = 'Y:/Offshore/Assessment/Assesment_fns' it will grab the functions from the version on the ESS
 
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
@@ -161,9 +161,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(repo != 'github')
   {
-    source(paste(repo,"Maps/convert_coords.R",sep="")) 
-    source(paste(repo,"Maps/add_alpha_function.R",sep="")) 
-    source(paste(repo,"Maps/combo_shp.R",sep="")) 
+    source(paste(repo,"/Maps/convert_coords.R",sep="")) 
+    source(paste(repo,"/Maps/add_alpha_function.R",sep="")) 
+    source(paste(repo,"/Maps/combo_shp.R",sep="")) 
   }
   
   if(repo == 'github')
@@ -189,14 +189,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # } # end if(repo == "local")
   # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
-  
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
-  if(is.data.frame(area)) coords <- convert.coords(plot.extent = area[,c("x","y")],in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(is.list(area)) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
 
   # This is the case when we put a name in and let convert.coords sort it out.
-  if(!is.data.frame(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(!is.list(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   # All I need from the coords call above is the bounding box.
   b.box <- coords$b.box
   # Get the limits of the bounding box
