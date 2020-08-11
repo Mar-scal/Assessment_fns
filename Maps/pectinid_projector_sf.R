@@ -117,6 +117,7 @@
 #         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
 #         scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
+
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github",
                      # Controls what layers to add to the figure (eez, nafo, sfa's, labels, )
