@@ -36,10 +36,13 @@
 
 #6: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
 ###               they need to be added as a list with specific options broken out here. A complete example is
-###               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
-####  a: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes will work, looking for eez object in add_layer)
+###               list(land = 'grey',eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
 
-####  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
+####  a: land       Do you want to add the land?  This is the only layer that plots by default with land = 'grey'. To plot land
+#######             but with no fill set land = NA, exclude from add_layer list if you don't want land plotted.
+####  b: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes will work, looking for eez object in add_layer)
+
+####  c: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
 #######              The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
 #######              you will get both the smooth surface and the contours with a maximum depth of 500 m
 #######              The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
@@ -49,17 +52,17 @@
 #######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max depth of 500 meters. 
 #######              This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
 
-####  c: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
+####  d: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
 
-####  d: sfa        Do you want to add the sfa boundaries to the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
+####  e: sfa        Do you want to add the sfa boundaries to the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
 
-####  e: survey     Do you want to add the strata boundaries the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+####  f: survey     Do you want to add the strata boundaries the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
 #######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
 #######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
 #######               If sourcing locally point gis.repo to correct location.
 
-####  f: s.labels  Add labels to the figures?  Several options here I need to lay out.  
+####  g: s.labels  Add labels to the figures?  Several options here I need to lay out.  
 #######              s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
 #######              s.labels = 'inshore' - Puts basic labels for inshore areas - Good for broad overview of inshore
 #######              s.labels = 'all' - Puts the above two sets of labels - Good for broad overview of everywhere
@@ -67,12 +70,13 @@
 #######              s.labels = 'ID' - Puts in detailed inshore labels for the areas
 #######              s.labels = "IDS" - Puts in detailed inshore survey strata labesl for all the inshore areas
 
-####  g: custom     Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
-#######             custom layer/PBS massing object is. custom = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes"
+####  h: custom     Do you have a specific object you'd like to add, this can be a csv, shapefile, sp or sf object
+#######             if using an sp or sf object just go custom = foo
+#######             You can specify exactly where the custom layer/PBS massing object is. custom = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes"
 #######             If using PBSmapping this assumes that you have the data formatted properly in a csv or xlsx file and 
 #######             that the proection for the data is WGS84.  Default = NULL
 
-#### h:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  
+#### i:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  
 #######             To add it you specify what corner you want it in and optionally it's size as a second option.
 #######             scale.bar = 'bl' will put it in bottom left (options are bl,bc,br,tl,tc,tr) 
 #######             scale.bar = c('bl',0.5) will put in a scale bar that is half the length of the figure in the bottom left corner.
@@ -111,7 +115,7 @@
 # as you are connected to the NAS drive...
 #pecjector(obj = NULL, plot_as == "ggplot", area = "BBn",plot = T, 
 #          gis.repo = 'local',c_sys = 32619, buffer =1000,repo = "Y:/Offshore/Assessment/Assesment_fns/",
-#          add_layer = list(eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
+#          add_layer = list(land = 'grey',eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
 #         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
@@ -119,8 +123,8 @@
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github",
-                     # Controls what layers to add to the figure (eez, nafo, sfa's, labels, )
-                     add_layer = list(),
+                     # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
+                     add_layer = list(land = 'grey'),
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
                      ...) 
@@ -241,27 +245,29 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       
       
   } # end if(!is.null(add_EEZ)) 
-  
   # Now grab the land, note we're using the rnaturalearth package now
   # We also want to get the land
-  land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
-  
-  # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
-  if(c_sys == "4326") 
+  if(any(layers == 'land'))
   {
-    land.sf <- st_intersection(land.all, b.box)
-    if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
+    land.col <- add_layer$land
+    # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
+    if(c_sys == "4326") 
+    {
+      land.sf <- st_intersection(land.all, b.box)
+      if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    }
+    # If we need to reproject do it...
+    if(c_sys != "4326") 
+    {
+      t.bbox <- st_transform(b.box,crs = st_crs(land.all))
+      land.sf <- st_intersection(land.all,t.bbox)
+      land.sf <- st_transform(land.sf,crs=c_sys)
+      if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    } # end if(c_sys != "+init=epsg:4326") 
   }
-  # If we need to reproject do it...
-  if(c_sys != "4326") 
-  {
-    t.bbox <- st_transform(b.box,crs = st_crs(land.all))
-    land.sf <- st_intersection(land.all,t.bbox)
-    land.sf <- st_transform(land.sf,crs=c_sys)
-    if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
-  } # end if(c_sys != "+init=epsg:4326") 
   
-  if(!is.null(add_layer$bathy))
+  if(!is.null(add_layer$bathy)) # Is this redundant with below any(layers == 'bathy'))?
   {
   # The bathymetry comes in now as a raster.  Thanks to sf wonderfulness we can handle this now
   if(any(layers == 'bathy')) # This would need done everytime as the boundng box could change for each call
@@ -654,16 +660,23 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Here you can add a custom PBSmapping object or shapefile here
   if(any(layers == 'custom'))
   {
-    # If it is an xls or a csv we assume we have a PBSmapping object
-    if(grepl(".xls",add_layer$custom) || grepl(".csv",add_layer$custom))
+    # If it's an sf object it's easy peasy
+    if(class(add_layer$custom)[1] == "sf") custom <- add_layer$custom
+    # If it's an sp object this should work.
+    if(grepl("Spatial",class(add_layer$custom)[1])) custom <- st_as_sf(add_layer$custom)
+    if(class(add_layer$custom)[1] == "character")
     {
-      custom <- NULL
-      if(grepl(".csv",add_custom)) temp <- read.csv(add_custom)
-      if(grepl(".xls",add_custom)) temp <- read_excel(add_custom,sheet=1) # This will only pull in the first sheet, don't get fancy here
-      temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
-      temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
-      custom <- st_as_sf(temp)
-    } else { custom <- combo.shp(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+      # If it is an xls or a csv we assume we have a PBSmapping object
+      if(grepl(".xls",add_layer$custom) || grepl(".csv",add_layer$custom))
+      {
+        custom <- NULL
+        if(grepl(".csv",add_custom)) temp <- read.csv(add_custom)
+        if(grepl(".xls",add_custom)) temp <- read_excel(add_custom,sheet=1) # This will only pull in the first sheet, don't get fancy here
+        temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
+        temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
+        custom <- st_as_sf(temp)
+      } else { custom <- combo.shp(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+      }
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
     #trim to bbox
@@ -837,7 +850,7 @@ if(plot_as != "plotly")
     if(exists("offshore.spa")) pect_plot <- pect_plot + geom_sf(data=offshore.spa, fill=NA)
     
     if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.25)
-    if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill="grey")   
+    if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
