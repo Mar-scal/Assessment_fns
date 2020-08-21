@@ -12,7 +12,9 @@ direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 
 source(paste(direct_fns,"Fishery/log_error_checking.r",sep="")) #log_checks is function call
 log_checks(direct = direct, direct_fns = direct_fns, yrs = 2020, marfis=F, repo = "local",
-           #un="pearot",pw="RmGH79!y,db.con="ptran",db.lib = "RODBC",   #### Don't need this since marfis=F and repo="local"
+
+           #un="",pw="",db.con="ptran",db.lib = "RODBC",   #### Don't need this since marfis=F and repo="local"
+
            export = "fish.dat",
            bank = NULL, trips = NULL, dates = NULL, vrnum = NULL, tow.time = c(3,80), trip.tol = 1, 
            spatial = F, plot="pdf")

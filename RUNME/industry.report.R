@@ -9,7 +9,9 @@ require(reshape2)
 require(dplyr)
 require(ggplot2)
 
-indreport <- get.offshore.survey(direct=direct, cruise="LE10", yr=2019, industry.report = T, un = "scaloff", pw="fgb256k")
+# scaloff username and pwd needed
+indreport <- get.offshore.survey(direct=direct, cruise="LE10", yr=2019, industry.report = T, un = "scaloff", pw=pwd.ID)
+
 
 industryreport <- indreport$industryreport
 

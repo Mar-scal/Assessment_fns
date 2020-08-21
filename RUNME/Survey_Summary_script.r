@@ -23,8 +23,7 @@
 direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 yr <- 2019
-un.ID <- "keyserf"
-pwd.ID <- "Decade06"
+
 
 
 # The two functions that get the data and produce the survey figures

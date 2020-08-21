@@ -29,14 +29,17 @@
 #6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
 ###               size of your area
 
+
 #7: repo      The directory that our local functions reside in, this now defaults to 'github so it pulls in the stable master version of the function on github
 ###               If you set to repo = 'Y:/Offshore/Assessment/Assesment_fns' it will grab the functions from the version on the ESS
 #8: legend    If you added a custom or INLA layer you can print the legend if you like.  Default = F which doesn't plot legend.
 #9: txt.size  If you want to change the size of the text in the figure (legend and axis).  Default txt.size = 18.
+
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
 #10: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
 ###               they need to be added as a list with specific options broken out here. A complete example is
+
 ###               list(land = 'grey',eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
 
 ####  a: land       Do you want to add the land?  This is the only layer that plots by default with land = 'grey'. To plot land
@@ -59,6 +62,7 @@
 ####  e: sfa        Do you want to add the sfa boundaries to the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
 
 ####  f: survey     Do you want to add the strata boundaries the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+
 #######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
 #######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
 #######               If sourcing locally point gis.repo to correct location.
@@ -159,6 +163,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
+
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
                      add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
