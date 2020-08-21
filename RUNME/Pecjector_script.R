@@ -61,7 +61,9 @@ bp.p18
 
 # Now in behind all this is we have some defaults you don't really need to worry about, this is the same thing
 pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
+
           repo = 'github', gis.repo = 'github',plot = T,buffer =0, c_sys = 4326)
+
 # If you have the github repos locally this would work...
 pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
           repo = 'D:/Github/Offshore/Assessment_fns/DK/', gis.repo = 'D:/Github/Offshore/GIS_layers/DK/',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
@@ -76,4 +78,6 @@ bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',
 
 
 pecjector(area = "inshore",add_layer = list(bathy= c(50,'c'),survey = c('all','detailed')),
+
           repo = 'D:/Github/Offshore/Assessment_fns/DK/',c_sys = 32620,plot_as='plotly')
+
