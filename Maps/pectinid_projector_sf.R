@@ -166,7 +166,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
 
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
-                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
+                     #add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
 #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
