@@ -3,7 +3,7 @@
 # Major revision to work with sf package undertaken in 2020, DK joined the party in March 2020, attempt to make this more user friendly 
 # removed option add_land (we always want land...)
 
-# Arguements:
+# Arguments:
 
 ## The general mapping inputs if you are just wanting to produce a spatial map without an INLA surface
 
@@ -14,52 +14,60 @@
 #              native plotly code to make the figure.  Also, "ggplotly" is an option which runs the ggplot code and sticks a plotly wrapper around it
 
 #2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
-###               the coordinates and the projection of those coordindates specified.  Default provides Maritime Region boundaries
+###               the coordinates and the projection of those coordinates specified.  Default provides Maritime Region boundaries
 ###               in lat/long coordinates and a WGS84 projection.
 
-#3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a baselayer.
+#3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a base layer.
 
 #4: gis.repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
 
-#5: c_sys      What coordinate system are you using, options are "ll"  which is lat/lon and WGS84 or "utm_zone" which is utm, you put in the zone yourself
-###               for example if you want utm_20 you can enter "+init=epsg:32620" which will use utm zone 20 which is best for BoF and SS 
-###               for utm_19  use +init=epsg:32619, this is best for GB, SPA3 and 6, if you have are using something else go nuts!
+#5: c_sys      What coordinate system are you using, options are "ll" which is lat/lon and WGS84 (uses EPSG 4326) or "utm_zone" which is utm, you put in the zone yourself
+###               for example if you want utm_20 you can enter "32620" which will use utm zone 20 which is best for BoF and SS 
+###               for utm_19  use "32619", this is best for GB, SPA3 and 6, if you  are using something else go nuts!
 
 #6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
 ###               size of your area
 
-#7: repo  The directory that our local functions reside in, defaults to the ESS directory structure so it pulls in the stable master version of the function
-###               "Y:/Offshore/Assessment/Assesment_fns/".  If you set to repo = 'github' it will grab the functions from our Mar-Scal repo.
+
+#7: repo      The directory that our local functions reside in, this now defaults to 'github so it pulls in the stable master version of the function on github
+###               If you set to repo = 'Y:/Offshore/Assessment/Assesment_fns' it will grab the functions from the version on the ESS
+#8: legend    If you added a custom or INLA layer you can print the legend if you like.  Default = F which doesn't plot legend.
+#9: txt.size  If you want to change the size of the text in the figure (legend and axis).  Default txt.size = 18.
 
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
-#6: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
+#10: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
 ###               they need to be added as a list with specific options broken out here. A complete example is
-###               list(eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
-####  a: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes wil work, looking for eez object in add_layer)
 
-####  b: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
+###               list(land = 'grey',eez = 'eez' , bathy = 50, nafo = 'main',sfas = 'offshore',survey = "offshore", s.labels = 'offshore')
+
+####  a: land       Do you want to add the land?  This is the only layer that plots by default with land = 'grey'. To plot land
+#######             but with no fill set land = NA, exclude from add_layer list if you don't want land plotted.
+####  b: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes will work, looking for eez object in add_layer)
+
+####  c: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
 #######              The first is a number giving the depth contours you want.  50 tends to look good. If you only specify this 
-#######              you will get both the smooth surface and the contours with a maximum depht of 500 m
+#######              you will get both the smooth surface and the contours with a maximum depth of 500 m
 #######              The second option is optional, it one of 'both' which plots smooth surface and contours, 's' which plots a smooth bathy surface, 
 #######              or 'c' which only plots the depth contour lines
-#######              The final is the maximum depth you want for the contours, you can leave this out, defaut is 500 meters which looks good.
+#######              The final is the maximum depth you want for the contours, you can leave this out, default is 500 meters which looks good.
 #######              bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
-#######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max deth of 500 meters. 
+#######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max depth of 500 meters. 
 #######              This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
 
-####  c: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
+####  d: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
 
-####  d: sfa        Do you want to add the sfa boundariesto the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
+####  e: sfa        Do you want to add the sfa boundaries to the figure, options are sfa = "inshore", sfa="offshore", or sfa="all".  If sourcing locally point gis.repo to correct location
 
-####  e: survey     Do you want to add the strata boundariesto the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+####  f: survey     Do you want to add the strata boundaries the figure, requires 2 arguments, first is the area you want to plot options are 'inshore', 'offshore', or 'all'.
+
 #######              Second argument is whether you want the full strata plotted (with colours) or just an outline of the strata, so either 'detailed', or 'outline'.  
 #######              So survey = c("all", "detailed") will plot all survey extents and every strata boundary there is. survey = c("inshore","outline") will just plot the outline of the inshore surveys.
 #######               If sourcing locally point gis.repo to correct location.
 
-####  f: s.labels  Add labels to the figures?  Several options here I need to lay out.  
+####  g: s.labels  Add labels to the figures?  Several options here I need to lay out.  
 #######              s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
 #######              s.labels = 'inshore' - Puts basic labels for inshore areas - Good for broad overview of inshore
 #######              s.labels = 'all' - Puts the above two sets of labels - Good for broad overview of everywhere
@@ -67,10 +75,6 @@
 #######              s.labels = 'ID' - Puts in detailed inshore labels for the areas
 #######              s.labels = "IDS" - Puts in detailed inshore survey strata labesl for all the inshore areas
 
-####  g: custom     Do you have a specific object you'd like to add, this can be a csv or shapefile, you specify exactly where the
-#######             custom layer/PBS massing object is. custom = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes"
-#######             If using PBSmapping this assumes that you have the data formatted properly in a csv or xlsx file and 
-#######             that the proection for the data is WGS84.  Default = NULL
 
 #### h:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  
 #######             To add it you specify what corner you want it in and optionally it's size as a second option.
@@ -79,8 +83,8 @@
 
 #################################### INLA OPTIONS#################################### INLA OPTIONS#################################### INLA OPTIONS
 ## The INLA related inputs, if field and mesh are not supplied these won't do anything.  You do need field and mesh if plotting an INLA model result
-#7: add_inla   Similar structure to the add_layer, this allows an INLA field to be added to the figure.  To do this you need a INLA random field and mesh
-#                at a minimum.  If either field or mesh is NULL this won't plot anything. Other options should enable a plot to be produced based on default settings.
+#11: add_inla   Similar structure to the add_layer, this allows an INLA field to be added to the figure.  To do this you need a INLA random field and mesh
+###                at a minimum.  If either field or mesh is NULL this won't plot anything. Other options should enable a plot to be produced based on default settings.
 
 ###  a: field   The output random field (or whatever INLA field you want to plot).  This will be converted to a shapefile with correct projection attributes
 
@@ -95,11 +99,42 @@
 ######            clip = list(y = c(40,46),x = c(-68,-55),crs = 4326) will grab your coordinates
 
 ###  e: dims    The number of X and Y values for the INLA surface.  Higher is better resolution, higher = slow. Default dims = c(50, 50) which is pretty low res but quick
+
 ###  f: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
 ######            What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
-######            If not NULL it is this...list(scale = 'c',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
+######            scale = 'c' has same behaviour as NULL.  scale = 'd' (really anything but NULL or "c" how it's coded)
+######            then you get a discrete with these options list(scale = 'd',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
 ######            Each of these fields is NULL able (i.e. you only need to specify what you want and let pecjector handle the rest)
-######            $scale = list(scale = 'discrete',...) # if you want a discrete scale add scale = 'discrete', if not specified we get a continuous scale.
+######            $scale = list(scale = 'c',...) # if you want a discrete scale add scale = 'd', if not specified or set to 'c' we get a continuous scale.
+######            $scale = list(palette = viridis(100),...) Here is where you specify your colour palette and number of colours.  Number of colours should be > the number of breaks!
+######            $scale = list(breaks = seq(0,1,by=0.05),...) Where do you want to put breaks, this is really for your legend mainly as the colour scheme is much more flexible.
+######            $scale = list(limits = c(0,1),...) What are upper and lower bounds of data covered by your your colour palette, 
+######            $scale = list(alpha = 0.8,...)     Do you want the colours to have some level of transparency.  0 = translucent, 1 = opaque.
+######            $scale =  list(leg.name = "Bill",...) What do you want the name of your legend to be.  
+
+#################################### CUSTOM OPTIONS#################################### CUSTOM OPTIONS#################################### INLA OPTIONS
+# 12: add_custom     This is really similar to the add_inla, this allows you to add your own custom object and pretty it up
+###                 however your heart desires
+###  a: obj         Do you have a specific object you'd like to add, this can be a csv, shapefile, sp or sf object
+#######             if you just want a quick and dirty shapefile made you can simply go custom = list(obj = foo), 
+#######             This works for sp, sf, csv/xls(assumes PBSmapping) or actual shapefiles.
+#######             If using PBSmapping this assumes that you have the data formatted properly in a csv or xlsx file and 
+#######             that the projection for the data is WGS84.  Default = NULL
+########## The next 3 options only work if you haven't specified any of the scale options, if scale is specified this is ignored
+###  b: size        The size of the lines, defaults to 1 if not specified
+
+###  c: fill        The fill of the object, defaults to NA so transparent
+
+###  d: color       The color of the lines, defaults to 'grey'
+##########          The full call for the simple custom plots would be custom = list(obj = foo,size = 1, fill = 'pink',color = 'yellow')
+##########          Or if not an object in R custom = list(obj = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes",size =1 , colour = 'yellow',fill = 'pink')
+
+###  e: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
+######            What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
+######            scale = 'c' has same behaviour as NULL.  scale = 'discrete' (really anything but NULL or "continuous" how it's coded)
+######            then you get a discrete with these options list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
+######            Each of these fields is NULL able (i.e. you only need to specify what you want and let pecjector handle the rest)
+######            $scale = list(scale = 'd',...) # if you want a discrete scale add scale = 'd', if not specified or set to 'c' we get a continuous scale.###            $scale = list(palette = viridis(100),...) Here is where you specify your colour palette and number of colours.  Number of colours should be > the number of breaks!
 ######            $scale = list(palette = viridis(100),...) Here is where you specify your colour palette and number of colours.  Number of colours should be > the number of breaks!
 ######            $scale = list(breaks = seq(0,1,by=0.05),...) Where do you want to put breaks, this is really for your legend mainly as the colour scheme is much more flexible.
 ######            $scale = list(limits = c(0,1),...) What are upper and lower bounds of data covered by your your colour palette, 
@@ -107,23 +142,32 @@
 ######            $scale =  list(leg.name = "Bill",...) What do you want the name of your legend to be.  
 
 
-# A working full example of a call to this function that should work without any modification as long
+
+
+# A working almost full example (no custom) of a call to this function that should work without any modification as long
 # as you are connected to the NAS drive...
 #pecjector(obj = NULL, plot_as == "ggplot", area = "BBn",plot = T, 
 #          gis.repo = 'local',c_sys = 32619, buffer =1000,repo = "Y:/Offshore/Assessment/Assesment_fns/",
-#          add_layer = list(eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
+#          add_layer = list(land = 'grey',eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
 #         add_inla(field = inla.field.obj, mesh = mesh.inla.obj,range = c(0,1),clip = sf.obj,dims = c(50,50),
 #         scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
+########## If you had an custom layer, a full call to that would be to add this to the above, scale behaves same as INLA scale
+#         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', 
+         #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
-pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T,
-                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github",
-                     # Controls what layers to add to the figure (eez, nafo, sfa's, labels, )
-                     add_layer = list(),
+
+pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
+                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F,
+                     # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
+                     add_layer = list(land = 'grey'),
+
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
+                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
+#                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
   require(marmap) || stop("You need the marmap function to get the bathymetry")
@@ -162,9 +206,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(repo != 'github')
   {
-    source(paste(repo,"Maps/convert_coords.R",sep="")) 
-    source(paste(repo,"Maps/add_alpha_function.R",sep="")) 
-    source(paste(repo,"Maps/combo_shp.R",sep="")) 
+    source(paste(repo,"/Maps/convert_coords.R",sep="")) 
+    source(paste(repo,"/Maps/add_alpha_function.R",sep="")) 
+    source(paste(repo,"/Maps/combo_shp.R",sep="")) 
   }
   
   if(repo == 'github')
@@ -190,14 +234,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # } # end if(repo == "local")
   # Now if you set the c_sys to "ll" that means "ll" and WGS84, so explicitly set this now.
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
-  
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
-  if(is.data.frame(area)) coords <- convert.coords(plot.extent = area[,c("x","y")],in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(is.list(area)) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
 
   # This is the case when we put a name in and let convert.coords sort it out.
-  if(!is.data.frame(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(!is.list(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   # All I need from the coords call above is the bounding box.
   b.box <- coords$b.box
   # Get the limits of the bounding box
@@ -243,27 +286,29 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       
       
   } # end if(!is.null(add_EEZ)) 
-  
   # Now grab the land, note we're using the rnaturalearth package now
   # We also want to get the land
-  land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
-  
-  # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
-  if(c_sys == "4326") 
+  if(any(layers == 'land'))
   {
-    land.sf <- st_intersection(land.all, b.box)
-    if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
+    land.col <- add_layer$land
+    # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
+    if(c_sys == "4326") 
+    {
+      land.sf <- st_intersection(land.all, b.box)
+      if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    }
+    # If we need to reproject do it...
+    if(c_sys != "4326") 
+    {
+      t.bbox <- st_transform(b.box,crs = st_crs(land.all))
+      land.sf <- st_intersection(land.all,t.bbox)
+      land.sf <- st_transform(land.sf,crs=c_sys)
+      if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
+    } # end if(c_sys != "+init=epsg:4326") 
   }
-  # If we need to reproject do it...
-  if(c_sys != "4326") 
-  {
-    t.bbox <- st_transform(b.box,crs = st_crs(land.all))
-    land.sf <- st_intersection(land.all,t.bbox)
-    land.sf <- st_transform(land.sf,crs=c_sys)
-    if(nrow(land.sf) == 0) rm(land.sf) # Get rid of the land object as it causes greif for plotly if it remains but is empty...
-  } # end if(c_sys != "+init=epsg:4326") 
   
-  if(!is.null(add_layer$bathy))
+  if(!is.null(add_layer$bathy)) # Is this redundant with below any(layers == 'bathy'))?
   {
   # The bathymetry comes in now as a raster.  Thanks to sf wonderfulness we can handle this now
   if(any(layers == 'bathy')) # This would need done everytime as the boundng box could change for each call
@@ -277,8 +322,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Add a small buffer to the area.  This might not always work if you are looking at a very small area
     # But it does seem to work for all of our pre-defined areas, if you get an error in Marmap try and make your area larger 
     # until the error goes away, then you can just use coord_sf from the ggspatial packages to trim the area back to what you want.
-    bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y')))
-    if(c_sys != "4326") bath.box <- b.box %>% st_transform(crs=4326) %>% st_bbox() # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+    
+    # This covers NAD83 and WGS84 Lat/Lon
+    if(c_sys %in% c("4269","4326")) 
+    {
+      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y'),crs = c_sys))
+    }
+    # Assuming other c_sys to be UTM, could be wrong!
+    if(!c_sys %in% c("4269","4326")) 
+    {
+      bath.box <- b.box %>% st_transform(crs=4326)  # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(bath.box)$xmin),ceiling(st_bbox(bath.box)$xmax)), y = c(floor(st_bbox(bath.box)$ymin),ceiling(st_bbox(bath.box)$ymax))),coords = c('x','y'),crs = c_sys))
+    }
     # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
     # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
     # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
@@ -643,23 +698,80 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     }
   } # end if(!is.null(add_strata)) 
   
-  # Here you can add a custom PBSmapping object or shapefile here
-  if(any(layers == 'custom'))
+  # Here you can add a custom sp, sf, PBSmapping object or shapefile here
+  if(length(add_custom) != 0)
   {
-    # If it is an xls or a csv we assume we have a PBSmapping object
-    if(grepl(".xls",add_layer$custom) || grepl(".csv",add_layer$custom))
+    
+    # If it's an sf object it's easy peasy
+    if(class(add_custom$obj)[1] == "sf")  custom <- add_custom$obj
+
+    # If it's an sp object this should work.
+    if(grepl("Spatial",class(add_custom$obj)[1])) custom <- st_as_sf(add_custom$obj)
+    # If the object is a character string we have 3 options, it's a csv or xls file or it is pointing to shapefile
+    if(class(add_custom$obj)[1] == "character")
     {
-      custom <- NULL
-      if(grepl(".csv",add_custom)) temp <- read.csv(add_custom)
-      if(grepl(".xls",add_custom)) temp <- read_excel(add_custom,sheet=1) # This will only pull in the first sheet, don't get fancy here
-      temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
-      temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
-      custom <- st_as_sf(temp)
-    } else { custom <- combo.shp(add_layer$custom,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+      # If it is an xls or a csv we assume we have a PBSmapping object
+      if(grepl(".xls",add_custom$obj) || grepl(".csv",add_custom$obj))
+      {
+        if(grepl(".csv",add_custom$obj)) temp <- read.csv(add_custom$obj)
+        if(grepl(".xls",add_custom$obj)) temp <- read_excel(add_custom$obj,sheet=1) # This will only pull in the first sheet, don't get fancy here
+        temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
+        temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
+        custom <- st_as_sf(temp)
+      } else { custom <- combo.shp(add_custom$obj,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+    } # end if(class(add_custom$obj)[1] == "character")
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
     #trim to bbox
     custom <- st_intersection(custom, b.box)
+
+    # If we specify the size, fill or color to be a unique value we set these up here, if they are blank we go to some defaults.
+    if(!is.null(add_custom$size))   {size <- add_custom$size}      else size <- 1
+    if(!is.null(add_custom$color))   {colr <- add_custom$color}    else colr <- "grey"
+    if(!is.null(add_custom$fill))   {phil <- add_custom$fill}      else phil <- NA
+    
+    # So that's the object itself, with simple fill parameters 
+    # If we have something there for the scale that tells us we want a fill scale
+    if(!is.null(add_custom$scale)) 
+    {
+      # Now if we want to get fancy and we want to be able to plot this custom object with a fill that represents some data 'layer'
+      # We set this up very much like what we do with the inla objects below, attempting to make the code mirror the inla code here
+      # Might be able to make this more efficient, but for now I duplicate.
+      if(!is.null(add_custom$scale$alpha))   {alph <- add_custom$scale$alpha}                   else alph <- 1
+      if(!is.null(add_custom$scale$palette)) {col <- addalpha(add_custom$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
+      if(!is.null(add_custom$scale$limits))  {lims <- add_custom$scale$limits}                  else lims <- c(min(custom$layer,na.rm=T),max(custom$layer,na.rm=T))
+      if(!is.null(add_custom$scale$breaks))  {brk <- add_custom$scale$breaks}                   else brk <- pretty(custom$layer,n=100)
+      if(!is.null(add_custom$scale$leg.name))  {leg <- add_custom$scale$leg.name}               else leg <- "Legend"
+      # And now make the colour object needed. 
+      if(is.null(add_custom$scale$scale) || add_custom$scale$scale == 'c') # Default gives us a continuous ramp
+      {
+        #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk) cfc = custom fill continuous
+        if(plot_as != "plotly")  cfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
+        # For plotly the continuous is overwritten and we just can have discrete ramps.
+        if(plot_as == "plotly")  
+        {       
+          custom <- custom %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+          n.breaks <- length(unique(custom$brk))
+          combo <- data.frame(brk = levels(custom$brk),col = col)
+          custom.cols <- left_join(custom,combo,by = "brk")
+        }
+      } else {
+                # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
+                custom <- custom %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+                n.breaks <- length(unique(custom$brk))
+                #scd <- scale_colour_manual(values = col[1:n.breaks]) cfd = custom fill discrete
+                if(plot_as != "plotly") cfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
+                if(plot_as == "plotly") 
+                {
+                  combo <- data.frame(brk = levels(custom$brk),col = col)
+                  custom.cols <- left_join(custom,combo,by = "brk")
+                } # end if(plot_as == "plotly") 
+              } # end if(length(add_custom$scale)>0)
+    } # endif(!is.null(add_inla$custom$scale)) 
+    # Just to make logic easier later, if either cfd or cfc exists we make this fancy.custom object which will tell the plot
+    # not to make the simple custom plot
+    if(exists('cfc') || exists('cfd')) fancy.custom <- "I'm fancy!"
+    #browser()
   } # end  if(!is.null(add_custom))
 
   # Do we want to add the labels to the figure he's what ya gotta do...
@@ -732,7 +844,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Project the values appropriately for the data, the xlim/ylim will come from the mesh itself.
     projec = inla.mesh.projector(add_inla$mesh, xlim = range(add_inla$mesh$loc[,1],na.rm=T) , ylim = range(add_inla$mesh$loc[,2],na.rm=T), dims=add_inla$dims)
     if(add_inla$mesh$n == length(add_inla$field)) inla.field = inla.mesh.project(projec, add_inla$field)
-    # If the above step has already happened (this is mostly for backwards compatiability with old code)....
+    # If the above step has already happened (this is mostly for backwards compatibility with old code)....
     if(add_inla$mesh$n != length(add_inla$field)) inla.field <- add_inla$field
     raster <- raster(rotate(rotate(rotate(inla.field))))
     extent(raster) <- c(range(projec$x),range(projec$y))
@@ -772,29 +884,33 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
       if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
       if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
-      if(!is.null(add_inla$scale$breaks))  {brk <- add_inla$scale$breaks}                   else brk <- pretty(spd$layer,n=10)
+      if(!is.null(add_inla$scale$breaks))  {brk <- add_inla$scale$breaks}                   else brk <- pretty(spd$layer,n=100)
       if(!is.null(add_inla$scale$leg.name))  {leg <- add_inla$scale$leg.name}               else leg <- "Legend"
     # And now make the colour object needed. 
-    if(is.null(add_inla$scale$scale)) # If not specified it's a continuous ramp
+    if(is.null(add_inla$scale$scale) || add_inla$scale$scale == 'c') # If not specified or you specify 'continuous' it's a continuous ramp
     {
     #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk)
-      if(plot_as == "ggplot") sfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
-      if(plot_as == "plotly")  spd$col <- as.integer(spd$layer)
-    } # end if(is.null(add_inla$scale$scale)) 
-    #browser()
-    if(!is.null(add_inla$scale$scale)) # If you put anything in there it is a discrete ramp.
-    {
-      # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
-         spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
-         n.breaks <- length(unique(spd$brk))
-         #scd <- scale_colour_manual(values = col[1:n.breaks])
-         if(plot_as == "ggplot") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
-         if(plot_as == "plotly") 
-         {
-           combo <- data.frame(brk = levels(spd$brk),col = col)
-           spd <- left_join(spd,combo,by = "brk")
-         } # end if(plot_as == "plotly") 
-    }
+      if(plot_as != "plotly") sfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
+      # Note that plotly only works with a discrete ramp so even if we ask for continuous you are getting a discrete ramp.
+      if(plot_as == "plotly")  
+      {
+        spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+        n.breaks <- length(unique(spd$brk))
+        combo <- data.frame(brk = levels(spd$brk),col = col)
+        spd <- left_join(spd,combo,by = "brk")
+      }
+    } else { # if not continuous then it's discrete...
+          # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
+             spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+             n.breaks <- length(unique(spd$brk))
+             #scd <- scale_colour_manual(values = col[1:n.breaks])
+             if(plot_as != "plotly") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
+             if(plot_as == "plotly") 
+             {
+               combo <- data.frame(brk = levels(spd$brk),col = col)
+               spd <- left_join(spd,combo,by = "brk")
+             } # end if(plot_as == "plotly") 
+           } # end else/ end if(is.null(add_inla$scale$scale)) 
     
   } # end  if(!is.null(add_inla$field) && !is.null(add_inla$mesh))
 # Development of native plotly figure.
@@ -821,7 +937,11 @@ if(plot_as != "plotly")
     }
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
-    if(exists("custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=NA)
+    # If we have custom fancy plots we add these here
+    if(exists("cfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=layer), colour = NA) + cfc 
+    if(exists("cfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=brk), colour = NA)  + cfd  
+    # If we just have a simple custom plot we add here...
+    if(exists("custom") & !exists("fancy.custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=phil, color = colr, size= size)
     if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
     if(exists("nafo.divs")) pect_plot <- pect_plot + geom_sf(data=nafo.divs, fill=NA)
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
@@ -829,7 +949,7 @@ if(plot_as != "plotly")
     if(exists("offshore.spa")) pect_plot <- pect_plot + geom_sf(data=offshore.spa, fill=NA)
     
     if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.25)
-    if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill="grey")   
+    if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
       if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
@@ -840,7 +960,16 @@ if(plot_as != "plotly")
                                                     pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
-    pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)
+    if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
+    if(legend == T) 
+    {
+      if(length(brk) <= 6) hgt <- unit(1,'cm')
+      if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(1.5,'cm')
+      if(length(brk) > 12) hgt <- unit(2,'cm')
+      pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
+                   theme(legend.key.height =hgt,text = element_text(size=txt.size))
+    }
+
 } # end if(plot_as != 'plotly')
   
  # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
@@ -895,7 +1024,7 @@ if(plot_as == "plotly")
 
   # Or add the lines to the existing plot
   if(is.null(gg.obj))  if(!exists("pect_plot")) pect_plot <- multi.lines %>% plot_ly() %>% add_sf(color=I("white"))
-  
+
   if(exists("bathy.gg")) 
   {
     bathy1 <- st_as_sf(rasterToContour(bathy,levels = c(-5000,-500,seq(-450,0,50))))
@@ -920,8 +1049,8 @@ if(plot_as == "plotly")
       #final.strata$col3 <- 1:nrow(final.strata)
       pect_plot <- pect_plot  %>%
                          add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
-                                #line = list(width=0.5,color='black'), 
-                                line=~col,
+                                line = list(width=0,color='black'), 
+                                #line=~col, # For some reason this was causing problems in the summer of 2020 so removed and used above hack instead
                                 fillcolor = ~col,
                                 hoveron = "fills",
                                 hoverinfo = "text") %>% 
@@ -937,14 +1066,32 @@ if(plot_as == "plotly")
     pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk,  text = ~paste("Values:", brk),
                                       line = list(width=0), fillcolor = ~col,
                                       hoveron = "fills",
-                                      hoverinfo = "text")  %>% hide_legend()
+                                      hoverinfo = "text")  
   } # end if(exists("spd"))
+  
+  if(exists("custom.cols"))
+  {
+    #browser()
+    pect_plot <- pect_plot %>% add_sf(data=custom.cols,split = ~ brk,  text = ~paste("Values:", brk),
+                                      line = list(width=0), fillcolor = ~col,
+                                      hoveron = "fills",
+                                      hoverinfo = "text")  
+  } # end if(exists("custom.cols"))
+  
+  if(exists('custom') & !exists("custom.cols"))
+  {
+    pect_plot <- pect_plot %>% add_sf(data=custom,color = colr)  
+  }
+  # If we don't want the legend
+  if(legend == F) pect_plot <- pect_plot %>% hide_legend()
+   
 } # end if(plot_as == "plotly")
 
   if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
-    pect_plot <- ggplotly(pect_plot) %>% hide_legend()
+    if(legend == F) pect_plot <- ggplotly(pect_plot) %>% hide_legend()
+    if(legend == T) pect_plot <- ggplotly(pect_plot) 
   }
     if(plot == T) print(pect_plot) # If you want to immediately display the plot
       return(pect_plot = pect_plot)
