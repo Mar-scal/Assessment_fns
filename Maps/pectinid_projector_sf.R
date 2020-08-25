@@ -156,18 +156,18 @@
 
 ########## If you had an custom layer, a full call to that would be to add this to the above, scale behaves same as INLA scale
 #         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', 
-         #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
+#           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
-
+                     
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
                      add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
-#                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
+                     #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
   require(marmap) || stop("You need the marmap function to get the bathymetry")
@@ -213,7 +213,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(repo == 'github')
   {
-  #browser()
+    #browser()
     # Download this to the temp directory you created above
     sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))
@@ -226,7 +226,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
   options(scipen=999)# Avoid scientific notation
-
+  
   # Don't do this if the field and mesh lengths differ.
   #if(!is.null(add_inla$field)) stopifnot(length(add_inla$field) == add_inla$mesh$n) 
   
@@ -238,7 +238,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
   if(is.list(area)) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-
+  
   # This is the case when we put a name in and let convert.coords sort it out.
   if(!is.list(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   # All I need from the coords call above is the bounding box.
@@ -283,8 +283,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
     # and now transform this eez subset to the proper coordinate system. If there is an eez in the picture....
     if(exists('eez')) eez <- eez %>% st_transform(c_sys)
-      
-      
+    
+    
   } # end if(!is.null(add_EEZ)) 
   # Now grab the land, note we're using the rnaturalearth package now
   # We also want to get the land
@@ -310,84 +310,84 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(!is.null(add_layer$bathy)) # Is this redundant with below any(layers == 'bathy'))?
   {
-  # The bathymetry comes in now as a raster.  Thanks to sf wonderfulness we can handle this now
-  if(any(layers == 'bathy')) # This would need done everytime as the boundng box could change for each call
-  {
-    # If you have not specified teh type of surface you want then you get both
-    if(is.na(add_layer$bathy[2])) add_layer$bathy[2] <- 'both' 
-    #If you didn't set a maximum layer depth then it defaults to -500
-    if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
-    # I need coordinates for the bathy
-    bath.box <- st_bbox(b.box) 
-    # Add a small buffer to the area.  This might not always work if you are looking at a very small area
-    # But it does seem to work for all of our pre-defined areas, if you get an error in Marmap try and make your area larger 
-    # until the error goes away, then you can just use coord_sf from the ggspatial packages to trim the area back to what you want.
-    
-    # This covers NAD83 and WGS84 Lat/Lon
-    if(c_sys %in% c("4269","4326")) 
+    # The bathymetry comes in now as a raster.  Thanks to sf wonderfulness we can handle this now
+    if(any(layers == 'bathy')) # This would need done everytime as the boundng box could change for each call
     {
-      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y'),crs = c_sys))
-    }
-    # Assuming other c_sys to be UTM, could be wrong!
-    if(!c_sys %in% c("4269","4326")) 
-    {
-      bath.box <- b.box %>% st_transform(crs=4326)  # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
-      bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(bath.box)$xmin),ceiling(st_bbox(bath.box)$xmax)), y = c(floor(st_bbox(bath.box)$ymin),ceiling(st_bbox(bath.box)$ymax))),coords = c('x','y'),crs = c_sys))
-    }
-    # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
-    # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
-    # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
-    # This is a lat/lon WGS84 object...
-    #browser()
-    bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
-    
-    bathy <- marmap::as.raster(bathy.org)
-    
-    # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
-    bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
-    #Now if we want smooth contours we do this...
-    # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
-    if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
-    {
-      bathy.s <- bathy.org
-      bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
-      bathy.s[which(bathy.s > 0)] <- 0
-      bathy.s <- marmap::as.raster(bathy.s)
-      # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
-      if(c_sys != 4326)
+      # If you have not specified teh type of surface you want then you get both
+      if(is.na(add_layer$bathy[2])) add_layer$bathy[2] <- 'both' 
+      #If you didn't set a maximum layer depth then it defaults to -500
+      if(is.na(add_layer$bathy[3])) add_layer$bathy[3] <- -500 
+      # I need coordinates for the bathy
+      bath.box <- st_bbox(b.box) 
+      # Add a small buffer to the area.  This might not always work if you are looking at a very small area
+      # But it does seem to work for all of our pre-defined areas, if you get an error in Marmap try and make your area larger 
+      # until the error goes away, then you can just use coord_sf from the ggspatial packages to trim the area back to what you want.
+      
+      # This covers NAD83 and WGS84 Lat/Lon
+      if(c_sys %in% c("4269","4326")) 
       {
-        bathy.st <- st_as_stars(bathy.s)
-        b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
-        # Now warp the existing raster to the new projection grid.
-        bathy.smooth <- bathy.st %>% st_warp(b.new)
-      } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
-    } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
-    
-    # Are we adding in the bathy contour lines, if so do all this fun.
-    if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
-    {
-      # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
-      if(c_sys != 4326)
-      {
-        # Now I may need to make a new grid to project to, base it on the size of the bounding box
-        b.new <- as(b.box,"Spatial")
-        # Then make this a pretty hi resolution raster
-        ras <- raster(ncol=500,nrow=500,crs = crs(b.new))
-        # Give it the correct extent
-        extent(ras) <- extent(b.new)
-        # And make it a raster
-        b.ras <- rasterize(b.new,ras)
-        # I need a new grid that is a raster object
-        re.proj.bathy <- projectRaster(bathy,b.ras)
-        re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
-        # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
-        bathy.gg <- fortify(re.proj.bathy)
-      } else { bathy.gg <- fortify(bathy)}
-      # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
-      bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
+        bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(b.box)$xmin),ceiling(st_bbox(b.box)$xmax)), y = c(floor(st_bbox(b.box)$ymin),ceiling(st_bbox(b.box)$ymax))),coords = c('x','y'),crs = c_sys))
       }
-
-  } # end if(any(layers == 'bathy'))
+      # Assuming other c_sys to be UTM, could be wrong!
+      if(!c_sys %in% c("4269","4326")) 
+      {
+        bath.box <- b.box %>% st_transform(crs=4326)  # Needs to be in Lat/Lon for getNOAA.bathy, so we go for 4326
+        bath.box <- st_bbox(st_as_sf(data.frame(x = c(floor(st_bbox(bath.box)$xmin),ceiling(st_bbox(bath.box)$xmax)), y = c(floor(st_bbox(bath.box)$ymin),ceiling(st_bbox(bath.box)$ymax))),coords = c('x','y'),crs = c_sys))
+      }
+      # The bathymetry data is given in NOAA as Lat/Lon WGS84 according to NOAA's website.  https://www.ngdc.noaa.gov/mgg/global/
+      # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
+      # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
+      # This is a lat/lon WGS84 object...
+      #browser()
+      bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
+      
+      bathy <- marmap::as.raster(bathy.org)
+      
+      # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
+      bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
+      #Now if we want smooth contours we do this...
+      # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
+      if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
+      {
+        bathy.s <- bathy.org
+        bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
+        bathy.s[which(bathy.s > 0)] <- 0
+        bathy.s <- marmap::as.raster(bathy.s)
+        # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
+        if(c_sys != 4326)
+        {
+          bathy.st <- st_as_stars(bathy.s)
+          b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
+          # Now warp the existing raster to the new projection grid.
+          bathy.smooth <- bathy.st %>% st_warp(b.new)
+        } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
+      } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
+      
+      # Are we adding in the bathy contour lines, if so do all this fun.
+      if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
+      {
+        # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
+        if(c_sys != 4326)
+        {
+          # Now I may need to make a new grid to project to, base it on the size of the bounding box
+          b.new <- as(b.box,"Spatial")
+          # Then make this a pretty hi resolution raster
+          ras <- raster(ncol=500,nrow=500,crs = crs(b.new))
+          # Give it the correct extent
+          extent(ras) <- extent(b.new)
+          # And make it a raster
+          b.ras <- rasterize(b.new,ras)
+          # I need a new grid that is a raster object
+          re.proj.bathy <- projectRaster(bathy,b.ras)
+          re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
+          # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
+          bathy.gg <- fortify(re.proj.bathy)
+        } else { bathy.gg <- fortify(bathy)}
+        # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
+        bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
+      }
+      
+    } # end if(any(layers == 'bathy'))
   } # end the is.null()
   # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "gis.repo = 'github'", for NAFO this is actually going
   # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "gis.repo = 'local'"
@@ -442,7 +442,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
       nafo.sub <- combo.shp(temp2,make.sf=T)
-
+      
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -457,7 +457,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Now if we want the nafo sub-areas we do this...
       loc <- paste0(gis.repo,"/NAFO/Subareas")
       nafo.sub <- combo.shp(loc,make.sf=T)
-
+      
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
       #trim to bbox
@@ -535,7 +535,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$sfa != "offshore")
       {
         loc <- paste0(gis.repo,"inshore")
-
+        
         inshore.spa <- combo.shp(loc,make.sf=T)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
@@ -544,7 +544,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         inshore.spa <- st_cast(inshore.spa,to= "MULTILINESTRING")
         if(nrow(inshore.spa) == 0) rm(inshore.spa) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
         
-
+        
       } # end if(detailed != "offshore")
       if(add_layer$sfa != "inshore" )
       {
@@ -669,7 +669,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
- 
+        
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
         {
@@ -704,7 +704,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
     # If it's an sf object it's easy peasy
     if(class(add_custom$obj)[1] == "sf")  custom <- add_custom$obj
-
+    
     # If it's an sp object this should work.
     if(grepl("Spatial",class(add_custom$obj)[1])) custom <- st_as_sf(add_custom$obj)
     # If the object is a character string we have 3 options, it's a csv or xls file or it is pointing to shapefile
@@ -724,7 +724,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     custom  <- st_transform(custom,c_sys)
     #trim to bbox
     custom <- st_intersection(custom, b.box)
-
+    
     # If we specify the size, fill or color to be a unique value we set these up here, if they are blank we go to some defaults.
     if(!is.null(add_custom$size))   {size <- add_custom$size}      else size <- 1
     if(!is.null(add_custom$color))   {colr <- add_custom$color}    else colr <- "grey"
@@ -756,24 +756,27 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
           custom.cols <- left_join(custom,combo,by = "brk")
         }
       } else {
-                # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
-                custom <- custom %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
-                n.breaks <- length(unique(custom$brk))
-                #scd <- scale_colour_manual(values = col[1:n.breaks]) cfd = custom fill discrete
-                if(plot_as != "plotly") cfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
-                if(plot_as == "plotly") 
-                {
-                  combo <- data.frame(brk = levels(custom$brk),col = col)
-                  custom.cols <- left_join(custom,combo,by = "brk")
-                } # end if(plot_as == "plotly") 
-              } # end if(length(add_custom$scale)>0)
+        # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
+        custom <- custom %>% mutate(brk = cut(layer, breaks = c(brk, Inf),dig.lab=10)) 
+        # remove any NAs
+        custom <- custom[!is.na(custom$brk),]
+        n.breaks <- length(unique(custom$brk))
+        
+        #scd <- scale_colour_manual(values = col[1:n.breaks]) cfd = custom fill discrete
+        if(plot_as != "plotly") cfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
+        if(plot_as == "plotly") 
+        {
+          combo <- data.frame(brk = levels(custom$brk),col = col)
+          custom.cols <- left_join(custom,combo,by = "brk")
+        } # end if(plot_as == "plotly") 
+      } # end if(length(add_custom$scale)>0)
     } # endif(!is.null(add_inla$custom$scale)) 
     # Just to make logic easier later, if either cfd or cfc exists we make this fancy.custom object which will tell the plot
     # not to make the simple custom plot
     if(exists('cfc') || exists('cfd')) fancy.custom <- "I'm fancy!"
     #browser()
   } # end  if(!is.null(add_custom))
-
+  
   # Do we want to add the labels to the figure he's what ya gotta do...
   if(any(layers == 's.labels')) 
   {
@@ -787,7 +790,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       unzip(zipfile=temp, exdir=temp2)
       s.labels <- combo.shp(temp2,make.sf=T,make.polys=F)
       s.labels <- st_transform(s.labels,c_sys)
-
+      
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
@@ -795,7 +798,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
       s.labels <- st_intersection(s.labels, b.box)
     }
-
+    
     # If not going through Github it's easy!
     if(gis.repo != 'github')
     {
@@ -809,9 +812,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       s.labels <- st_intersection(s.labels, b.box)
     }
   }
-
+  
   # Finally add a scale bar if so desired.
-
+  
   if(any(layers == 'scale.bar') && !is.null(add_layer$scale.bar))
   {
     scal.loc <- add_layer$scale.bar[1]
@@ -840,7 +843,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end  if(is.null(add_inla$mesh$crs)) 
     # Add in the dims option if that isn't there, low resolution to start.
     if(is.null(add_inla$dims)) add_inla$dims <- c(50,50)
-
+    
     # Project the values appropriately for the data, the xlim/ylim will come from the mesh itself.
     projec = inla.mesh.projector(add_inla$mesh, xlim = range(add_inla$mesh$loc[,1],na.rm=T) , ylim = range(add_inla$mesh$loc[,2],na.rm=T), dims=add_inla$dims)
     if(add_inla$mesh$n == length(add_inla$field)) inla.field = inla.mesh.project(projec, add_inla$field)
@@ -880,16 +883,16 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # First I'll make a couple of generic colour ramps 
     #I'll set one up using 100 colours and a maximium of 10 breaks, break locations based on the data.
     #browser()
-
-      if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
-      if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
-      if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
-      if(!is.null(add_inla$scale$breaks))  {brk <- add_inla$scale$breaks}                   else brk <- pretty(spd$layer,n=100)
-      if(!is.null(add_inla$scale$leg.name))  {leg <- add_inla$scale$leg.name}               else leg <- "Legend"
+    
+    if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
+    if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
+    if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
+    if(!is.null(add_inla$scale$breaks))  {brk <- add_inla$scale$breaks}                   else brk <- pretty(spd$layer,n=100)
+    if(!is.null(add_inla$scale$leg.name))  {leg <- add_inla$scale$leg.name}               else leg <- "Legend"
     # And now make the colour object needed. 
     if(is.null(add_inla$scale$scale) || add_inla$scale$scale == 'c') # If not specified or you specify 'continuous' it's a continuous ramp
     {
-    #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk)
+      #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk)
       if(plot_as != "plotly") sfc <- scale_fill_gradientn(colours = col, limits=lims,breaks=brk,name=leg)
       # Note that plotly only works with a discrete ramp so even if we ask for continuous you are getting a discrete ramp.
       if(plot_as == "plotly")  
@@ -900,49 +903,50 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         spd <- left_join(spd,combo,by = "brk")
       }
     } else { # if not continuous then it's discrete...
-          # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
-             spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
-             n.breaks <- length(unique(spd$brk))
-             #scd <- scale_colour_manual(values = col[1:n.breaks])
-             if(plot_as != "plotly") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
-             if(plot_as == "plotly") 
-             {
-               combo <- data.frame(brk = levels(spd$brk),col = col)
-               spd <- left_join(spd,combo,by = "brk")
-             } # end if(plot_as == "plotly") 
-           } # end else/ end if(is.null(add_inla$scale$scale)) 
+      # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
+      spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+      n.breaks <- length(unique(spd$brk))
+      #scd <- scale_colour_manual(values = col[1:n.breaks])
+      if(plot_as != "plotly") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
+      if(plot_as == "plotly") 
+      {
+        combo <- data.frame(brk = levels(spd$brk),col = col)
+        spd <- left_join(spd,combo,by = "brk")
+      } # end if(plot_as == "plotly") 
+    } # end else/ end if(is.null(add_inla$scale$scale)) 
     
   } # end  if(!is.null(add_inla$field) && !is.null(add_inla$mesh))
-# Development of native plotly figure.
-if(plot_as != "plotly")
-{
-  # If you have an existing object to use as a base plot pull that in here
-  if(!is.null(gg.obj)) pect_plot <- gg.obj
-  
-  #If not set up a base plot.
-  if(is.null(gg.obj))
+  # Development of native plotly figure.
+  if(plot_as != "plotly")
   {
-    pect_plot <- ggplot() + 
-      geom_sf(data=b.box, fill=NA) +
-      theme_minimal() + xlab("") + ylab("") +
-      scale_x_continuous(expand = c(0,0)) + # Not sure either of these scale additions is needed...
-      scale_y_continuous(expand = c(0,0)) 
-  } # end if(!is.null(gg.obj))
-
+    # If you have an existing object to use as a base plot pull that in here
+    if(!is.null(gg.obj)) pect_plot <- gg.obj
+    
+    #If not set up a base plot.
+    if(is.null(gg.obj))
+    {
+      pect_plot <- ggplot() + 
+        geom_sf(data=b.box, fill=NA) +
+        theme_minimal() + xlab("") + ylab("") +
+        scale_x_continuous(expand = c(0,0)) + # Not sure either of these scale additions is needed...
+        scale_y_continuous(expand = c(0,0)) 
+    } # end if(!is.null(gg.obj))
+    
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
-     if(exists("final.strata"))
+    if(exists("final.strata"))
     {
       if(add_layer$survey[2] == "detailed") pect_plot <- pect_plot + new_scale("fill")  + geom_sf(data=final.strata,aes(fill= Strt_ID)) + scale_fill_manual(values = col.codes$col)
-      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=final.strata,fill = 'gray95') 
     }
+    if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
     # If we have custom fancy plots we add these here
     if(exists("cfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=layer), colour = NA) + cfc 
     if(exists("cfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=brk), colour = NA)  + cfd  
     # If we just have a simple custom plot we add here...
+    
     if(exists("custom") & !exists("fancy.custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=phil, color = colr, size= size)
-    if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
+    if(exists("final.strata") && add_layer$survey[2] == "outline") pect_plot <- pect_plot + geom_sf(data=final.strata, fill=NA) 
     if(exists("nafo.divs")) pect_plot <- pect_plot + geom_sf(data=nafo.divs, fill=NA)
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
     if(exists("inshore.spa")) pect_plot <- pect_plot + geom_sf(data=inshore.spa, fill=NA)
@@ -956,8 +960,8 @@ if(plot_as != "plotly")
       if(s.labels$region != 'offshore' && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
     } # end if(exists("s.labels")) 
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
-                                                    annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
-                                                    pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
+        annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
+                               pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
@@ -967,132 +971,132 @@ if(plot_as != "plotly")
       if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(1.5,'cm')
       if(length(brk) > 12) hgt <- unit(2,'cm')
       pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
-                   theme(legend.key.height =hgt,text = element_text(size=txt.size))
+        theme(legend.key.height =hgt,text = element_text(size=txt.size))
     }
-
-} # end if(plot_as != 'plotly')
+    
+  } # end if(plot_as != 'plotly')
   
- # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
-if(plot_as == "plotly")
-{
-  # First we want to stitch all the line objects into one object, makes plotly more efficient...
-  multi.lines.base <- st_as_sf(data.frame(ID = "box",geometry = data.frame(st_geometry(b.box)))) %>% st_cast(to="MULTILINESTRING")
-  multi.lines <- multi.lines.base[-1,]
+  # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
+  if(plot_as == "plotly")
+  {
+    # First we want to stitch all the line objects into one object, makes plotly more efficient...
+    multi.lines.base <- st_as_sf(data.frame(ID = "box",geometry = data.frame(st_geometry(b.box)))) %>% st_cast(to="MULTILINESTRING")
+    multi.lines <- multi.lines.base[-1,]
     #st_geometry(multi.lines) <- 'x'
-  # If you have an existing gg.object to use as a base plot pull that in here
-  if(!is.null(gg.obj)) pect_plot <- ggplotly(gg.obj)
-  # If need be set up the basemap
-  #if(is.null(gg.obj)) pect_plot <- plot_ly(multi.lines.base,color = I('grey'))
-  #browser()
-
-  
-  # Now add in the lines...
-  if(exists("nafo.divs")) 
-  {
-    nafo.divt <- nafo.divs %>% dplyr::select(id,geometry) 
-    names(nafo.divt) <- c("ID","geometry")
-    multi.lines <- rbind(multi.lines,st_geometry(nafo.divt))
+    # If you have an existing gg.object to use as a base plot pull that in here
+    if(!is.null(gg.obj)) pect_plot <- ggplotly(gg.obj)
+    # If need be set up the basemap
+    #if(is.null(gg.obj)) pect_plot <- plot_ly(multi.lines.base,color = I('grey'))
+    #browser()
     
-  }
-  if(exists("nafo.sub")) 
-  {
-    nafo.subt <- nafo.sub %>% dplyr::select(id,geometry) 
-    names(nafo.subt) <- c("ID","geometry")
-    multi.lines <- rbind(multi.lines,nafo.subt)
-  }
-  
-  if(exists("inshore.spa")) 
-  {
-    # I need to clip the lines that go over the land
-    if(exists("land.sf"))
-    {
-      inshore.spa <- rgeos::gDifference(as_Spatial(inshore.spa),as_Spatial(land.sf))
-      inshore.spa <- st_as_sf(inshore.spa)
-      # For some reason st_difference doesn't work...
-      #inshore.spa <- st_difference(inshore.spa,land.sf)
-      inshore.spa$ID <- "Inshore"
-    }
-    multi.lines <- rbind(multi.lines,inshore.spa)
-  }
-  if(exists("offshore.spa")) multi.lines <- rbind(multi.lines,offshore.spa)
-  # if(exists("eez")) 
-  # {
-  #   eezt <- eez %>% dplyr::select(UUID,geometry)
-  #   names(eezt) <- c("ID","geometry")
-  #   multi.lines <- rbind(multi.lines,eezt)
-  # }
-
-  # Or add the lines to the existing plot
-  if(is.null(gg.obj))  if(!exists("pect_plot")) pect_plot <- multi.lines %>% plot_ly() %>% add_sf(color=I("white"))
-
-  if(exists("bathy.gg")) 
-  {
-    bathy1 <- st_as_sf(rasterToContour(bathy,levels = c(-5000,-500,seq(-450,0,50))))
-    # Clip to the land
-    if(exists("land.sf")) bathy1 <- st_as_sf(rgeos::gDifference(as_Spatial(bathy1),as_Spatial(land.sf)))
-    pect_plot <- pect_plot %>%  add_sf(data=bathy1,color=I('light blue')) %>% hide_legend()
     
-  } # end  if(exists("bathy.gg"))
-  
-  if(exists("eez")) pect_plot <- pect_plot %>% add_sf(data = eez, color=I("firebrick"))  %>% hide_legend()
-  
-  # Stick any management boundaries in here if we have them... Note how to change the line properties!
-  if(nrow(multi.lines) > 0) pect_plot <-  pect_plot %>% add_sf(data = multi.lines,color=I("grey30"),line = list(width =0.5))  %>% hide_legend()
-  
-  if(exists("land.sf")) pect_plot <- pect_plot %>% add_sf(data=land.sf,color=I("grey40"))  %>% hide_legend()
-  if(exists("final.strata"))
-  {
-    if(add_layer$survey[2] == "detailed") 
+    # Now add in the lines...
+    if(exists("nafo.divs")) 
     {
-      final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
-      if(is.factor(final.strata$col)) final.strata$col <- as.character(final.strata$col)
-      #final.strata$col3 <- 1:nrow(final.strata)
-      pect_plot <- pect_plot  %>%
-                         add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
-                                line = list(width=0,color='black'), 
-                                #line=~col, # For some reason this was causing problems in the summer of 2020 so removed and used above hack instead
-                                fillcolor = ~col,
-                                hoveron = "fills",
-                                hoverinfo = "text") %>% 
-                                hide_legend()
+      nafo.divt <- nafo.divs %>% dplyr::select(id,geometry) 
+      names(nafo.divt) <- c("ID","geometry")
+      multi.lines <- rbind(multi.lines,st_geometry(nafo.divt))
       
+    }
+    if(exists("nafo.sub")) 
+    {
+      nafo.subt <- nafo.sub %>% dplyr::select(id,geometry) 
+      names(nafo.subt) <- c("ID","geometry")
+      multi.lines <- rbind(multi.lines,nafo.subt)
+    }
+    
+    if(exists("inshore.spa")) 
+    {
+      # I need to clip the lines that go over the land
+      if(exists("land.sf"))
+      {
+        inshore.spa <- rgeos::gDifference(as_Spatial(inshore.spa),as_Spatial(land.sf))
+        inshore.spa <- st_as_sf(inshore.spa)
+        # For some reason st_difference doesn't work...
+        #inshore.spa <- st_difference(inshore.spa,land.sf)
+        inshore.spa$ID <- "Inshore"
+      }
+      multi.lines <- rbind(multi.lines,inshore.spa)
+    }
+    if(exists("offshore.spa")) multi.lines <- rbind(multi.lines,offshore.spa)
+    # if(exists("eez")) 
+    # {
+    #   eezt <- eez %>% dplyr::select(UUID,geometry)
+    #   names(eezt) <- c("ID","geometry")
+    #   multi.lines <- rbind(multi.lines,eezt)
+    # }
+    
+    # Or add the lines to the existing plot
+    if(is.null(gg.obj))  if(!exists("pect_plot")) pect_plot <- multi.lines %>% plot_ly() %>% add_sf(color=I("white"))
+    
+    if(exists("bathy.gg")) 
+    {
+      bathy1 <- st_as_sf(rasterToContour(bathy,levels = c(-5000,-500,seq(-450,0,50))))
+      # Clip to the land
+      if(exists("land.sf")) bathy1 <- st_as_sf(rgeos::gDifference(as_Spatial(bathy1),as_Spatial(land.sf)))
+      pect_plot <- pect_plot %>%  add_sf(data=bathy1,color=I('light blue')) %>% hide_legend()
+      
+    } # end  if(exists("bathy.gg"))
+    
+    if(exists("eez")) pect_plot <- pect_plot %>% add_sf(data = eez, color=I("firebrick"))  %>% hide_legend()
+    
+    # Stick any management boundaries in here if we have them... Note how to change the line properties!
+    if(nrow(multi.lines) > 0) pect_plot <-  pect_plot %>% add_sf(data = multi.lines,color=I("grey30"),line = list(width =0.5))  %>% hide_legend()
+    
+    if(exists("land.sf")) pect_plot <- pect_plot %>% add_sf(data=land.sf,color=I("grey40"))  %>% hide_legend()
+    if(exists("final.strata"))
+    {
+      if(add_layer$survey[2] == "detailed") 
+      {
+        final.strata$strat_ID <-paste (substr(final.strata$ID,1,3),final.strata$Strt_ID,sep="-")
+        if(is.factor(final.strata$col)) final.strata$col <- as.character(final.strata$col)
+        #final.strata$col3 <- 1:nrow(final.strata)
+        pect_plot <- pect_plot  %>%
+          add_sf(data=final.strata %>% group_by(strat_ID), split = ~ strat_ID, text = ~paste("Strata is:", strat_ID), #color = ~strat_ID,
+                 line = list(width=0,color='black'), 
+                 #line=~col, # For some reason this was causing problems in the summer of 2020 so removed and used above hack instead
+                 fillcolor = ~col,
+                 hoveron = "fills",
+                 hoverinfo = "text") %>% 
+          hide_legend()
+        
+      } # end if(exists("final.strata"))
+      if(add_layer$survey[2] == "outline") pect_plot <- pect_plot %>% add_sf(data=final.strata,color = I('gray75'))  %>% hide_legend()
     } # end if(exists("final.strata"))
-    if(add_layer$survey[2] == "outline") pect_plot <- pect_plot %>% add_sf(data=final.strata,color = I('gray75'))  %>% hide_legend()
-  } # end if(exists("final.strata"))
+    
+    if(exists("spd"))
+    {
+      #browser()
+      pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk,  text = ~paste("Values:", brk),
+                                        line = list(width=0), fillcolor = ~col,
+                                        hoveron = "fills",
+                                        hoverinfo = "text")  
+    } # end if(exists("spd"))
+    
+    if(exists("custom.cols"))
+    {
+      #browser()
+      pect_plot <- pect_plot %>% add_sf(data=custom.cols,split = ~ brk,  text = ~paste("Values:", brk),
+                                        line = list(width=0), fillcolor = ~col,
+                                        hoveron = "fills",
+                                        hoverinfo = "text")  
+    } # end if(exists("custom.cols"))
+    
+    if(exists('custom') & !exists("custom.cols"))
+    {
+      pect_plot <- pect_plot %>% add_sf(data=custom,color = colr)  
+    }
+    # If we don't want the legend
+    if(legend == F) pect_plot <- pect_plot %>% hide_legend()
+    
+  } # end if(plot_as == "plotly")
   
-  if(exists("spd"))
-  {
-    #browser()
-    pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk,  text = ~paste("Values:", brk),
-                                      line = list(width=0), fillcolor = ~col,
-                                      hoveron = "fills",
-                                      hoverinfo = "text")  
-  } # end if(exists("spd"))
-  
-  if(exists("custom.cols"))
-  {
-    #browser()
-    pect_plot <- pect_plot %>% add_sf(data=custom.cols,split = ~ brk,  text = ~paste("Values:", brk),
-                                      line = list(width=0), fillcolor = ~col,
-                                      hoveron = "fills",
-                                      hoverinfo = "text")  
-  } # end if(exists("custom.cols"))
-  
-  if(exists('custom') & !exists("custom.cols"))
-  {
-    pect_plot <- pect_plot %>% add_sf(data=custom,color = colr)  
-  }
-  # If we don't want the legend
-  if(legend == F) pect_plot <- pect_plot %>% hide_legend()
-   
-} # end if(plot_as == "plotly")
-
   if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
     if(legend == F) pect_plot <- ggplotly(pect_plot) %>% hide_legend()
     if(legend == T) pect_plot <- ggplotly(pect_plot) 
   }
-    if(plot == T) print(pect_plot) # If you want to immediately display the plot
-      return(pect_plot = pect_plot)
- } # end function
+  if(plot == T) print(pect_plot) # If you want to immediately display the plot
+  return(pect_plot = pect_plot)
+} # end function
