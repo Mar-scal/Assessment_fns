@@ -734,15 +734,21 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # If we have something there for the scale that tells us we want a fill scale
     if(!is.null(add_custom$scale)) 
     {
+      # So only get this if we have a numeric layer, if we have a factor we go below...
+      if(is.numeric(custom$layer))
+      {
       # Now if we want to get fancy and we want to be able to plot this custom object with a fill that represents some data 'layer'
       # We set this up very much like what we do with the inla objects below, attempting to make the code mirror the inla code here
       # Might be able to make this more efficient, but for now I duplicate.
-      if(!is.null(add_custom$scale$alpha))   {alph <- add_custom$scale$alpha}                   else alph <- 1
-      if(!is.null(add_custom$scale$palette)) {col <- addalpha(add_custom$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
       if(!is.null(add_custom$scale$limits))  {lims <- add_custom$scale$limits}                  else lims <- c(min(custom$layer,na.rm=T),max(custom$layer,na.rm=T))
       if(!is.null(add_custom$scale$breaks))  {brk <- add_custom$scale$breaks}                   else brk <- pretty(custom$layer,n=100)
-      if(!is.null(add_custom$scale$leg.name))  {leg <- add_custom$scale$leg.name}               else leg <- "Legend"
       # And now make the colour object needed. 
+      } # end if(is.numeric(custom$layer))
+      if(!is.null(add_custom$scale$alpha))   {alph <- add_custom$scale$alpha}                   else alph <- 1
+      if(!is.null(add_custom$scale$palette)) {col <- addalpha(add_custom$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
+      if(!is.null(add_custom$scale$leg.name))  {leg <- add_custom$scale$leg.name}               else leg <- "Legend"
+      
+      
       if(is.null(add_custom$scale$scale) || add_custom$scale$scale == 'c') # Default gives us a continuous ramp
       {
         #scc <- scale_colour_gradientn(colours = col, limits= lims,breaks=brk) cfc = custom fill continuous
@@ -757,7 +763,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         }
       } else {
                 # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
-                custom <- custom %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+                if(is.numeric(custom$layer)) custom <- custom %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+                # If your layer is a not numeric then treat it as a factor.
+                if(!is.numeric(custom$layer)) {custom$brk <- as.factor(custom$layer) ; brk <- unique(custom$brk) }
                 n.breaks <- length(unique(custom$brk))
                 #scd <- scale_colour_manual(values = col[1:n.breaks]) cfd = custom fill discrete
                 if(plot_as != "plotly") cfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)
