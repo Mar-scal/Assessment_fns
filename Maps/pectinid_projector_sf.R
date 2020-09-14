@@ -703,7 +703,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   {
     
     # If it's an sf object it's easy peasy
-    if(class(add_custom$obj)[1] == "sf")  custom <- add_custom$obj
+    if(grepl('^sf',class(add_custom$obj)[1]))  custom <- add_custom$obj
 
     # If it's an sp object this should work.
     if(grepl("Spatial",class(add_custom$obj)[1])) custom <- st_as_sf(add_custom$obj)
