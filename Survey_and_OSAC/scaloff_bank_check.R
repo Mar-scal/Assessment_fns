@@ -238,20 +238,20 @@ Check the MGT_AREA_CD values for the following tows:")
         }
       }
       if(type=="csv"){
-        if(any(is.na(dmy(tows$TOW_DATE, quiet=T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
+        if(any(is.na(dmy(tows$TOW_DATE, quiet=T)))) {# & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
           message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy.")
           print(data.frame(tows[which(is.na(dmy(tows$TOW_DATE, quiet = T)) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
         }
         
-        if(any(grep(x=as.character(tows$TOW_DATE), pattern = "-", fixed=TRUE) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
+        if(any(grep(x=as.character(tows$TOW_DATE), pattern = "-", fixed=TRUE))) { # & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)) {
           message("\nThe following tows have dates contain dashes (-) instead of slashes (/). They should look like dd/mm/yyyy.")
-          print(data.frame(tows[which(grep(x=as.character(tows$TOW_DATE), pattern = "-", fixed=TRUE) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+          print(data.frame(tows[grep(x=as.character(tows$TOW_DATE), pattern = "-", fixed=TRUE),]))
         }
         
         # these tow dates might not be formatted correctly:
-        if(any(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
+        if(any(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8))) {#} & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE))) {
           message("\nThe following tows have dates that may not be formatted correctly. They should look like dd/mm/yyyy. Currently, it appears that the month is not typical (e.g. it should be spring or summer)")
-          print(data.frame(tows[which(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8) & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
+          print(data.frame(tows[which(!month(dmy(tows$TOW_DATE, quiet=T)) %in% c(5, 6, 7, 8)),]))# & !is.na(tows$TOW_DATE) & !is.null(tows$TOW_DATE)),]))
         }
       }
         
@@ -349,7 +349,7 @@ Check the MGT_AREA_CD values for the following tows:")
           p1 <- Polygons(ps, ID = 1) 
           
           # assuming offshore.csv polys are NAD83 but we really have no idea because RM didn't keep track...
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +towgs84=0,0,0,0 +no_defs")) 
+          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")) 
           
           # create SpatialPolygons object
           my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +datum=WGS84") ) 
@@ -373,7 +373,7 @@ Check the MGT_AREA_CD values for the following tows:")
           p1 <- Polygons(ps, ID = 1) 
           
           # assuming offshore.csv polys are NAD83 but we really have no idea because RM didn't keep track...
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +towgs84=0,0,0,0 +no_defs")) 
+          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")) 
           
           # create SpatialPolygons object
           my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +datum=WGS84") ) 
@@ -508,9 +508,11 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       ## Make sure the number of baskets corresponds between files.
-      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & !is.na(comparehf$TOW_TYPE_ID))) {
+      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+             (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & !is.na(comparehf$TOW_TYPE_ID))) {
         message("Too many baskets in HF file compared to Total Baskets in Tow file")
-        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets) & !is.na(comparehf$TOW_TYPE_ID))),])
+        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+                                (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets) & !is.na(comparehf$TOW_TYPE_ID))),])
       }
       
       ## Make sure the number of buckets corresponds between files.
@@ -537,6 +539,18 @@ Check the MGT_AREA_CD values for the following tows:")
                       id.vars = c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NUM", 
                                   "SPECIES_ID", "BIN_ID"))
       longhfs <- longhfs[!is.na(longhfs$CRUISE),]
+      
+      # for the plot, re-organize the order of the panels.
+      longhfs$variable <- factor(longhfs$variable, levels=c("LIVE_QTY_BUCKET",
+                                                            "LIVE_QTY_BASKET",
+                                                            "DEAD_QTY_BUCKET",
+                                                            "DEAD_QTY_BASKET"))
+      
+      # check for NAs
+      if(any(is.na(longhfs$value))){
+        message('the following contain NAs')
+        print(longhfs[is.na(longhfs$value),])
+      }
       
        # plot the raw HF distributions by tow (one tow per pdf page)
       ## plot tows to PDF
