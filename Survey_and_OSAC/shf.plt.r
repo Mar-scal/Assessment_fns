@@ -86,6 +86,7 @@ shf.plt<-function(survey.obj,from='surv',yr,type='sh',col1='seagreen2',col2='red
       obj <- list(breaks = bins,counts = counts, intensities = counts/sum(counts),density = counts/sum(counts),mids = bins[-length(bins)]+5,
                   xname = "Counts",equidist = T)
       class(obj) <- "histogram"
+      browser()
       # If we aren't splitting the plot then do this
       if(is.na(split) == T)
       {

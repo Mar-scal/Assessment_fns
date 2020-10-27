@@ -50,7 +50,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 	# Load in necessary packages
   require(chron) || stop("Install chron package")
   require(splancs)  || stop("Install splancs package")
-  browser()
+  
   # Call in the function to convert lat/long data to decimal degrees, used in sub-functions only.
 	source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 	

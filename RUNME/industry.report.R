@@ -1,8 +1,8 @@
 #### Run the industry report in R to compare against the SQL developer view
-
+direct <- "C:/Users/keyserf/Documents/GitHub/FK/"
+direct_fns <- "C:/Users/keyserf/Documents/GitHub/FK/Assessment_fns/" 
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.r",sep=""))
-cruise="LE10"
-yr=2019
+
 
 require(plyr)
 require(reshape2)
@@ -10,7 +10,7 @@ require(dplyr)
 require(ggplot2)
 
 # scaloff username and pwd needed
-indreport <- get.offshore.survey(direct=direct, cruise="LE10", yr=2019, industry.report = T, un = "scaloff", pw=pwd.ID)
+indreport <- get.offshore.survey(direct=direct, cruise="LE10", yr=2019, industry.report = T, un = "scaloff", pw=pwd.ID, direct_fns=direct_fns)
 
 
 industryreport <- indreport$industryreport

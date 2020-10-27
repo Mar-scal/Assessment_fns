@@ -1,5 +1,10 @@
 ## RUNME pecjector, these are examples of what you can do with pecjector
 
+
+##### FOR NOAA SERVER ERROR, TRY UPDATING MARMAP PACKAGE AS FOLLOWS:
+install.packages("marmap")
+
+
 # Pull in pecjector from Github
 library(RCurl)
 sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",ssl.verifypeer = FALSE)

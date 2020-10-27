@@ -203,8 +203,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   # The reverse puts them in order so that pre plots first if not making the user bin plots...
   if(is.null(user.bins)) mn.tmp <- names(shf)[rev(which(names(shf) %in% mean.names))]
   if(is.null(user.bins)) CV.tmp <- names(shf)[rev(which(names(shf) %in% CV.names))]
-  
-  
+
   # Get the names for the plots...
   plot.names <- NULL
   for(i in 1:length(mn.tmp))
@@ -273,6 +272,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     } # end if(se==F)
     # Here tidying up the y-max for the plots so they look nicer...
     # T
+    
     if(Npt == T)
     {
       if(is.null(user.bins))

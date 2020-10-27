@@ -21,8 +21,9 @@
 # Load your directory and the survey year
 #direct <- "d:/r/"
 direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+#direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-yr <- 2019
+yr <- 2020
 
 
 
@@ -51,17 +52,17 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Sou
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=2019,
-                   surveys = c("Banspring", 
-                    "BanIcespring", 
-                       "BBnspring" ,"BBsspring" ,
-                      "Gerspring", "Midspring", 
-                        "Sabspring", "GBspring"# ,
-                      #"GBbsummer", 
-                     #"GBasummer"
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=2020,
+                   surveys = c(#"Banspring", 
+                    #"BanIcespring", 
+                       "BBnspring" ,#"BBsspring" ,
+                     # "Gerspring", "Midspring", 
+                       # "Sabspring", "GBspring"# ,
+                      "GBbsummer", 
+                     "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="testing", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="greymeatcolumn")
+                   commercialsampling=T, nickname="industrysurvey2020")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -82,23 +83,23 @@ res <- survey.data(direct = direct,
 #plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey", user.SH.bins,"seedboxes",
 #          "MW-SH","abund-ts","biomass-ts","SHF","clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown),
 #banks = c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Source1
+source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #Source1
 
 # Did this work... NO :-/  It is related to the loading of the MW-SH data from the previsou year for the MW-SH plot... annoyingly!!
 
 str <- Sys.time()
-survey.figs(direct = direct, fig="png",
-            yr=2019, 
+survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
+            yr=2020, 
             banks = c(
               "BBn",
-              "Ger",
-              "Mid",
-              "Sab",
-             # #    #"GBa",
-             # #    #"GBb"#,
-                  "GB", "BBs",
-             "Ban",
-               "BanIce"
+              #"Ger",
+              #"Mid",
+              #"Sab",
+             "GBa",
+             "GBb"#,
+                  #"GB", "BBs",
+             #"Ban",
+              # "BanIce"
             ),
             s.res="high",
             plots = c(
@@ -122,8 +123,7 @@ survey.figs(direct = direct, fig="png",
               #"SH.GP-spatial",
                "SHF-large"
             ), 
-            sub.area=F, 
-            add.scale=T, INLA="run.full", contour=T, season="testing", nickname="DK_testing_revisions")
+            sub.area=F, INLA="run.full", season="testing", nickname="industrysurvey2020")
 
 Sys.time() -str
 
