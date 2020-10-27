@@ -82,14 +82,13 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
   # Pick the bin data I want
 	dat <- shf[,c(grep("year",names(shf)), grep("bin",names(shf)))]
 	# And then do the calculation to get the mean for each year
-	bin.means <- aggregate(.~year,FUN=mean,dat)
-	names(bin.means) <- c("year",mean.names)
+	bin.means <- aggregate(.~year,FUN=mean,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))])
+  names(bin.means) <- gsub(x = names(bin.means), pattern="bin", replacement="mean")
 	
-
-	# And now the CV's for each year
-	ns <- aggregate(.~year,FUN=length,dat) # Using an SE/mean as per above so need the number of tows....
-	bin.CVs <- aggregate(.~year,FUN=sd,dat)/ns/bin.means
-	names(bin.CVs) <- c("year",CV.names)
+		# And now the CV's for each year
+	ns <- aggregate(.~year,FUN=length,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))]) # Using an SE/mean as per above so need the number of tows....
+	bin.CVs <- aggregate(.~year,FUN=sd,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))])/ns/bin.means
+	names(bin.CVs) <- gsub(x = names(bin.CVs), pattern="bin", replacement="CV")
 	bin.CVs <- bin.CVs[,-1]
 	bin.results <- as.data.frame(cbind(bin.means,bin.CVs))
 	# Now convert the biomasses into grams to be consistent with the biomass calculations below, CV's are fine as is since it is scale invariant
@@ -128,15 +127,23 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
   	ann.dat <- shf[shf$year==years[i],]
   	if(nrow(ann.dat) > 0)
   	{
-    	mw<-sweep(matrix((seq((min(bin)-2.5),max(bin),5)/100)^3,nrow(ann.dat),40,byrow=T,dimnames=list(ann.dat$tow,bin)),1,FUN='*',ann.dat[,"CF"])
+    	if(B==T) mw<-sweep(matrix((seq((min(bin)-2.5),max(bin),5)/100)^3,nrow(ann.dat),40,byrow=T,dimnames=list(ann.dat$tow,bin)),1,FUN='*',ann.dat[,"CF"])
     	ann.dat <- ann.dat[,bin.loc]
     	# Fill the bins with the shell height frequency data.
     	n.yst[i,] <- colMeans(ann.dat,na.rm=T)
     	# We can also get an estimate of the biomass in each bin...
-    	w.yst[i,]<- colMeans(ann.dat*mw,na.rm=T)
+    	if(B==T)w.yst[i,]<- colMeans(ann.dat*mw,na.rm=T)
   	} # end if(nrow(ann.dat) > 0)
   }	# end for(i in 1:length(years))
 	
+	if(B==F) {
+	  I <- NA
+	  I.cv <- NA
+	  IR <- NA
+	  IR.cv <- NA
+	  IPR <- NA
+	  IPR.cv <- NA
+	}
   # Put the data together, these first 2 merges make sure all the years (even those without a survey) get handled correctly.
 	surv.dat<-merge(data.frame(year=as.numeric(row.names(N)),n,I,I.cv,IR,IR.cv,IPR,IPR.cv,N,N.cv,NR,NR.cv,NPR,NPR.cv),data.frame(year=years),all=T)
 	

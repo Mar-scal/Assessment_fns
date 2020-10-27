@@ -39,13 +39,10 @@
 ### currently standardized live shell height frequency
 
 # DK August 20, 2015, function call altered so DB credentials are entered directly into function call.
-get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct, direct_fns, ...)
+get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct, direct_fns, cruise=NULL, yr=NULL)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	
-#	chan <- odbcConnect("bank", "hubleyb", "p35mghk")
-#	chan <- odbcConnect("bank.canso3", "scaloff", "fgb256k")
-
   ### DK:  I believe I need this, but maybe not?
   source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
 

@@ -110,7 +110,7 @@ surv.by.tow<-function(shf.dat, years, type='N', pre.ht=80, rec.ht=100, htwt.fit=
     			} # end for(j in 1:length(user.bins))
     			
     			# Range of the commercial scallop size classes.
-    			if(bar.ht=='com')lbar.ht <- c(rec.ht[i],200)
+    			if(bar.ht=='com') lbar.ht <- c(rec.ht[i],200)
     			# Otherwise use the range given in the function call.
     			else lbar.ht<-bar.ht
     			# 

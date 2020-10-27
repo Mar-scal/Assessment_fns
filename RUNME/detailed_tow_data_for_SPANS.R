@@ -1,17 +1,17 @@
 # For Detailed Tow Data (for SPANS, usually right after Industry report)
-year<- 2019
-DR <- "DR2019_10"
-direct <- "Y:/Offshore scallop/Assessment/"
-load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
+year<- 2020
+DR <- "DR2020_06"
+direct <- "Y:/Offshore/Assessment/"
+#load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
 
-banks <- names(survey.obj)
+#banks <- names(survey.obj)
+banks <- c("GBa", "GBb", "BBn")
 
 # cruises <- c("GB", "BB", "SAB", "MID", "BAN", "GER")
-cruises <- c("GBa", "GBb")
-
+cruises <- c("GBa", "GBb", "BB")
 
 # read in this function
-detailed.tow.data <- function(year=2018, DR="DR2018_03", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID){
+detailed.tow.data <- function(year=2020, DR="DR2020_06", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID){
 
   require(ROracle)
   
@@ -95,8 +95,8 @@ detailed.tow.data <- function(year=2018, DR="DR2018_03", banks=banks, cruises=cr
       sh <- dplyr::arrange(rbind(sh.live.sub, sh.dead.sub), TOW_NO)
       mw.sub <- dplyr::arrange(mw.sub, TOW_NO, SCALLOP_NUM)
       
-      write.csv(sh, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".std.hf.csv"), row.names = FALSE)
-      write.csv(mw.sub, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".mwsh.csv"), row.names = FALSE)
+      write.csv(sh, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".std.hf.csv"), row.names = FALSE)
+      write.csv(mw.sub, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".mwsh.csv"), row.names = FALSE)
     }
     
     if(banks[i] == "GB") {
@@ -107,8 +107,8 @@ detailed.tow.data <- function(year=2018, DR="DR2018_03", banks=banks, cruises=cr
       sh <- dplyr::arrange(rbind(sh.live.sub, sh.dead.sub), TOW_NO)
       mw.sub <- dplyr::arrange(mw.sub, TOW_NO, SCALLOP_NUM)
       
-      write.csv(sh, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), "spring.", year, ".std.hf.csv"), row.names = FALSE)
-      write.csv(mw.sub, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), "spring.", year, ".mwsh.csv"), row.names= FALSE)
+      write.csv(sh, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), "spring.", year, ".std.hf.csv"), row.names = FALSE)
+      write.csv(mw.sub, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), "spring.", year, ".mwsh.csv"), row.names= FALSE)
     }
     
     if(banks[i]== "BanIce"){
@@ -119,8 +119,8 @@ detailed.tow.data <- function(year=2018, DR="DR2018_03", banks=banks, cruises=cr
       sh <- dplyr::arrange(rbind(sh.live.sub, sh.dead.sub), TOW_NO)
       mw.sub <- dplyr::arrange(mw.sub, TOW_NO, SCALLOP_NUM)
       
-      write.csv(sh, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".std.hf.csv"), row.names = FALSE)
-      write.csv(mw.sub, file = paste0("Y:/Offshore scallop/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".mwsh.csv"), row.names = FALSE)
+      write.csv(sh, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".std.hf.csv"), row.names = FALSE)
+      write.csv(mw.sub, file = paste0("Y:/Offshore/Data requests/", year, "/", DR, "/", toupper(banks[i]), ".", year, ".mwsh.csv"), row.names = FALSE)
     }
     
     print(banks[i])
@@ -130,5 +130,49 @@ detailed.tow.data <- function(year=2018, DR="DR2018_03", banks=banks, cruises=cr
 }
 
 ## RUN THIS:
-detailed.tow.data(year=2019, DR="DR2019_10", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID)
+detailed.tow.data(year=2020, DR="DR2020_06_DetailedData", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID)
 
+# compare to live and dead views in SQL
+
+GBAshf <- read.csv(paste0("Y:/Offshore/Data requests/2020/DR2020_06_DetailedData/GBA.2020.std.hf.csv"))
+GBBshf <- read.csv(paste0("Y:/Offshore/Data requests/2020/DR2020_06_DetailedData/GBB.2020.std.hf.csv"))
+GBAmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2020/DR2020_06_DetailedData/GBA.2020.mwsh.csv"))
+GBBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2020/DR2020_06_DetailedData/GBB.2020.mwsh.csv"))
+BBNshf <- read.csv(paste0("Y:/Offshore/Data requests/2020/DR2020_06_DetailedData/BBN.2020.std.hf.csv"))
+
+
+require(tidyverse)
+source(paste0("C:/Users/keyserf/Documents/Github/FK/Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+
+plot <- function(melted) {
+  melted$lat <- convert.dd.dddd(melted$START_LAT)
+  melted$lon <- convert.dd.dddd(melted$START_LON)
+  
+  melted <- melted[melted$value > 0,]
+  
+  ggplot() + geom_point(data=melted, aes(lon, lat, size=value)) +
+    facet_wrap(~as.numeric(as.character(name)))
+}
+
+melted <- pivot_longer(GBAshf[GBAshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(GBAshf[GBAshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+
+melted <- pivot_longer(GBBshf[GBBshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(GBBshf[GBBshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(BBNshf[BBNshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(BBNshf[BBNshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+# MWSH checks
+ggplot() + geom_smooth(data=GBAmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
+ggplot() + geom_smooth(data=GBBmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
