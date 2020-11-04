@@ -27,10 +27,12 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   mw.dat.all <- NULL
   cf.data <- NULL
   surv.dat <- NULL
-  surv.Clap <- NULL
-  surv.Clap.Rand <- NULL
+  surv.Clap <-NULL
   surv.Live <- NULL
-  surv.Rand <- NULL
+  surv.Clap.from2018 <- NULL
+  surv.Clap.from2019 <- NULL
+  surv.Live.from2018 <- NULL
+  surv.Live.from2019 <- NULL
   survey.obj <- NULL
   clap.survey.obj <- NULL
   SS.summary <- NULL
@@ -79,13 +81,12 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     
     # we only have BanIce mw data from 2012 on, so no need to use import.hyd.dat for BanIce. Furthermore, we shouldn't need to remove tow ID 0's since the 
     # commercial surveys are over, but just in case.
-    if(commercialsampling==F) 
-      mw.dm <- subset(mw.dm, tow>0)
+    if(commercialsampling==F) mw.dm <- subset(mw.dm, tow>0)
     
     # move the full data (all years) to mw.dat.all
     mw.dat.all[[bnk]] <- mw.dm
     
-    # now run the MWSH model for the current year. 
+    # now run the MWSH model for the current year. USE ALL 2020 TOWS FOR THIS
     SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[mw.dm$year==yr,],random.effect='tow',b.par=3)
     
     # depth.f to metres?
@@ -104,13 +105,16 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     
     ############### Annual Condition Model #####################
     
+    mw.dat.all[[bnk]]$year[!is.na(mw.dat.all[[bnk]]$pastyear)] <- paste0(20, ".", substr(mw.dat.all[[bnk]]$pastyear[!is.na(mw.dat.all[[bnk]]$pastyear)], 3, 4))
+    
     # the years in the data, sorted. and set up the prediction objs. 
     yrs<-sort(unique(mw.dat.all[[bnk]]$year))
     pred.loc <- NULL
-    pred.loc[["depth"]] <- mean(subset(mw.dat.all[[bnk]], year ==max(mw.dat.all[[bnk]]$year))$depth,na.rm=T)
-    pred.loc[["lat"]] <- mean(subset(mw.dat.all[[bnk]], year==max(mw.dat.all[[bnk]]$year))$lat,na.rm=T)
-    pred.loc[["lon"]] <- mean(subset(mw.dat.all[[bnk]], year==max(mw.dat.all[[bnk]]$year))$lon,na.rm=T)
-    message(paste0("Using mean location in ", max(mw.dat.all[[bnk]]$year), " for condition prediction."))
+    # predict on mean location for entire 2020 survey
+    pred.loc[["depth"]] <- mean(subset(mw.dat.all[[bnk]], year %in% c("20.19", "20.18"))$depth,na.rm=T)
+    pred.loc[["lat"]] <- mean(subset(mw.dat.all[[bnk]], year %in% c("20.19", "20.18"))$lat,na.rm=T)
+    pred.loc[["lon"]] <- mean(subset(mw.dat.all[[bnk]], year %in% c("20.19", "20.18"))$lon,na.rm=T)
+    message(paste0("Using mean location in 2020 (all tows) for condition prediction."))
     # now run the model to predict condition for all years with MW data using the model that includes this year's data
     HtWt.fit[[bnk]] <- shwt.lme(mw.dat.all[[bnk]],random.effect='ID',b.par=3, verbose=F)
     
@@ -136,15 +140,15 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     
     
     # Give object a new name
+    bank.dat[[bnk]]$year[!is.na(bank.dat[[bnk]]$pastyear)] <- paste0(20, ".", substr(bank.dat[[bnk]]$pastyear[!is.na(bank.dat[[bnk]]$pastyear)], 3, 4))
     pre.dat<-bank.dat[[bnk]]
     
     # Make predictions based on model.
     pred.dat <- bank.dat[[bnk]]
+    
     pred.dat$CF<- predict(CF.fit,pre.dat)
     if(any(pred.dat$CF <0, na.rm=T)) message("You have negative condition factor predictions. Maybe you should re-think your model?")
     cf.data[[bnk]] <- list(CFyrs=CFyrs,CF.data=CF.data, HtWt.fit=HtWt.fit, CF.fit=CF.fit,pred.dat=pred.dat)	
-    
-    cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
     
     if(mwsh.test == T) {
       
@@ -171,6 +175,7 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     
     ######## Calculate biomasses by tow ###########################################################
     source(paste0(direct_fns, "Survey_and_OSAC/surv.by.tow.r"))
+    surv.dat[[bnk]]$year[surv.dat[[bnk]]$year %in% c("20.19", "20.18")] <- 2020
     surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
     
   } # end of the GBa/GBb loop
@@ -185,8 +190,13 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   # For GB spring the survey of interest are the comparative tows...
   surv.Clap[[bnk]]<-subset(surv.dat[[bnk]],state=='dead')
   surv.Live[[bnk]]<-subset(surv.dat[[bnk]],state=='live')
-  surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random==1)		
-  surv.Clap.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='dead'& random==1)
+  # surv.Clap.from2018[[bnk]]<-subset(surv.dat[[bnk]],state=='dead' & pastyear==2018)
+  # surv.Clap.from2019[[bnk]]<-subset(surv.dat[[bnk]],state=='dead' & pastyear==2019)
+  # surv.Live.from2018[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & pastyear==2018)
+  # surv.Live.from2019[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & pastyear==2019)
+  
+  surv.Clap[[bnk]]$year[!is.na(surv.Clap[[bnk]]$pastyear)] <- paste0(20, ".", substr(surv.Clap[[bnk]]$pastyear[!is.na(surv.Clap[[bnk]]$pastyear)], 3, 4))
+  surv.Live[[bnk]]$year[!is.na(surv.Live[[bnk]]$pastyear)] <- paste0(20, ".", substr(surv.Live[[bnk]]$pastyear[!is.na(surv.Live[[bnk]]$pastyear)], 3, 4))
   
   # Clappers the banks for each size class
   # Do the same for all the tows...
@@ -203,15 +213,15 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   ########### Make survey.obj (mimicking Middle bank method) ###########################
   source(paste0(direct_fns, "Survey_and_OSAC/simple.surv.R"))
   if(bnk=="BBn") {
-    survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin, B=F)
-    clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]],years=years, B=F)
+    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)),user.bins=bin, B=F)
+    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=as.numeric(unique(surv.Clap[[bnk]]$year)), B=F)
   }
   if(!bnk=="BBn") {
-    survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]],years=years,user.bins=bin, B=T)
-    survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
-                                        function(x){with(subset(surv.Live[[bnk]],year == years[x]),
+    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)),user.bins=bin, B=T)
+    survey.obj[[bnk]][[1]]$CF <- sapply(1:length(as.numeric(unique(surv.Live[[bnk]]$year))),
+                                        function(x){with(subset(select(surv.Live[[bnk]], -pastyear),year == as.numeric(unique(surv.Live[[bnk]]$year))[x]),
                                                          weighted.mean(CF,com.bm,na.rm=T))})
-    clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]],years=years, B=T)
+    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)), B=T)
   }
   
   # add in the RS and CS sizes
@@ -230,16 +240,17 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   SHF.summary[[bnk]]$bank <- bank.4.spatial
   
   if(!bnk=="BBn") {
-    CF.current[[bnk]]<-na.omit(merge(unique(subset(bank.dat[[bnk]],bank == bnk & year==yr,c('tow','lon','lat'))),
+    CF.current[[bnk]]<-na.omit(merge(unique(subset(bank.dat[[bnk]],bank == bnk & year%in%c("20.19", "20.18"),c('tow','lon','lat'))),
                                      SpatHtWt.fit[[bnk]]$fit))
     names(CF.current[[bnk]])[4]<-"CF"
-    CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+    CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year%in%c("20.19", "20.18"),c('year','tow','lon','lat',"com","com.bm")))
     
     # Meat count per 500g
     CF.current[[bnk]]$meat.count <- 0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
     if(any(CF.current[[bnk]]$meat.count < 0, na.rm=T)) message("uhoh, you have negative meat counts...")
   
   ############# DO NOT CALCULATE Growth potential because we don't have a VonB for Icelandic scallop! ################
+    surv.Live[[bnk]]$year[!is.na(surv.Live[[bnk]]$pastyear)] <- "2020"
     pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
   }
   
@@ -250,9 +261,7 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
                      cf.data=cf.data[[bnk]],
                      surv.dat=surv.dat[[bnk]],
                      surv.Clap=surv.Clap[[bnk]],
-                     surv.Clap.Rand=surv.Clap.Rand[[bnk]],
                      surv.Live=surv.Live[[bnk]],
-                     surv.Rand=surv.Rand[[bnk]],
                      survey.obj=survey.obj[[bnk]],
                      clap.survey.obj=clap.survey.obj[[bnk]],
                      SS.summary=SS.summary[[bnk]],

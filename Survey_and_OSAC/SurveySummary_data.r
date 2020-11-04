@@ -510,7 +510,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # first things first, we need to grab the data for the tows that are repeats for the tows in the 2020 survey
       require(readxl)
       require(tidyverse)
-      
+      browser()
       if(bnk=="BBn") {
         repeat.list.full <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"))
         repeat.list <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"), skip = 1)
@@ -519,12 +519,20 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         repeat.list <- dplyr::select(repeat.list, `LE12_Tow no....2`, `pastyear_LE09-07`, `pasttow_Tow no....12`)
         names(repeat.list) <- c("tow_2020", "year", "tow")
         
+        
         IndSurvey2020 <- data.frame(all.surv.dat[all.surv.dat$year==2020 & all.surv.dat$bank %in% bnk,], tow_2020=NA)
         repeat.dat <- left_join(repeat.list, all.surv.dat[all.surv.dat$bank==bnk,])
         IndSurvey2020 <- full_join(IndSurvey2020, repeat.dat)
         Ind_MW_new <- NULL
         
         years <- min(IndSurvey2020$year):yr
+        
+        pastyear <- repeat.list %>%
+          select(-tow) %>%
+          rename(pastyear=year, tow=tow_2020) %>%
+          mutate(year=2020)
+        
+        IndSurvey2020 <- left_join(IndSurvey2020, pastyear)
       }
       # for GBa and GBb:
       if(!bnk == "BBn") {
@@ -543,10 +551,19 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         repeat.dat <- left_join(repeat.list.sub, all.surv.dat[all.surv.dat$bank==bnk,])
         IndSurvey2020 <- full_join(IndSurvey2020, repeat.dat)
         
+        pastyear <- repeat.list.sub %>%
+          select(-tow) %>%
+          rename(pastyear=year, tow=tow_2020) %>%
+          mutate(year=2020)
+        
+        IndSurvey2020 <- left_join(IndSurvey2020, pastyear)
+        
         MW.dat.new$year <- as.numeric(as.character(MW.dat.new$year))
         Ind_MW_new <- MW.dat.new[MW.dat.new$year==2020 & MW.dat.new$bank== bnk,]
         repeat.dat.mw <- left_join(repeat.list[repeat.list$mwsh=="Yes",], MW.dat.new[MW.dat.new$bank==bnk,])
         Ind_MW_new <- full_join(Ind_MW_new, repeat.dat.mw)
+        
+        Ind_MW_new <- left_join(Ind_MW_new, pastyear)
         
         years <- min(IndSurvey2020$year):yr
       }

@@ -237,6 +237,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
+  
   if(is.list(area)) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   
   # This is the case when we put a name in and let convert.coords sort it out.
@@ -252,6 +253,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   #browser()
   # ID what layers we are looking for.
   layers <- names(add_layer)
+  
   # If we are going to add the EEZ do this...
   if(any(layers == 'eez'))
   {
@@ -338,7 +340,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Based on a figure in their paper seems the contours are meters https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0073051
       # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
       # This is a lat/lon WGS84 object...
-      #browser()
+      
       bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
       
       bathy <- marmap::as.raster(bathy.org)
@@ -353,6 +355,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
         bathy.s[which(bathy.s > 0)] <- 0
         bathy.s <- marmap::as.raster(bathy.s)
+        bathy.s <- crop(bathy.s,as_Spatial(st_transform(b.box,crs = 4326)))
         # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
         if(c_sys != 4326)
         {
@@ -361,7 +364,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
           # Now warp the existing raster to the new projection grid.
           bathy.smooth <- bathy.st %>% st_warp(b.new)
         } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
-      } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
+        
+        } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
       
       # Are we adding in the bathy contour lines, if so do all this fun.
       if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
@@ -620,7 +624,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
-        #browser()
+        
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
         
@@ -664,6 +668,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
+        
         if(add_layer$survey[2] == 'detailed') loc <- paste0(gis.repo,"offshore_survey_strata")
         if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"survey_boundaries")
         
