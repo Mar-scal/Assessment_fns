@@ -37,7 +37,6 @@
 
 grow.pot <- function(dat= NULL, mwsh.fit=NULL, von.b = NULL, year=NULL,bank = NULL,dirt = direct,pred.mw =T)
 {
-
   if(is.null(dat))
   {
     cat("Ummm...  In the growth potential function you need to provide the 'dat' object 

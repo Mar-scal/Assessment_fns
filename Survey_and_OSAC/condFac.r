@@ -47,7 +47,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
 {
 	require(mgcv)  || stop("Install mgcv package needed for gam's")
   #Source1 Load in our missed effects model.
-  source(paste(dirct,"Assessment_fns/Survey_and_OSAC/shwt.lme.r",sep=""),local=T)	
+  source(paste(dirct,"/Survey_and_OSAC/shwt.lme.r",sep=""),local=T)	
   
   # the years in the data, sorted
   yrs<-sort(unique(wgt.dat$year))
