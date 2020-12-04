@@ -44,6 +44,8 @@
 
 ####  a: land       Do you want to add the land?  This is the only layer that plots by default with land = 'grey'. To plot land
 #######             but with no fill set land = NA, exclude from add_layer list if you don't want land plotted.
+#######             land = 'world' will pull in a lower resolution world map, useful if using function to plot somewhere other than NW Atl.
+#######             We use a land layer developed by Brittany W. in Dec 2020 as of Dec 2020 includes NA landmass from Long Island to Labrador
 ####  b: eez        Do you want to add the eez  Simply put eez = 'eez' in the list and it will be included (putting in anything in quotes will work, looking for eez object in add_layer)
 
 ####  c: bathy      Do you want to add in the bathymetry, this can be a fairly complex call as it has 3 options you want to specify
@@ -170,14 +172,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
+  
   require(marmap) || stop("You need the marmap function to get the bathymetry")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
   require(ggplot2) || stop("Install ggplot2 or else.")
   require(stars) || stop("Install stars or else.")
   require(tmaptools) || stop("Install this new maptools package, for working with sf objects")
+  if(add_layer$land == 'world')
+  {
   require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
   require(rnaturalearthdata)|| stop("Install rnaturalearthdata package, this replaces maps and mapdata packages")
   require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
+  }
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   require(rgdal)|| stop("You need rgdal pal")
   require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
@@ -292,8 +298,31 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # We also want to get the land
   if(any(layers == 'land'))
   {
+  
+    lnd <- add_layer$land
+    # If using the world map we go here
+    if(lnd == 'world')
+    {
     land.all <- ne_countries(scale = "large", returnclass = "sf",continent = "North America")
-    land.col <- add_layer$land
+    land.col <- 'grey' # Forceing land to be grey if you are using the world map
+    }
+    if(lnd != 'world' & gis.repo == 'github')
+    {
+      temp <- tempfile()
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/other_boundaries/other_boundaries.zip", temp)
+      # Download this to the temp directory you created above
+      temp2 <- tempfile()
+      # Unzip it
+      unzip(zipfile=temp, exdir=temp2)
+      land.all <- st_read(dsn = paste0(temp2,"/Atl_region_land.shp"))
+      land.col <- lnd
+    }
+    # If you want to sorce it locally.
+    if(lnd != 'world' & gis.repo != 'github') 
+    {
+      land.all <- st_read(paste0(gis.repo,"/other_boundaries/Atl_region_land.shp"))
+      land.col <- lnd
+    }
     # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
     if(c_sys == "4326") 
     {
