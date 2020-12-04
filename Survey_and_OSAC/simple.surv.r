@@ -132,7 +132,7 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
     	# Fill the bins with the shell height frequency data.
     	n.yst[i,] <- colMeans(ann.dat,na.rm=T)
     	# We can also get an estimate of the biomass in each bin...
-    	if(B==T)w.yst[i,]<- colMeans(ann.dat*mw,na.rm=T)
+    	if(B==T) w.yst[i,]<- colMeans(ann.dat*mw,na.rm=T)
   	} # end if(nrow(ann.dat) > 0)
   }	# end for(i in 1:length(years))
 	

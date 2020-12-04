@@ -152,6 +152,8 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
 { 
   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr 
   
+  require(tidyverse)
+  
   # Load the appropriate data.
   # If you used a plot shortcut, get the correct names for the plots you
   if(any(plots == 'all')) 
@@ -375,7 +377,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     bound.poly.surv <- as.PolySet(bound.surv.poly[[banks[i]]],projection ="LL")
     
     #Detailed survey polygons # NOT A STRATIFIED SURVEY!
-    # detail.poly.surv <- as.PolySet(detail.surv.poly[[banks[i]]],projection ="LL")
+    detail.poly.surv <- NULL
     
     # Get the strata areas.  For most areas we use the survey.strata.table which is output from the data function
     # strata.areas <- subset(survey.strata.table[[banks[i]]],select =c("PID","towable_area"))
@@ -419,6 +421,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       
       bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
       
+      surv.Live[[banks[i]]]$year <- ifelse(!is.na(surv.Live[[banks[i]]]$pastyear), 2020, surv.Live[[banks[i]]]$year)
+      surv.Clap[[banks[i]]]$year <- ifelse(!is.na(surv.Clap[[banks[i]]]$pastyear), 2020, surv.Clap[[banks[i]]]$year)
+      
       # Next we get the survey locations
       if(banks[i] %in% c("BBn"))
       {   
@@ -432,6 +437,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                           lat=c(surv.Live[["GBa"]]$lat[surv.Live[["GBa"]]$year == yr],surv.Live[["GBb"]]$lat[surv.Live[["GBb"]]$year == yr]))
         
         # The condition and meat count data.
+        CF.current[[banks[i]]]$year <- 2020
         loc.cf <- data.frame(lon = c(CF.current[["GBa"]]$lon[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lon[CF.current[["GBb"]]$year == yr]),
                              lat=c(CF.current[["GBa"]]$lat[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lat[CF.current[["GBb"]]$year == yr]))
         # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
@@ -793,9 +799,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
         } # end if(any(plots %in% "user.SH.bins") ==F) 
         
         # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
-        
+        browser()
         p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar= scale.bar))
+                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = c(50, 's'), scale.bar= scale.bar, survey=c('offshore', 'outline')))
         
         
         # Initialize a counter...
@@ -803,7 +809,6 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
         # Make the maps...
         for(m in 1:n.maps)
         {
-          
           # This is what we want for the spatial count maps
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
@@ -971,7 +976,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
             if(length(grep("bm",maps.to.make[m])) >0) leg.title <- B.tow.lab # If it is biomass then the legend needs the biomass title.
           } #end if(maps.to.make[m]  %in% bin.names) 
           
-          
+          browser()
           
           # Don't add the titles?
           if(add.title == T)  p <- p + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20))
@@ -983,6 +988,11 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           if(fig == "png") png(paste(plot.dir,maps.to.make[m],".png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
           if(fig == "pdf") pdf(paste(plot.dir,maps.to.make[m],".pdf",sep=""),width = 11,height = 8.5,bg = "transparent")
           if(fig == "screen") windows(11,8.5)
+          
+          if(any(mod.res[[maps.to.make[m]]] <0)) {
+            message(paste0(maps.to.make[m], " - ", banks[i], " - reset ", length(mod.res[[maps.to.make[m]]][mod.res[[maps.to.make[m]]] <0]), " negative values to 0")) 
+            mod.res[[maps.to.make[m]]][mod.res[[maps.to.make[m]]]<0] <- 0
+          }
           
           # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
           p2 <- pecjector(gg.obj = p, area = banks[i],plot = F,direct_fns = direct_fns, crs = st_crs(mesh$crs)[1]$epsg,
@@ -1047,7 +1057,6 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     ############  END THE INLA FIGURES ############  END THE INLA FIGURES  ############  END THE INLA FIGURES
     ############  END THE INLA FIGURES############  END THE INLA FIGURES############  END THE INLA FIGURES
     
-    browser()
     
     #####  Set up the survey figure #############  Set up the survey figure #############  Set up the survey figure ########
     #####  Set up the survey figure #############  Set up the survey figure #############  Set up the survey figure ########
@@ -1060,7 +1069,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       if(fig == "screen") windows(11,8.5)
       
       p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                     add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar))
+                     add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = c(50, 's'),scale.bar = scale.bar, survey=c('offshore', 'outline')))
       #print(p)
       
       # For the banks with detailed strata...
@@ -1170,10 +1179,44 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       if(add.title == F) CF.ts.title <- ""
       
       # Because name of BanIce is longer than other banks I added this so the figure title doesn't go off screen.
-      cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
+      cap.size <- 1.9
       
       ############
       #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
+      # using grid to combine ggplot with base plot
+      require(grid)
+      
+      # prep the cf ts figure first (not like we usually do!)
+      # set up for paired comparisons
+      survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), survey.obj[[banks[i]]][[1]]$year, 2020)
+      
+      comp <- survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:CF) %>%
+        subset(name %in% c("CF")) 
+      
+      comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
+      
+      cf <- ggplot() +  geom_point(data=comp, aes(plot.year, value,  colour=paste0(as.factor(compyear), " (n=", n, ")"))) + 
+        geom_line(data=comp, aes(plot.year, value, group=as.factor(compyear), colour=paste0(as.factor(compyear), " (n=", n, ")"))) +
+        theme_bw() +
+        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        scale_colour_manual(values=c("blue", "red"), name="Repeat year") +
+        scale_x_continuous(breaks=c(2018, 2019, 2020), name = "Survey year") +
+        ylab(cf.lab) +
+        ylim(4,25)+
+        theme(axis.title.y = element_text(angle = 0, vjust=0.5, size=18), 
+              axis.title.x = element_text(vjust=0,size=18), 
+              legend.position=c(.8,.25),
+              legend.text=element_text(size=12),
+              legend.title=element_text(size=14),
+              plot.title = element_text(size=22, hjust=0.5),
+              axis.text = element_text(size=12)) +
+        ggtitle(CF.ts.title)
+      
+      vp.Right <- viewport(height=unit(1, "npc"), width=unit(0.5, "npc"), 
+                                 just=c("left"), 
+                                 y=0.5, x=0.5)
+      
       if(fig == "screen") windows(15,8)
       if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
                            units="in",width = 13,height = 8.5,res=420,bg = "transparent")
@@ -1182,8 +1225,10 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       par(mfrow=c(1,2))
       shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
       
-      # now the condition factor figure..
-      # only show the median line if there are more than 3 CF values
+      print(cf, vp=vp.Right)
+      
+      dev.off()
+      
       if(length(which(!is.na(survey.obj[[banks[i]]][[1]]$CF))) > 3){
         stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
                   median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
@@ -1203,6 +1248,10 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     if(any(plots=="abund-ts"))
     {
       browser()
+      
+      # set up for paired comparisons
+      survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), survey.obj[[banks[i]]][[1]]$year, 2020)
+      
       survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,")",sep="")),
                                       list(year=as.character(yr),bank=banks[i]))
       
@@ -1213,10 +1262,37 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                           width = 8.5, height = 11,res=420,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
       
-      par(mfrow=c(1,1))
-      survey.ts(survey.obj[[banks[i]]][[1]],Bank=banks[i],
-                years=min(survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n)],na.rm=T):yr,pdf=F,
-                ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
+      # abundance for all banks!
+      comp <- survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:CV_120_plus) %>%
+        subset(name %in% c("N", "NR", "NPR")) 
+      
+      comp$name <- factor(comp$name, levels=c("NPR", "NR", "N"))
+      levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
+                             paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
+                             paste0("Fully recruited (\u2265", unique(comp$CS), " mm)"))
+      comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
+      
+      # abundA <- ggplot() + geom_point(data=comp, aes(plot.year, value, colour=as.factor(compyear))) + facet_wrap(~name, ncol=1, scales="free_y") +
+      #   geom_line(data=comp, aes(plot.year, value, group=as.factor(compyear), colour=as.factor(compyear))) +
+      #   theme_bw() +
+      #   theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+      #   scale_colour_manual(values=c("blue", "red"), name="Repeat year") +
+      #   scale_x_continuous(breaks=c(2018, 2019, 2020), name = "Survey year") +
+      #   ylab("Number per tow")+
+      #   ggtitle(survey.ts.N.title)
+      
+      require(ggrepel)
+      abundB <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        facet_wrap(~name, ncol=1, scales="free_y") +
+        theme_bw() +
+        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        xlab("Repeat year") +
+        ylab("Number per tow")+
+        ggtitle(survey.ts.N.title) 
+      print(abundB)
+      
       if(fig != "screen") dev.off()
       
     }# end if(any(plots=="abund-ts"))
@@ -1231,6 +1307,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     if(any(plots =="biomass-ts") & !banks[i] =="BBn")
     {
       browser()
+      # set up for paired comparisons
+      survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), survey.obj[[banks[i]]][[1]]$year, 2020)
+      
       survey.ts.BM.title <- substitute(bold(paste("Survey biomass time series (",bank,")",sep="")),
                                        list(bank=banks[i]))
       if(banks[i] == "GB") survey.ts.BM.title <- substitute(bold(paste("Survey biomass time series (",bank,"-Spr)",sep="")),
@@ -1243,9 +1322,27 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                            units="in",width = 8.5, height = 11,res=420,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
       
-      survey.ts(survey.obj[[banks[i]]][[1]],Bank=banks[i],
-                years=min(survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n)],na.rm=T):yr,pdf=F, type='B',
-                ht=6.5,wd=10,clr=c('blue',"blue","darkgrey"),se=F,pch=16,add.title=T,titl =survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
+      # abundance for all banks!
+      comp <- survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:CV_120_plus) %>%
+        subset(name %in% c("I", "IR", "IPR")) 
+      
+      comp$name <- factor(comp$name, levels=c("IPR", "IR", "I"))
+      levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
+                             paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
+                             paste0("Fully recruited (\u2265", unique(comp$CS), " mm)"))
+      comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
+      
+      require(ggrepel)
+      biomass.ts <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        facet_wrap(~name, ncol=1, scales="free_y") +
+        theme_bw() +
+        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        xlab("Repeat year") +
+        ylab("Number per tow")+
+        ggtitle(survey.ts.N.title) 
+      print(biomass.ts)
       
       if(fig != "screen") dev.off()
       
@@ -1348,23 +1445,98 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     if(any(plots=="SHF"))
     {
       browser()
-      SHF.title <-  substitute(bold(paste("Shell height frequency (",bank,")",sep="")),
+      
+      SHF.title <-  substitute(paste("Shell height frequency (",bank,")",sep=""),
                                list(bank=banks[i]))  
      
       if(add.title == F) SHF.title <- ""
-      if(fig == "screen") windows(8.5,11)
-      if(fig == "png") {
-        png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 8.5, 
-            height = 11,res=420,bg="transparent")
-      }
-      if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 8.5, height = 11)
-      # Grab the last 7 years of data
+    
+      SHF <- as.data.frame(survey.obj[[banks[i]]][[2]]$n.yst[,which(as.numeric(colnames(survey.obj[[banks[i]]][[2]]$n.yst)) >= 5)])
+      SHF$year <- survey.obj[[banks[i]]][[1]]$year
+      SHF$n <- survey.obj[[banks[i]]][[1]]$n
+      SHF <- SHF %>%
+        mutate(compyear = ifelse(grepl(x=.$year, 19), 2019, 2018),
+               plot.year = ifelse(.$year %in% c("2018", "2019"), .$year, 2020)) %>%
+        pivot_longer(cols=`5`:`200`) %>%
+        mutate(plot.year = paste0(plot.year, " (n=", n, ")"))
       
-      shf.years <- survey.obj[[banks[i]]][[1]]$year[!is.na(survey.obj[[banks[i]]][[1]]$n) & (yr - survey.obj[[banks[i]]][[1]]$year) <20]
-      s.size <- survey.obj[[banks[i]]][[1]]$n[survey.obj[[banks[i]]][[1]]$year %in% shf.years]
-      numrows <- length(s.size[!is.na(s.size)])
-      shf.plt(survey.obj[[banks[i]]],from='surv',yr=shf.years, col1='grey80',col2=1,rel=F,
-              recline=c(RS,CS),add.title = T,titl = SHF.title,cex.mn=3,sample.size = T, rows=numrows)	
+      ymax <- round(ceiling(max(SHF$value) * 1.05), -1)
+      
+      if(!banks[i]=="GBb"){
+        if(add.title == F) SHF.title <- ""
+        if(fig == "screen") windows(11,11)
+        if(fig == "png") {
+          png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 11, 
+              height = 11,res=420,bg="transparent")
+        }
+        if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 11, height = 11)
+        
+        labs <- unique(dplyr::select(SHF[SHF$compyear==2018,], plot.year))
+        P2018 <- ggplot() + geom_bar(data=SHF[SHF$compyear==2018,], aes(as.numeric(name)+2.5, value), stat="identity", fill="grey80",
+                                     colour="black", width=5) + 
+          facet_wrap(~plot.year, scales="free_x", nrow=2) +
+          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year))+
+          geom_vline(data=SHF[SHF$compyear==2018,], aes(xintercept=RS))+
+          geom_vline(data=SHF[SHF$compyear==2018,], aes(xintercept=CS))+
+          theme_bw() +
+          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12),strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          scale_x_continuous(breaks=seq(5, 200, 5)) +
+          scale_y_continuous(limits = c(0, ymax)) +
+          xlab("Shell height (mm)") + 
+          ylab(substitute(paste("",frac(N,tow),),list(N="N",tow="tow"))) +
+          ggtitle("2018 Repeats")
+        
+        labs <- unique(dplyr::select(SHF[SHF$compyear==2019,], plot.year))
+        P2019 <- ggplot() + geom_bar(data=SHF[SHF$compyear==2019,], aes(as.numeric(name)+2.5, value), stat="identity", fill="grey80", 
+                                     colour="black", width=5) + 
+          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year))+
+          geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=RS))+
+          geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=CS))+
+          facet_wrap(~plot.year, scales="free_x", nrow=2) +
+          theme_bw() +
+          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12),strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          scale_x_continuous(breaks=seq(5, 200, 5)) +
+          scale_y_continuous(limits = c(0, ymax)) +
+          xlab("Shell height (mm)") + 
+          ylab(NULL)+ #substitute(paste("",frac(N,tow),),list(N="N",tow="tow")))+
+          ggtitle("2019 Repeats")
+        
+        require(patchwork)
+        print(
+          P2018 + P2019 + plot_annotation(title = SHF.title, 
+                                          theme = theme(plot.title=element_text(face = "bold", hjust=0.5, size=22)))
+        )
+      }
+      
+      if(banks[i] == "GBb"){
+        if(add.title == F) SHF.title <- ""
+        if(fig == "screen") windows(8.5,11)
+        if(fig == "png") {
+          png(paste(plot.dir,"/SHF.png",sep=""),units="in",width = 8.5, 
+              height = 11,res=420,bg="transparent")
+        }
+        if(fig == "pdf") pdf(paste(plot.dir,"/SHF.pdf",sep=""),width = 8.5, height = 11)
+        
+        labs <- unique(dplyr::select(SHF[SHF$compyear==2019,], plot.year))
+        P2019 <- ggplot() + geom_bar(data=SHF[SHF$compyear==2019,], aes(as.numeric(name)+2.5, value), stat="identity", fill="grey80", 
+                                     colour="black", width=5) + 
+          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year))+
+          geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=RS))+
+          geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=CS))+
+          facet_wrap(~plot.year, scales="free_x", nrow=2) +
+          theme_bw() +
+          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12), strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          scale_x_continuous(breaks=seq(5, 200, 5)) +
+          scale_y_continuous(limits = c(0, ymax)) +
+          xlab("Shell height (mm)") + 
+          ylab(substitute(paste("",frac(N,tow),),list(N="N",tow="tow")))+
+          ggtitle("2019 Repeats")
+        print(P2019)
+      }
+      
       if(fig != "screen") dev.off()
     } # end if(any(plots=="SHF"))    
     
@@ -1445,22 +1617,40 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     if(any(plots== "clapper-abund-ts"))
     {
       browser()
+      # set up for paired comparisons
+      clap.survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(clap.survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), clap.survey.obj[[banks[i]]][[1]]$year, 2020)
+      
       clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,")",sep="")),
                                         list(bank=banks[i]))
-      if(banks[i] == "GB")  clap.abund.ts.title <- substitute(bold(paste("Clapper abundance time series (",bank,"-Spr)",sep="")),
-                                                              list(bank=banks[i]))
       if(add.title == F) clap.abund.ts.title <- ""
       if(fig == "screen") windows(8.5,11)
       if(fig == "png") png(paste(plot.dir,"Clapper_abund_ts.png",sep=""),
                            units="in",width = 8.5, height = 11,res=420,bg = "transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"Clapper_abund_ts.pdf",sep=""),width = 8.5, height = 11)
       
-      yrs <- min(surv.Clap[[banks[i]]]$year,na.rm=T):max(surv.Clap[[banks[i]]]$year,na.rm=T)
-      survey.ts(clap.survey.obj[[banks[i]]][[1]],Bank=bank[i],pdf=F,axis.cx = 1.5, 
-                titl = clap.abund.ts.title,add.title=T, cx.mn=3, years=yrs,
-                ht=7,wd=10,clr=c('blue',"blue","darkgrey"),se=T,pch=16, plots=c("pre",'rec','com'))
+      # abundance for all banks!
+      comp <- clap.survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:NPR.cv) %>%
+        subset(name %in% c("N", "NR", "NPR")) 
       
-      if(fig != "screen") dev.off()                 
+      comp$name <- factor(comp$name, levels=c("NPR", "NR", "N"))
+      levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
+                             paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
+                             paste0("Fully recruited (\u2265", unique(comp$CS), " mm)"))
+      comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
+      
+      require(ggrepel)
+      clapabund <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        facet_wrap(~name, ncol=1, scales="free_y") +
+        theme_bw() +
+        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        xlab("Repeat year") +
+        ylab("Number per tow")+
+        ggtitle(clap.abund.ts.title) 
+      print(clapabund)
+      
+      if(fig != "screen") dev.off()         
     } # end  if(any(plots== "clapper-abund-ts"))  
     
     ##### END Clapper abundance time series      ##### END Clapper abundance time series##### END Clapper abundance time series
@@ -1473,6 +1663,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     if(any(plots== "clapper-per-ts"))
     {
       browser()
+      # set up for paired comparisons
+      clap.survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(clap.survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), clap.survey.obj[[banks[i]]][[1]]$year, 2020)
+      
       clap.per.ts.title <- substitute(bold(paste("Clapper time series (% dead ",bank,")",sep="")),
                                       list(bank=banks[i]))
       if(add.title == F) clap.per.ts.title <- ""
@@ -1482,22 +1675,36 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                            height = 11,res=420,bg = "transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"Clapper_per_ts.pdf",sep=""),width = 8.5, height = 11)
       
-      if(length(unique(surv.Clap[[banks[i]]]$year)) > 3) want.ltm <- T
-      if(length(unique(surv.Clap[[banks[i]]]$year)) < 4) want.ltm <- F
-
-      yrs <- min(surv.Clap[[banks[i]]]$year,na.rm=T):max(surv.Clap[[banks[i]]]$year,na.rm=T)
-      Clap3.plt(surv.Clap[[banks[i]]],years=yrs,add.title = T,cex.mn = 3, median.line=want.ltm,
-                titl = clap.per.ts.title,
-                CS=survey.obj[[banks[i]]][[1]]$CS[survey.obj[[banks[i]]][[1]]$year==yr], RS=survey.obj[[banks[i]]][[1]]$RS[survey.obj[[banks[i]]][[1]]$year==yr],
-                axis.cx = 1.5)
-
-      print(banks[i])
+      comp <- clap.survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:NPR.cv) %>%
+        subset(name %in% c("N", "NR", "NPR")) 
       
-      if(want.ltm==T) {
-        print(paste0(c("ClapPropLTMpre = ",
-                       "ClapPropLTMrec = ",
-                       "ClapPropLTMcom = "), round(clap.propLTMs, 3)))
-      }
+      comp2 <- survey.obj[[banks[i]]][[1]] %>%
+        pivot_longer(cols=I:CV_120_plus) %>%
+        subset(name %in% c("N", "NR", "NPR")) %>%
+        rename(live=value)
+      
+      comp <- left_join(comp, comp2) %>%
+        mutate(total=value + live) %>%
+        mutate(prop=value/total)
+      
+      comp$name <- factor(comp$name, levels=c("NPR", "NR", "N"))
+      levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
+                             paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
+                             paste0("Fully recruited (\u2265", unique(comp$CS), " mm)"))
+      comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
+      
+      require(ggrepel)
+      clapperperc <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), prop)) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), prop, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        facet_wrap(~name, ncol=1, scales="free_y") +
+        theme_bw() +
+        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        xlab("Repeat year") +
+        ylab("Percent per tow")+
+        ggtitle(clap.per.ts.title) 
+      print(clapperperc)
+      
       if(fig != "screen") dev.off()                 
     } # end if(any(plots== "clapper-per-ts"))   
     

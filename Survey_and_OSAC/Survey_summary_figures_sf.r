@@ -165,10 +165,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                         plots = plots, 
                         sub.area=sub.area, 
                         INLA=INLA, season=season, nickname=nickname)
-  }
-  else
+    stop("Not an error actually, you're just all done with the special 2020 survey!")
+  } 
   # Load the appropriate data.
   # If you used a plot shortcut, get the correct names for the plots you
+  
   if(plots == 'all') 
   {
     plots <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
@@ -451,7 +452,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                                                                                                        select=c("PID", "SID", "POS", "X", "Y", "label")), 
                                                                                                                 projection ="LL")
     } # end  if(banks[i] %in% c("Sab"))
-    
+    browser()
     #Detailed survey polygons
     if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) detail.poly.surv <- as.PolySet(detail.surv.poly[[banks[i]]],projection ="LL")
     if(banks[i] %in% c("Sab")) 
