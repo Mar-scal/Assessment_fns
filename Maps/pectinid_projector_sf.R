@@ -23,7 +23,6 @@
 ###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
 
 #5: c_sys      What coordinate system are you using, options are "ll" which is lat/lon and WGS84 (uses EPSG 4326) or "utm_zone" which is utm, you put in the zone yourself
-###               for example if you want utm_20 you can enter "32620" which will use utm zone 20 which is best for BoF and SS 
 ###               for utm_19  use "32619", this is best for GB, SPA3 and 6, if you  are using something else go nuts!
 
 #6: buffer      Add a buffer to the area plotted.  Default = 0 which just plots to the extent of the coordinates entered  Entering 0.05 will give approx a 5% buffer based on the
@@ -160,7 +159,7 @@
 
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
-                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F,
+                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, quiet=F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
                      
@@ -188,6 +187,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(length(add_inla) > 0) require(INLA) || stop ("If you want to run INLA model output, might help to install the INLA packages!!")
   if(plot_as != 'ggplot') require(ggthemes) ||stop ("Please install ggspatial which is needed for the map theme for plotly")
   if(plot_as != 'ggplot') require(plotly) || stop ("Please install plotly if you want an interactive plot")
+  
   #require(rmapshaper) || stop ("Please install rmapshaper, has a nice means of cleaning up that ugly German survey figure...")
   #require(scales) || stop ("Please install scales, needed to make legend in discrete ggplot not be in scientific notation")
   # If you are using github then we can call in the below 3 functions needed below from github, they aren't in production currently so should work fine
@@ -213,7 +213,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(repo == 'github')
   {
-    #browser()
+    #
     # Download this to the temp directory you created above
     sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R",ssl.verifypeer = FALSE)
     eval(parse(text = sc))
@@ -250,7 +250,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Get the spatial coordinates correct for the boxes, likely they are already in the Lat/Long WGS84 format, but might not be...
   # Note that this requires the boxes are already spatial polygons and have a coordinate reference system.
   #if(!is.null(add_obj)) add_obj <- st_transform(add_obj,crs = c_sys)
-  #browser()
+  #
   # ID what layers we are looking for.
   layers <- names(add_layer)
   
@@ -269,10 +269,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # Now read in the shapefile
-      eez.all <- st_read(paste0(temp2, "/EEZ.shp"))
+      eez.all <- st_read(paste0(temp2, "/EEZ.shp"), quiet=quiet)
     } else { # end if(gis.repo == 'github' )
       loc <- paste0(gis.repo,"/EEZ")
-      eez.all <- st_read(loc)
+      eez.all <- st_read(loc, quiet=quiet)
     } # end the else
     
     # We then need to transform these coordinates to the coordinates of the eez data
@@ -341,61 +341,77 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # This is a little slow when doing the whole of the Maritimes (about 15 seconds)
       # This is a lat/lon WGS84 object...
       
-      bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
-      
-      bathy <- marmap::as.raster(bathy.org)
-      
-      # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
-      bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
-      #Now if we want smooth contours we do this...
-      # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
-      if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
-      {
-        bathy.s <- bathy.org
-        bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
-        bathy.s[which(bathy.s > 0)] <- 0
-        bathy.s <- marmap::as.raster(bathy.s)
-        bathy.s <- crop(bathy.s,as_Spatial(st_transform(b.box,crs = 4326)))
-        # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
-        if(c_sys != 4326)
-        {
-          bathy.st <- st_as_stars(bathy.s)
-          b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
-          # Now warp the existing raster to the new projection grid.
-          bathy.smooth <- bathy.st %>% st_warp(b.new)
-        } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
+      # If you want to make it look like ScallopMap USGS bathy...
+      if(add_layer$bathy[1] == "ScallopMap") {
+        #Read3 bring in the data
+        bathy.poly<-read.table(paste(gis.repo,"/Bathymetry/usgs/bathy15m.csv",sep=""),sep=",",header=T) # DK revised directory August 4 2015
+        # Make sure this is a projection and is Latitude/Longitude. Need to convert from PBS format to sp then to sf
+        attr(bathy.poly,"projection") <- "LL"
+        require(PBSmapping)
+        tmp <- as.PolySet(bathy.poly,projection = "LL")
+        dat.sp <- PolySet2SpatialLines(tmp)
         
-        } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
-      
-      # Are we adding in the bathy contour lines, if so do all this fun.
-      if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
-      {
-        # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
-        if(c_sys != 4326)
-        {
-          # Now I may need to make a new grid to project to, base it on the size of the bounding box
-          b.new <- as(b.box,"Spatial")
-          # Then make this a pretty hi resolution raster
-          ras <- raster(ncol=500,nrow=500,crs = crs(b.new))
-          # Give it the correct extent
-          extent(ras) <- extent(b.new)
-          # And make it a raster
-          b.ras <- rasterize(b.new,ras)
-          # I need a new grid that is a raster object
-          re.proj.bathy <- projectRaster(bathy,b.ras)
-          re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
-          # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
-          bathy.gg <- fortify(re.proj.bathy)
-        } else { bathy.gg <- fortify(bathy)}
-        # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
-        bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
+        bathy.scallopmap <- st_as_sf(dat.sp) %>%
+          st_transform(st_crs(bath.box))%>%
+          st_crop(st_bbox(b.box))
       }
       
+      if(!add_layer$bathy[1] == "ScallopMap"){
+        bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
+        
+        bathy <- marmap::as.raster(bathy.org)
+        
+        # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
+        bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
+        #Now if we want smooth contours we do this...
+        # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
+        if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
+        {
+          bathy.s <- bathy.org
+          bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
+          bathy.s[which(bathy.s > 0)] <- 0
+          bathy.s <- marmap::as.raster(bathy.s)
+          bathy.s <- crop(bathy.s,as_Spatial(st_transform(b.box,crs = 4326)))
+          # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
+          if(c_sys != 4326)
+          {
+            bathy.st <- st_as_stars(bathy.s)
+            b.new <- b.box %>% st_transform(c_sys) %>% st_bbox() %>% st_as_stars() 
+            # Now warp the existing raster to the new projection grid.
+            bathy.smooth <- bathy.st %>% st_warp(b.new)
+          } else { bathy.smooth <- st_as_stars(bathy.s)} # If we don't reproject it's easy peasy...
+          
+        } # end if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
+        
+        # Are we adding in the bathy contour lines, if so do all this fun.
+        if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 'c' )
+        {
+          # Now if the epsg isn't 4326 I need to reproject my raster, which is a wicked pain (really we only need to do this for UTMs, but whatevs.)
+          if(c_sys != 4326)
+          {
+            # Now I may need to make a new grid to project to, base it on the size of the bounding box
+            b.new <- as(b.box,"Spatial")
+            # Then make this a pretty hi resolution raster
+            ras <- raster(ncol=500,nrow=500,crs = crs(b.new))
+            # Give it the correct extent
+            extent(ras) <- extent(b.new)
+            # And make it a raster
+            b.ras <- rasterize(b.new,ras)
+            # I need a new grid that is a raster object
+            re.proj.bathy <- projectRaster(bathy,b.ras)
+            re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
+            # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
+            bathy.gg <- fortify(re.proj.bathy)
+          } else { bathy.gg <- fortify(bathy)}
+          # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
+          bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
+        }
+      }
     } # end if(any(layers == 'bathy'))
   } # end the is.null()
   # If you want to add the NAFO division, the autoritaive versions are on the web so when we say "gis.repo = 'github'", for NAFO this is actually going
   # to NAFO's website to get them.  We have a version of these saved locally as well which is accessed when "gis.repo = 'local'"
-  #browser()
+  
   if(any(layers == 'nafo'))
   {
     # If they don't already exist and our gis.repo is github and we just want the main nafo division go get them from online
@@ -410,7 +426,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
-      nafo.divs <- combo.shp(temp2,make.sf=T)
+      nafo.divs <- combo.shp(temp2,make.sf=T, quiet=quiet)
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -424,7 +440,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(gis.repo != 'github' && add_layer$nafo == "main")
     {
       loc <- paste0(gis.repo,"/NAFO/Divisions")
-      nafo.divs <- combo.shp(loc,make.sf=T)
+      nafo.divs <- combo.shp(loc,make.sf=T, quiet=quiet)
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.divs <- st_transform(nafo.divs,c_sys)
       #trim to bbox
@@ -445,7 +461,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       # This pulls in all the layers from the above location
-      nafo.sub <- combo.shp(temp2,make.sf=T)
+      nafo.sub <- combo.shp(temp2,make.sf=T, quiet=quiet)
       
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
@@ -460,7 +476,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       # Now if we want the nafo sub-areas we do this...
       loc <- paste0(gis.repo,"/NAFO/Subareas")
-      nafo.sub <- combo.shp(loc,make.sf=T)
+      nafo.sub <- combo.shp(loc,make.sf=T, quiet=quiet)
       
       # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
       nafo.sub <- st_transform(nafo.sub,c_sys)
@@ -482,7 +498,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       if(add_layer$sfa != "offshore")
       {
-        #browser()
+        #
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
@@ -492,7 +508,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
         # This pulls in all the layers from the above location
-        inshore.spa <- combo.shp(temp2,make.sf=T)
+        inshore.spa <- combo.shp(temp2,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
@@ -514,7 +530,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         
         # This pulls in all the layers from the above location
-        offshore.spa <- combo.shp(temp2,make.sf=T)
+        offshore.spa <- combo.shp(temp2,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         #trim to bbox
@@ -540,7 +556,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       {
         loc <- paste0(gis.repo,"inshore")
         
-        inshore.spa <- combo.shp(loc,make.sf=T)
+        inshore.spa <- combo.shp(loc,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         inshore.spa  <- st_transform(inshore.spa,c_sys)
         #trim to bbox
@@ -554,7 +570,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       {
         loc <- paste0(gis.repo,"offshore")
         # This pulls in all the layers from the above location
-        offshore.spa <- combo.shp(loc,make.sf=T)
+        offshore.spa <- combo.shp(loc,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         #trim to bbox
@@ -574,7 +590,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
     } # end if(gis.repo == 'local')
   } # end if(!is.null(add_sfas)) 
-  #browser()
+  
   # Now we do the same thing for the strata
   if(any(layers == 'survey')) 
   {
@@ -591,9 +607,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
-        #browser()
+        #
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
-        inshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
+        inshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
         inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
@@ -626,7 +642,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
         
         # This pulls in all the layers from the above location
-        offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)
+        offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
         
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
@@ -647,7 +663,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(add_strata != "offshore")  
       
     }# end if(gis.repo = 'github')
-    #browser()
+    #
     # Now if you aren't using github do this...
     if(gis.repo != 'github')
     {
@@ -655,7 +671,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       {
         loc <- paste0(gis.repo,"inshore_survey_strata")
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
-        inshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
+        inshore.strata <- combo.shp(loc,make.sf=T,make.polys=F, quiet=quiet)
         inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
         inshore.strata$ID <- inshore.strata$ET_ID
@@ -673,7 +689,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"survey_boundaries")
         
         # This pulls in all the layers from the above location
-        offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F)
+        offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F, quiet=quiet)
         
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
         if(add_layer$survey[2] == 'outline') 
@@ -723,7 +739,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
         temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
         custom <- st_as_sf(temp)
-      } else { custom <- combo.shp(add_custom$obj,make.sf=T)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
+      } else { custom <- combo.shp(add_custom$obj,make.sf=T, quiet=quiet)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.
     } # end if(class(add_custom$obj)[1] == "character")
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
@@ -786,7 +802,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Just to make logic easier later, if either cfd or cfc exists we make this fancy.custom object which will tell the plot
     # not to make the simple custom plot
     if(exists('cfc') || exists('cfd')) fancy.custom <- "I'm fancy!"
-    #browser()
+    #
   } # end  if(!is.null(add_custom))
   
   # Do we want to add the labels to the figure he's what ya gotta do...
@@ -800,7 +816,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
-      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F)
+      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
       s.labels <- st_transform(s.labels,c_sys)
       
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
@@ -815,7 +831,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(gis.repo != 'github')
     {
       loc <- paste0(gis.repo,"other_boundaries/labels")
-      s.labels <-   st_read(loc)
+      s.labels <-   st_read(loc, quiet=quiet)
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
@@ -871,7 +887,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Now we need to convert to the coordinate system you want
     spd <- st_transform(spd,crs = c_sys)
     # If you want to clip the data to some coordinates/shape this is where that happens.
-    #browser()
+    
     if(!is.null(add_inla$clip))
     {
       # The clip has several options, you can use a local shapefile, or you can bring in a shapefile from a local directory
@@ -879,7 +895,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(!any(class(add_inla$clip) %in% c('sf','sfc'))) 
       {
         # If a character string I assume it is looking for a shapefile 
-        if(is.character(add_inla$clip)) clip <- st_read(add_inla$clip) 
+        if(is.character(add_inla$clip)) clip <- st_read(add_inla$clip, quiet=quiet) 
         # If it is a dataframe I assume it is a properly set up data.frame
         if(is.data.frame(add_inla$clip))   clip <- st_as_sf(add_inla$clip,coords = c('x','y'),crs = add_inla$clip$crs[1] )
         # As always sp objects are bizarre, if the clip area is an sp object this won't return a null, everything else will so... weird but works...
@@ -889,13 +905,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Now we want to transform to the correct coordinate system, I'm assuming the above will all have a CRS.
       clip <- st_transform(clip,crs = c_sys)
       # And clip the spd to the region you want.
-      spd <- st_intersection(spd,clip)
+      spd <- st_intersection(spd,st_make_valid(clip))
     } # end  if(!is.null(add_inla$clip))
     # Now to make the colour ramps...
     # First I'll make a couple of generic colour ramps 
     #I'll set one up using 100 colours and a maximium of 10 breaks, break locations based on the data.
-    #browser()
-    
+
     if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
     if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
     if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
@@ -945,11 +960,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end if(!is.null(gg.obj))
     
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
-    if(exists("final.strata"))
-    {
+    if(exists("final.strata")){
+      
       if(add_layer$survey[2] == "detailed") pect_plot <- pect_plot + new_scale("fill")  + geom_sf(data=final.strata,aes(fill= Strt_ID)) + scale_fill_manual(values = col.codes$col)
+      
     }
     if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
+    if(exists("bathy.scallopmap")) pect_plot <- pect_plot + geom_sf(data=bathy.scallopmap)  
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
     # If we have custom fancy plots we add these here
@@ -979,9 +996,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
     if(legend == T) 
     {
-      if(length(brk) <= 6) hgt <- unit(1,'cm')
-      if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(1.5,'cm')
-      if(length(brk) > 12) hgt <- unit(2,'cm')
+      if(length(brk) <= 6) hgt <- unit(0.5,'cm')
+      if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
+      if(length(brk) > 12) hgt <- unit(1,'cm')
       pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
         theme(legend.key.height =hgt,text = element_text(size=txt.size))
     }
@@ -999,7 +1016,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(!is.null(gg.obj)) pect_plot <- ggplotly(gg.obj)
     # If need be set up the basemap
     #if(is.null(gg.obj)) pect_plot <- plot_ly(multi.lines.base,color = I('grey'))
-    #browser()
+    #
     
     
     # Now add in the lines...
@@ -1078,7 +1095,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
     if(exists("spd"))
     {
-      #browser()
+      #
       pect_plot <- pect_plot %>% add_sf(data=spd,split = ~ brk,  text = ~paste("Values:", brk),
                                         line = list(width=0), fillcolor = ~col,
                                         hoveron = "fills",
@@ -1087,7 +1104,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
     if(exists("custom.cols"))
     {
-      #browser()
+      #
       pect_plot <- pect_plot %>% add_sf(data=custom.cols,split = ~ brk,  text = ~paste("Values:", brk),
                                         line = list(width=0), fillcolor = ~col,
                                         hoveron = "fills",

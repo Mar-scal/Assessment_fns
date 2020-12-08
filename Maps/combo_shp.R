@@ -6,7 +6,7 @@
 #1:   loc         The folder in which all the different shapefile layers are found.
 #2:   make.sf     Do you want the object returned to be an SF or an sp object.  Defaults to = F to maintain backwards compatability with older code.
 #3:   make.polys  Do you want the object to be returned as a polygon.  This is handy if you have a shapefile that is lines but you want polygons returned
-combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F)
+combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F, quiet=F)
 {
   require(sf)  || stop("You need to have the package 'sf' or this won't work pal")
   require(rgdal)  || stop("You need to have the package 'sf' or this won't work pal")
@@ -18,7 +18,7 @@ combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F)
   # Run this for each layer
   for (i in 1:length(lyr)) 
   {
-    my.shp[[i]] <- st_read(paste0(loc,"/",lyr[i], ".shp"))
+    my.shp[[i]] <- st_read(paste0(loc,"/",lyr[i], ".shp"), quiet=quiet)
     # If your shapefile doesn't have a CRS set it to 4326 and print a warning
     if(is.na(st_crs(my.shp[[i]]))) 
     {

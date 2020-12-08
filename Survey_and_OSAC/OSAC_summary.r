@@ -91,7 +91,7 @@ if(!is.null(bank))
   yr <- max(years)
   # So we update the fishery data with the lastest for this analysis in case the above is out of date.
   # This queries the offshore so gets the most up to date fishery information which we should be sure we are using!
-  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct, direct_fns=direct_fns)
+  logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pwd,db.con=db.con,direct=direct, direct_fns=direct_fns, get.marfis=F)
   fish.dat<-merge(new.log.dat,old.log.dat,all=T)
   fish.dat$ID<-1:nrow(fish.dat)
   
@@ -107,7 +107,8 @@ if(!is.null(bank))
   #  exist.
   # This object also contains the catch in each cell for each bank...
   print("fishery_figures")
-  bank.spatial <- fishery_figures(fish.dat=fish.dat,bnk=bnk,max.date=mx.dt,dirct=direct,poly.brd=poly.brd,
+  
+  bank.spatial <- fishery_figures(fish.dat=fish.dat,bnk=bnk,max.date=mx.dt,direct=direct, direct_fns = direct_fns,poly.brd=poly.brd,
                                   years=years,save.fig=save.fig,add.titles = add.titles)
   cpue.dat <- bank.spatial[[2]]
   bank.spatial <- bank.spatial[[1]]
@@ -296,15 +297,16 @@ if(!is.null(bank))
   {
     print("meat count")
     # Set up the path you want to go to pull the data in from, the default is the Port Sampling Reports folder
-    if(mc.path == "default") mc.path <- paste0("Data/Port_Sampling/", yr, "/Reports/")
+    if(mc.path == "default") mc.path <- paste0("Data/PortSampling/PS", yr, "/Reports/")
     path <-  paste0(direct,mc.path) 
     fnames <- list.files(path = path)
     meat.count <- meat.count.table(filenames=fnames, path=path)
-    if(export == T) write.xlsx(meat.count$summarytable,paste0(direct,"Data/Port_sampling/",yr,"/Meat_count_summary.xlsx"),sheet="Meat_counts")
+    if(export == T) write.xlsx(meat.count$summarytable,paste0(direct,"Data/PortSampling/PS",yr,"/Meat_count_summary.xlsx"),sheet="Meat_counts")
   } # end if(calc.mc == T)
   # Since we save the thing we need to make the object for the list, just make it a null if you haven't calculated it.
   if(calc.mc == F) meat.count <- NULL
   # Save the results
+  
   if(save.res == T) save(fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch,cpue.dat,meat.count,
                          file = paste(direct,"Data/Fishery_data/Summary/",yr,"/OSAC_summary.RData",sep=""))
   
@@ -409,14 +411,14 @@ assign("OSAC_res",OSAC_res,pos=1)
 #### If only interested in the meat count table then just run this and save the output....
 ### Uses data from Port Sampling Reports. You must copy all of the word docs from Offshore scallop/Amy/PortSampling/PSYEAR/JoansOriginals into your direct's Data/Port_Sampling/2018 folder (whichever year you're on)
 ### Only copy over the word docs that have Fsh or Fzn in the names.
-if(is.null(bank) && calc.mc == T)
+if(is.null(bank) && calc.mc ==T)
 {
   # Set up the path you want to go to pull the data in, for now hard coded more or less, but we 
-  if(mc.path == "default") mc.path <- paste0("Data/Port_Sampling/", yr, "/Reports/")
+  if(mc.path == "default") mc.path <- paste0("Data/PortSampling/PS", yr, "/Reports/")
   path <-  paste0(direct,mc.path) 
   fnames <- list.files(path = path)
   meat.count <- meat.count.table(filenames=fnames, path=path)
-  if(export == T) write.xlsx(meat.count$summarytable,paste0(direct,"Data/Port_sampling/",yr,"/Meat_count_summary.xlsx"),sheet="Meat_counts")
+  if(export == T) write.xlsx(meat.count$summarytable,paste0(direct,"Data/PortSampling/PS",yr,"/Meat_count_summary.xlsx"),sheet="Meat_counts")
   assign("meat.count",meat.count,pos=1)
 } # end if(is.null(bank))
 
