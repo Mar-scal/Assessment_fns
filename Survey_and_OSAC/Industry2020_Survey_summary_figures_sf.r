@@ -106,7 +106,7 @@
 
 #8: INLA:       What to you want to do with the spatial modelling.  Three options, the default is INLA= "run.full"  
 ###               1:  "run"       This will run the INLA for the spatial plot requested, 
-###               2: "run.full"   THIS WILL RUN AND SAVE the models for ALL spatial figures, not just the models specified by the "plots" arguement above.
+###               2: "run.full"   THIS WILL RUN AND SAVE the models for all of the specified spatial figures, not just the models specified by the "plots" arguement above.
 ###                               This can be slow (depends on computer), but shouldn't take more than an hour for all banks based on my testing
 ###                               The results are saved with the Bank name and spatial resolution in the file name so that high and low runs can be saved and 
 ###                               recalled as necessary.  This uses the prediction stack in INLA and provides the results on a fine spatial mesh
@@ -148,11 +148,14 @@
 Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                                 fig=fig, scale.bar = NULL, bathy = 50, add.title = T, INLA = "run" , s.res = "low",
                                 direct = direct, direct_fns = direct_fns,
-                                save.gg = F, season="both",nickname=NULL, sub.area=F, full.GB=F)
+                                save.gg = F, season="both",nickname=NULL, sub.area=F, full.GB=F,
+                                se=F)
 { 
   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr 
   
+  # Freya was here... so you need more packages. Sorry. 
   require(tidyverse)
+  require(ggrepel)
   
   # Load the appropriate data.
   # If you used a plot shortcut, get the correct names for the plots you
@@ -270,12 +273,14 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
   
   # These are the functions used to within the heart of the code to make stuff happen
   source(paste(direct_fns,"Maps/pectinid_projector_sf.R",sep="")) 
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/stdts.plt.R",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/survey.ts.r",sep=""),local=T)
   source(paste(direct_fns,"Survey_and_OSAC/shf.plt.r",sep=""))
   source(paste(direct_fns,"Survey_and_OSAC/shwt.plt1.r",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
+  source(paste0(direct_fns, "Maps/github_spatial_import.R", sep=""))
   source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
@@ -421,8 +426,18 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       
       bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
       
-      surv.Live[[banks[i]]]$year <- ifelse(!is.na(surv.Live[[banks[i]]]$pastyear), 2020, surv.Live[[banks[i]]]$year)
-      surv.Clap[[banks[i]]]$year <- ifelse(!is.na(surv.Clap[[banks[i]]]$pastyear), 2020, surv.Clap[[banks[i]]]$year)
+      if(banks[i]=="BBn"){
+        surv.Live[[banks[i]]]$year <- ifelse(!is.na(surv.Live[[banks[i]]]$pastyear), 2020, surv.Live[[banks[i]]]$year)
+        surv.Clap[[banks[i]]]$year <- ifelse(!is.na(surv.Clap[[banks[i]]]$pastyear), 2020, surv.Clap[[banks[i]]]$year)
+      }
+      
+      if(banks[i] %in% c("GBa", "GBb")){
+        surv.Live[["GBa"]]$year <- ifelse(!is.na(surv.Live[["GBa"]]$pastyear), 2020, surv.Live[["GBa"]]$year)
+        surv.Clap[["GBa"]]$year <- ifelse(!is.na(surv.Clap[["GBa"]]$pastyear), 2020, surv.Clap[["GBa"]]$year)
+        surv.Live[["GBb"]]$year <- ifelse(!is.na(surv.Live[["GBb"]]$pastyear), 2020, surv.Live[["GBb"]]$year)
+        surv.Clap[["GBb"]]$year <- ifelse(!is.na(surv.Clap[["GBb"]]$pastyear), 2020, surv.Clap[["GBb"]]$year)
+      }
+      
       
       # Next we get the survey locations
       if(banks[i] %in% c("BBn"))
@@ -437,7 +452,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                           lat=c(surv.Live[["GBa"]]$lat[surv.Live[["GBa"]]$year == yr],surv.Live[["GBb"]]$lat[surv.Live[["GBb"]]$year == yr]))
         
         # The condition and meat count data.
-        CF.current[[banks[i]]]$year <- 2020
+        CF.current[["GBa"]]$year <- 2020
+        CF.current[["GBb"]]$year <- 2020
+                   
         loc.cf <- data.frame(lon = c(CF.current[["GBa"]]$lon[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lon[CF.current[["GBb"]]$year == yr]),
                              lat=c(CF.current[["GBa"]]$lat[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lat[CF.current[["GBb"]]$year == yr]))
         # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
@@ -539,6 +556,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           fitted <- NULL
           for(k in 1:length(spatial.maps))
           {
+            print(spatial.maps[k])
             # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
             if(spatial.maps[k] == "PR-spatial")    
             {
@@ -584,6 +602,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
             
             if(spatial.maps[k] == "CF-spatial" & !banks[i] == "BBn")       
             {
+              
               # This is the stack for the INLA model
               stk <- inla.stack(tag="est",data=list(y = tmp.cf$CF, link=1L),
                                 effects=list(a0 = rep(1, nrow(tmp.cf)), s = 1:spde$n.spde),
@@ -679,18 +698,20 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                                                       dat= tmp.gp$gp.sh)
             } # end if(spatial.maps[k] == "PR-spatial")  
             
-            
-            if(spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial","SH-spatial","SH.GP-spatial",
-                                      "MW-spatial","MW.GP-spatial")) mod.res[[spatial.maps[k]]] <- 
-                #exp(
-                mod$summary.random$s$mean + mod$summary.fixed$mean#)
+            # for the poisson and lognormal models...
+            if(any(grepl(x=mod$call, pattern="family1")) | any(grepl(x=mod$call, pattern="family.clap")) | any(grepl(x=mod$call, pattern="family.gp"))) {
+              mod.res[[spatial.maps[k]]] <- exp(mod$summary.random$s$mean + mod$summary.fixed$mean)
+            }
             
             # Now for the Gaussian models.
-            if(spatial.maps[k] %in% c("CF-spatial","MC-spatial")  & !banks[i] == "BBn") mod.res[[spatial.maps[k]]] <- 
+            if(any(grepl(x=mod$call, pattern="family1.cf"))) mod.res[[spatial.maps[k]]] <- 
                 mod$summary.random$s$mean + mod$summary.fixed$mean
             
             # print a message if the model didn't work:
             if(max(mod.res[[spatial.maps[k]]], na.rm=T) == "Inf") stop(paste0("Inf predictions in mod.res[[spatial.maps[k]]]. Please try a different mesh for ", banks[i], " ", spatial.maps[k], ".\nRecommend changing inla.mesh.2d max.edge argument very slightly."))
+
+            if(min(mod.res[[spatial.maps[k]]], na.rm=T) < 0) stop(paste0("Negative predictions in mod.res[[spatial.maps[k]]]. Please try a different mesh for ", banks[i], " ", spatial.maps[k], ".\nDid you deal with the distribution properly?"))
+            
             # Needed to make the clapper spatial work...
             if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
             
@@ -698,6 +719,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           } # end for(k in 1:length(spatial.maps)) # End the loop for getting all the data needed for a bank for the spatial maps.
         } # end if(length(spatial.maps > 0))
       } # end the if(length(grep("run",INLA)) > 0)
+      
       print("finished running normal models")
       
       
@@ -798,37 +820,71 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           maps.to.make <- spatial.maps
         } # end if(any(plots %in% "user.SH.bins") ==F) 
         
-        # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
-        browser()
-        p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = c(50, 's'), scale.bar= scale.bar, survey=c('offshore', 'outline')))
         
+        # basemap
+        # want to draw the boundary on top of inla stuff, so load it in now
+        bound.survey.sf <- github_spatial_import("survey_boundaries", "survey_boundaries.zip", direct_fns = direct_fns) %>%
+          filter(ID==banks[i])
+        # we only surveyed the northern portion of GBa so need to deal with that here... 
+        if(banks[i] == "GBa"){
+          north <- st_bbox(st_as_sf(data.frame(y=c(41.6, st_bbox(bound.survey.sf)$ymax[1]),
+                                               x=c(st_bbox(bound.survey.sf)$xmin[1], st_bbox(bound.survey.sf)$xmax[1])),
+                                    coords = c("x","y"),crs = 4326))
+          
+          bound.survey.sf <- bound.survey.sf %>%
+            st_crop(north)
+          
+          extent <- data.frame(x=c(-67.15,-65.85), y=c(41.6, 42.30), crs=4326)
+          
+          p <- pecjector(area = extent, plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+                         crs = st_crs(mesh$crs), quiet=T,
+                         add_layer = list(eez="eez", bathy="ScallopMap"))
+        }
         
-        # Initialize a counter...
+        #  GBb and BBn are the entire banks though
+        if(!banks[i] == "GBa") {
+          p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+                       crs = st_crs(mesh$crs), quiet=T,
+                       add_layer = list(eez="eez", bathy="ScallopMap"))
+        }
+        
+        # the legends go in different spots depending on the bank.
+        if(banks[i] == "BBn") {
+          p <- p +
+            theme(panel.grid=element_blank(), axis.ticks=element_line(),legend.position = c(1, 0), legend.box.just = "right", legend.justification = c(1,0))
+        }
+        if(!banks[i] == "BBn") {
+          p <- p +
+            theme(panel.grid=element_blank(), axis.ticks=element_line(),legend.position = c(0, 0), legend.box.just = "left", legend.justification = c(0,0))
+        }
+        # manually adjust the bathy lines
+        p$layers[[2]]$aes_params$colour <- "blue"
+        p$layers[[2]]$aes_params$alpha <- 0.25
+        
+       # Initialize a counter...
         count = 0
         # Make the maps...
         for(m in 1:n.maps)
         {
+          
           # This is what we want for the spatial count maps
           if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
           {
             base.lvls=c(0,1,5,10,50,100,500,1000,2000,5000,10000,20000,50000,100000)
             cols <- c(rev(viridis::plasma(length(base.lvls[base.lvls < 2000]),alpha=0.7,begin=0.6,end=1)),
                       rev(viridis::plasma(length(base.lvls[base.lvls > 1000])-1,alpha=0.8,begin=0.1,end=0.5)))
+                      
             # Now set up the figure titles, different title depending on the spatial map here.
             if(maps.to.make[m]  == "FR-spatial")
             {
               fig.title <- substitute(bold(paste("Fully recruited scallops (" ,"">=a, " mm " , bank,"-",year,")",sep="")),
                                       list(a=as.character(CS),year=as.character(yr),bank=banks[i]))
-              if(banks[i] == "GB") fig.title <- substitute(bold(paste("Fully recruited scallops (" ,"">=a, " mm " , bank,"-Spr-",year,")",sep="")),
-                                                           list(a=as.character(CS),year=as.character(yr),bank=banks[i]))
             } # end if(maps.to.make[m]  == "FR-spatial")
             if(maps.to.make[m]  == "Rec-spatial")
             {
               fig.title <- substitute(bold(paste("Recruit scallops (",b- a, " mm " , bank,"-",year,")",sep="")),
                                       list(a=as.character(CS-1),b=as.character(RS),year=as.character(yr),bank=banks[i]))
-              if(banks[i] == "GB") fig.title <- substitute(bold(paste("Recruit scallops (",b- a, " mm " , bank,"-Spr-",year,")",sep="")),
-                                                           list(a=as.character(CS-1),b=as.character(RS),year=as.character(yr),bank=banks[i]))
+
             } # end if(maps.to.make[m]  == "Rec-spatial")
             if(maps.to.make[m]  == "PR-spatial")
             {
@@ -856,8 +912,8 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
             
             fig.title <- substitute(bold(paste("Condition factor (", bank,"-",year,")",sep="")),
                                     list(year=as.character(yr),bank=banks[i]))
-            if(banks[i] == "GB") fig.title <- substitute(bold(paste("Condition factor (", bank,"-Spr-",year,")",sep="")),
-                                                         list(year=as.character(yr),bank=banks[i]))
+            # if(banks[i] == "GB") fig.title <- substitute(bold(paste("Condition factor (", bank,"-Spr-",year,")",sep="")),
+            #                                              list(year=as.character(yr),bank=banks[i]))
             leg.title <- cf.lab
             
           } # end if(maps.to.make[m]  %in% c("CF-spatial")   
@@ -976,11 +1032,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
             if(length(grep("bm",maps.to.make[m])) >0) leg.title <- B.tow.lab # If it is biomass then the legend needs the biomass title.
           } #end if(maps.to.make[m]  %in% bin.names) 
           
-          browser()
-          
-          # Don't add the titles?
-          if(add.title == T)  p <- p + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20))
-          
+
           
           ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
           ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
@@ -989,16 +1041,27 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           if(fig == "pdf") pdf(paste(plot.dir,maps.to.make[m],".pdf",sep=""),width = 11,height = 8.5,bg = "transparent")
           if(fig == "screen") windows(11,8.5)
           
-          if(any(mod.res[[maps.to.make[m]]] <0)) {
-            message(paste0(maps.to.make[m], " - ", banks[i], " - reset ", length(mod.res[[maps.to.make[m]]][mod.res[[maps.to.make[m]]] <0]), " negative values to 0")) 
-            mod.res[[maps.to.make[m]]][mod.res[[maps.to.make[m]]]<0] <- 0
-          }
-          
+          # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
           # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
-          p2 <- pecjector(gg.obj = p, area = banks[i],plot = F,direct_fns = direct_fns, crs = st_crs(mesh$crs)[1]$epsg,
-                          add_inla= list(field = mod.res[[maps.to.make[m]]],mesh = mesh, dims=s.res,clip = bound.poly.surv.sp,
-                                         scale = list(scale = "discrete",breaks = base.lvls, palette = cols,leg.name=leg.title))) 
-          
+          if(!is.null(mod.res[[maps.to.make[m]]])){
+            if(!banks[i] == "GBa"){
+              p2 <- pecjector(gg.obj=p, area=banks[i], legend=T,
+                              add_layer=list(NULL),
+                              add_inla= list(field = mod.res[[maps.to.make[m]]],mesh = mesh, dims=s.res,clip = bound.poly.surv.sp,
+                                             scale = list(scale = "discrete",breaks = base.lvls, palette = cols,leg.name=leg.title, alpha=0.75))) +
+                geom_sf(data=bound.survey.sf, colour="black", fill=NA)
+            }
+            if(banks[i] == "GBa"){
+              p2 <- pecjector(gg.obj=p, area=extent, legend=T,
+                              add_layer=list(NULL),
+                              add_inla= list(field = mod.res[[maps.to.make[m]]],mesh = mesh, dims=s.res,clip = bound.survey.sf,
+                                             scale = list(scale = "discrete",breaks = base.lvls, palette = cols,leg.name=leg.title, alpha=0.75))) +
+                geom_sf(data=st_crop(bound.survey.sf, north), colour="black", fill=NA)
+            }
+            
+            # Don't add the titles?
+            if(add.title == T)  p2 <- p2 + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20, hjust=0.5))
+          }
           
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
           ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
@@ -1016,21 +1079,23 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
             surv <- st_transform(surv,crs = st_crs(mesh$crs))#[2]$epsg)
             surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
             # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
-            if(length(unique(surv$`Tow type`)) ==1) shp <- 21
+            if(length(unique(surv$`Tow type`)) ==1) shp <- 16
             
             #if(banks[i] == "Ger" & length(shp) == 2) shp <- c(21,15)
             
             # Make the plot
-            p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
+            p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp)# +
+              #scale_x_continuous(expand = c(0.02, 0.02))
           }
           
           
           if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial") & !banks[i]=="BBn")
           {
             surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
-            surv <- st_transform(surv,crs = st_crs(mesh$crs)[1]$epsg)
+            surv <- st_transform(surv,crs = st_crs(mesh$crs))#[1]$epsg)
             surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
-            p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) 
+            if(length(unique(surv$`Tow type`)) ==1) shp <- 16
+            p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
           }
           
           ## NEXT UP FIGURE OUT THE SEEDBOXES!
@@ -1046,7 +1111,9 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           }
 
           # Now print the figure
-          print(p3)
+          if(!is.null(mod.res[[maps.to.make[m]]])){
+            print(p3)
+          }
           if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
           if(fig != "screen") dev.off()
         } # end for(m in 1:n.maps)  
@@ -1068,8 +1135,17 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
-      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                     add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = c(50, 's'),scale.bar = scale.bar, survey=c('offshore', 'outline')))
+      bound.survey.sf <- github_spatial_import("survey_boundaries", "survey_boundaries.zip", direct_fns = direct_fns) %>%
+        filter(ID==banks[i])
+      
+      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, quiet=T, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+                     add_layer = list(eez = 'eez', bathy = "ScallopMap", scale.bar = scale.bar)) 
+      p <- p + 
+        geom_sf(data=bound.survey.sf, colour="black", fill=NA, size=1.5)
+      
+      # manually adjust the bathy lines
+      p$layers[[2]]$aes_params$colour <- "blue"
+      p$layers[[2]]$aes_params$alpha <- 0.25
       #print(p)
       
       # For the banks with detailed strata...
@@ -1086,7 +1162,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       surv <- st_transform(surv,crs = st_crs(loc.sf))
       surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
-      if(length(unique(surv$`Tow type`)) ==1) shp <- 21
+      if(length(unique(surv$`Tow type`)) ==1) shp <- 16
       
       # For this figure we want full bank names, this is ugly hack but does the trick.
       if(add.title == T)
@@ -1168,7 +1244,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     ####################################  MWSH and CF Time series plot #################################### 
     if(any(plots == "MW-SH") & !banks[i] == "BBn")
     {
-      browser()
+      
       MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                                list(year=as.character(yr),bank=banks[i]))
       CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),
@@ -1194,19 +1270,28 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
         pivot_longer(cols=I:CF) %>%
         subset(name %in% c("CF")) 
       
+      ndetailed <- CF.current[[banks[i]]] %>%
+        group_by(year=as.numeric(year)) %>%
+        tally(name = "ndetailed")
+      
+      ndetailed$compyear <- ifelse(grepl(x = ndetailed$year, 19), 2019, 2018)
       comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
       
-      cf <- ggplot() +  geom_point(data=comp, aes(plot.year, value,  colour=paste0(as.factor(compyear), " (n=", n, ")"))) + 
-        geom_line(data=comp, aes(plot.year, value, group=as.factor(compyear), colour=paste0(as.factor(compyear), " (n=", n, ")"))) +
+      comp <- left_join(comp, select(ndetailed, -year))
+      
+      cf <- ggplot() +  geom_point(data=comp, aes(plot.year, value,  colour=paste0(as.factor(compyear), " (n=", ndetailed, ")"))) + 
+        geom_line(data=comp, aes(plot.year, value, group=as.factor(compyear), colour=paste0(as.factor(compyear), " (n=", ndetailed, ")"))) +
         theme_bw() +
-        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
         scale_colour_manual(values=c("blue", "red"), name="Repeat year") +
         scale_x_continuous(breaks=c(2018, 2019, 2020), name = "Survey year") +
         ylab(cf.lab) +
         ylim(4,25)+
-        theme(axis.title.y = element_text(angle = 0, vjust=0.5, size=18), 
+        theme(panel.grid=element_blank(), 
+              strip.text = element_text(hjust=0, size=14), 
+              strip.background = element_rect(colour=NA, fill=NA),
+              axis.title.y = element_text(angle = 0, vjust=0.5, size=18), 
               axis.title.x = element_text(vjust=0,size=18), 
-              legend.position=c(.8,.25),
+              legend.position=c(.8,.2),
               legend.text=element_text(size=12),
               legend.title=element_text(size=14),
               plot.title = element_text(size=22, hjust=0.5),
@@ -1247,7 +1332,6 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     #####   THE ABUNDANCE TIME SERIES FIGURE #####   THE ABUNDANCE TIME SERIES FIGURE#####   THE ABUNDANCE TIME SERIES FIGURE      
     if(any(plots=="abund-ts"))
     {
-      browser()
       
       # set up for paired comparisons
       survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), survey.obj[[banks[i]]][[1]]$year, 2020)
@@ -1256,41 +1340,103 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                                       list(year=as.character(yr),bank=banks[i]))
       
       if(add.title == F) survey.ts.N.title <- ""
-      if(fig == "screen") windows(8.5,11)
-      
-      if(fig == "png") png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
-                          width = 8.5, height = 11,res=420,bg="transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
       
       # abundance for all banks!
       comp <- survey.obj[[banks[i]]][[1]] %>%
-        pivot_longer(cols=I:CV_120_plus) %>%
-        subset(name %in% c("N", "NR", "NPR")) 
+        pivot_longer(cols=I:CV_120_plus)
+      
+      if(se==F){
+        comp <- comp %>% subset(name %in% c("N", "NR", "NPR")) 
+      }
+      if(se==T){
+        comp.cv <- comp %>% subset(name %in% c("N.cv", "NR.cv", "NPR.cv")) %>%
+          rename(cv.value=value)
+        comp.cv$name <- str_replace(comp.cv$name, pattern=".cv", replacement="")
+        comp <- comp %>% subset(name %in% c("N", "NR", "NPR")) 
+        comp <- full_join(comp, comp.cv) %>% select(year, n, plot.year, name, value, cv.value)
+      }
       
       comp$name <- factor(comp$name, levels=c("NPR", "NR", "N"))
       levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
                              paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
                              paste0("Fully recruited (\u2265", unique(comp$CS), " mm)"))
       comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
-      
-      # abundA <- ggplot() + geom_point(data=comp, aes(plot.year, value, colour=as.factor(compyear))) + facet_wrap(~name, ncol=1, scales="free_y") +
-      #   geom_line(data=comp, aes(plot.year, value, group=as.factor(compyear), colour=as.factor(compyear))) +
-      #   theme_bw() +
-      #   theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
-      #   scale_colour_manual(values=c("blue", "red"), name="Repeat year") +
-      #   scale_x_continuous(breaks=c(2018, 2019, 2020), name = "Survey year") +
-      #   ylab("Number per tow")+
-      #   ggtitle(survey.ts.N.title)
-      
-      require(ggrepel)
-      abundB <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
-        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
-        facet_wrap(~name, ncol=1, scales="free_y") +
+
+      abundB <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value), size=3) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), 
+                                       value, label=as.factor(plot.year)), size=5,
+                          point.padding = 0.75, min.segment.length = 0.1, nudge_x=0.15, arrow=arrow(length=unit(0.05, "inches"))) + 
+        facet_wrap(~name, ncol=1, scales="free_y") + 
         theme_bw() +
-        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        theme(panel.grid=element_blank(), 
+              strip.text = element_text(hjust=0, size=14), 
+              axis.title=element_text(size=14), 
+              axis.text=element_text(size=12),
+              axis.title.y = element_text(angle=0, vjust=0.5), 
+              strip.background = element_rect(colour=NA, fill=NA),
+              plot.title = element_text(size=22, hjust=0.5)) +
         xlab("Repeat year") +
-        ylab("Number per tow")+
-        ggtitle(survey.ts.N.title) 
+        ylab(substitute(paste("",frac(N,tow),),list(N="N",tow="tow"))) +
+        ggtitle(survey.ts.N.title)
+      
+      if(se==T) abundB <- abundB + 
+        geom_errorbar(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), ymin=value-(value*cv.value), ymax=value+(value*cv.value)), width=0.05) 
+        
+      
+      if(banks[i] == "GBb" & se==F) {
+        source(paste0(direct_fns, "/Other_functions/scale_override.R"))
+        abundB <- abundB + facet_wrap_custom(~name, ncol=1, scales="free_y", 
+                                   scale_overrides = list(
+                                     scale_override(which = 1, 
+                                                    scale = scale_y_continuous(breaks=seq(0,300,50), 
+                                                                               limits=c(0,300))),
+                                     scale_override(which = 2, 
+                                                    scale = scale_y_continuous(breaks=seq(0,200,50), 
+                                                                               limits=c(0,200))),
+                                     scale_override(which = 3, 
+                                                    scale = scale_y_continuous(breaks=seq(0,600,100), 
+                                                                               limits=c(0,600)))
+                                   ))
+      }
+      
+      
+      if(banks[i] == "BBn" & se==F) {
+        source(paste0(direct_fns, "/Other_functions/scale_override.R"))
+        abundB <- abundB + facet_wrap_custom(~name, ncol=1, scales="free_y", 
+                                             scale_overrides = list(
+                                               scale_override(which = 1, 
+                                                              scale = scale_y_continuous(breaks=seq(0,900,150), 
+                                                                                         limits=c(0,900))),
+                                               scale_override(which = 2, 
+                                                              scale = scale_y_continuous(breaks=seq(0,30,5), 
+                                                                                         limits=c(0,30))),
+                                               scale_override(which = 3, 
+                                                              scale = scale_y_continuous(breaks=seq(0,200,50), 
+                                                                                         limits=c(0,200)))
+                                             ))
+      }
+      
+      if(banks[i] == "GBa" & se==F) {
+        source(paste0(direct_fns, "/Other_functions/scale_override.R"))
+        abundB <- abundB + facet_wrap_custom(~name, ncol=1, scales="free_y", 
+                                             scale_overrides = list(
+                                               scale_override(which = 1, 
+                                                              scale = scale_y_continuous(breaks=seq(0,500,100), 
+                                                                                         limits=c(0,500))),
+                                               scale_override(which = 2, 
+                                                              scale = scale_y_continuous(breaks=seq(0,100,20), 
+                                                                                         limits=c(0,100))),
+                                               scale_override(which = 3, 
+                                                              scale = scale_y_continuous(breaks=seq(0,500,100), 
+                                                                                         limits=c(0,500)))
+                                             ))
+      }
+      
+      if(fig == "screen") windows(8.5,11)
+      if(fig == "png") png(paste(plot.dir,"/abundance_ts.png",sep=""),units="in",
+                           width = 8.5, height = 11,res=300,bg="transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/abundance_ts.pdf",sep=""),width = 8.5, height = 11)
+      
       print(abundB)
       
       if(fig != "screen") dev.off()
@@ -1306,7 +1452,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     
     if(any(plots =="biomass-ts") & !banks[i] =="BBn")
     {
-      browser()
+      
       # set up for paired comparisons
       survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), survey.obj[[banks[i]]][[1]]$year, 2020)
       
@@ -1324,9 +1470,19 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       
       # abundance for all banks!
       comp <- survey.obj[[banks[i]]][[1]] %>%
-        pivot_longer(cols=I:CV_120_plus) %>%
-        subset(name %in% c("I", "IR", "IPR")) 
+        pivot_longer(cols=I:CV_120_plus)  
       
+      if(se==F){
+        comp <- comp %>% subset(name %in% c("I", "IR", "IPR")) 
+      }
+      if(se==T){
+        comp.cv <- comp %>% subset(name %in% c("I.cv", "IR.cv", "IPR.cv")) %>%
+          rename(cv.value=value)
+        comp.cv$name <- str_replace(comp.cv$name, pattern=".cv", replacement="")
+        comp <- comp %>% subset(name %in% c("I", "IR", "IPR")) 
+        comp <- full_join(comp, comp.cv) %>% select(year, n, plot.year, name, value, cv.value)
+      }
+
       comp$name <- factor(comp$name, levels=c("IPR", "IR", "I"))
       levels(comp$name) <- c(paste0("Pre-recruits (<", unique(comp$RS), " mm)"),
                              paste0("Recruits (", unique(comp$RS), "-", unique(comp$CS)-1, " mm)"),
@@ -1334,14 +1490,60 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       comp$compyear <- ifelse(grepl(x = comp$year, 19), 2019, 2018)
       
       require(ggrepel)
-      biomass.ts <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
-        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+      biomass.ts <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value/1000), size=3) + 
+        geom_text_repel(data=comp, 
+                        aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value/1000, label=as.factor(plot.year)), size=5, 
+                        point.padding = 0.75, min.segment.length = 0.1, nudge_x=0.15, arrow=arrow(length=unit(0.05, "inches"))) +  
         facet_wrap(~name, ncol=1, scales="free_y") +
         theme_bw() +
-        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        theme(panel.grid=element_blank(), 
+              strip.text = element_text(hjust=0, size=14), 
+              axis.title=element_text(size=14), 
+              axis.text=element_text(size=12),
+              axis.title.y = element_text(angle=0, vjust=0.5), 
+              strip.background = element_rect(colour=NA, fill=NA),
+              plot.title = element_text(size=22, hjust=0.5)) +
         xlab("Repeat year") +
-        ylab("Number per tow")+
-        ggtitle(survey.ts.N.title) 
+        ylab(substitute(paste("",frac(kg,tow),),list(N="kg",tow="tow"))) +
+        ggtitle(survey.ts.BM.title) 
+      
+      if(se==T) biomass.ts <- biomass.ts + 
+        geom_errorbar(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), ymin=(value-(value*cv.value))/1000, ymax=(value+(value*cv.value))/1000), width=0.05) 
+      
+      if(banks[i] == "GBb" & se==F) {
+        source(paste0(direct_fns, "/Other_functions/scale_override.R"))
+        biomass.ts <- biomass.ts + facet_wrap_custom(~name, ncol=1, scales="free_y", 
+                                   scale_overrides = list(
+                                     scale_override(which = 1, 
+                                                    scale = scale_y_continuous(breaks=seq(0,1.5,.25), 
+                                                                               limits=c(0,1.5))),
+                                     scale_override(which = 2, 
+                                                    scale = scale_y_continuous(breaks=seq(0,1.5,.25), 
+                                                                               limits=c(0,1.5))),
+                                     scale_override(which = 3, 
+                                                    scale = scale_y_continuous(breaks=seq(0,10,1.5), 
+                                                                               limits=c(0,10)))
+                                   ))
+      }
+      
+      if(banks[i] == "GBa" & se==F) {
+        source(paste0(direct_fns, "/Other_functions/scale_override.R"))
+        biomass.ts <- biomass.ts + facet_wrap_custom(~name, ncol=1, scales="free_y", 
+                                                     scale_overrides = list(
+                                                       scale_override(which = 1, 
+                                                                      scale = scale_y_continuous(breaks=seq(0,1.2,.3), 
+                                                                                                 limits=c(0,1.2))),
+                                                       scale_override(which = 2, 
+                                                                      scale = scale_y_continuous(breaks=seq(0,1.2,.3), 
+                                                                                                 limits=c(0,1.2))),
+                                                       scale_override(which = 3, 
+                                                                      scale = scale_y_continuous(breaks=seq(0,12.5,3), 
+                                                                                                 limits=c(0,12.5)))
+                                                     ))
+      }
+      
+      
+      
       print(biomass.ts)
       
       if(fig != "screen") dev.off()
@@ -1358,7 +1560,6 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     
     if(any(plots == "user.SH.bins"))
     {
-      browser()
       survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,")",sep="")),
                                       list(year=as.character(yr),bank=banks[i]))
       if(banks[i] == "GB") survey.ts.N.title <- substitute(bold(paste("Survey abundance time series (",bank,"-Spr)",sep="")),
@@ -1444,15 +1645,15 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     
     if(any(plots=="SHF"))
     {
-      browser()
-      
       SHF.title <-  substitute(paste("Shell height frequency (",bank,")",sep=""),
                                list(bank=banks[i]))  
      
       if(add.title == F) SHF.title <- ""
     
-      SHF <- as.data.frame(survey.obj[[banks[i]]][[2]]$n.yst[,which(as.numeric(colnames(survey.obj[[banks[i]]][[2]]$n.yst)) >= 5)])
-      SHF$year <- survey.obj[[banks[i]]][[1]]$year
+      SHF <- as.data.frame(survey.obj[[banks[i]]][[2]]$n.yst)
+      SHF$year <- SHF$years
+      if(!any(SHF$year == survey.obj[[banks[i]]][[1]]$year)) {stop("years are mixed up!")}
+      else
       SHF$n <- survey.obj[[banks[i]]][[1]]$n
       SHF <- SHF %>%
         mutate(compyear = ifelse(grepl(x=.$year, 19), 2019, 2018),
@@ -1475,28 +1676,40 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
         P2018 <- ggplot() + geom_bar(data=SHF[SHF$compyear==2018,], aes(as.numeric(name)+2.5, value), stat="identity", fill="grey80",
                                      colour="black", width=5) + 
           facet_wrap(~plot.year, scales="free_x", nrow=2) +
-          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year))+
+          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year), size=5)+
           geom_vline(data=SHF[SHF$compyear==2018,], aes(xintercept=RS))+
           geom_vline(data=SHF[SHF$compyear==2018,], aes(xintercept=CS))+
           theme_bw() +
-          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12),strip.background = element_rect(colour=NA, fill=NA), 
-                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          theme(panel.grid=element_blank(), 
+                strip.text=element_blank(), 
+                axis.title=element_text(size=14), 
+                axis.text=element_text(size=12),
+                strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), 
+                axis.title.y = element_text(angle=0, vjust=0.5), 
+                plot.title = element_text(hjust=0.5, size=16)) +
           scale_x_continuous(breaks=seq(5, 200, 5)) +
           scale_y_continuous(limits = c(0, ymax)) +
-          xlab("Shell height (mm)") + 
+          xlab("\nShell height (mm)") + 
           ylab(substitute(paste("",frac(N,tow),),list(N="N",tow="tow"))) +
           ggtitle("2018 Repeats")
         
         labs <- unique(dplyr::select(SHF[SHF$compyear==2019,], plot.year))
         P2019 <- ggplot() + geom_bar(data=SHF[SHF$compyear==2019,], aes(as.numeric(name)+2.5, value), stat="identity", fill="grey80", 
                                      colour="black", width=5) + 
-          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year))+
+          geom_text(data=labs, aes(175, ymax*0.9, label=plot.year), size=5)+
           geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=RS))+
           geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=CS))+
           facet_wrap(~plot.year, scales="free_x", nrow=2) +
           theme_bw() +
-          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12),strip.background = element_rect(colour=NA, fill=NA), 
-                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          theme(panel.grid=element_blank(), 
+                strip.text=element_blank(), 
+                axis.title=element_text(size=14), 
+                axis.text=element_text(size=12),
+                strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), 
+                axis.title.y = element_text(angle=0, vjust=0.5), 
+                plot.title = element_text(hjust=0.5, size=16)) +
           scale_x_continuous(breaks=seq(5, 200, 5)) +
           scale_y_continuous(limits = c(0, ymax)) +
           xlab("Shell height (mm)") + 
@@ -1527,8 +1740,14 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           geom_vline(data=SHF[SHF$compyear==2019,], aes(xintercept=CS))+
           facet_wrap(~plot.year, scales="free_x", nrow=2) +
           theme_bw() +
-          theme(panel.grid=element_blank(), strip.text=element_blank(), axis.title=element_text(size=14), axis.text=element_text(size=12), strip.background = element_rect(colour=NA, fill=NA), 
-                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), axis.title.y = element_text(angle=0, vjust=0.5), plot.title = element_text(hjust=0.5)) +
+          theme(panel.grid=element_blank(), 
+                strip.text=element_blank(), 
+                axis.title=element_text(size=14), 
+                axis.text=element_text(size=12), 
+                strip.background = element_rect(colour=NA, fill=NA), 
+                axis.text.x = element_text(colour=rep(c("black", NA, NA, NA), 40)), 
+                axis.title.y = element_text(angle=0, vjust=0.5), 
+                plot.title = element_text(hjust=0.5, size=22)) +
           scale_x_continuous(breaks=seq(5, 200, 5)) +
           scale_y_continuous(limits = c(0, ymax)) +
           xlab("Shell height (mm)") + 
@@ -1549,7 +1768,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     
     if(any(plots=="SHF-large"))
     {
-      browser()
+      
       SHF.title <-  substitute(bold(paste("Shell height frequency (","" >b," mm - ",bank,")",sep="")),
                                list(bank=banks[i],b=65))  
       
@@ -1616,7 +1835,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
     
     if(any(plots== "clapper-abund-ts"))
     {
-      browser()
+      
       # set up for paired comparisons
       clap.survey.obj[[banks[i]]][[1]]$plot.year <- ifelse(clap.survey.obj[[banks[i]]][[1]]$year %in% c("2018", "2019"), clap.survey.obj[[banks[i]]][[1]]$year, 2020)
       
@@ -1641,12 +1860,16 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       
       require(ggrepel)
       clapabund <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value)) + 
-        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), value, label=as.factor(plot.year)), point.padding = 0.1, 
+                        min.segment.length = 0.1, nudge_x=0.2, segment.linetype = "dashed") + 
         facet_wrap(~name, ncol=1, scales="free_y") +
         theme_bw() +
-        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        theme(panel.grid=element_blank(), 
+              strip.text = element_text(hjust=0, size=14), 
+              strip.background = element_rect(colour=NA, fill=NA),
+              plot.title = element_text(hjust=0.5, 22)) +
         xlab("Repeat year") +
-        ylab("Number per tow")+
+        ylab(substitute(paste("",frac(N,tow),),list(N="N",tow="tow"))) +
         ggtitle(clap.abund.ts.title) 
       print(clapabund)
       
@@ -1682,7 +1905,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       comp2 <- survey.obj[[banks[i]]][[1]] %>%
         pivot_longer(cols=I:CV_120_plus) %>%
         subset(name %in% c("N", "NR", "NPR")) %>%
-        rename(live=value)
+        dplyr::rename(live=value)
       
       comp <- left_join(comp, comp2) %>%
         mutate(total=value + live) %>%
@@ -1696,10 +1919,14 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       
       require(ggrepel)
       clapperperc <- ggplot() + geom_point(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), prop)) + 
-        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), prop, label=as.factor(plot.year)), point.padding = 0.1, min.segment.length = 0.1, nudge_x=0.2) + 
+        geom_text_repel(data=comp, aes(paste0(as.factor(compyear), "\n(n = ", n, ")"), prop, label=as.factor(plot.year)), point.padding = 0.1, 
+                        min.segment.length = 0.1, nudge_x=0.2, segment.linetype = "dashed") + 
         facet_wrap(~name, ncol=1, scales="free_y") +
         theme_bw() +
-        theme(panel.grid=element_blank(), strip.text = element_text(hjust=0), strip.background = element_rect(colour=NA, fill=NA)) +
+        theme(panel.grid=element_blank(), 
+              strip.text = element_text(hjust=0, size=14), 
+              plot.title = element_text(hjust=0.5, 22),
+              strip.background = element_rect(colour=NA, fill=NA)) +
         xlab("Repeat year") +
         ylab("Percent per tow")+
         ggtitle(clap.per.ts.title) 

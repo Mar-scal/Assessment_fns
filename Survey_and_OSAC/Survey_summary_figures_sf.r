@@ -164,7 +164,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                         s.res=s.res,
                         plots = plots, 
                         sub.area=sub.area, 
-                        INLA=INLA, season=season, nickname=nickname)
+                        INLA=INLA, season=season, nickname=nickname, 
+                        scale.bar = c("bl", 0.25),
+                        bathy = c(10, "c"),
+                        se=T)
     stop("Not an error actually, you're just all done with the special 2020 survey!")
   } 
   # Load the appropriate data.

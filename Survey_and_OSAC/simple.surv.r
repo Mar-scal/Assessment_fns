@@ -118,10 +118,14 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
 	bin<-na.omit(as.numeric(substr(names(shf),2,nchar(names(shf)))))
   bin.loc <- which(is.na(as.numeric(substr(names(shf),2,nchar(names(shf)))))==F)
 	# Now get the abundance and biomass in each SHF bin for each year.
-	n.yst <- matrix(NA,nrow=length(years),ncol=length(bin)) 
+  browser()
+  n.yst <- matrix(NA,nrow=length(years),ncol=length(bin)) 
 	colnames(n.yst) <- bin
+	n.yst <- cbind(years=NA, n.yst)
 	w.yst <- matrix(NA,nrow=length(years),ncol=length(bin))
 	colnames(w.yst) <- bin
+	w.yst <- cbind(years=NA, w.yst)
+	
 	for(i in 1:length(years))
 	{
   	ann.dat <- shf[shf$year==years[i],]
@@ -130,9 +134,9 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
     	if(B==T) mw<-sweep(matrix((seq((min(bin)-2.5),max(bin),5)/100)^3,nrow(ann.dat),40,byrow=T,dimnames=list(ann.dat$tow,bin)),1,FUN='*',ann.dat[,"CF"])
     	ann.dat <- ann.dat[,bin.loc]
     	# Fill the bins with the shell height frequency data.
-    	n.yst[i,] <- colMeans(ann.dat,na.rm=T)
+    	n.yst[i,] <- c(years[i], colMeans(ann.dat,na.rm=T))
     	# We can also get an estimate of the biomass in each bin...
-    	if(B==T) w.yst[i,]<- colMeans(ann.dat*mw,na.rm=T)
+    	if(B==T) w.yst[i,]<- c(years[i], colMeans(ann.dat*mw,na.rm=T))
   	} # end if(nrow(ann.dat) > 0)
   }	# end for(i in 1:length(years))
 	
@@ -144,6 +148,7 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
 	  IPR <- NA
 	  IPR.cv <- NA
 	}
+	
   # Put the data together, these first 2 merges make sure all the years (even those without a survey) get handled correctly.
 	surv.dat<-merge(data.frame(year=as.numeric(row.names(N)),n,I,I.cv,IR,IR.cv,IPR,IPR.cv,N,N.cv,NR,NR.cv,NPR,NPR.cv),data.frame(year=years),all=T)
 	

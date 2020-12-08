@@ -19,30 +19,53 @@
 ###############################################################################################################
 
 # Load your directory and the survey year
-direct <- "d:/r/"
-# direct <- "Y:/Offshore scallop/Assessment/"
-yr <- 2016
+#direct <- "d:/r/"
+direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+yr <- 2020
 
 # Load the function...
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/OSAC_summary.r",sep = ""))
+source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 
 # This will take more than 10 minutes when using GBa as it takes a while to do the jackknife for the CPUE on GBa.
 # Note that this will lead to an error if there was no fishing on a bank in a given year so make sure you remove any
 # banks that don't have fishery data for the current year!
-OSAC_summary(direct = direct,yr=2018,
-             bank = "all",
-             save.fig = T,save.res=T,export=T)
+OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2020,
+             bank ="all",
+             save.fig = F,save.res=T,export=T, calc.mc = F, rdata.logs=F)
 
-OSAC_summary(direct = direct,yr=2018,
-             bank = "BBn",
-             save.fig = F,save.res=F,export=F)
+OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
+             bank = c("Sab", "Ban"),
+             save.fig = F,save.res=F,export=F, calc.mc = F, rdata.logs=F)
 
+SPB <- OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
+             bank = c("SPB"#, "Mid","Sab","Ger","BBn","GBa","GBb","BBs"
+                      ),
+             save.fig = T,save.res=F,export=F, calc.mc=T, rdata.logs=F)
 # Get rid of some clutter...
 rm("fleet_data","new.log.dat","old.log.dat","slip.dat")
 # And the data is all summarized in the OSAC_res object
-OSAC_res
+fish.res
+meat.count
 
-#load(paste(direct,"Data/Fishery_data/Summary/2016/OSAC_summary.RData",sep = ""))
+load(paste(direct,"Data/Fishery_data/Summary/2020/OSAC_summary.RData",sep = ""))
+# object names in OSAC_summary.RData and in OSAC_res (if it's immediately after running): fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch, cpue.ts,mctable
+names(OSAC_res)
+
+fish.res
+surv.res
+sum.stat
+extreme.catch
+high.catch
+cpue.ts
+meat.count
 
 length(which(OSAC_res$fish.cells$catch >=1))
 
+# inspect this for weirdness. open the word doc for any weird rows, and make sure it's clean. then re-run until mctable$meatcounts is flawless.
+summary(OSAC_res$meat.count$meatcounts) # there should be no NA's here anywhere.
+OSAC_res$meat.count$meatcounts$month <- month(ymd(OSAC_res$meat.count$meatcounts$land))
+max(ymd(OSAC_res$meat.count$meatcounts$land), na.rm=T) # includes everything up to end of July
+
+# if above is clean, then put the following into the ppt. But please pay attention to any really odd values.
+OSAC_res$meat.count$summarytable

@@ -71,7 +71,6 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   
   ############# SAMPLING DATA #####################
   
-  
   if(bnk %in% c("GBa", "GBb")){
     ################ current year MW-SH model ################
     mw.dm <- meatweightdata
@@ -172,7 +171,7 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     surv.dat[[bnk]]<-merge(surv.dat[[bnk]],tmp.dat,all.x=T)
     # Replace any NA's in CFh with the original Condition Factor.
     surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
-    
+
     ######## Calculate biomasses by tow ###########################################################
     source(paste0(direct_fns, "Survey_and_OSAC/surv.by.tow.r"))
     surv.dat[[bnk]]$year[surv.dat[[bnk]]$year %in% c("20.19", "20.18")] <- 2020
@@ -209,19 +208,19 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   surv.Clap[[bnk]]$clap.propPre<-surv.Clap[[bnk]]$pre/(surv.Live[[bnk]]$pre+surv.Clap[[bnk]]$pre)*100
   surv.Clap[[bnk]]$clap.propPre[is.na(surv.Clap[[bnk]]$clap.propPre)]<-0
   surv.Clap[[bnk]]$clap.prop[is.na(surv.Clap[[bnk]]$clap.prop)]<-0
-  
+  browser()
   ########### Make survey.obj (mimicking Middle bank method) ###########################
   source(paste0(direct_fns, "Survey_and_OSAC/simple.surv.R"))
   if(bnk=="BBn") {
-    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)),user.bins=bin, B=F)
-    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=as.numeric(unique(surv.Clap[[bnk]]$year)), B=F)
+    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Live[[bnk]]$year))),user.bins=bin, B=F)
+    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Clap[[bnk]]$year))), B=F)
   }
   if(!bnk=="BBn") {
-    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)),user.bins=bin, B=T)
-    survey.obj[[bnk]][[1]]$CF <- sapply(1:length(as.numeric(unique(surv.Live[[bnk]]$year))),
-                                        function(x){with(subset(select(surv.Live[[bnk]], -pastyear),year == as.numeric(unique(surv.Live[[bnk]]$year))[x]),
+    survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Live[[bnk]]$year))),user.bins=bin, B=T)
+    survey.obj[[bnk]][[1]]$CF <- sapply(1:length(sort(as.numeric(unique(surv.Live[[bnk]]$year)))),
+                                        function(x){with(subset(select(surv.Live[[bnk]], -pastyear),year == sort(as.numeric(unique(surv.Live[[bnk]]$year)))[x]),
                                                          weighted.mean(CF,com.bm,na.rm=T))})
-    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=as.numeric(unique(surv.Live[[bnk]]$year)), B=T)
+    clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Live[[bnk]]$year))), B=T)
   }
   
   # add in the RS and CS sizes
@@ -243,13 +242,16 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     CF.current[[bnk]]<-na.omit(merge(unique(subset(bank.dat[[bnk]],bank == bnk & year%in%c("20.19", "20.18"),c('tow','lon','lat'))),
                                      SpatHtWt.fit[[bnk]]$fit))
     names(CF.current[[bnk]])[4]<-"CF"
-    CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year%in%c("20.19", "20.18"),c('year','tow','lon','lat',"com","com.bm")))
+    CF.current[[bnk]]<-merge(CF.current[[bnk]],
+                             subset(surv.Live[[bnk]],
+                                    year%in%c("20.19", "20.18", "2020"),
+                                    c('year','tow','lon','lat',"com","com.bm"))
+                             )
     
     # Meat count per 500g
     CF.current[[bnk]]$meat.count <- 0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)
     if(any(CF.current[[bnk]]$meat.count < 0, na.rm=T)) message("uhoh, you have negative meat counts...")
-  
-  ############# DO NOT CALCULATE Growth potential because we don't have a VonB for Icelandic scallop! ################
+
     surv.Live[[bnk]]$year[!is.na(surv.Live[[bnk]]$pastyear)] <- "2020"
     pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
   }
