@@ -44,10 +44,10 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
 {
   # Load required packages and local functions.
   
-  source(paste(direct_fns,"Assessment_fns/Fishery/fishsum.plt.r",sep="")) #Source1
-  source(paste(direct_fns,"Assessment_fns/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
-  source(paste(direct_fns,"Assessment_fns/Fishery/fishery.dat.r",sep="")) #Source3 
-  source(paste(direct_fns,"Assessment_fns/Maps/ScallopMap.r",sep="")) #Source3 
+  source(paste(direct_fns,"/Fishery/fishsum.plt.r",sep="")) #Source1
+  source(paste(direct_fns,"/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
+  source(paste(direct_fns,"/Fishery/fishery.dat.r",sep="")) #Source3 
+  source(paste(direct_fns,"/Maps/ScallopMap.r",sep="")) #Source3 
   
   require(PBSmapping)
   require(RColorBrewer)
@@ -108,7 +108,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     
     if(save.fig==T)
     {
-      png(paste(dirct,yr,"/Presentations/OSAC/",bnk[i],"/Fishery_summary.png",sep=""),units="in",width = 8.5, height = 11,
+      png(paste(direct,yr,"/Presentations/OSAC/",bnk[i],"/Fishery_summary.png",sep=""),units="in",width = 8.5, height = 11,
           res=420,bg = "transparent")
     } # end if(save.fig==T)
     
@@ -119,11 +119,11 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     if(bnk[i] %in% c("BBn","GBa","GBb"))
     {
       fishsum.plt(cpue.ts[[bnk[i]]],years=years,add.title = F,cx.mn=3,bnk=bnk[i],logged=F,lwd=12, 
-                wf.cpue = wf.cpue,ft.cpue = ft.cpue)
+                wf.cpue = wf.cpue,ft.cpue = ft.cpue, direct_fns=direct_fns)
     } # end if(bnk[i] %in% c("BBn","GBa","GBb"))
     if(bnk[i] %in% c("Sab","Mid","Ban","Ger","SPB","BBs"))
     {
-      fishsum.plt(cpue.ts[[bnk[i]]],years=years,add.title = F,cx.mn=3,bnk=bnk[i],logged=F,lwd=12)
+      fishsum.plt(cpue.ts[[bnk[i]]],years=years,add.title = F,cx.mn=3,bnk=bnk[i],logged=F,lwd=12, direct_fns=direct_fns)
     } # end if(bnk[i] %in% c("BBn","GBa","GBb"))  
     
     # If we aren't using all of the data, AND we are looking at the current years data, we need to annotate the Catch plot.
@@ -173,7 +173,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       if(save.fig==F) windows(11,8.5)
       if(save.fig==T)
       {
-        png(paste(dirct,yr,"/Presentations/OSAC/",bnk[i],"/Spatial_fishery.png",sep=""),units="in",width = 11, height = 8.5,
+        png(paste(direct,yr,"/Presentations/OSAC/",bnk[i],"/Spatial_fishery.png",sep=""),units="in",width = 11, height = 8.5,
             res=420,bg = "transparent")
       } # end if(save.fig==T) 
       if(add.titles == T) titl <- paste("Spatial Distribution of Catch (",bnk[i],"-",yr,")",sep="")
