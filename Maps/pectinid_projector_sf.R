@@ -649,9 +649,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         inshore.strata <- st_buffer(inshore.strata,dist=0)
         #trim to bbox
         inshore.strata <- st_intersection(inshore.strata, b.box)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
+        
         inshore.strata <- st_cast(inshore.strata,to = "MULTIPOLYGON")
         if(nrow(inshore.strata) == 0) rm(inshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
-        
       } # end if(add_strata != "offshore")
       
       if(add_layer$survey[1]  != "inshore")
@@ -707,6 +708,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         inshore.strata <- inshore.strata %>% dplyr::select(Strt_ID,ID,col)
         inshore.strata <- st_buffer(inshore.strata,dist=0)
         inshore.strata <- st_intersection(inshore.strata, b.box)
+        inshore.strata <- st_buffer(inshore.strata,dist=0)
         inshore.strata <- st_cast(inshore.strata,to = "MULTIPOLYGON")
         if(nrow(inshore.strata) == 0) rm(inshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
         
