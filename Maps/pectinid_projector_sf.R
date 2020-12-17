@@ -1009,7 +1009,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       
     }
     if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
-    if(exists("bathy.scallopmap")) pect_plot <- pect_plot + geom_sf(data=bathy.scallopmap, colour="blue", alpha=0.25)  
+    if(exists("bathy.scallopmap")) pect_plot <- pect_plot + geom_sf(data=bathy.scallopmap, colour="lightblue")  
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
     # If we have custom fancy plots we add these here
