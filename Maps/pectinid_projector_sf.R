@@ -56,6 +56,7 @@
 #######              bathy = c(50,'both',500) or bathy = 50 will plot smooth surface + contour lines at a 50 meter intervals and 500 is the maximum depth
 #######              bathy = c(50,'s') or c(50,'s',500) will print the smooth only with max depth of 500 meters. 
 #######              This now relies on NOAA bathymetry (so you need internet connection!), the finer the scale bathy you want the slower this runs.
+#######             You can also specify bathy="ScallopMap" to use the usgs bathymetry object used in the inshore and (some) offshore ScallopMap figures.
 
 ####  d: nafo       Do you want to add nafo areas. two options, nafo = 'main' will plot the main nafo boundaries, 
 #######              while nafo = 'sub' will plot the subareas. not specifying nafo will plot nothing.
@@ -1008,7 +1009,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$survey[2] == "detailed") pect_plot <- pect_plot + new_scale("fill")  + geom_sf(data=final.strata,aes(fill= Strt_ID)) + scale_fill_manual(values = col.codes$col)
       
     }
-    if(exists("bathy.gg")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
+    if(exists("bathy.gg") & !exists("bathy.smooth")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), colour="lightblue", breaks=bathy.breaks)  
+    if(exists("bathy.gg") & exists("bathy.smooth")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
     if(exists("bathy.scallopmap")) pect_plot <- pect_plot + geom_sf(data=bathy.scallopmap, colour="lightblue")  
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
