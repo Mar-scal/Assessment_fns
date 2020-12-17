@@ -176,7 +176,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
   require(ggplot2) || stop("Install ggplot2 or else.")
   require(stars) || stop("Install stars or else.")
-  require(tmaptools) || stop("Install this new maptools package, for working with sf objects")
+  require(tmaptools) || stop("Install this new tmaptools package, for working with sf objects")
+  require(maptools) || stop("Install this old maptools package, for the Polyset2SpatialLines function")
+  if(is.null(add_layer$land)) add_layer$land <- "grey"
   if(add_layer$land == 'world')
   {
   require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
@@ -190,6 +192,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
   require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
   require(RCurl) || stop ("Please install RCurl so yo you can pull functions from github")
+  require(readr) || stop ("Please install RCurl so yo you can pull csv from github")
   if(length(add_inla) > 0) require(INLA) || stop ("If you want to run INLA model output, might help to install the INLA packages!!")
   if(plot_as != 'ggplot') require(ggthemes) ||stop ("Please install ggspatial which is needed for the map theme for plotly")
   if(plot_as != 'ggplot') require(plotly) || stop ("Please install plotly if you want an interactive plot")
@@ -209,7 +212,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # if(repo == "local")
   # {
   ## always pull from local... these should be in the same location as pectinid_projector, right?  
-  
   if(repo != 'github')
   {
     source(paste(repo,"/Maps/convert_coords.R",sep="")) 
@@ -372,15 +374,25 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       
       # If you want to make it look like ScallopMap USGS bathy...
       if(add_layer$bathy[1] == "ScallopMap") {
-        #Read3 bring in the data
-        bathy.poly<-read.table(paste(gis.repo,"/Bathymetry/usgs/bathy15m.csv",sep=""),sep=",",header=T) # DK revised directory August 4 2015
-        # Make sure this is a projection and is Latitude/Longitude. Need to convert from PBS format to sp then to sf
-        attr(bathy.poly,"projection") <- "LL"
-        require(PBSmapping)
-        tmp <- as.PolySet(bathy.poly,projection = "LL")
-        dat.sp <- PolySet2SpatialLines(tmp)
+        # if we already have the full eez in the global environment we don't need to reload it, we do need to sub-set it and project it though
+        if(gis.repo == 'github')
+        {
+          # Figure out where your tempfiles are stored
+          temp <- tempfile()
+          # Download this to the temp directory you created above
+          download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/bathymetry/bathymetry.zip", temp)
+          # Figure out what this file was saved as
+          temp2 <- tempfile()
+          # Unzip it
+          unzip(zipfile=temp, exdir=temp2)
+          # Now read in the shapefile
+          bathy.scallopmap <- st_read(paste0(temp2, "/bathymetry_15m.shp"), quiet=quiet)
+        } else { # end if(gis.repo == 'github' )
+          loc <- paste0(gis.repo,"/bathymetry")
+          bathy.scallopmap <- st_read(loc, quiet=quiet)
+        } # end the else
         
-        bathy.scallopmap <- st_as_sf(dat.sp) %>%
+        bathy.scallopmap <- bathy.scallopmap %>%
           st_transform(st_crs(bath.box))%>%
           st_crop(st_bbox(b.box))
       }
