@@ -7,6 +7,6 @@ qu.log <- "select * from SCALOFF.OSCRUISES"
 res <- sqlQuery(chan, qu.log)
 # close the odbc connection
 odbcCloseAll()
-} # end if year < 2010
+#} # end if year < 2010
 
 write.csv(res,file="D:/R/SPERA/Data/Scallop_fishery/Survey_vessels_and_dates-from_db.csv")

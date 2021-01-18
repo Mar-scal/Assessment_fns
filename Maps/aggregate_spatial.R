@@ -2,8 +2,18 @@
 
 
 ##### SABHU Functions
-source("Y:/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/gridPlot.r")
-source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.r")
+#source("Y:/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/gridPlot.r")
+#source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.r")
+
+funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
+          "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R")
+# Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+for(fun in funs) 
+{
+  download.file(fun,destfile = basename(fun))
+  source(paste0(getwd(),"/",basename(fun)))
+  file.remove(paste0(getwd(),"/",basename(fun)))
+} # for(fun in funs)
 
 ##### Other packages
 require(rgdal)

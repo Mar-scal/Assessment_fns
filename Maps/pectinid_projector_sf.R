@@ -71,6 +71,7 @@
 
 ####  g: s.labels  Add labels to the figures?  Several options here I need to lay out.  
 #######              s.labels = 'offshore' - Puts basic labels for offshore areas - Good for broad overview of offshore
+#######              s.labels = "offshore_detailed" - Puts in more detailed labels for offshore, makes the figure we post in our update documents.
 #######              s.labels = 'inshore' - Puts basic labels for inshore areas - Good for broad overview of inshore
 #######              s.labels = 'all' - Puts the above two sets of labels - Good for broad overview of everywhere
 #######              the next two options only work if you are looking at a zoomed in version of inshore, way too much detail for a figure covering everywhere.
@@ -222,15 +223,17 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   if(repo == 'github')
   {
-    #
-    # Download this to the temp directory you created above
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/convert_coords.R",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))  
-  }
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/convert_coords.R",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/combo_shp.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end if(repo == 'github')
   
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
@@ -860,15 +863,22 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
-      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
+      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=T)
       s.labels <- st_transform(s.labels,c_sys)
-      
+   
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
       s.labels <- st_intersection(s.labels, b.box)
+      #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
+      if(any(grepl("angle",s.labels$region)))
+      {
+        s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
+        s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
+      }
     }
     
     # If not going through Github it's easy!
@@ -881,7 +891,16 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
+      if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
       s.labels <- st_intersection(s.labels, b.box)
+      #browser()
+      
+      #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
+      if(any(grepl("angle",s.labels$region)))
+      {
+        s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
+        s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
+      }
     }
   }
   
@@ -1030,8 +1049,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
-      if(s.labels$region == 'offshore' || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short))   
-      if(s.labels$region != 'offshore' && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35) # rotate it@!
+      if(any(grepl('offshore',s.labels$region)) || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),size=3)   
+      if(exists("s.labels.angle")) pect_plot <- pect_plot + geom_sf_text(data = s.labels.angle, aes(label = lab_short),size = 3,angle =-45)
+      if(any(grepl('inshore',s.labels$region)) && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35,size=3) # rotate it@!
+      
     } # end if(exists("s.labels")) 
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
         annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
