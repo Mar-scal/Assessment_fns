@@ -7,6 +7,7 @@
 # DK October 25, 2016:  added one line, yr = max(years) as yr was undefined and I'm not really sure how it didn't crash before!
 # DK October, 2017:     For the spatial fishery figure I moved Sable so that the Western-Emerald CA isn't plotted, this is just for 2017 as
 #                       the area wasn't in place when the fishery occured, I'll want to remove this in 2018...
+# DK Jan 2021 updated behaviour of direct_fns, they'll all point to github now if this is missing.
 ###############################################################################################################
 ## This function needs these local functions to work (a.k.a. "support files"), 
 # see "Source_relation_OSAC_fishery_summary.docx" for complete details
@@ -18,22 +19,22 @@
 ###############################################################################################################
 
 ### Function Argument list
-# fish.dat: The fishery data, likely extracted from the survey summary results but could be called stand alone, default is blank
-# max.date: The last date for which QA/QC log data exists.  Default = format(Sys.time(), "%Y-%m-%d"),
-# years:    The years of fishery data to plot.  Default = 1981:format(Sys.time(), "%Y"),
-# bnk:      The bank(s) from which to extract these data.  Default = c("Ban","Mid","Sab","Ger","BBs","BBn","GBa","GBb"),
-# log.ts:   Do you want to log transform the survey time series data.  (T/F) default = F.
-# grids:    What size should the catch areas be for the spatial plot.  Default = 1/60 which is a 1 minute grid size.
-# fun:      The function to use for calculations in grids, see gridPlot for options.  Default = sum.
-# lvl:      What are the levels for the spatial plot.  Default is c(10,50,100,500,1000,5000,10000,50000), which will produce
-#           bins for total catch of 10kg-50kg... up to 50,000 kg+
-# poly.brd: For the spatial plot if you want a border around each cell specify the color here.  Default = NULL (no border)
-#add.titles:Add titles to the figures.  (T/F) default = T.
-# dirct:    The directory to save the figures and source the functions from.Default =Y:/Offshore scallop/Assessment/Assessment_fns/
-# save.fig: Do you want to save the figure as image files, or just plot them to screen. (T/F) Default = T which plots to the
-#           directory pulled from here- paste(dirct,"Presentations/",yr,"/OSAC/",bnk[i],"/Fishery_summary.png",sep="")
-#           you will need to create the directory for each year/bank combination if it does not already exist.
-
+# fish.dat:   The fishery data, likely extracted from the survey summary results but could be called stand alone, default is blank
+# max.date:   The last date for which QA/QC log data exists.  Default = format(Sys.time(), "%Y-%m-%d"),
+# years:      The years of fishery data to plot.  Default = 1981:format(Sys.time(), "%Y"),
+# bnk:        The bank(s) from which to extract these data.  Default = c("Ban","Mid","Sab","Ger","BBs","BBn","GBa","GBb"),
+# log.ts:     Do you want to log transform the survey time series data.  (T/F) default = F.
+# grids:      What size should the catch areas be for the spatial plot.  Default = 1/60 which is a 1 minute grid size.
+# fun:        The function to use for calculations in grids, see gridPlot for options.  Default = sum.
+# lvl:        What are the levels for the spatial plot.  Default is c(10,50,100,500,1000,5000,10000,50000), which will produce
+#               bins for total catch of 10kg-50kg... up to 50,000 kg+
+# poly.brd:   For the spatial plot if you want a border around each cell specify the color here.  Default = NULL (no border)
+# add.titles: Add titles to the figures.  (T/F) default = T.
+# dirct:      The directory to save the figures and source the functions from.Default =Y:/Offshore scallop/Assessment/Assessment_fns/
+# direct_fns: Where to source your local functions from, default is missing which goes to github
+# save.fig:   Do you want to save the figure as image files, or just plot them to screen. (T/F) Default = T which plots to the
+#               directory pulled from here- paste(dirct,"Presentations/",yr,"/OSAC/",bnk[i],"/Fishery_summary.png",sep="")
+#               you will need to create the directory for each year/bank combination if it does not already exist.
 
 ####################  The fishery summary plots necessary for Pre-OSAC and OSAC ###################################
 
@@ -43,11 +44,29 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
                             direct, direct_fns, save.fig = T)
 {
   # Load required packages and local functions.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/fishsum.plt.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/fishery.dat.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(fun in funs)
+  }# end if(missing(direct_fns))
   
+  
+  if(!missing(direct_fns))
+  {
   source(paste(direct_fns,"/Fishery/fishsum.plt.r",sep="")) #Source1
   source(paste(direct_fns,"/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
   source(paste(direct_fns,"/Fishery/fishery.dat.r",sep="")) #Source3 
   source(paste(direct_fns,"/Maps/ScallopMap.r",sep="")) #Source3 
+  } # end if(!missing(direct_fns))
   
   require(PBSmapping)
   require(RColorBrewer)

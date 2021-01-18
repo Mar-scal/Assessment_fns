@@ -2,6 +2,7 @@
 ####  and calculate the distance of the tows
 # Update history
 #Commented, checked  and revised by DK March 31, 2016
+# DK update in 2021 to get direct_fns default pointing to Github.
 ################################################################################################################
 
 #####################################  Function Summary ########################################################
@@ -22,17 +23,18 @@
 
 # ARGUMENTS
 
-# tows:     Vector containing the tow track numbers we want to extract
-# path:     location of the tow track log files.  defaults to .../data/Tow_tracks/2015/GBa/
-# w:        used in the sub-function mave, a means of weighting the tow track data if running a moving average across them.
-# rule:     the number of sec between records, Options that work are 4,8,20 and "SE". Default is 8 seconds.  SE means the tow
-#           location was only taken at the start and end of the tow.
-# smooth:   Smooth the tow track data using the mave (see sub-function) moving average function.
-# plt:      create a standalone plot. (T/F) default is F
-# meh:      If >0 this number is added to the tow numbers so the correct ones are read.  If = 0 it just runs a simple paste command.
-#           there is no clear indication of when we would need meh to be > 0.  Default meh=0
-# printtow: prints the tow information to the screen to track progress.
-# direct:   Directory to grab the function from.  Defaults = "Y:/Offshore scallop/Assessment/"
+# tows:       Vector containing the tow track numbers we want to extract
+# path:       location of the tow track log files.  defaults to .../data/Tow_tracks/2015/GBa/
+# w:          used in the sub-function mave, a means of weighting the tow track data if running a moving average across them.
+# rule:       the number of sec between records, Options that work are 4,8,20 and "SE". Default is 8 seconds.  SE means the tow
+#               location was only taken at the start and end of the tow.
+# smooth:     Smooth the tow track data using the mave (see sub-function) moving average function.
+# plt:        create a standalone plot. (T/F) default is F
+# meh:        If >0 this number is added to the tow numbers so the correct ones are read.  If = 0 it just runs a simple paste command.
+#               there is no clear indication of when we would need meh to be > 0.  Default meh=0
+# printtow:   prints the tow information to the screen to track progress.
+# direct:     Directory to grab the function from.  Defaults = "Y:/Offshore scallop/Assessment/"
+# direct_fns: Directory to grab functions from, if missing it goes to github...
 ######################  Section 1 - The getdis function ###################################  
 
 
@@ -43,7 +45,20 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
   #browser()
   require(PBSmapping)  || stop("Install PBSmapping Package")
   #Source1 
-  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) 
+  #Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) 
   
   # Initialize objects to use in for loop.
 	towtracks<-list(NULL)

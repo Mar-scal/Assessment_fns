@@ -16,6 +16,7 @@
 ## mwdat: name of dataframe with meat weight data
 ## shfdat: name of dataframe with all tow data
 ## direct: specify the location of the Assessment_fns folder
+## direct_funs: where you are grabbing the functions default is missing and will go and grab them from github...
 ## ** Note if dropping tows via sub.tows or sub.samples, it doesn't seem to matter whether you predict on only the excluded tows, or if you predict on the entire dataset
 ## ** The point is that the model itself was built with a reduced sample size, and reduced sample size should mean increased uncertainty. We want to know just how much it increases. 
 
@@ -29,10 +30,31 @@
 
 mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
                         plot = T, seed=1234, direct, direct_fns) {
+  
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.lme.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt1.R",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/condFac.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/stdts.plt.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(fun in funs)
+  }# end if(missing(direct_fns))
+  
+  
+  if(!missing(direct_fns))
+  {
   source(paste0(direct_fns, "Survey_and_OSAC/shwt.lme.r"))
   source(paste0(direct_fns, "Survey_and_OSAC/condFac.R"))
   source(paste0(direct_fns, "Survey_and_OSAC/shwt.plt1.R"))
   source(paste0(direct_fns, "Survey_and_OSAC/stdts.plt.R"))
+  }
+  # Note this browswer was here when DK arrived on scene to change direct_fns...
   browser()
   if(missing(mwdat) & missing(shfdat)) {
     print("mwdat and shfdat not specified, using pre-loaded mw.dat.all[[bank]] and bank.dat[[bank]] from Survey Summary RData.")

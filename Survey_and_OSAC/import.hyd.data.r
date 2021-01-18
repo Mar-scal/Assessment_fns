@@ -4,6 +4,7 @@
 # Update history
 #Commented, checked  and revised by DK May 16, 2016
 # Sept 2016 DK revised to eliminate get.new.hyd option in the function as the data from 2009 and 2010 is now found in our SQL database.
+# Jan 2021 - direct_fns option changed to go to github by default...
 ################################################################################################################
 
 #####################################  Function Summary ########################################################
@@ -21,26 +22,37 @@
 ###############################################################################################################
 
 # Arguments
-# Bank: 	Which banks do we want to obtain samples from.  Defaults to all of the below options:
-#	c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid","Ban","SP")
-# yrs: 	choose years of interest, default is 1981-2008  Data exists for 1981-2010.
-# mths: 	choose months of interest.  Default is 1-12, any combination of numerical months works.
-# path: 	location of the files, default is Y:/Data/Hydration/
-#	export: Export the results to a flat file.  (T/F) default is T
-# dirt:   Directory to grab data from.  Default ="Y:/Offshore scallop/Assessment/Assessment_fns/"
-
+# Bank: 	    Which banks do we want to obtain samples from.  Defaults to all of the below options:
+#	                c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid","Ban","SP")
+# yrs: 	      choose years of interest, default is 1981-2008  Data exists for 1981-2010.
+# mths: 	    choose months of interest.  Default is 1-12, any combination of numerical months works.
+# path: 	    location of the files, default is Y:/Data/Hydration/
+#	export:     Export the results to a flat file.  (T/F) default is T
+# dirt:       Directory to grab data from.  Default ="Y:/Offshore scallop/Assessment/Assessment_fns/"
+# direct_fns: Where you are sourcing your functions from.  Default is missing which goes to github.
 # source("Y:/Assessment/2010/r/fn/import.hyd.data.r")
 
 import.hyd.data <- function(Bank=c("GB","GBa","GBb","BBn","BBs","Ger","Sab","Mid","Ban","SP"),yrs=1981:2008, 
-                            mths=1:12,export=T,dirt="Y:/Offshore scallop/Assessment/")
+                            mths=1:12,export=T,dirt="Y:/Offshore scallop/Assessment/",direct_fns)
 {
 	require(splancs)  || stop("You need to install the splancs package!")
 
-	#Source1
-	#source("Assessment_fns/Survey/convert.dd.dddd.r")
-  #Source2
+  
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+
   #source(paste(direct_fns,"Survey_and_OSAC/get.new.hyd.r",sep=""))
-  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
   
   # Get's the data for the years before 2009.
 	if(sum(yrs<2009)>0)

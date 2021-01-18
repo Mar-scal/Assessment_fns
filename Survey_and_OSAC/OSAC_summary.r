@@ -6,6 +6,7 @@
 # Revised and commented by DK, April 1, 2016
 # May 16, 2016:  Revised and turned into a proper function, large revision!!
 # October 2018:  Revised to add in the meat count summary function and revisions related to this function
+# Jan 2021:      DK revised behaviour if direct_fns
 ###############################################################################################################
 ## This script needs these local functions to work (a.k.a. "support files"), 
 # see "Source_relation_OSAC_summary.docx" for complete details
@@ -44,7 +45,7 @@
 #18: un         Your username to connect to SQL database.  Default = un.ID
 #19: pw         Your password to connect to SQL database.  Default = pwd.ID
 #20: direct     The directory where everything resides. Default = "Y:/Offshore scallop/Assessment"
-
+#21: direct_fns Where you are sourcing the functions from.  Default is missing which will point to github.
 ############################# LOAD DATA 
 ################################### START LOAD Data and Functions ############################################
 ##########################################################################################################
@@ -59,11 +60,33 @@ OSAC_summary <- function(yr = as.numeric(format(Sys.time(), "%Y")), mx.dt = as.D
 {
 
 # Load functions and external datafiles we might need
-source(paste(direct_fns,"Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
-source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
-source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))
-source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
-source(paste0(direct_fns, "Fishery/meat.count.table.R"))
+if(missing(direct_fns))
+{
+  funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/OSAC_fishery_figures.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/fishery.dat.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/meat.count.table.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r")
+  # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+  for(fun in funs) 
+  {
+    download.file(fun,destfile = basename(fun))
+    source(paste0(getwd(),"/",basename(fun)))
+    file.remove(paste0(getwd(),"/",basename(fun)))
+  } # end for(fun in funs)
+}# end if(missing(direct_fns))  
+  
+  
+if(!missing(direct_fns))
+{
+  source(paste(direct_fns,"Survey_and_OSAC/OSAC_fishery_figures.r",sep="")) #Source1
+  source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+  source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+  source(paste0(direct_fns, "Fishery/meat.count.table.R"))
+}  # end  if(!missing(direct_fns))
+  
+  
 require(xlsx) || stop("Hold up!  If you don't install the xlsx package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 require(plyr) || stop("Hold up!  If you don't install the plyr package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 # If you set bank to be NULL we skip almost the entire function and just run the meat count bit, if you set to NULL and don't calc.mc then

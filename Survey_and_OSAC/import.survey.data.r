@@ -3,6 +3,7 @@
 #  forward
 # Update history
 # Commented, checked  and revised by DK March 31, 2016
+# Jan 2021 DK updated direct_fns to point to github by default
 ####
 ################################################################################################################
 
@@ -35,7 +36,7 @@
 # type:     Options are 'surv', 'grid', default is 'surv'.
 # explore:  Use both the exploratory and assessment tows (T/F) default is True which means use all the data.
 # export:   Export the data as a csv? (T/F) default is True
-# dirc:    Directory to look for the data in.  Default = "Y:/Offshore scallop/Assessment/"
+# dirc:    Directory to look for the data in.  Default is missing which goes to github
 
 # source("d:/Assessment/2009/r/fn/import.survey.data.r")
 
@@ -52,7 +53,21 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
   require(splancs)  || stop("Install splancs package")
   
   # Call in the function to convert lat/long data to decimal degrees, used in sub-functions only.
-	source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 	
   
   # Here we bring in all the survey data loop runs through all the years chosen for the survey chosen (May vs. Aug) and the type chosen.

@@ -28,6 +28,7 @@
 # Oct 2018:  DK added ability to split up GBa into spatial districts.  This includes a number of spatial subsets found in Offshore.csv
 #            we will need to add in the ability to do proper domain estimators for these sub-areas given the "very low" strata cuts across
 #            the different regions.
+# Jan 2021:  DK changed default behaviour of direct_fns
 ################################################################################################################
 ####
 ################################################################################################################
@@ -59,6 +60,7 @@
 ###############################################################################################################
 # Arguments
 # 1:  direct:       The working directory to put figures are from which to grab data.  Default = "Y:/Offshore scallop/Assessment/", 
+# 1B: direct_fns:   If missing(default) this will go grab functions from github.
 # 2:  yr.start:     Start year for getting the data.  1984 is default, we haven't generally used older data 
 # 3:  yr:           End year.  Default is the current system year: as.numeric(format(Sys.time(), "%Y"))
 # 4:  surveys:      Which banks + survey to pull the data for.  Defaults to 'all' which is all banks except Banquereau which isn't yet supported.
@@ -124,24 +126,51 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # Now load all functions in the program in one location.  All calls to these functions are linked via the commented source #
   # so we can easily tie the function call to the script for that function.
   # The  functions are in this directory unless explicitly specified
-  # These 8 functions are pre-processing functions used to bring in and arrange various pieces of data
-  source(paste(direct_fns,"Survey_and_OSAC/import.survey.data.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/import.hyd.data.r",sep="")) 
+  # These functions are pre-processing functions used to bring in and arrange various pieces of data
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.survey.data.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.hyd.data.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.lme.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/condFac.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/assign_strata.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.dat.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.dat.restrat.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/sprSurv.R",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/surv.by.tow.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/simple.surv.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/growth_potential.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
   
-  # These are the functions used to within the heart of the code to make stuff happen
-  source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
-  
-  source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
-  
-  source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
-  source(paste(direct_fns,"Survey_and_OSAC/growth_potential.r",sep="")) 
+  if(!missing(direct_fns))
+  {
+    source(paste(direct_fns,"Survey_and_OSAC/import.survey.data.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/import.hyd.data.r",sep="")) 
+    
+    # These are the functions used to within the heart of the code to make stuff happen
+    source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
+    
+    source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
+    
+    source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/growth_potential.r",sep="")) 
+  } # end if(!missing(direct_fns))
   ################################## End Load Functions   #######################################################
   
   ################################## Update the run log   #######################################################
@@ -349,20 +378,45 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
-    # These are the functions used to within the heart of the code to make stuff happen
-    source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
-    #source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
-    #source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
-    #source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
-    #source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep=""))
+    if(missing(direct_fns))
+    {
+      funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.survey.data.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.hyd.data.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.lme.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/condFac.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/assign_strata.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.dat.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.dat.restrat.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/sprSurv.R",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/surv.by.tow.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/simple.surv.r",
+                "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/growth_potential.r")
+      # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+      } # end for(un in funs)
+    } # end  if(missing(direct_fns))
     
-    source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+    if(!missing(direct_fns))
+    {
+      # These are the functions used to within the heart of the code to make stuff happen
+      source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/assign_strata.r",sep=""),local=T) 
+      source(paste(direct_fns,"Survey_and_OSAC/survey.dat.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/survey.dat.restrat.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/sprSurv.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/surv.by.tow.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/simple.surv.r",sep="")) 
+      source(paste(direct_fns,"Survey_and_OSAC/growth_potential.r",sep="")) 
+    } # end if(!missing(direct_fns))
+
     surveys <- tmp
     num.surveys <- length(surveys)
     survey.year <- s.year

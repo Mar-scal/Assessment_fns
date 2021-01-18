@@ -6,9 +6,15 @@ install.packages("marmap")
 
 
 # Pull in pecjector from Github
-library(RCurl)
-sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",ssl.verifypeer = FALSE)
-eval(parse(text = sc))
+  funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R")
+  # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+for(fun in funs) 
+{
+  download.file(fun,destfile = basename(fun))
+  source(paste0(getwd(),"/",basename(fun)))
+  file.remove(paste0(getwd(),"/",basename(fun)))
+} # end for(un in funs)
+
 # Alternatively go find your local version....
 #source("D:/Github/Offshore/Assessment_fns/DK/Maps/pectinid_projector_sf.R")
 
@@ -64,6 +70,9 @@ bp.p17 <- pecjector(area = "Inshore",add_layer = list(bathy = 50,eez = 'eez',naf
 bp.p18 <- pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)))
 bp.p18
 
+# Here's a new pretty basemap for offshore...
+bp.off <- pecjector(area = "NL",add_layer = list(sfa = 'offshore', s.labels = 'offshore_detailed'))
+windows(15,10); bp.off #Maximize image on your screen and the text should look good.
 # Now in behind all this is we have some defaults you don't really need to worry about, this is the same thing
 pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
 
