@@ -65,7 +65,19 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
   require(RODBC) || stop("Package RODBC cannot be found")
   require(plyr)
   require(lubridate)
-  source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+  
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+      } # end for(fun in funs) 
+  } else {source(paste0(direct_fns,"Fishery/logs_and_fishery_data.r"))} # end if else loop
+  
   
   if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")
   #Source1 source("d:/R/fn/logs_and_fishery_data_DK.r") get data from logs and fish function

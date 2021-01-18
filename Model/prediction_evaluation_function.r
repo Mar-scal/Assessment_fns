@@ -61,7 +61,18 @@ pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessm
 {
 
 # The functions to load
-source(paste(direct,"Assessment_fns/Model/projections.r",sep=""))
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/projections.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    }
+   } else { source(paste0(direct_fns, "Model/projections.r")) } #end else statement
+  
 library(R2jags)
 if(is.null(bank)) bank <- names(input) # Identify the bank if not specified
 # The input data is the years and all the data excluding the number of years

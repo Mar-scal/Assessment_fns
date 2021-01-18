@@ -70,10 +70,17 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   
   if(repo == "github")
   {
-    require(RCurl)|| stop("You need RCurl or this will all unfurl!")
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector.R", ssl.verifypeer = FALSE)))
-    eval(parse(text = getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R", ssl.verifypeer = FALSE)))
+    funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/Log_spatial_checks/app.R")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end  for(fun in funs) 
   } # end if(repo == "github")
   
   if(repo == "local")
@@ -81,7 +88,8 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     source(paste(direct_fns,"Fishery/logs_and_fishery_data.R",sep="")) #logs_and_fish is function call
     source(paste(direct_fns,"Maps/pectinid_projector_sf.R",sep="")) # The new scallopMap
     source(paste(direct_fns,"Maps/combo_shp.R",sep="")) # The new scallopMap
-  }
+    source(paste0(direct_fns, "Fishery/Log_spatial_checks/app.R"))
+  } # end if(repo== 'local')
   
   # The necesary library
   require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
@@ -219,7 +227,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/offshore/offshore.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-Scal/GIS_layers/master/offshore/offshore.zip", temp)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -240,7 +248,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/NAFO/Subareas.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-Scal/GIS_layers/master/NAFO/Subareas.zip", temp)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -555,7 +563,6 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   } # end if(!is.null(export))
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
-    source(paste0(direct_fns, "Fishery/Log_spatial_checks/app.R"))
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_ggplot = pect_ggplot.all)
   }
   

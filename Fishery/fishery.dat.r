@@ -69,7 +69,23 @@ fishery.dat<-function(fishery.data,yr=1955:as.numeric(format(Sys.Date(),"%Y")),b
 	require(splancs) || stop("This won't work unless you install splancs... thanks") 
   
   # Only needed if method = "jackknife"
-  if(method == "jackknife") source(paste(direct_fns,"Fishery/jackknife.r",sep=""),local=T)
+  if(method == "jackknife") 
+  {
+    
+    # If you didn't specify direct_funs go grab our master version
+    if(missing(direct_fns))
+    {
+      funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/jackknife.r")
+      # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+      } # end for(fun in funs)
+    }  else {source(paste(direct_fns,"Fishery/jackknife.r",sep=""),local=T)} # End the sourcing functions bit
+  } # end  if(method == "jackknife") 
+    
   
   # Add a column to the fishery.data called year.act which will house the original year.
 	fishery.data$year.act<-fishery.data$year

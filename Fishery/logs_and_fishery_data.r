@@ -45,12 +45,25 @@
 logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
                           direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct, direct_fns)
 {
- 
   # Set up the directories
   direct.off <- direct
-  direct_fns <- direct_fns
   if(is.null(direct.in)) direct.in <- paste(direct,"Data/Inshore/Logs/Processed/",sep="")
-  if(get.marfis == T) source(paste0(direct_fns, "Other_functions/ScallopQuery.R"))
+  if(get.marfis == T)
+  {
+    # If you didn't specify direct_funs go grab our master version
+    if(missing(direct_fns))
+    {
+      funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.R")
+      # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+      } # end for(fun in funs)
+    } else {source(paste0(direct_fns, "Other_functions/ScallopQuery.R"))} # end if(missing(direct_funs))
+  } # end (if(get.marfis == T))                 
+
   require(splancs) || stop("Package splancs cannot be found")
   require(lubridate) || stop("Package lubridate cannot be found")
   
