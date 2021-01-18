@@ -60,8 +60,14 @@ if(repo != "github") source(paste(repo,"Survey_and_OSAC/getdis.r",sep=""))
   
 if(repo == "github")
 {
-  sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",ssl.verifypeer = FALSE)
-  eval(parse(text = sc))  
+  funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/getdis.r")
+  # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+  for(fun in funs) 
+  {
+    download.file(fun,destfile = basename(fun))
+    source(paste0(getwd(),"/",basename(fun)))
+    file.remove(paste0(getwd(),"/",basename(fun)))
+  } # end for(un in funs)
 }  
 
 # DK doesn't have a clue what this conversion is but something distancy

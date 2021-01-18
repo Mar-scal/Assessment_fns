@@ -1,9 +1,9 @@
 ### scaloff_bank_check
-
+# DK came and change direct_fns behaviour in Jan 2021
 ### Script to run pre-loading checks on csv files generated from xlsx templates prior to loading to scaloff database
 ### This is run to check data WITHIN a single bank.
 
-scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct, direct_fns=direct_fns,
+scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct, direct_fns,
                                type="csv", 
                                cruise, bank, survey_name, nickname=NULL,
                                spatialplot=TRUE) {
@@ -21,8 +21,21 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   require(sp) || stop("Make sure you have sp package installed to run this")
   
   ### other functions
-  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
-
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  
   ### load the data
   ## from the xlsx template:
   if(type=="xlsx"){

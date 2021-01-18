@@ -52,10 +52,15 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
   
   if(repo == 'github')
   {
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",ssl.verifypeer = FALSE)
-      eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/ScallopMap.r",ssl.verifypeer = FALSE)
-      eval(parse(text = sc))
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_design/genran.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
   } # end if(repo == 'github')
 
   # This ignores all warnings

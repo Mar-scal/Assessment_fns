@@ -6,6 +6,7 @@
 # May 16, 2016:  Updated to work with 64 bit version of R.
 # June 15, 2016:  Updated to allow for optoinal printing of the industry report.
 # April 2018, Updated to use ROracle
+# Jan 2021, Updated to point to Github + minor documentation update
 ####
 ################################################################################################################
 
@@ -30,6 +31,9 @@
 # pw:               Your password to connect to SQL database.  Default = pwd.ID
 # direct:           The working directory to point to.  Default ="Y:Offshore scallop/Assessment"
 # industry.report:  Run the industry report.  T/F, default = F
+# direct_fns:       Where are you grabbing the functions from.  Default is missing which points to Github as of Jan 2021
+# cruise:           Pick your cruise of interest, Default is NULL which gets everything
+# yr:               Pick your year of interest, Default is NULL which gets everything.
 ###############################################################################################################
 
 # where did the .ar come from in the below...
@@ -43,8 +47,20 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
 	
-  ### DK:  I believe I need this, but maybe not?
-  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source7
 
   #DK August 20, 2015 Note: Need this to open the channel, we need to get one more view, or more general access to the OSTOWS table
   # so that the .rProfile method works, for now the workaround would be to put the general (admin?) un/pw into your rprofile...

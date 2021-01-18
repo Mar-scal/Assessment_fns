@@ -19,7 +19,7 @@
 # Jan 2019:  DK revised to incorporate Banquereau stations, at this time we are proposing Ban stations to be fixed based on the 2012 stations.  Also had
 #            to clean up for the revised Sable strataification due to WEBCA.  DK also made some other tweaks to the function, specifically how the
 #            text points are dealt with, changed so the filenames easily incorporate the text point option and cut down on if() statements. We also added the ger.rep argument to allow backup repeat stations
-
+# Jan 2021: DK revised direct_fns behaviour to point to github by default.
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -38,6 +38,7 @@
 # Arguments
 # yr:            The year of interest for making survey design.  Default is the current year as.numeric(format(Sys.time(), "%Y"))
 # direct:        The directory to load/save all the data, Default is the network Offshore "Y:/Offshore/Assessment_fns/"
+# direct_fns:    This is missing by default, will point to github when missing.  
 # export:        Do you want to export the survey design locations.  T/F Default is F
 # seed:          If you want to reproduce results you can specify the random seed used for allocating these.  Default = NULL which will use R's 
 #                internal random number generators.  
@@ -76,13 +77,34 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
 if(fig == "leaflet") require(sf) || stop("Please install the sf package")
 # load in the functions we need to do the survey design
 # Note I put the survey design functions in a "Survey_Design" folder with the other functions, and putting the figures in the "Survey_Design" folder 
-source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
-source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
-source(paste(direct_fns,"Survey_design/genran.r",sep=""))
-source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
-source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
-source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
+
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_design/alloc.poly.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_design/Relief.plots.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_design/genran.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
   
+if(!missing(direct_fns))
+{
+  source(paste(direct_fns,"Survey_design/alloc.poly.r",sep=""))
+  source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
+  source(paste(direct_fns,"Survey_design/genran.r",sep=""))
+  source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
+  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
+} # end if(!missing(direct_fns))
 
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
