@@ -642,8 +642,14 @@ if(bnk == "Ger")
   #Read6 Be careful here, I'm assuming that when you run this you are looking at the Ger data from "last year" and looking to identify the
     # tows that you want to repeat for this year, if trying to reproduce something specific for past years you'd need to change yr
     # to the year that you are interested in (if going back before 2012 you may need to create this csv file)
+  if(!yr==2021){
     survey.dat <- read.csv(paste(direct,"Data/Survey_data/",(yr-1),"/Spring/Ger/Survey1985-",(yr-1),".csv",sep=""))
     lastyearstows <- subset(survey.dat,state=='live'& year==(yr-1),c('tow','slon','slat','stratum'))
+  }
+  if(yr==2021){ # There was no german survey in 2020 so need to adjust accordingly
+    survey.dat <- read.csv(paste(direct,"Data/Survey_data/",(yr-2),"/Spring/Ger/Survey1985-",(yr-2),".csv",sep=""))
+    lastyearstows <- subset(survey.dat,state=='live'& year==(yr-2),c('tow','slon','slat','stratum'))
+  }
     lastyearstows$stratum<-1
     #Read7 This contains the boundary polygon from the file "GerSurvPoly1.csv".
     Ger.polyset <- subset(read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),stringsAsFactors = F),label==bnk)
