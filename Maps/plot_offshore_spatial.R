@@ -14,17 +14,31 @@ load_offshore_spatial <- function(direct_data,
   }    
   
   # if fishery_years isn't null, then get the data. This only works for >2008. Pulls in the new.log.dat
-  if(fishery == T){
-    source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
-    logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data, direct_fns = direct_fns)
-  }
+  if(fishery == T)
+  {  
+    if(missing(direct_fns))
+    {
+      funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r")
+      # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+        logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data)
+      }  
+     } else { source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
+               logs_and_fish(loc="offshore", year = fishery_years, get.marfis = F, export = F, direct = direct_data, direct_fns = direct_fns)
+            } #end else statement
+  } # End if(fishery == T)
   
   if(detailedsampling==F) return(list(surv.Live=surv.Live, new.log.dat=new.log.dat))
   if(detailedsampling==T) return(list(surv.Live=surv.Live, mw.dat.all=mw.dat.all, new.log.dat=new.log.dat))
   
-}
+} #end load_offshore_spatial function
 
 
+########### Next up is the plot_offshore_spatial function #################################
 
 plot_offshore_spatial<- function(direct_data,
                                  direct_fns,

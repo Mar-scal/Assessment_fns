@@ -32,8 +32,7 @@
 # diag.plt.R
 # peR_jags.r
 # biomass.plt.r
-# ScallopMap.r
-# contour.gen.r 
+# pectinid_projector_sf.r
 ##
 ###############################################################################################################
 
@@ -117,19 +116,39 @@ update_JAGS <- function(direct_fns, direct, yr = as.numeric(format(Sys.time(), "
                   ){
   
 # Load in the functions needed for this function to run.
-source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
-source(paste(direct_fns,"Fishery/fishery.dat.r",sep=""))  
-source(paste(direct_fns,"Model/projections.r",sep=""))
-source(paste(direct_fns,"Model/decision.r",sep=""))
-source(paste(direct_fns,"Model/post.plt.R",sep=""))
-source(paste(direct_fns,"Model/exploit.plt.r",sep=""))
-source(paste(direct_fns,"Model/fit.plt.R",sep=""))
-source(paste(direct_fns,"Model/diag.plt.R",sep=""))
-source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
-source(paste(direct_fns,"Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
-source(paste(direct_fns,"Model/biomass.plt.r",sep=""))
-source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
-source(paste(direct_fns,"Contour/contour.gen.r",sep="")) 
+if(missing(direct_fns))
+{
+  funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/projections.r",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/decision.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/post.plt.R",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/exploit.plt.R",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/fit.plt.R",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/diag.plt.R",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/prediction_evaluation_function.r",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/prediction_evaluation_figure.r",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/biomass.plt.R"
+            )
+  # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+  for(fun in funs) 
+  {
+    download.file(fun,destfile = basename(fun))
+    source(paste0(getwd(),"/",basename(fun)))
+    file.remove(paste0(getwd(),"/",basename(fun)))
+  }
+} else {  source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
+          source(paste(direct_fns,"Model/projections.r",sep=""))
+          source(paste(direct_fns,"Model/decision.r",sep=""))
+          source(paste(direct_fns,"Model/post.plt.R",sep=""))
+          source(paste(direct_fns,"Model/exploit.plt.r",sep=""))
+          source(paste(direct_fns,"Model/fit.plt.R",sep=""))
+          source(paste(direct_fns,"Model/diag.plt.R",sep=""))
+          source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
+          source(paste(direct_fns,"Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
+          source(paste(direct_fns,"Model/biomass.plt.r",sep=""))
+          source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
+        }
 # The necesary library
 require(R2jags) || stop("You need the R2jags package installed or this ain't gonna work")
 require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
@@ -210,7 +229,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
   nickname <- nickname1
   
     # Now bring in the latest fishery data
-    logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con, direct=direct, direct_fns=direct_fns)
+    if(!missing(direct_fns)) logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con, direct=direct, direct_fns=direct_fns)
+    if(missing(direct_fns)) logs_and_fish(loc="offshore",year = 1981:yr,un=un,pw=pw,db.con=db.con, direct=direct)
     # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  
     # This should combine without any warnings so don't ignore warnings here.
     dat.fish<-merge(new.log.dat,old.log.dat,all=T)
@@ -252,16 +272,23 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       # Bring in the vonB parameters..
       vonB.par <-vonB[vonB$Bank == master.bank,]
       # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
-      cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
+      if(!missing(direct_fns)) cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
                                          period = "survyr", direct=direct, direct_fns=direct_fns) 	
-      
+      if(missing(direct_fns)) cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
+                                                                 period = "survyr", direct=direct) 	
+         
       # Now on Browns North the survey usually happens in June so the projection is actually different
       # But in 2015 the survey was messed so the above is the solution used for 2015, 
       #for all other years we need to do this for Browns Bank North
       # It really makes very little difference which way this is done as the catch in June-August
       # has averaged around just 40 tonnes since about 1996.
-      if(yr != 2015 &&  master.bank== "BBn") cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
+      if(yr != 2015 &&  master.bank== "BBn") 
+      {
+         if(!missing(direct_fns)) cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
                                                                                 method='jackknife',period = "survyr", direct=direct, direct_fns=direct_fns) 	
+         if(missing(direct_fns)) cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',
+                                                                     method='jackknife',period = "survyr", direct=direct) 	
+      }
       # Combine the survey and Fishery data here.
       mod.dat[[bank[i]]] <- merge(survey.obj[[bank[i]]][[1]],cpue.dat[[bank[i]]],by ="year")
       # Get the CV for the CPUE...
@@ -276,9 +303,10 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       if(yr != 2015 &&  master.bank == "BBn") proj.sub <- subset(fish.dat,year %in% years & months(as.Date(fish.dat$date)) 
                                                                  %in% c("June","July","August","September","October","November","December"))
       # Now calculate the fishery statistics for the projection period
-      proj.dat[[bank[i]]] <- fishery.dat(proj.sub,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
+      if(!missing(direct_fns)) proj.dat[[bank[i]]] <- fishery.dat(proj.sub,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
                                          period = "calyr", direct=direct, direct_fns=direct_fns) 	
-      
+      if(missing(direct_fns))proj.dat[[bank[i]]] <- fishery.dat(proj.sub,bk=master.bank,yr=(min(years)-1):max(years),method='jackknife',
+                                                                period = "calyr", direct=direct) 	
       # This little snippet I ran to compare the median difference between using BBn from June-Dec vs
       # BBn from Sept-Dec.  On average about 22% more catch came out if including June-August while CPUE was essentially identical
       #tst <- fishery.dat(proj.sub,bk=bank[i],yr=(min(years)-1):max(years),method='jackknife',direct=direct,period = "calyr") 	
@@ -881,16 +909,25 @@ for(j in 1:num.banks)
         #  Now we transition to produce the figures used in the Update document that are not dependent on model output.
         # First up we need the fishery data and TAC here, we don't actually have the calendar year fishery data
         # anywhere at this point so we grab that
-        logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pw,db.con=db.con,direct=direct, direct_fns=direct_fns)
+        if(!missing(direct_fns)) logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pw,db.con=db.con,direct=direct, direct_fns=direct_fns)
+        if(missing(direct_fns)) logs_and_fish(loc="offshore",year = 1998:max(mod.dat[[bnk]]$year),un=un,pw=pw,db.con=db.con,direct=direct)
         # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.
         # This should combine without any warnings so don't ignore warnings here.
         fish.dat<-merge(new.log.dat,old.log.dat,all=T)
         fish.dat$ID<-1:nrow(fish.dat)
         # Being lazy we get the data for each bank We are just looking for the annual values here so nothing fancy needed...
-
-        dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,direct_fns=direct_fns, period = "calyr")
-        if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,direct_fns=direct_fns, period = "calyr")
-
+        if(!missing(direct_fns))
+        {
+          dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,direct_fns=direct_fns, period = "calyr")
+          if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct,direct_fns=direct_fns, period = "calyr")
+        }
+        
+        if(missing(direct_fns))
+        {
+          dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct, period = "calyr")
+          if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct, period = "calyr")
+        }
+        
         if(fig== "screen") windows(8.5,8.5)
         if(fig == "pdf") pdf(paste(plotsGo,"TAC_landings.pdf",sep=""),width=8.5,height=8.5)
         if(fig == "png") png(paste(plotsGo,"TAC_landings.png",sep=""),width=8.5,height=8.5,res=920,units="in")
@@ -945,10 +982,13 @@ for(j in 1:num.banks)
       #############  FINALLY I WANT TO MAKE AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
       # Also make the overall plot of the banks...
       if(fig== "screen") windows(11,8.5)
-      if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=11,height=8.5)
-      if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=11,height=8.5,res=920,units="in")
-      ScallopMap("NL",plot.bathy=T,plot.boundries=T,boundries="offshore",bound.color = T,label.boundries = T,offshore.names = T,
-                                      direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F,cex=1.3,shore="nwatlHR", language=language)
+      if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=13,height=11)
+      if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=13,height=11,res=920,units="in")
+      p <-  pecjector(area = "NL", add_layer = list(land = 'grey',
+                                         eez = 'eez',
+                                         sfa='offshore',
+                                         s.labels = 'offshore_detailed'),c_sys = 4326)
+      print(p)
       # Turn off the plot device if making a pdf.
       if(fig != "screen") dev.off()
       } # end if(bnk %in% c("GBa","BBn"))
@@ -974,10 +1014,10 @@ for(j in 1:num.banks)
     pe.years <- rev(sort(pe.years))
     #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
     pred.eval(input = DD.lst[[bnk]], priors = DD.out[[bnk]]$priors, pe.years= pe.years, growth="both",model = jags.model,  bank=bnk,
-              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct, direct_fns=direct_fns)
+              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct)
 
     # Now we make the figures and save them...
-    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, direct_fns=direct_fns,bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
+    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
     #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     
     print("done running prediction evaluation")

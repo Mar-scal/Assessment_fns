@@ -3,6 +3,7 @@
 # This function should work back until 2014, we don't have data stored properly currently for data before this time.
 
 # DK created August 2018
+# DK Jan 2021 updated direct_fns
 
 ##########################
 # ARGUMENTS
@@ -18,6 +19,7 @@
 #compare:     Do you want to get the survey tow tracks for last year.  These will be overlain with current year tows if producing a figure. T/F, default = T
 #labels:      Do you want to add the tow numbers to the figure (if it is being produced).  T/F, default = T
 #direct:      The directory to work out of. default = "Y:/Offshore scallop/Assessment/"
+#direct_fns:  Where you are sourcing the functions from.  Default is missing which will point to github.
 ###########################
 
 
@@ -30,9 +32,29 @@ if(bk == 'spring' || bk == 'all') cat("Hallow wonderful human!  Note that bk='sp
 if(bk == 'all') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'spring') bk <- c("Mid","Sab","Ger","BBn","GB")
 if(bk == 'summer') bk <- c("GBa","GBb")
+
+# Load functions 
+if(missing(direct_fns))
+{
+  funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+            "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r")
+  # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+  for(fun in funs) 
+  {
+    download.file(fun,destfile = basename(fun))
+    source(paste0(getwd(),"/",basename(fun)))
+    file.remove(paste0(getwd(),"/",basename(fun)))
+  } # end for(fun in funs)
+}# end if(missing(direct_fns))  
+
+if(!missing(direct_fns))
+{
 source(paste0(direct_fns,"Survey_and_OSAC/getdis.r"))
 source(paste0(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r"))
 source(paste0(direct_fns,"Maps/ScallopMap.r"))
+} # end if(!missing(direct_fns))
+
 library(reshape2)
 library(PBSmapping)
 

@@ -2,7 +2,7 @@
 ###  variability in condition factor.
 # Update history
 #Commented, checked  and revised by DK March 31, 2016
-
+# DK update Jan 2021, switched default behaviour to grab function from github.  Change should have no effect on old code.
 ####
 ################################################################################################################
 
@@ -38,16 +38,29 @@
 # ADJ_depth:   Use column ADJ_depth.  (T/F) default = F
 #pred.loc:     The depth, lat, and lon that you are predicting on (GAM selection dependent).  These should be user specified
 #              although I do have a backup method set up for these.
-#dirct:        The directory in which the shwt.lme.r function is located.  Default = "Y:/Offshore scallop/Assessment/Assessment_fns/"
+#dirct:        The directory in which the shwt.lme.r function is located.  Default is now missing and pulls from github (DK Jan 2021)
 #
 ###############################################################################################################
 
 condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.loc=NULL,b.par=3,plt=F,
-                  dirct="Y:/Offshore scallop/Assessment/", error=T)
+                  dirct, error=T)
 {
 	require(mgcv)  || stop("Install mgcv package needed for gam's")
   #Source1 Load in our missed effects model.
-  source(paste(dirct,"/Survey_and_OSAC/shwt.lme.r",sep=""),local=T)	
+  if(missing(dirct))
+  {
+      funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.lme.r")
+      # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+      for(fun in funs) 
+      {
+        download.file(fun,destfile = basename(fun))
+        source(paste0(getwd(),"/",basename(fun)))
+        file.remove(paste0(getwd(),"/",basename(fun)))
+      } # end for(un in funs)
+  }# end  if(missing(direct_fns))
+  
+  # If you supply dirct...
+  if(!missing(dirct)) source(paste(dirct,"/Survey_and_OSAC/shwt.lme.r",sep=""),local=T)	
   
   # the years in the data, sorted
   yrs<-sort(unique(wgt.dat$year))

@@ -32,7 +32,7 @@
 # Nov 2018:     Created colour.bins option which allows you to specify the colour ramp on INLA spatial plots. Revisit this in June 2019 to figure out appropriate bins for spring banks.
 #               Created keep.full.GB option which allows you to create INLA spatial maps for ALL of GB, not just GBa and GBb separately. 
 # Aug 2019:     Various updates, see github, included moving models to negative binomials for abundance spatial figures, and tidying up seedboxes
-               
+# Jan 2021:     DK messed about with direct_fns behaviour, github is now default...
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -266,8 +266,29 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   }
   
   direct <- tmp.dir # I need this so that the directory isn't overwritten when I load the above
+# Bring in packages and functions
+    if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/stdts.plt.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.ts.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shf.plt.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt1.R",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/Clap3.plt.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end if(missing(direct_fns))
   
-  # These are the functions used to within the heart of the code to make stuff happen
+# These are the functions used to within the heart of the code to make stuff happen
+if(!missing(direct_fns))  
+{
   source(paste(direct_fns,"Maps/ScallopMap.r",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/stdts.plt.R",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/survey.ts.r",sep=""),local=T)
@@ -276,6 +297,7 @@ survey.figs <- function(plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-sp
   source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
   source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
+} # end if(!missing(direct_fns))
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")

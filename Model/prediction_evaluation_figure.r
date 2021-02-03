@@ -45,7 +45,7 @@
 
 
 pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= "box",path=NULL,bank="GBa",
-                   wd=11,ht=8.5,direct, direct_fns, title = F,txt_size = 18)
+                   wd=11,ht=8.5,direct, title = F,txt_size = 18)
 {
   
   require(tidyverse) || stop("Make sure you have tidyverse loaded to run this")

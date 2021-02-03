@@ -20,6 +20,8 @@
 #            to clean up for the revised Sable strataification due to WEBCA.  DK also made some other tweaks to the function, specifically how the
 #            text points are dealt with, changed so the filenames easily incorporate the text point option and cut down on if() statements. We also added the ger.rep argument to allow backup repeat stations
 # Jun 2020:  Updated to work with pectinid_sf and interactive plotly 
+# Jan 2021: DK revised direct_fns behaviour to point to github by default.
+
 #####################################  Function Summary ########################################################
 ####  
 ##  This function is used within these files:(a.k.a "dependent files") 
@@ -39,6 +41,8 @@
 # yr:            The year of interest for making survey design.  Default is the current year as.numeric(format(Sys.time(), "%Y"))
 #
 # direct:        The directory to load/save all the data, Default is the network Offshore "Y:/Offshore/Assessment/"
+#
+# direct_fns:    This is missing by default, will point to github when missing.  
 #
 # export:        Do you want to export the survey design locations.  T/F Default is F
 #
@@ -101,19 +105,20 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
 # Load functions right from Github repo...
   if(repo == 'github')
   {
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/alloc.poly.r",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Relief.plots.r",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))  
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))  
-    sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",ssl.verifypeer = FALSE)
-    eval(parse(text = sc))  
-  }
+    funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/alloc.poly.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Relief.plots.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end if(repo == 'github')
   
   if(repo !='github')
   {
@@ -123,14 +128,14 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
     source(paste0(repo,"Survey_and_OSAC/convert.dd.dddd.r"))
     source(paste0(repo,"Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
     source(paste0(repo,"Maps/pectinid_projector_sf.R"))
-  }
+  } # end if(repo !='github')
   
   
   # This needs fixed!!
   #sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",ssl.verifypeer = FALSE)
   #eval(parse(text = sc))  
   
-  if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
+if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
 surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
 areas <- read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),stringsAsFactors = F) #Read1

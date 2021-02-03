@@ -1,10 +1,10 @@
 ### scaloff_cruise_check 
-
+### DK changed behaviour of direct_fns in Jan 2021
 ### Script to run pre-loading checks on xlsx templates prior to loading to scaloff database
 ### This is run to check data across surveys/banks within a single CRUISE.
 
 scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, 
-                                 year, direct=direct, direct_fns=direct_fns,
+                                 year, direct=direct, direct_fns,
                                  type="xlsx", cruise, season, nickname=NULL) {
   
   ### packages
@@ -16,7 +16,21 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   
   ### other functions
-  source(paste0(direct_fns, "Survey_and_OSAC/convert.dd.dddd.r"))
+  ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  
+  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
   
   if(season=="spring") {
     banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB")

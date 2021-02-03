@@ -5,9 +5,36 @@
 ### positionsdata: dataframe containing positions for MW data
 ### commercial sampling: should commercial samples be included (T or F)
 
+
+## Heads up that DK made some changes to 'direct_fns which should be silent.  Note that 'direct' is used in the body of this function but
+## not specified as an arguement so that is reliaing on the direct objecting being in your environment.  I've left it be as it obviously worked
+## when it had to...
+
 Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, years=years, surveydata=IndSurvey2020, 
                                             commercialsampling=commercialsampling, meatweightdata=Ind_MW_new, mwsh.test=F,
+                                            direct_fns,
                                             bins=NULL, RS=NULL, CS=NULL, survey.bound.polys=NULL, survey.detail.polys=NULL){
+  
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/mwsh.sensit.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/surv.by.tow.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/simple.surv.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(un in funs)
+  } # end  if(missing(direct_fns))
+  
+  if(!missing(direct_fns))
+  {
+  source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
+  source(paste0(direct_fns, "Survey_and_OSAC/surv.by.tow.r"))
+  source(paste0(direct_fns, "Survey_and_OSAC/simple.surv.R"))
+  } #end if(!missing(direct_fns))
   
   require(plyr)
   bnk <- unique(surveydata$bank)
@@ -151,12 +178,11 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     
     if(mwsh.test == T) {
       
-      source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
       mwsh.test.dat <- mw.dat.all[[bnk]]
       if(!any(mwsh.test.dat$sh > 10)) mwsh.test.dat$sh <- mwsh.test.dat$sh * 100
       mwshtest <- mwsh.sensit(mwdat=na.omit(mwsh.test.dat[, !names(mwsh.test.dat) %in% c("month", "species")]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                               sub.size=NULL, sub.year=c(NA, 2012), sub.tows=NULL, sub.samples=NULL, 
-                              direct=direct, direct_fns=direct_fns, seed=1234)
+                              direct=direct,  seed=1234)
       cf.data[[bnk]] <- mwshtest$condmod
     }
     
@@ -173,7 +199,6 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
     surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
 
     ######## Calculate biomasses by tow ###########################################################
-    source(paste0(direct_fns, "Survey_and_OSAC/surv.by.tow.r"))
     surv.dat[[bnk]]$year[surv.dat[[bnk]]$year %in% c("20.19", "20.18")] <- 2020
     surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
     
@@ -210,7 +235,6 @@ Industry2020_SurveySummary_data <- function(yr=yr, survey.year=survey.year, year
   surv.Clap[[bnk]]$clap.prop[is.na(surv.Clap[[bnk]]$clap.prop)]<-0
   browser()
   ########### Make survey.obj (mimicking Middle bank method) ###########################
-  source(paste0(direct_fns, "Survey_and_OSAC/simple.surv.R"))
   if(bnk=="BBn") {
     survey.obj[[bnk]] <- simple.surv(select(surv.Live[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Live[[bnk]]$year))),user.bins=bin, B=F)
     clap.survey.obj[[bnk]]<-simple.surv(select(surv.Clap[[bnk]], -pastyear),years=sort(as.numeric(unique(surv.Clap[[bnk]]$year))), B=F)

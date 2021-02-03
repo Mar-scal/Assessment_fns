@@ -51,7 +51,7 @@ combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F, quiet=F)
   # We should also spit a warning here...
   if(length(num.cols) > 1){
     cat("Warning, you are combining shapefiles with different numbers of columns, this method retains only the first column which we rename 'ID'
-       so you might want to try a different tool to combine your data as this method will lead to lose of some data!!!")
+       so you might want to try a different tool to combine your data as this method will lead to loss of some data!!!")
     for (i in 1:length(lyr)) 
     {
       # Just keep the first column
