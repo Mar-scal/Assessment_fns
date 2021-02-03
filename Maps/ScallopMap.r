@@ -184,7 +184,7 @@ ScallopMap<-function(area='custom',
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/strataPlot.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/managePlot.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/bathyPlot.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/convert.dd.dddd.r")
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other/convert.dd.dddd.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
