@@ -174,11 +174,39 @@ ScallopMap<-function(area='custom',
   require(RODBC) || stop("Install RODBC Package")
   #require(GISTools) ||  stop("Install GISTools Package")
 
-  # Load the 4 custom functions
-  source(paste(direct_fns,"Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
-  source(paste(direct_fns,"Maps/managePlot.r",sep="")) #Source2 add the managment details
-  source(paste(direct_fns,"Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
-  source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
+  # Load required packages and local functions.
+  if(missing(direct_fns))
+  {
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/fishsum.plt.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/fishery.dat.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/strataPlot.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/managePlot.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/bathyPlot.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+    for(fun in funs) 
+    {
+      download.file(fun,destfile = basename(fun))
+      source(paste0(getwd(),"/",basename(fun)))
+      file.remove(paste0(getwd(),"/",basename(fun)))
+    } # end for(fun in funs)
+  }# end if(missing(direct_fns))
+  
+  
+  if(!missing(direct_fns))
+  {
+    source(paste(direct_fns,"/Fishery/fishsum.plt.r",sep="")) #Source1
+    source(paste(direct_fns,"/Survey_and_OSAC/gridPlot.r",sep="")) #Source2
+    source(paste(direct_fns,"/Fishery/fishery.dat.r",sep="")) #Source3 
+    source(paste(direct_fns,"/Maps/ScallopMap.r",sep="")) #Source3 
+    # Load the 4 custom functions
+    source(paste(direct_fns,"/Maps/strataPlot.r",sep="")) #Source1 add the strata from the SQL database
+    source(paste(direct_fns,"/Maps/managePlot.r",sep="")) #Source2 add the managment details
+    source(paste(direct_fns,"/Maps/bathyPlot.r",sep="")) #Source3 add the bathymetry
+    source(paste(direct_fns,"/Survey_and_OSAC/convert.dd.dddd.r",sep="")) #Source4 convert from decimal degrees to degree-minute-seconds.
+  } # end if(!missing(direct_fns))
   
 ######################  Section 1 - This relates to the "area"  and  "shore" arguements in the function call + 
 #######################    Opens the plotting device ###################################  
