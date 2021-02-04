@@ -192,7 +192,7 @@ for(i in 1:num.banks)
     if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
     if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
    
-     if(bnk == "GBa" & yr==2019) {
+    if(bnk == "GBa" & yr==2019) {
       # manually shift 3 stations in 2019:
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
@@ -211,6 +211,7 @@ for(i in 1:num.banks)
       towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
     }
     
+    # We made some manual adjustments in 2020...
     if(bnk == "Sab" & yr==2020) {
       # manually shift 3 stations in 2019:
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==23, "Y"] <- 43.365
@@ -218,11 +219,27 @@ for(i in 1:num.banks)
     }
     
     if(bnk == "BBs" & yr==2020) {
-      # manually shift 3 stations in 2019:
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==24, c("X", "Y")] <- c(-65.835, 42.516)
     }
     
-          #get the deg dec minutes coordinates too
+    # For spring 2021, we decided to use the stations from spring 2020 since the 2020 survey did not occur. 
+    if(yr==2021 & bnk %in% c("BBn", "BBs", "Sab")){
+      if(bnk %in% c("BBn", "Sab")) {
+        seedlab <- seed
+        tows2020 <- read.csv(paste0(direct, "Data/Survey_data/2020/Spring/", bnk, "/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv"))
+      }
+      if(bnk %in% c("BBs")) {
+        seedlab <- seed
+        tows2020 <- read.csv(paste0(direct, "Data/Survey_data/2020/Spring/", bnk, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv"))
+      }
+      towlst[[i]]$Tows$X <- tows2020$X
+      towlst[[i]]$Tows$Y <- tows2020$Y
+      towlst[[i]]$Tows$Poly.ID <-tows2020$Poly.ID
+      towlst[[i]]$Tows$STRATA <-tows2020$STRATA
+      towlst[[i]]$Tows$EID <-tows2020$EID
+    }
+    
+      #get the deg dec minutes coordinates too
     if(!bnk == "Ger")  {
       writetows <- towlst[[i]]$Tows
       if(add.extras==T) {
@@ -238,21 +255,25 @@ for(i in 1:num.banks)
 	  # if you want to save the tow lists you can export them to csv's.
   	if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
   	{
-  	  if(!seed == yr-2000) seedlab <- seed
   	  if(!seed == yr-2000) {
+  	    seedlab <- seed
   	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
   	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
-  	    } #Write1
-  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
+  	  }
+  	  if(seed == yr-2000) {
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	  } #Write1
   	} # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
   	if(export == T && bnk %in% c("GBa","GBb")) 
   	{  
-  	  if(!seed == yr-2000) seedlab <- seed
   	  if(!seed == yr-2000) {
+  	    seedlab <- seed
   	    dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
   	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
   	  } #Write1
-  	  if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
+  	  if(seed == yr-2000) {
+  	    write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+  	  } #Write1
   	} # end if(export == T && bnk %in% c("GBa,GBb")) 
 	  
   	# Now if you want to make the plots do all of this.
@@ -659,7 +680,7 @@ if(bnk == "Ger")
     # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
     Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
                             ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
-    
+  
     # FK modfidied the last piece of alloc.poly and added in a the sample command afterwards, this was
     # done so that we can re-create the sample stations for TPD (i.e. our survey technician).
     #ntows=ger.new,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)  
@@ -694,6 +715,7 @@ if(bnk == "Ger")
     Ger.tow.dat.rep<- rbind(Ger.tow.lst$Tows$repeated.tows,
                         Ger.tow.lst$Tows$backup.repeats)
     
+    
     # Get degree decimal minutes
     Ger.tow.dat$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$X, format = "deg.min"), 4)
     Ger.tow.dat$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat$Y, format = "deg.min"), 4)
@@ -703,6 +725,12 @@ if(bnk == "Ger")
     Ger.tow.dat.rep$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$X, format = "deg.min"), 4)
     Ger.tow.dat.rep$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$Y, format = "deg.min"), 4)
     Ger.tow.dat.rep <- Ger.tow.dat.rep[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA", "EIDlastyear")]
+    
+    if(yr==2021){
+      seedlab <- seed
+      Ger.tow.dat <- read.csv(paste0(direct, "Data/Survey_data/2020/Spring/", bnk, "/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv"))
+      Ger.tow.dat.rep <- read.csv(paste0(direct, "Data/Survey_data/2020/Spring/", bnk, "/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, "_repbackups.csv"))
+    }
     
     #Write3 If you want to save the data here's where it will go
     if(export == T)  {
@@ -855,7 +883,7 @@ if(bnk == "Ger")
         ScallopMap(bnk,plot.bathy = T,plot.boundries = T,dec.deg=F, direct=direct, direct_fns=direct_fns)
         # Add the German bank boundary and then add the survey points
         addPolys(Ger.polyset,border=NA,col=rgb(0,0,0,0.2))
-        addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated-backup",]$Poly.ID)
+        addPoints(Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% "repeated-backup",],pch=Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% "repeated-backup",]$Poly.ID)
         addPoints(Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",],pch=Ger.tow.dat[Ger.tow.dat$STRATA %in% "repeated",]$Poly.ID, bg="black")
         
         title(paste("Repeat backups (",bnk,"-",yr,")",sep=""),cex.main=2,line=1)
