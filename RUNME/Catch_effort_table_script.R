@@ -93,6 +93,27 @@ CPUE.mon(CPUE = "obs", year=2020,
          direct = direct)
 
 
+# For survey year catch
+direct <- "Y:/Offshore/Assessment/"
+
+### for the code:
+### If you want to use the MASTER version:
+direct_fns <- "Y:/Offshore/Assessment/Assessment_fns/"
+### If you want to use a development version:
+#direct_fns <- "Y:/Github/Offshore/Assessment_fns/FK/"
+
+year <- c(2020)
+  
+source(paste0(direct_fns, "Fishery/logs_and_fishery_data.R"))
+source(paste0(direct_fns, "Fishery/fishery.dat.R"))
+
+logs_and_fish(loc = "GBa", year = 2019:2020, get.marfis = F, export = F, direct=direct, direct_fns=direct_fns)
+cpue.dat <- fishery.dat(new.log.dat,bk="GBa",yr=2019:2020,method='jackknife',
+                                   period = "survyr", direct=direct, direct_fns=direct_fns) 
+logs_and_fish(loc = "BBn", year = 2019:2020, get.marfis = F, export = F, direct=direct, direct_fns=direct_fns)
+cpue.dat <- fishery.dat(new.log.dat,bk="BBn",yr=2019:2020,method='jackknife',
+                        period = "survyr", direct=direct, direct_fns=direct_fns) 
+
 
 ###########################################################################################################################################
 

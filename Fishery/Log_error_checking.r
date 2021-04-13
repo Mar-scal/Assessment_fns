@@ -71,7 +71,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   if(repo == "github")
   {
     funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/Log_spatial_checks/app.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
