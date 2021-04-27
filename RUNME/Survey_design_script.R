@@ -14,15 +14,15 @@
 # 1: source(paste(direct,"Assessment_fns/Survey_design/Survey_design.r",sep=""))
 # 
 ###############################################################################################################
-yr <- 2020
+yr <- 2021
 #direct = "d:/r/"
 direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 source(paste(direct_fns,"Survey_design/Survey_design.r",sep=""))
 
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
-Survey.design(yr = yr,banks = "Ger",direct = direct,export=F,relief.plots = F,fig="png",seed=62294,
-              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=T, ger.rep=20)
+Survey.design(yr = yr,banks = "Ger",direct = direct, direct_fns=direct_fns,export=F,relief.plots = F,fig="png",seed=62294,
+              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
 Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,relief.plots = F,fig="png",seed=62311,
               point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=T, ger.rep=20, cables=T)
 Survey.design(yr = yr,banks = "Mid",direct = direct,export=F,relief.plots = F,fig="png",seed=(yr-2000),
