@@ -60,20 +60,20 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     
     
     #inshore
-    if(plot.extent %in% c("SFA29",'sfa29'))	                                                       {y=c(43.10,43.80);x=c(-66.50,-65.45)}
+    if(plot.extent %in% c("SFA29",'sfa29','29W','29w','SFA29W','sfa29w','29'))	                   {y=c(43.10,43.80);x=c(-66.50,-65.45)}
     if(plot.extent %in% c('gm',"GM","Grand Mannan"))		                                           {y=c(44.40,45.20);x=c(-67.20,-66.30)}
     if(plot.extent %in% c('inshore',"Inshore","INSHORE"))	                                         {y=c(43.10,45.80);x=c(-67.50,-64.30)}
     if(plot.extent%in% c('bof','BOF',"BoF","Bay","Bay of FUndy"))		                               {y=c(44.25,45.80);x=c(-66.50,-64.30)}
     if(plot.extent%in% c('upper',"UPPER","UB","Upper","Upper Bay","upper bay"))	                   {y=c(45.00,46.00);x=c(-65.20,-64.30)}
     # Need to be slightly careful here since we have middle bank 
     if(plot.extent%in% c('Mid Bay',"MB","mb",'mid bay'))		                                       {y=c(44.30,45.50);x=c(-66.60,-64.70)} 
-    if(plot.extent%in% c('spa3',"SPA3"))	                                                         {y=c(43.62,44.60);x=c(-66.82,-65.80)}
-    if(plot.extent%in% c('spa4',"SPA4"))	                                                         {y=c(44.48,44.96);x=c(-66.20,-65.51)}
-    if(plot.extent%in% c('spa1',"SPA1"))	                                                         {y=c(44.50,45.80);x=c(-66.40,-64.30)}
-    if(plot.extent%in% c('spa6',"SPA6"))	                                                         {y=c(44.30,45.25);x=c(-67.40,-65.90)}
-    if(plot.extent%in% c('spa1A',"SPA1A",'spa1a','SPA1a','spa1A'))	                               {y=c(44.50,45.30);x=c(-66.40,-64.80)}
-    if(plot.extent%in% c('spa1B',"SPA1B",'spa1b','SPA1b','spa1B'))	                               {y=c(44.80,45.70);x=c(-66.20,-64.30)}
-    if(plot.extent%in% c('spa5','SPA5'))	                                                         {y=c(44.56,44.78);x=c(-65.82,-65.51)}
+    if(plot.extent%in% c('spa3',"SPA3","3"))	                                                     {y=c(43.62,44.60);x=c(-66.82,-65.80)}
+    if(plot.extent%in% c('spa4',"SPA4","4"))	                                                     {y=c(44.48,44.96);x=c(-66.20,-65.51)}
+    if(plot.extent%in% c('spa1',"SPA1","1"))	                                                     {y=c(44.50,45.80);x=c(-66.40,-64.30)}
+    if(plot.extent%in% c('spa6',"SPA6","6"))	                                                     {y=c(44.30,45.25);x=c(-67.40,-65.90)}
+    if(plot.extent%in% c('spa1A',"SPA1A",'spa1a','SPA1a','spa1A',"1A","1a"))                       {y=c(44.37,45.30);x=c(-66.40,-64.80)}
+    if(plot.extent%in% c('spa1B',"SPA1B",'spa1b','SPA1b','spa1B',"1B","1b"))	                     {y=c(44.80,45.70);x=c(-66.20,-64.30)}
+    if(plot.extent%in% c('spa5','SPA5',"5"))	                                                     {y=c(44.56,44.78);x=c(-65.82,-65.51)}
   } # end if(!is.data.frame(plot.extent))
   # Now transform the data to the coordinate system you are using.
   coords <- st_as_sf(data.frame(y=y,x=x),coords = c("x","y"),crs = in.csys)
