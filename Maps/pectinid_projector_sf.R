@@ -547,7 +547,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore/inshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_boundaries.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -647,7 +647,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_survey_strata/inshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_survey_strata/inshore_survey_strata.zip", temp)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -655,9 +655,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         #
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
         inshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
-        inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
+        #nshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
+        inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$STRATA_ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
-        inshore.strata$ID <- inshore.strata$ET_ID
+        inshore.strata$ID <- inshore.strata$STRATA_ID
         inshore.strata <- inshore.strata %>% dplyr::select(Strt_ID,ID,col)
         
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
