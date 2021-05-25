@@ -322,16 +322,16 @@ for(i in 1:num.banks)
   	      crs = 4326, 
   	      plot=T)
   	   names(polydata[[i]])[which(names(polydata[[i]])=="PID")] <- "Poly.ID" 
-  	   plotly_df <- dplyr::left_join(towlst[[i]]$Tows, select(polydata[[i]], col, Poly.ID), by="Poly.ID")
+  	   plotly_df <- dplyr::left_join(towlst[[i]]$Tows, dplyr::select(polydata[[i]], col, Poly.ID), by="Poly.ID")
   	   plotly_obj %>% add_trace(x = plotly_df$X,
   	                            y = plotly_df$Y,
   	                            marker = list(
   	                              color = ~plotly_df$col,
-  	                              size = 5#,
-  	                              #line = list(
-  	                               # color = "black",
-  	                                #width = 1
-  	                              #)
+  	                              size = 5,
+  	                              line = list(
+  	                               color = "black",
+  	                               width = 1
+  	                              )
   	                            )
   	   )
   	   names(polydata[[i]])[which(names(polydata[[i]])=="Poly.ID")] <- "PID" 

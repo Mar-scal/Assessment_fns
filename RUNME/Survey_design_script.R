@@ -16,22 +16,23 @@
 ###############################################################################################################
 yr <- 2021
 #direct = "d:/r/"
-direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+direct <- "Y:/Offshore/Assessment/"
+# set direct_fns if you don't want to use the marscal github version
 direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 source(paste(direct_fns,"Survey_design/Survey_design.r",sep=""))
 
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
-Survey.design(yr = yr,banks = "Ger",direct = direct, direct_fns=direct_fns,export=F,relief.plots = F,fig="png",seed=62294,
+Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,fig="png",seed=62294,
               point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
 Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,relief.plots = F,fig="png",seed=62311,
-              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=T, ger.rep=20, cables=T)
-Survey.design(yr = yr,banks = "Mid",direct = direct,export=F,relief.plots = F,fig="png",seed=(yr-2000),
+              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20, cables=T)
+Survey.design(yr = yr,banks = "Mid",direct = direct,export=T,relief.plots = F,fig="png",seed=20,
               point.style = "points", x.adj=0.04, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "GB",direct = direct,export=F,relief.plots = F,fig="png",seed=(yr-2000),
+Survey.design(yr = yr,banks = "GB",direct = direct,export=T,relief.plots = F,fig="png",seed=20,
               point.style = "points", x.adj=0.04, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "Sab",direct = direct,export=F,relief.plots = F,fig="png",seed=62309,
-              point.style = "both", x.adj=0.03, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,relief.plots = F,fig="png",seed=(yr-2000),
+Survey.design(yr = yr,banks = "Sab",direct = direct, direct_fns=direct_fns,export=T,relief.plots = F,fig="png",seed=62309,
+              point.style = "points", x.adj=0.03, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
+Survey.design(yr = yr,banks = "BBs",direct = direct, direct_fns=direct_fns,export=T,relief.plots = F,fig="png",seed=20,
               point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
 # Mid: x.adj=0.04, y.adj=0.005
 # BBn: x.adj=0.025, y.adj=0.005
@@ -42,12 +43,15 @@ Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,relief.plots = F,fi
 # Ban: x.adj=0.02, y.adj=0.001
 
 # use fig="leaflet" if you want an interactive figure. No strata yet though
-
-Survey.design(yr = yr,banks = "GBa",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="plotly",seed=26802,
+floor(runif(n = 1, min = 10000, max=99999)) 
+for(i in c(19174, 19178, 19179, 19180, 19182, 19186,19188)){
+Survey.design(yr = yr,banks = "GBa",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="png",seed=i,
               point.style = "points", x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, zoom=T, plot = T)
-Survey.design(yr = yr,banks = "GBb",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="png",seed=26805,
-              point.style = "both", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-
+}
+for(i in c(19174:1984)){
+Survey.design(yr = yr,banks = "GBb",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="png",seed=i,
+              point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
+}
 # get bearing from 2012 Ban survey
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.brg.r",sep=""))
 DBpull<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)
