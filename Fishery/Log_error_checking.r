@@ -450,7 +450,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
                                direct_fns=direct_fns)
       }
       
-      trip_plot <- pect_plot  + geom_point(data=trip.log, aes(lon, lat)) + 
+      trip_plot <- pect_plot  + geom_sf(data=trip.log) + 
         ggtitle(paste0(trip.log$ves[1],"_",trip.log$vrnum[1],"_",min(trip.log$fished,na.rm=T),"-",max(trip.log$fished,na.rm=T))) +
         scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
       

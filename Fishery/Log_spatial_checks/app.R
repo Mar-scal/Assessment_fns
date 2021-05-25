@@ -26,6 +26,8 @@ shinyapp <- function(trip.log = trip.log, osa=osa, pr=pr, direct, direct_fns, re
     trip.log_f[[i]]$lbs <- trip.log_f[[i]]$pro.repwt * 2.2046
     trip.log_f[[i]] <- as.data.frame(trip.log_f[[i]])
     trip.log_f[[i]] <- trip.log_f[[i]][, which(!names(trip.log_f[[i]]) == "geometry")]
+    if(is.character(trip.log_f[[i]]$lat)) trip.log_f[[i]]$lat <- as.numeric(trip.log_f[[i]]$lat)
+    if(is.character(trip.log_f[[i]]$lon)) trip.log_f[[i]]$lon <- as.numeric(trip.log_f[[i]]$lon)
     osa_f[[i]] <- as.data.frame(osa[[i]])
     osa_f[[i]] <- osa_f[[i]][, which(!names(osa_f[[i]]) == "geometry")]
   }
