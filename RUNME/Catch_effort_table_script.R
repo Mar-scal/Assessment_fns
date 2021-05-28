@@ -10,6 +10,7 @@ require(openxlsx)
 ### Set your directory, year, and source the CPUE_monthly_or_observer function
 ### for the data and outputs:
 direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+#direct <- "Y:/Offshore/Assessment/"
 
 ### for the code:
 ### If you want to use the MASTER version:

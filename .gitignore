@@ -66,3 +66,4 @@ markdown/
 *.tex
 *.html
 *.Rproj
+*.Rdata

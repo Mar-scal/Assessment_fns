@@ -1,0 +1,141 @@
+---
+output: 
+  pdf_document:
+    fig_caption: true
+params:
+  bank: NA
+---
+
+
+```{r, echo=F, include=F, message=F}
+knitr::opts_knit$set(eval.after = "fig.cap")
+options(knitr.kable.NA = '')
+options(knitr.table.format = "latex")
+options(kableExtra.latex.load_packages = FALSE)
+
+year <- 2019
+
+load("summary.Rdata")
+
+ntows <- summary_data$ntows
+highlights <- summary_data$highlights
+sizes <- summary_data$sizes
+
+bank <- data.frame(lab = c("Ban", "BanIce", "Mid", "Sab", "Ger", "BBn", "BBs", "GB", "GBa", "GBb"), name=NA)
+bank$name[bank$lab=="Ban"] <- "Banquereau (Sea scallop)"
+bank$name[bank$lab=="BanIce"] <- "Banquereau (Icelandic scallop)"
+bank$name[bank$lab=="Mid"] <- "Middle"
+bank$name[bank$lab=="Sab"] <- "Sable"
+bank$name[bank$lab=="Ger"] <- "German"
+bank$name[bank$lab=="BBn"] <- "Browns North"
+bank$name[bank$lab=="BBs"] <- "Browns South"
+bank$name[bank$lab=="GB"] <- "Georges Bank monitoring stations"
+bank$name[bank$lab=="GBa"] <- "Georges Bank 'a'"
+bank$name[bank$lab=="GBb"] <- "Georges Bank 'b'"
+
+bankname <- bank$name[bank$lab==params$bank]
+
+```
+
+\newpage
+
+
+# `r bankname`
+
+```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Survey station map. There were `r sum(ntows$Freq[ntows$bank==params$bank])` tow locations."}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/survey_strata.png"))
+```
+
+
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Abundance time series, represented by number of scallop per standardized tow (y-axis). Pre-recruits (less than `r sizes$RS[sizes$bank==params$bank]$size`mm shell height) are shown in the top panel; recruit-sized (`r sizes$RS[sizes$bank==params$bank]$size` to `r sizes$CS[sizes$bank==params$bank]$size`mm shell height) scallop in the middle panel; and fully-recruited (greater than `r sizes$CS[sizes$bank==params$bank]$size`mm shell height) scallop in the bottom panel. Recruits are expected to grow to commercial size next year."}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/abundance_ts.png"))
+```
+
+
+```{r, echo=FALSE, message=F}
+table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("NPR", "NR", "N"), c("variable", "lastyear", "thisyear", "LTM")]
+# table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+#                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+#                     paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+# names(table) <- c("Size class", "Previous survey", "Current survey", "Long term median")
+
+kableExtra::kable_latex(table) ## DOES Not work and needs caption!
+```
+
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/biomass_ts.png")) -->
+<!-- ``` -->
+<!-- _Figure 3. Biomass time series, represented by kilograms of scallop per tow._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/SHF.png")) -->
+<!-- ``` -->
+<!-- _Figure 4. Shell height frequencies of scallop. Vertical dashed lines are the recruit size limits._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/PR-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 5. Spatial distribution of pre-recruit scallop._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Rec-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 6. Spatial distribution of recruit scallop._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/FR-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 7. Spatial distribution of fully-recruited scallop._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MWSH_and_CF_ts.png")) -->
+<!-- ``` -->
+<!-- _Figure 8. Meat-weight shell height relationship (left) and condition time series (right). Condition is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with 100mm shell height._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/CF-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 9. Spatial distribution of scallop condition._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MC-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 10. Spatial distribution of meat weight._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Clap-spatial.png")) -->
+<!-- ``` -->
+<!-- _Figure 11. Spatial distribution of clappers._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Clapper_per_ts.png")) -->
+<!-- ``` -->
+<!-- _Figure 12. Clapper time series, represented by number of clappers per tow._ -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap=NULL} -->
+<!-- if(!params$bank %in% c("Ban", "BanIce")) knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year-1, "/Presentations/Survey_summary/test_figures/", params$bank, "/breakdown-",year-1, ".png")) -->
+
+<!-- ``` -->
+
+
+<!-- ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center"} -->
+<!-- knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/breakdown-",year, ".png")) -->
+<!-- ``` -->
+<!-- _Figure 14. Current survey's relationship between biomass, shell height, and meat count._ -->
+
+
+
+<!-- ```{r child = if(params$year == 2011){"child_document.Rmd"} } -->
+<!-- ``` -->
