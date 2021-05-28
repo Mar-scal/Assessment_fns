@@ -18,9 +18,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   direct <- direct.tmp
   banks <- names(bank.dat)
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
-
+  
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
-
+  
   possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "BanIce", "GBa", "GBb"),
                                 season=c(rep("spring", 8), rep("summer", 2)))
   bankcheck <- data.frame(banks, year=year)
@@ -35,21 +35,21 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   bankcheck$word[bankcheck$banks=="BanIce"] <- "Banquereau Bank (Icelandic)"
   bankcheck$word[bankcheck$banks=="GBa"] <- "Georges Bank 'a'"
   bankcheck$word[bankcheck$banks=="GBb"] <- "Georges Bank 'b'"
-
+  
   bankcheck <<- bankcheck[bankcheck$season==reportseason,]
-
+  
   ntows <- NULL
   highlights <- NULL
   sizes <- NULL
   for (i in 1:length(banks)){
-
+    
     if(banks[i] %in% "BBs") lastyear <- year-2
     if(!banks[i] %in% c("BBs", "Ban", "BanIce")) lastyear <- year-1
     if(banks[i] %in% c("Ban", "BanIce")) lastyear <- 2012
-
+    
     # must use surv.Live instead of surv.Rand for German!!
     if(banks[i] == "Ger") surv.Rand$Ger <- surv.Live$Ger
-
+    
     size<-NULL
     size$RS <- survey.obj[banks[i]][[1]]$model.dat$RS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
     size$CS <- survey.obj[banks[i]][[1]]$model.dat$CS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
@@ -57,12 +57,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     if(banks[i] == "GB") size$mc <- unique(fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$year==year])
 
     size$bank <- banks[i]
-
+    
     sizes <- rbind(sizes, size)
-
+    
     #print(i)
     # number of tows:
-
+    
     if(class(surv.dat[banks[i]][[1]]) == "SpatialPointsDataFrame") surv.dat[banks[i]][[1]] <- as.data.frame(surv.dat[banks[i]][[1]])
     ntowsy <- as.data.frame(table(unique(surv.dat[banks[i]][[1]][surv.dat[banks[i]][[1]]$year==year, c("tow", "random")])$random))
     ntowsy$type[ntowsy$Var1 == 1] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 1], "1", "fixed_regular")
@@ -72,9 +72,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     ntowsy$type[ntowsy$Var1 == 5] <- gsub(x=ntowsy$Var1[ntowsy$Var1 == 5], "5", "exploratory_5")
     ntowsy$type[!ntowsy$Var1 %in% 1:5] <- "unclassified"
     ntowsy$bank <- banks[i]
-
+    
     ntows <- rbind(ntows, ntowsy)
-
+    
     # number per tow
     if(banks[i] %in% c("Mid", "GB", "Ger","Ban", "BanIce")){
       NPR_current <- SS.summary[banks[i]][[1]]$NPR[SS.summary[banks[i]][[1]]$year==year]
@@ -86,14 +86,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       NPR_LTM <- median(SS.summary[banks[i]][[1]]$NPR, na.rm=T)
       NR_LTM <- median(SS.summary[banks[i]][[1]]$NR, na.rm=T)
       N_LTM <- median(SS.summary[banks[i]][[1]]$N, na.rm=T)
-
+      
       if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
       }
     }
-
+    
     if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb") | grepl(x=banks[i], pattern="GBa")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       NPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
@@ -104,14 +104,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       NPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NPR, na.rm=T)
       NR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NR, na.rm=T)
       N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
-
+      
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
       }
     }
-
+    
     # BBs is only surveyed every other year, so change years to year-2
     if(banks[i] %in% c("BBs")){
       NPR_current <- survey.obj[banks[i]][[1]]$bankpertow$NPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
@@ -123,25 +123,25 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       NPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NPR, na.rm=T)
       NR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$NR, na.rm=T)
       N_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$N, na.rm=T)
-
+      
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         NPR_prev <- NA
         NR_prev <- NA
         N_prev <- NA
       }
     }
-
-    abundPT <- data.frame(variable=c("NPR", "NR", "N"),
+    
+    abundPT <- data.frame(variable=c("NPR", "NR", "N"), 
                           lastyear=c(NPR_prev, NR_prev, N_prev),
                           thisyear=c(NPR_current, NR_current, N_current),
                           LTM=c(NPR_LTM, NR_LTM, N_LTM))
-
+    
         # ifelse for the wording
     abundPT$word <- ifelse(abundPT$thisyear/abundPT$lastyear >  1.10,
                            "increased",
                            ifelse(abundPT$thisyear/abundPT$lastyear < 0.90 & abundPT$thisyear/abundPT$lastyear > 0.10,
                                   "decreased",
-                                  ifelse(abundPT$thisyear/abundPT$lastyear < 0.10 |
+                                  ifelse(abundPT$thisyear/abundPT$lastyear < 0.10 | 
                                            (abundPT$thisyear/abundPT$lastyear > 0.90 &
                                               abundPT$thisyear/abundPT$lastyear < 1.10),
                                          "similar", "other")))
@@ -149,13 +149,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                               "above",
                               ifelse(abundPT$thisyear/abundPT$LTM < 0.90 & abundPT$thisyear/abundPT$LTM > 0.10,
                                      "below",
-                                     ifelse(abundPT$thisyear/abundPT$LTM < 0.10 |
+                                     ifelse(abundPT$thisyear/abundPT$LTM < 0.10 | 
                                               (abundPT$thisyear/abundPT$LTM > 0.90 &
-                                                 abundPT$thisyear/abundPT$LTM < 1.10),
+                                                 abundPT$thisyear/abundPT$LTM < 1.10), 
                                             "near", "other")))
-
+    
     abundPT$bank <- banks[i]
-
+    
     # biomass per tow
     if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
       IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]
@@ -167,14 +167,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       IPR_LTM <- median(SS.summary[banks[i]][[1]]$IPR, na.rm=T)
       IR_LTM <- median(SS.summary[banks[i]][[1]]$IR, na.rm=T)
       I_LTM <- median(SS.summary[banks[i]][[1]]$I, na.rm=T)
-
+      
       if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
       }
     }
-
+    
     if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")| grepl(x=banks[i], pattern="GBa")){
       IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
@@ -185,14 +185,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
-
+      
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
       }
     }
-
+    
     if(banks[i] %in% c("BBs")){
       IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
       IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
@@ -203,49 +203,49 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
       IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
       I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
-
+      
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
         IR_prev <- NA
         I_prev <- NA
       }
     }
-
-    bmPT <- data.frame(variable=c("IPR", "IR", "I"),
+    
+    bmPT <- data.frame(variable=c("IPR", "IR", "I"), 
                        lastyear=c(IPR_prev, IR_prev, I_prev),
                        thisyear=c(IPR_current, IR_current, I_current),
                        LTM=c(IPR_LTM, IR_LTM, I_LTM))
-
+    
     # ifelse for the wording
     bmPT$word <- ifelse(bmPT$thisyear/bmPT$lastyear >  1.10,
                         "increased",
                         ifelse(bmPT$thisyear/bmPT$lastyear < 0.90 & bmPT$thisyear/bmPT$lastyear > 0.10,
                                "decreased",
-                               ifelse(bmPT$thisyear/bmPT$lastyear < 0.10 |
+                               ifelse(bmPT$thisyear/bmPT$lastyear < 0.10 | 
                                         (bmPT$thisyear/bmPT$lastyear > 0.90 &
-                                           bmPT$thisyear/bmPT$lastyear < 1.10),
+                                           bmPT$thisyear/bmPT$lastyear < 1.10), 
                                       "similar", "other")))
-
+    
     bmPT$nearLTM <- ifelse(bmPT$thisyear/bmPT$LTM >  1.10,
                            "above",
                            ifelse(bmPT$thisyear/bmPT$LTM < 0.90 & bmPT$thisyear/bmPT$LTM > 0.10,
                                   "below",
-                                  ifelse(bmPT$thisyear/bmPT$LTM < 0.10 |
+                                  ifelse(bmPT$thisyear/bmPT$LTM < 0.10 | 
                                            (bmPT$thisyear/bmPT$LTM > 0.90 &
-                                              bmPT$thisyear/bmPT$LTM < 1.10),
+                                              bmPT$thisyear/bmPT$LTM < 1.10), 
                                          "near", "other")))
-
+    
     bmPT$bank <- banks[i]
-
+    
     highlights <- rbind(highlights, abundPT)
     highlights <- rbind(highlights, bmPT)
-
+    
     # shell height frequencies
     shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, 14:53], 2, mean)
     maxbin <- names(shsummary[shsummary==max(shsummary)])
     maxbin <- gsub(x=maxbin, "h", "")
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
-
+    
     if(!banks[i] == "BBs"){
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
@@ -258,7 +258,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
-
+ 
     if(file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))
       fitted.x <- fitted
@@ -266,7 +266,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     if(!file.exists(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/", banks[i], "_figures_res_250-250.Rdata"))){
       fitted.x <- NULL
     }
-
+    
     maxPRtow <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==year])
     if(!banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
     if(banks[i]=="BBs") maxPRtow_LY <- max(surv.Rand[banks[i]][[1]]$pre[surv.Rand[banks[i]][[1]]$year==lastyear])
@@ -332,7 +332,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       df <- as.data.frame(round(lined.survey.obj$shf.dat$n.yst))
       df$year <- lined.survey.obj[[1]]$year
     }
-
+    
     sizerange75 <- NULL
     sizerange75PR <- NULL
     sizerange75RecFR <- NULL
@@ -353,7 +353,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
       sizerange75RecFR[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
     }
-
+    
     # breakdown plot biomass size ranges
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
@@ -376,10 +376,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
       sizerange75_bm_65up[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
     }
-
+    
     print('check1')
-
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
+    
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"), 
                              lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
                              thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
@@ -389,40 +389,40 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                     paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA, NA, NA),
                              nearLTM=NA,
                              bank=banks[i])
-
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
+    
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"), 
                              lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
                              thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
                              bank=banks[i])
-
+    
     highlights <- rbind(highlights, towsummary)
-
+    
     # mwsh and cf
-
+    
     fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
 
     if(!banks[i] =="Ger"){
       cfdat <- survey.obj[banks[i]][[1]]$model.dat[,c("year", "CF")]
     }
-
+    
     if(banks[i] == "Ger"){
       cfdat <- cf.data[banks[i]][[1]]$CFyrs[,c("year", "CF2")]
       names(cfdat) <- c("year", "CF")
     }
-
+    
     if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]>0){
-
+      
       cfdat$CF[is.nan(cfdat$CF)] <- NA
 
       cf_ltm <- median(cfdat$CF[!is.na(cfdat$year) & !cfdat$year == year], na.rm=T)
-
+    
       cf <- data.frame(variable=c("CF",
                                 "spatialCF",
-                                "minCF",
-                                "maxCF"),
+                                "minCF", 
+                                "maxCF"), 
                      lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
                                 median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                 min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
@@ -433,15 +433,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                 max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                      LTM=cf_ltm)
     }
-
+    
     if(banks[i] %in% "BBs"){
-
+      
       cf_ltm <- median(cfdat$CF[!is.na(cfdat$year)])
-
+      
       cf <- data.frame(variable=c("CF",
                                   "spatialCF",
-                                  "minCF",
-                                  "maxCF"),
+                                  "minCF", 
+                                  "maxCF"), 
                        lastyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==lastyear],
                                   median(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
                                   min(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==lastyear]),
@@ -454,11 +454,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     }
     print('check2')
     # if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]==0){
-    #
+    #   
     #   cf <- data.frame(variable=c("CF",
     #                               "spatialCF",
-    #                               "minCF",
-    #                               "maxCF"),
+    #                               "minCF", 
+    #                               "maxCF"), 
     #                    lastyear=rep(NA, 4),
     #                    thisyear=c(cfdat$CF[!is.na(cfdat$year) & cfdat$year==year],
     #                               mean(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year]),
@@ -466,21 +466,21 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     #                               max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
     #                    LTM=NA)
     # }
-
+    
     # ifelse for the wording
     cf$word <- ifelse(cf$thisyear - cf$lastyear >  0.5,
                       "increased",
                       ifelse(cf$thisyear - cf$lastyear < -0.5,
                              "decreased",
-                             ifelse(abs(cf$thisyear - cf$lastyear) == 0.5 |
+                             ifelse(abs(cf$thisyear - cf$lastyear) == 0.5 | 
                                       abs(cf$thisyear - cf$lastyear) < 0.5,
                                     "was similar",
                                     "other")))
     ltmtest <- ifelse(cf$thisyear > cf$LTM, "greater than",
                       ifelse(cf$thisyear < cf$LTM, "less than", NA))
-
+    
     cf$nearLTM <- paste0(ltmtest, " (LTM=", round(cf$LTM,2), ")")
-
+      
     mwshcf <- rbind(data.frame(variable=c("fittedmw100mm"),
                                lastyear=NA,
                                thisyear=fittedmw100mm,
@@ -489,13 +489,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                nearLTM=NA),
                     cf)
     mwshcf$bank <- banks[i]
-
+    
     highlights <- rbind(highlights, mwshcf)
-
+    
     # growth potential stuff
-    growpot <- data.frame(variable=c("minSH", "maxSH", "meanSH",
+    growpot <- data.frame(variable=c("minSH", "maxSH", "meanSH", 
                                      "minSH.GP", "maxSH.GP", "meanSH.GP",
-                                     "minMW", "maxMW", "meanMW",
+                                     "minMW", "maxMW", "meanMW", 
                                      "minMW.GP", "maxMW.GP", "meanMW.GP"),
                           lastyear=NA,
                           thisyear=c(min(pot.grow[[banks[i]]]$cur.sh[pot.grow[[banks[i]]]$year == year], na.rm=T),
@@ -514,12 +514,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                      word=NA,
                                      nearLTM=NA,
                                      bank=banks[i])
-
-
+                                     
+                          
     highlights <- rbind(highlights, growpot)
     print('check3')
     # meat count
-    mc <- data.frame(variable=c("meanMC", "minMC", "maxMC", "lqMC", "uqMC"),
+    mc <- data.frame(variable=c("meanMC", "minMC", "maxMC", "lqMC", "uqMC"), 
                      lastyear=NA,
                      thisyear=c(mean(CF.current[[banks[i]]]$meat.count, na.rm=T),
                                 min(CF.current[[banks[i]]]$meat.count, na.rm=T),
@@ -530,9 +530,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                      word=NA,
                      nearLTM=NA,
                      bank=banks[i])
-
+    
     highlights <- rbind(highlights, mc)
-
+    
     # clapper abundance
     if(!banks[i] %in% "BBs"){
     clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
@@ -550,10 +550,10 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
                                   mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
                        LTM=c(median(surv.Clap.Rand[[banks[i]]]$clap.propPre[!surv.Clap.Rand[[banks[i]]]$year == max(surv.Clap.Rand[[banks[i]]]$year)], na.rm=T)
-
+                         
                        ))
     }
-
+    
     if(banks[i] %in% "BBs"){
       clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
                                     "PRpercentclap", "Rpercentclap", "Cpercentclap"),
@@ -571,7 +571,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                     mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
                          LTM=NA)
     }
-
+    
     clap$thisyear <- as.numeric(as.character(clap$thisyear))
     clap$lastyear <- as.numeric(as.character(clap$lastyear))
     # ifelse for the wording
@@ -579,15 +579,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                         "increased",
                         ifelse(clap$thisyear - clap$lastyear < -0.05,
                                "decreased",
-                               ifelse(abs(clap$thisyear - clap$lastyear) == 0.05 |
+                               ifelse(abs(clap$thisyear - clap$lastyear) == 0.05 | 
                                         abs(clap$thisyear - clap$lastyear) < 0.05,
                                       "was similar",
-                                      "other")))
+                                      "other")))  
     clap$nearLTM <- NA
     clap$bank <- banks[i]
     highlights <- rbind(highlights, clap)
     print('check4')
-
+    
     #seedboxes
     if(banks[i] %in% unique(names(seedbox.obj))){
       seedboxes <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv",sep=""),
@@ -597,10 +597,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       # Dump the commments they are just messy..
       seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
       sb <- subset(seedboxes,Bank == banks[i] & Active=="Yes")
-      if(dim(sb)[1] == 0) sb <- subset(seedboxes,Bank == banks[i] & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr-1,"-01-01",sep=""))
       if(banks[i] =="GB") sb <- subset(seedboxes,Bank %in% c("GBa","GBb") & Closed < paste(yr,"-11-01",sep="") & Open >= paste(yr,"-01-01",sep=""))
       box.names <- unique(sb$SCALLOP_Group_ID)
-
+      
       SeedPR_current<- NULL
       SeedPR_prev<- NULL
       SeedR_current<- NULL
@@ -619,34 +618,34 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       PR75_seed <- NULL
       R75_seed <- NULL
       C75_seed <- NULL
-
+      
       for(k in 1:length(seedbox.obj[banks[i]][[1]])) {
         boxy <- seedbox.obj[[banks[i]]][[k]]
-
+        
         SeedPR_current[k] <- boxy$model.dat$NPR[boxy$model.dat$year==year]
         SeedPR_prev[k] <- boxy$model.dat$NPR[boxy$model.dat$year==lastyear]
         SeedR_current[k] <- boxy$model.dat$NR[boxy$model.dat$year==year]
         SeedR_prev[k] <- boxy$model.dat$NR[boxy$model.dat$year==lastyear]
         Seed_current[k] <- boxy$model.dat$N[boxy$model.dat$year==year]
         Seed_prev[k] <- boxy$model.dat$N[boxy$model.dat$year==lastyear]
-
+        
         bmSeedPR_current[k] <- boxy$model.dat$IPR[boxy$model.dat$year==year]
         bmSeedPR_prev[k] <- boxy$model.dat$IPR[boxy$model.dat$year==lastyear]
         bmSeedR_current[k] <- boxy$model.dat$IR[boxy$model.dat$year==year]
         bmSeedR_prev[k] <- boxy$model.dat$IR[boxy$model.dat$year==lastyear]
         bmSeed_current[k] <- boxy$model.dat$I[boxy$model.dat$year==year]
         bmSeed_prev[k] <- boxy$model.dat$I[boxy$model.dat$year==lastyear]
-
+        
         # box tow data for spatial figure comments
         towdat <- boxy$box.tow.data
-
+        
         # seedbox size range quartiles. This outputs a range that includes 75% of the scallops
         # total number per tow caught this year
         df <- as.data.frame(boxy$shf.dat$n.yst)
         df$year <- boxy$model.dat$year
         df2 <- as.data.frame(round(boxy$shf.dat$w.yst))
         df2$year <- boxy$model.dat$year
-
+        
         sizerange75_seed_y <- NULL
         sizerange75PR_seed_y <- NULL
         sizerange75FR_seed_y <- NULL
@@ -656,9 +655,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
         PR75_seed_y <- NULL
         R75_seed_y <- NULL
         C75_seed_y <- NULL
-
+   
          for(y in c(lastyear, year)){
-
+           
            if(any(!is.na(df[df$year==y, !names(df) %in% "year"]))){
              if(dim(df[df$year==y,])[1]==0) sizerange75_seed_y[paste0(y)] <- NA
              if(dim(df[df$year==y,])[1]>0){
@@ -671,7 +670,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                expanded <- shf.ty[rep(seq_len(nrow(shf.ty)), shf.ty$npertow), 1:2]
                #hist(expanded$bin)
                expanded <- join(expanded, shf.ty[, c("bin", "class")])
-
+               
                sevfiveperc <- c(quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin, c(0.125, 0.5, 0.875, 1))[3])
                sizerange75_seed_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
                sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[3])
@@ -679,7 +678,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75FR_seed_y[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
                #hist(expanded$bin)
-
+               
                shf.bm.ty <- as.data.frame(t(df2[df2$year==y, which(!names(df2) %in% "year")]))
                shf.bm.ty$bin <- seq(0,195,5)
                shf.bm.ty$size <- cut(shf.bm.ty$bin, c(0,size$RS, size$CS, 200), include.lowest = T, right = F)
@@ -697,7 +696,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                sizerange75PR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
                sevfiveperc <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec","FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
                sizerange75FR_seed_bm_y[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
-
+               
                # for spatial figs
                PR75_seed_t <- c(quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[1], quantile(x=towdat$pre[towdat$year==y], c(0.125, 0.5, 0.875, 1))[3])
                PR75_seed_y[paste0(y)] <- paste0(round_any(PR75_seed_t[1], 5), "-", round_any(PR75_seed_t[2], 5))
@@ -722,24 +721,24 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
              C75_seed_y[paste0(year)] <- NA
            }
          }
-
+        
         sizerange75_seed[[box.names[k]]] <- c(sizerange75_seed_y[paste0(lastyear)], sizerange75_seed_y[paste0(year)])
         sizerange75_seed_bm[[box.names[k]]] <- c(sizerange75_seed_bm_y[paste0(lastyear)], sizerange75_seed_bm_y[paste0(year)])
         PR75_seed[[box.names[k]]] <- c(PR75_seed_y[paste0(lastyear)], PR75_seed_y[paste0(year)])
         R75_seed[[box.names[k]]] <- c(R75_seed_y[paste0(lastyear)], R75_seed_y[paste0(year)])
         C75_seed[[box.names[k]]] <- c(C75_seed_y[paste0(lastyear)], C75_seed_y[paste0(year)])
-
+        
         # sizerange75_seed_prev <- sizerange75_seed[paste0(lastyear)]
       }
-
+      
       sizerange75_seed <- unlist(sizerange75_seed)
       sizerange75_seed_bm <- unlist(sizerange75_seed_bm)
       PR75_seed <- unlist(PR75_seed)
       R75_seed <- unlist(R75_seed)
       C75_seed <- unlist(C75_seed)
-
-      seedPT <- data.frame(variable=c(rep("SeedNPR", length(SeedPR_current)), rep("SeedNR", length(SeedR_current)),
-                                      rep("SeedN", length(Seed_current))),
+      
+      seedPT <- data.frame(variable=c(rep("SeedNPR", length(SeedPR_current)), rep("SeedNR", length(SeedR_current)), 
+                                      rep("SeedN", length(Seed_current))), 
                             lastyear=c(SeedPR_prev, SeedR_prev, Seed_prev),
                             thisyear=c(SeedPR_current, SeedR_current, Seed_current),
                             LTM=rep(box.names, 3))
@@ -748,16 +747,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                              "increased",
                              ifelse(seedPT$thisyear - seedPT$lastyear < -5,
                                     "decreased",
-                                    ifelse(abs(seedPT$thisyear - seedPT$lastyear) == 5 |
+                                    ifelse(abs(seedPT$thisyear - seedPT$lastyear) == 5 | 
                                              (abs(seedPT$thisyear - seedPT$lastyear) < 5 &
                                                 abs(seedPT$thisyear - seedPT$lastyear) > 1),
                                            "changed slightly",
                                            ifelse(abs(seedPT$thisyear - seedPT$lastyear) < 1 |
-                                                    abs(seedPT$thisyear - seedPT$lastyear) == 1,
+                                                    abs(seedPT$thisyear - seedPT$lastyear) == 1, 
                                                   "similar",
                                                   "other"))))
-
-      seedPT <- rbind(seedPT, data.frame(variable=c(rep("sizerange75_seed", length(Seed_current)),rep("sizerange75_seed_bm", length(Seed_current)),
+      
+      seedPT <- rbind(seedPT, data.frame(variable=c(rep("sizerange75_seed", length(Seed_current)),rep("sizerange75_seed_bm", length(Seed_current)), 
                                                     rep("PR75_seed", length(Seed_current)),
                                                     rep("R75_seed", length(Seed_current)),
                                                     rep("C75_seed", length(Seed_current))),
@@ -775,8 +774,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                          word=NA))
       seedPT$nearLTM <- NA
       seedPT$bank <- banks[i]
-
-      bmseedPT <- data.frame(variable=c(rep("SeedIPR", length(SeedPR_current)), rep("SeedIR", length(SeedR_current)), rep("SeedI", length(Seed_current))),
+      
+      bmseedPT <- data.frame(variable=c(rep("SeedIPR", length(SeedPR_current)), rep("SeedIR", length(SeedR_current)), rep("SeedI", length(Seed_current))), 
                            lastyear=c(bmSeedPR_prev, bmSeedR_prev, bmSeed_prev),
                            thisyear=c(bmSeedPR_current, bmSeedR_current, bmSeed_current),
                            LTM=rep(box.names, 3))
@@ -785,35 +784,35 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                             "increased",
                             ifelse(bmseedPT$thisyear - bmseedPT$lastyear < -5,
                                    "decreased",
-                                   ifelse(abs(bmseedPT$thisyear - bmseedPT$lastyear) == 5 |
+                                   ifelse(abs(bmseedPT$thisyear - bmseedPT$lastyear) == 5 | 
                                             (abs(bmseedPT$thisyear - bmseedPT$lastyear) < 5 &
                                                abs(bmseedPT$thisyear - bmseedPT$lastyear) > 1),
                                           "changed slightly",
                                           ifelse(abs(bmseedPT$thisyear - bmseedPT$lastyear) < 1 |
-                                                   abs(bmseedPT$thisyear - bmseedPT$lastyear) == 1,
+                                                   abs(bmseedPT$thisyear - bmseedPT$lastyear) == 1, 
                                                  "similar",
                                                  "other"))))
       bmseedPT$nearLTM <- NA
       bmseedPT$bank <- banks[i]
-
+      
       highlights <- rbind(highlights, seedPT)
       highlights <- rbind(highlights, bmseedPT)
     }
-
+    
   }
 
   #print(bankcheck)
-
-  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed"),c(2,3,4)] <-
+  
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed"),c(2,3,4)] <- 
     apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
-
+  
   print(sizes)
   print(ntows)
   print(highlights)
-
+  
   sizes <<- as.data.frame(sizes)
   ntows <<- ntows
   highlights <<- highlights
-
+  
 }
 
