@@ -187,6 +187,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       lvls=lvl
       #Get the total removals from each 1 minute cell within the bank for the levels (10 kg to 50 tonnes!)
       bnk.polys <- gridPlot(bnk.fish.dat,bnk.survey.bound.poly,lvls,border=poly.brd,FUN=fun,grid.size=grids)
+      
       ##########
       # Plot the spatial distribution of catch for each bank and save the image (or just plot to a window if you prefer)
       if(save.fig==F) windows(11,8.5)

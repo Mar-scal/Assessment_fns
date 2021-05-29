@@ -128,7 +128,8 @@ if(missing(direct_fns))
             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/diag.plt.R",
             "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/prediction_evaluation_function.r",
             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/prediction_evaluation_figure.r",
-            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/biomass.plt.R"
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/biomass.plt.R",
+            "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/fishery.dat.R"
             )
   # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
   for(fun in funs) 
@@ -138,6 +139,7 @@ if(missing(direct_fns))
     file.remove(paste0(getwd(),"/",basename(fun)))
   }
 } else {  source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep="")) #logs_and_fish is function call
+          source(paste(direct_fns,"Fishery/fishery.dat.r",sep="")) 
           source(paste(direct_fns,"Model/projections.r",sep=""))
           source(paste(direct_fns,"Model/decision.r",sep=""))
           source(paste(direct_fns,"Model/post.plt.R",sep=""))
