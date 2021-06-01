@@ -2,19 +2,6 @@
 title: "Survey Summary"
 subtitle: "Spring 2019"
 author: "Scallop and Benthic Habitat Unit"
-output: bookdown::pdf_document2
+output: 
+  bookdown::pdf_document2
 ---
-
-```{r, echo=F, include=F, message=F}
-reportyear <- 2019
-
-#test
-source("Y:/Offshore/Assessment_fns/Survey_and_OSAC/Survey_Summary_Word.R")
-
-Survey_Summary_Word(year=reportyear, reportseason="spring", data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"), direct="Y:/Offshore/Assessment/")
-
-summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights)
-
-save(summary_data, file = "summary.Rdata")
-
-```

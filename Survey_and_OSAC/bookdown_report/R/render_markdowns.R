@@ -1,8 +1,13 @@
 # name of the parameterised report rmarkdown
 rmarkdown_file <- "parameterised_report.Rmd"
-
+print(getwd())
 # the parameter we're going to pass to the report
-banks <- c("Sab", "Mid")
+banks <- c(#"Ban", "BanIce",
+           "Mid", "Sab", "Ger"#,
+           #"BBs", "BBn",
+           #"GB",
+           #"GBa", "GBb"
+           )
 
 # Run Parameterised Reports ----------------------------------------------------
 # run through the years and render each version of the report.
