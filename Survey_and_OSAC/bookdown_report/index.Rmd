@@ -3,5 +3,11 @@ title: "Survey Summary"
 subtitle: "Spring 2019"
 author: "Scallop and Benthic Habitat Unit"
 output: 
-  bookdown::pdf_document2
+  bookdown::pdf_document2:
+    extra_dependencies: ["float"]
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
 ---
