@@ -40,7 +40,7 @@
 
 
 breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2max=NULL,col1='grey',
-                    mc=40,title=paste("Breakdown",yr),cx.axs=1.5,cx.lab=1.5,cx.mn=2,add.title=T)
+                    mc=40,title=paste("Breakdown",yr),cx.axs=1.5,cx.lab=1.5,cx.mn=2,add.title=T, value=F)
 {
     # Grab the biomass and numbers for each bin size from the survey, this is in kg per tow and number per tow.
   	bm<-surv.obj$shf.dat$w.yst[which(surv.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
@@ -87,7 +87,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
 	# We also should be adding a vertical lines to show our Fully recruited and recruit dvision falls at.
 	abline(v=CS,lwd=2,col="blue",lty=1)
 	abline(v=RS,lwd=2,col="blue",lty=1)
-	
+
 	# Now we add the lines to connect to our MC regulation
 	for(i in 1:length(mc))
 	{
@@ -118,6 +118,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
 	# Finally add the title.
 	if(add.title == T) title(main=title,cex.main=cx.mn,adj=0.35)
 	
+	if(value==T) return(list(sht.cnt=sht.cnt))
 	
 } # end function
 	

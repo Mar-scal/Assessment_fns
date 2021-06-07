@@ -17,6 +17,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   load(data)
   direct <- direct.tmp
   banks <- names(bank.dat)
+
+  source(paste0(direct_fns, "Assessment_fns/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
+
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
 
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
@@ -357,13 +360,19 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     # breakdown plot biomass size ranges
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
-    if(!banks[i] == "Ger"){
+
+if(!banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y]
+if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$year==y]
+
+    if(!banks[i] %in% c("Ger", "BanIce")){
       df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$w.yst))
       df$year <- survey.obj[[banks[i]]][[1]]$year
+      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg, cx.axs=1,add.title = F, value=T)
     }
     if(banks[i] == "Ger"){
       df <- as.data.frame(round(lined.survey.obj$shf.dat$w.yst))
       df$year <- lined.survey.obj[[1]]$year
+      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], cx.axs=1,add.title = F, value=T)
     }
     sizerange75_bm_65up <- NULL
     for(y in c(lastyear, year)){
@@ -379,20 +388,20 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
     print('check1')
 
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sh_for_mcreg"),
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)], NA),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)], round(sht.cnt$sht.cnt, 3)),
                              LTM=NA,
                              word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
                                     paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
-                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA, NA, NA),
+                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA, NA, NA, NA),
                              nearLTM=NA,
                              bank=banks[i])
 
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sh_for_mcreg"),
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)], NA),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)], NA),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
