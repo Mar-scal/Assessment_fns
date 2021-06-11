@@ -12,8 +12,14 @@ header-includes:
  - \newcommand{\elandscape}{\end{landscape}}
 ---
 
+
+\newpage
+
+
 # Introduction
 
 This report provides an overview of survey results. At each survey station, the scallop dredge is towed for 10 minutes, and scallop are counted and assigned to 5mm size bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
 
 Detailed sampling occurs at a selection of the stations, where the exact heights and weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
+
+In 2019, the spring survey occurred from May 100th to June 60th on Middle Bank, Sable Bank (including WEBCA stations), German Bank, and Browns Bank North, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
