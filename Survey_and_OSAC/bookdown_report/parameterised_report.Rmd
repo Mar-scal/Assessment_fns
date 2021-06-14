@@ -166,44 +166,35 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 ## Spatial distribution maps
 
 ```{r, echo=F}
-prthisyear <- strsplit(highlights$thisyear[highlights$variable=="PR75" & highlights$bank=="Ban"], " ")[[1]][1]
-rthisyear <- strsplit(highlights$thisyear[highlights$variable=="R75" & highlights$bank=="Ban"], " ")[[1]][1]
-frthisyear <- strsplit(highlights$thisyear[highlights$variable=="C75" & highlights$bank=="Ban"], " ")[[1]][1]
+prthisyear <- strsplit(highlights$thisyear[highlights$variable=="PR75" & highlights$bank==params$bank], " ")[[1]][1]
+rthisyear <- strsplit(highlights$thisyear[highlights$variable=="R75" & highlights$bank==params$bank], " ")[[1]][1]
+frthisyear <- strsplit(highlights$thisyear[highlights$variable=="C75" & highlights$bank==params$bank], " ")[[1]][1]
 
 ```
 
 
-On `r bankname`, 75% of the `r year` survey tows had `r prthisyear` pre-recruits per tow (Figure `r params$banknum * 6`). The maximum tow had approximately `r highlights$thisyear[highlights$variable=="maxPRtow" & highlights$bank=="Ban"]` pre-recruits.
+On `r bankname`, 75% of the `r year` survey tows had `r prthisyear` pre-recruits per tow (Figure `r params$banknum * 6`). The tow with the most pre-recruits had `r highlights$thisyear[highlights$variable=="maxPRtow" & highlights$bank==params$bank]` pre-recruits. The tow with the most recruits had approximately `r highlights$thisyear[highlights$variable=="maxRtow" & highlights$bank==params$bank]` individuals, and 75% of the `r year` survey tows had `r rthisyear` recruits per tow (Figure `r params$banknum * 7`). The tow with the most fully-recruited scallop had approximately `r highlights$thisyear[highlights$variable=="maxCtow" & highlights$bank==params$bank]` individuals, and 75% of the `r year` survey tows had `r frthisyear` fully-recruited scallop per tow (Figure `r params$banknum * 8`).
 
-On `r bankname`, 75% of the `r year` survey tows had `r rthisyear` recruits per tow (Figure `r params$banknum * 7`). The maximum tow had approximately `r highlights$thisyear[highlights$variable=="maxRtow" & highlights$bank=="Ban"]` pre-recruits.
+On `r bankname`, condition factor was between `r highlights$thisyear[highlights$variable=="minCF" & highlights$bank==params$bank]` and `r highlights$thisyear[highlights$variable=="maxCF" & highlights$bank==params$bank]` (Figure `r params$banknum * 9`) . The average meat count was `r highlights$thisyear[highlights$variable=="meanMC" & highlights$bank==params$bank]`, ranging from `r highlights$thisyear[highlights$variable=="minMC" & highlights$bank==params$bank]` to `r highlights$thisyear[highlights$variable=="maxMC" & highlights$bank==params$bank]`  (Figure `r params$banknum * 10`).
 
-On `r bankname`, 75% of the `r year` survey tows had `r frthisyear` fully-recruited scallop per tow (Figure `r params$banknum * 8`). The maximum tow had approximately `r highlights$thisyear[highlights$variable=="maxCtow" & highlights$bank=="Ban"]` pre-recruits.
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Spatial distribution of pre-recruit scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of pre-recruit scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/PR-spatial.png"))
 ```
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Spatial distribution of recruit scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of recruit scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Rec-spatial.png"))
 ```
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Spatial distribution of fully-recruited scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of fully-recruited scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/FR-spatial.png"))
 ```
 
-\newpage
-
-On `r bankname`, condition factor (Figure `r params$banknum * 9`) was between `r highlights$thisyear[highlights$variable=="minCF" & highlights$bank==params$bank]` and `r highlights$thisyear[highlights$variable=="maxCF" & highlights$bank==params$bank]`.
-
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Spatial distribution of scallop condition."}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of scallop condition."}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/CF-spatial.png"))
 ```
 
-\newpage
-
-On `r bankname`, the average meat count was `r highlights$thisyear[highlights$variable=="meanMC" & highlights$bank==params$bank]`, ranging from `r highlights$thisyear[highlights$variable=="minMC" & highlights$bank==params$bank]` to `r highlights$thisyear[highlights$variable=="maxMC" & highlights$bank==params$bank]`  (Figure `r params$banknum * 10`).
-
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap="Spatial distribution of meat weight."}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of meat weight."}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MC-spatial.png"))
 ```
 

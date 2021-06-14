@@ -16,7 +16,7 @@ header-includes:
 \newpage
 
 
-# Introduction
+# Survey overview
 
 This report provides an overview of survey results. At each survey station, the scallop dredge is towed for 10 minutes, and scallop are counted and assigned to 5mm size bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
 

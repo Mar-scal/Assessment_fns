@@ -5,7 +5,7 @@ print(getwd())
 banks <- c(#"Ban", "BanIce",
            "Mid", "Sab", "Ger",
            #"BBs",
-           "BBn", "GB"#, "GBa", "GBb"
+          "BBn", "GB"#, "GBa", "GBb"
            )
 banknum <- 1:length(banks)
 
