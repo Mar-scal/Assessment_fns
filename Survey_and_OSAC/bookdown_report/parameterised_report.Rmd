@@ -14,7 +14,7 @@ header-includes:
 ---
 
 
-```{r, echo=F, message=F}
+```{r, echo=F, message=F, warning=F}
 knitr::opts_knit$set(eval.after = "fig.cap")
 knitr::opts_chunk$set(fig.pos = 'H')
 options(knitr.kable.NA = '')
