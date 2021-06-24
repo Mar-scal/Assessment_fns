@@ -24,16 +24,17 @@ inla.mesh2sf <- function(mesh)
   require(sf) || stop('Install sf or this code will be a mess')
   require(INLA) || stop("You need the R-INLA package for this, note that it's not crantastic...
                         install.packages('INLA', repos=c(getOption('repos'), INLA='https://inla.r-inla-download.org/R/stable'), dep=TRUE)")
-  # Grab the CRS if it exists, NULL is fine
-  crs <- inla.CRS(inla.CRSargs(mesh$crs))
-  # Make sure the CRS isn't a geocentric one, which is won't be if yo look up geocentric..
-  isgeocentric <- identical(inla.as.list.CRS(crs)[["proj"]], "geocent")
+  # Grab the CRS if it exists, NA is fine (NULL spits a warning, but is also fine)
+  crs <- sp::CRS(mesh$crs$input)
   
+  # Make sure the CRS isn't a geocentric one, which is won't be if yo look up geocentric..
+  #isgeocentric <- identical(inla.as.list.CRS(crs)[["proj"]], "geocent")
+  isgeocentric <- inla.crs_is_geocent(mesh$crs)
   # Look up geo-centric coordinate systems, nothing we'll need to worry about, but stop if so
   if (isgeocentric || (mesh$manifold == "S2")) {
     stop(paste0(
-      "'sp' doesn't support storing polygons in geocentric coordinates.\n",
-      "Convert to a map projection with inla.spTransform() before calling inla.mesh2sp()."))
+      "'sp and sf' don't support storing polygons in geocentric coordinates.\n",
+      "Convert to a map projection with inla.spTransform() before calling inla.mesh2sf()."))
   }
   # This pulls out from the mesh the triangles as polygons, this was the piece I couldn't figure out.
   triangles <- SpatialPolygonsDataFrame(Sr = SpatialPolygons(
