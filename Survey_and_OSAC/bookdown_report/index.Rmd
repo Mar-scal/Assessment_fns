@@ -10,8 +10,11 @@ header-includes:
  - \usepackage{pdflscape}
  - \newcommand{\blandscape}{\begin{landscape}}
  - \newcommand{\elandscape}{\end{landscape}}
+ - \usepackage{fancyhdr}
+ - \pagestyle{fancy}
+ - \fancyfoot[CO,CE]{Spring Survey 2019}
+ - \fancyfoot[LE,RO]{\thepage}
 ---
-
 
 \newpage
 
