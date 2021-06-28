@@ -340,7 +340,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     sizerange75PR <- NULL
     sizerange75Rec <- NULL
     sizerange75FR <- NULL
-    
+
     for(y in c(lastyear, year)){
       shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
       shf.ty$bin <- seq(0,195,5)
@@ -816,7 +816,7 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
   }
 
   #print(bankcheck)
-
+browser() # ROUND min and max CF to one decimal!
   highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed"),c(2,3,4)] <-
     apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
 
