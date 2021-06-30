@@ -13,7 +13,7 @@
 #1b: plot_as   What type of plot do you want to make?  Currently supports plot_as = "ggplot" (default), and plot_as = 'plotly' uses the 
 #              native plotly code to make the figure.  Also, "ggplotly" is an option which runs the ggplot code and sticks a plotly wrapper around it
 
-#2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options) or a list with
+#2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options), an sf or sp object (new in 2021), or a list with
 ###               the coordinates and the projection of those coordinates specified.  Default provides Maritime Region boundaries
 ###               in lat/long coordinates and a WGS84 projection.
 
@@ -250,10 +250,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system
   
-  if(is.list(area)) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   
   # This is the case when we put a name in and let convert.coords sort it out.
-  if(!is.list(area)) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(any(class(area) == 'character')) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(any(class(area) %in% c("sp"))) area <- st_as_sf(area) # Convert to sf cause I already have that ready to roll below
+  # and finally if the object is an sf or sp object we just pull the bounding box from that object to use that.
+  if(any(class(area) %in% c("sf",'sfc','sfg')))
+  {
+    sf.box <- st_bbox(area)
+    coords <- convert.coords(plot.extent = list(y=c(sf.box$ymin,sf.box$ymax),x=c(sf.box$xmin,sf.box$xmax)),in.csys = st_crs(area),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  }
+  
   # All I need from the coords call above is the bounding box.
   b.box <- coords$b.box
   # Get the limits of the bounding box
@@ -265,7 +273,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   #
   # ID what layers we are looking for.
   layers <- names(add_layer)
-  
+
   # If we are going to add the EEZ do this...
   if(any(layers == 'eez'))
   {
