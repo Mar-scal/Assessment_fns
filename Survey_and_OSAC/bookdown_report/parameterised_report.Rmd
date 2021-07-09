@@ -97,7 +97,7 @@ knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Number o
 ```{r, echo=F}
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("IPR", "IR", "I"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
-                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$CS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", "Previous survey", "Current survey", "Long term median")
 
@@ -153,31 +153,51 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 ## Spatial distribution maps
 
 ```{r, echo=F}
-prthisyear <- strsplit(highlights$thisyear[highlights$variable=="PR75" & highlights$bank==params$bank], " ")[[1]][1]
-rthisyear <- strsplit(highlights$thisyear[highlights$variable=="R75" & highlights$bank==params$bank], " ")[[1]][1]
-frthisyear <- strsplit(highlights$thisyear[highlights$variable=="C75" & highlights$bank==params$bank], " ")[[1]][1]
+spatial.stats <- spatial.sum.stats[spatial.sum.stats$bank==params$bank, c("Min.", "Median", "Mean", "Max.")]
+rownames(spatial.stats) <- NULL 
+names(spatial.stats) <- c("Minimum", "Median", "Mean", "Maximum")
+spatial.stats$`Size class` <- c("Pre-recruits", "Recruits", "Fully-recruited")
+spatial.stats <- spatial.stats[,c(5,1:4)]
+
+```
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruits, recruits, and fully-recruited scallop are shown in Figures `r params$banknum * 6` - `r params$banknum * 8`, and statistical summaries are in Table `r params$banknum * 3`.
+
+```{r, echo=F}
+table <- spatial.stats
+table$`Size class` <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$CS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+
+knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Summary statistics for tow abundance by size class, for the current survey.") %>%
+  kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
 
 
-Pre-recruits (Figure `r params$banknum * 6`)
- - 75% of the `r year` survey tows had `r prthisyear` pre-recruits per tow
- - The tow with the most pre-recruits had `r highlights$thisyear[highlights$variable=="maxPRtow" & highlights$bank==params$bank]` individuals
+**Condition factor (Figure `r params$banknum * 9`):**  
 
-Recruits (Figure `r params$banknum * 7`)
- -75% of the `r year` survey tows had `r rthisyear` recruits per tow
- - The tow with the most recruits had `r highlights$thisyear[highlights$variable=="maxRtow" & highlights$bank==params$bank]` individuals
- 
-Fully-recruited scallop (Figure `r params$banknum * 8`)
- - 75% of the `r year` survey tows had `r frthisyear` fully-recruited scallop per tow
- - The tow with the most fully-recruited scallop had `r highlights$thisyear[highlights$variable=="maxCtow" & highlights$bank==params$bank]` individuals
+The spatial distribution of condition factor is shown in Figure `r params$banknum *9`, and a statistical summary is provided in Table `r params$banknum * 5`.
 
-Condition factor (Figure `r params$banknum * 9`)
- - Between `r highlights$thisyear[highlights$variable=="minCF" & highlights$bank==params$bank]` and `r highlights$thisyear[highlights$variable=="maxCF" & highlights$bank==params$bank]` in `r year`
+```{r, echo=F}
+table <- spatial.stats
+table$`Size class` <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$CS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 
-Meat count  (Figure `r params$banknum * 10`)
- - Average meat count was `r highlights$thisyear[highlights$variable=="meanMC" & highlights$bank==params$bank]`
- - Ranging from `r highlights$thisyear[highlights$variable=="minMC" & highlights$bank==params$bank]` to `r highlights$thisyear[highlights$variable=="maxMC" & highlights$bank==params$bank]`
+knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Summary statistics for tow abundance by size class, for the current survey.") %>%
+  kableExtra::kable_styling(latex_options = "HOLD_position")
+
+```
+
+- The range was `r highlights$thisyear[highlights$variable=="minCF" & highlights$bank==params$bank]` and `r highlights$thisyear[highlights$variable=="maxCF" & highlights$bank==params$bank]` in `r year`
+
+**Meat count  (Figure `r params$banknum * 10`):**  
+
+- Average meat count was `r highlights$thisyear[highlights$variable=="meanMC" & highlights$bank==params$bank]`  
+- The range was `r highlights$thisyear[highlights$variable=="minMC" & highlights$bank==params$bank]` to `r highlights$thisyear[highlights$variable=="maxMC" & highlights$bank==params$bank]` in `r year`
 
 
 ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap="Spatial distribution of pre-recruit scallop. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model."}
@@ -210,7 +230,7 @@ Patterns in natural mortality are represented by the percentage of clappers (dea
 ```{r, echo=FALSE, message=F}
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("PRpercentclap", "Rpercentclap", "Cpercentclap"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
-                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
+                    paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", sizes$CS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", "Previous survey", "Current survey", "Long term median")
 

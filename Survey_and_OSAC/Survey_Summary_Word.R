@@ -44,6 +44,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   ntows <- NULL
   highlights <- NULL
   sizes <- NULL
+  spatial.sum.stats <- NULL
   for (i in 1:length(banks)){
 
     if(banks[i] %in% "BBs") lastyear <- year-2
@@ -325,6 +326,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
+    
+    spatial.sum.stats.b <- t(apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, c("pre", "rec", "com")], 2, summary))[,c(1,3,4,6)]
+    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) round(x, 2)))
+    spatial.sum.stats.b$bank <- banks[i]
+    spatial.sum.stats.b$year <- year
+     
+    spatial.sum.stats <- rbind(spatial.sum.stats, spatial.sum.stats.b)
+    
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
     if(!banks[i] == "Ger"){
@@ -816,10 +825,13 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
   }
 
   #print(bankcheck)
-browser() # ROUND min and max CF to one decimal!
-  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed"),c(2,3,4)] <-
-    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF"),c(2,3,4)] <-
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
 
+  highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
+    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 1))
+  
+  
   print(sizes)
   print(ntows)
   print(highlights)
@@ -827,6 +839,7 @@ browser() # ROUND min and max CF to one decimal!
   sizes <<- as.data.frame(sizes)
   ntows <<- ntows
   highlights <<- highlights
+  spatial.sum.stats <<- spatial.sum.stats
 
 }
 
