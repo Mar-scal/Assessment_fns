@@ -326,14 +326,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
-    
+
     spatial.sum.stats.b <- t(apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, c("pre", "rec", "com")], 2, summary))[,c(1,3,4,6)]
     spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) round(x, 2)))
     spatial.sum.stats.b$bank <- banks[i]
     spatial.sum.stats.b$year <- year
-     
-    spatial.sum.stats <- rbind(spatial.sum.stats, spatial.sum.stats.b)
-    
+
+    spatial.sum.stats$abund <- spatial.sum.stats.b
+
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
     if(!banks[i] == "Ger"){
@@ -474,6 +474,14 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                        LTM=cf_ltm)
     }
+
+spatial.sum.stats.c <- as.data.frame(rbind(summary(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year == year])[c(1,3,4,6)]))
+spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) round(x, 2))))
+spatial.sum.stats.c$bank <- banks[i]
+spatial.sum.stats.c$year <- year
+
+spatial.sum.stats$cf <- spatial.sum.stats.c
+
     print('check2')
     # if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]==0){
     #
@@ -552,6 +560,13 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
                      word=NA,
                      nearLTM=NA,
                      bank=banks[i])
+
+    spatial.sum.stats.m <- as.data.frame(rbind(summary(CF.current[[banks[i]]]$meat.count)[c(1,3,4,6)]))
+    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) round(x, 2))))
+    spatial.sum.stats.m$bank <- banks[i]
+    spatial.sum.stats.m$year <- year
+
+    spatial.sum.stats$mc <- spatial.sum.stats.m
 
     highlights <- rbind(highlights, mc)
 
@@ -830,8 +845,8 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
 
   highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
     apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 1))
-  
-  
+
+
   print(sizes)
   print(ntows)
   print(highlights)
