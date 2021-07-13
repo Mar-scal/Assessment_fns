@@ -897,7 +897,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # data this is like far more complex still than the really allows for.
         # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
         
-        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
+        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
         
         if(mwsh.test == T) {
           browser()
@@ -945,8 +945,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
-        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct)
-        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct)
+        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
+        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {

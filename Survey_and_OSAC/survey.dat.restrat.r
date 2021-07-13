@@ -58,7 +58,8 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
                         Please return to SurveySummary_data.r")
   if(bk=="Sab"){
     # load the PEDstrata package, note this is a locally developed package not available from R repositories
-    require(BIOSurvey2)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
+    require(BIOSurvey2)  || stop("BIOSurvey2 package required please obtain a copy and install this locally developed package")
+    require(PEDstrata)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
     require(survey)     || stop("survey package required please install package and try again")
     require(splancs)    || stop("splancs package required please install package and try again")
     # This is silly, but for the below code to work we need to increase the RS/CS by 5
@@ -246,6 +247,10 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         #source("Y:/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/Domainestimates.R")
         # step 1: get a domain estimation object for each size category using BIOSurvey2::Domain.est function
         scall.dom.IPR <- BIOSurvey2::Domain.est(x = w, Strata="STRATA.ID.OLD",
+                                                Domain="STRATA.ID.NEW", strata.obj=strata.obj,
+                                                domain.obj=domain.obj,
+                                                Species = "pre")
+        scall.dom.IPR_rago <- rago_domain.est(x = w, Strata="STRATA.ID.OLD",
                                                 Domain="STRATA.ID.NEW", strata.obj=strata.obj,
                                                 domain.obj=domain.obj,
                                                 Species = "pre")
