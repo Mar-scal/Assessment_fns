@@ -1,6 +1,4 @@
-
-# csv: csv file in PBSMapping format already projected in WGS84. 
-# destination: complete filename and path to save the .txt file.
+# converting offshore survey strata into Olex format
 
 # Figure out where your tempfiles are stored
 temp <- tempfile()
