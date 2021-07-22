@@ -8,11 +8,13 @@ load_offshore_spatial <- function(direct_data,
                                   fishery_years,
                                   detailedsampling=F) {
   
+  direct_fns2 <- direct_fns
   # if survey_years isn't null, then get the data. This will always pull in the Survey_all_results data
   if(survey == T){
     load(paste0(direct_data, "Data/Survey_data/", survey_year, "/Survey_summary_output/Survey_all_results.Rdata"))
   }    
   
+  direct_fns <- direct_fns2
   # if fishery_years isn't null, then get the data. This only works for >2008. Pulls in the new.log.dat
   if(fishery == T)
   {  
