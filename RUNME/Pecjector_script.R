@@ -2,7 +2,7 @@
 
 
 ##### FOR NOAA SERVER ERROR, TRY UPDATING MARMAP PACKAGE AS FOLLOWS:
-install.packages("marmap")
+#install.packages("marmap")
 
 
 # Pull in pecjector from Github
@@ -16,7 +16,7 @@ for(fun in funs)
 } # end for(un in funs)
 
 # Alternatively go find your local version....
-#source("D:/Github/Offshore/Assessment_fns/DK/Maps/pectinid_projector_sf.R")
+source("D:/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
 
 # Simple blank map of the region
 # You can see the scallopy options inside the function 'convert_coords.R'
@@ -80,13 +80,13 @@ pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore'
 
 # If you have the github repos locally this would work...
 pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
-          repo = 'D:/Github/Offshore/Assessment_fns/DK/', gis.repo = 'D:/Github/Offshore/GIS_layers/DK/',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
+          repo = 'D:/Github/Assessment_fns/', gis.repo = 'D:/Github/GIS_layers/',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
 
 # Now I can also blow your mind...
 bp.int1 <- pecjector(area = "NL", add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','detailed'),s.labels = 'all'),
                      plot_as = 'ggplotly')
 # Roughtly the same, though subtly different is...
-bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','outline'),s.labels = 'all'),
+bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',s.labels = 'all'),
                      plot_as = 'plotly')
 
 
