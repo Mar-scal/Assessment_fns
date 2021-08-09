@@ -564,7 +564,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # first things first, we need to grab the data for the tows that are repeats for the tows in the 2020 survey
       require(readxl)
       require(tidyverse)
-      browser()
+      
       if(bnk=="BBn") {
         repeat.list.full <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"))
         repeat.list <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"), skip = 1)
@@ -741,9 +741,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         attr(detail.poly.surv,"projection")<-"LL"
         
         # Get the strata areas.
-        strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
-        #Read25 read removed... Get all the details of the survey strata
         surv.info <- subset(survey.info,label== bnk)
+        strata.areas <- subset(surv.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
+        #Read25 read removed... Get all the details of the survey strata
+        
       } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
       
       # If we are dealing with a spatial subset we need to do some fancy dancy-ness
@@ -756,6 +757,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         full.detail <- full.detail[full.detail$startyear == max(full.detail$startyear,na.rm=T) ,]
         # I also want the full surv info object as there are some pieces I want to pull out of this.
         full.area.surv.info <- subset(survey.info,label== bank.4.spatial)
+        full.area.surv.info <- full.area.surv.info[full.area.surv.info$startyear == max(full.area.surv.info$startyear),]
         # Get the boundary for our subset area.
         spat.bound <- as.PolySet(newAreaPolys[newAreaPolys$label == bnk,],projection = "LL")
         # Now clip out the boundary area and the detailed polygons
@@ -784,6 +786,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         #names(surv.info) <- names(full.area.survy.info)
         # subset to the strata areas.
         strata.areas <- subset(surv.info,select =c("Strata_ID","towable_area","startyear"))                                                               
+        
       }
       # Save the survey strata table so we have it for later, this is mostly needed for when we have user defined areas carved out.
       survey.strata.table[[bnk]] <- surv.info
@@ -821,7 +824,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab" && bnk!= "Ban" && bnk!="BanIce") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
       # above assigns strata to each tow. 
       
-      print("assign.strata done")
+      print("assign.strata done. Note, this is based on tow start location.")
       
       # MEAT WEIGHT DATA from 2011-current Get the mw data from 2011 to this year, this is if we aren't doing any spatial subsetting
       if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
@@ -1120,7 +1123,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         ### WHICH TOWS ARE MATCHED WITH WHICH!!!!
         #Some funky code to get the matched tows...
         ger.tows <- NULL
-        ger.years <- 2009:yr # Pick the years for which we've had repeated tows.
+        ger.years <- unique(surv.dat$Ger$year[surv.dat$Ger$year>2008]) # Pick the years for which we've had repeated tows.
+        
         for(b in 1:length(ger.years))
         {
           # Get the tows for the current year.
@@ -1129,7 +1133,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           new.ger.tows$EID <- 1:nrow(new.ger.tows)
           # Now get the tows for the previous year, in 2009 we select only the lined tows from the 2008 survey (this is what was done in the past).
           if(ger.years[b] == 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b]-1 & tow >= 451)
-          if(ger.years[b] > 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b]-1)
+          if(ger.years[b] > 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b-1])
           # Now get all the tows that appear to overlap and they are our matched tows, search on end lat/lon, then start lat/lon
           # and finish with mean lat/lon, the mean lat/lon is the final search criteria so overwrites the other two which I think makes the most sense
           # as you could start/finish in opposite directions but you should be closest in the middle so the mean lat/lon should give the best results
@@ -1201,8 +1205,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # This gets us the overall estimates for the bank, but it doesn't get the shell height frequency data we need
         # but in 2011 the survey design was not set up for this so we'll need to grab that data from the lined.survey.obj
         # If this gives you NA's (for any year other than 2011) than you have something wrong in the tow list selection.
-        spr.survey.obj <- sprSurv(lined.dat[-which(lined.dat$random %in% c(2,4,5)),],2008:yr,ger.tows,chng=T,user.bins=bin)
+        browser()
+        spr.survey.obj <- sprSurvtemp(lined.dat[-which(lined.dat$random %in% c(2,4,5)),],unique(lined.dat$year),ger.tows,chng=T,user.bins=bin)
         
+        message("using SPR for 2021, despite no 2020 survey of German. Compares to 2019.")
         print("sprSurv done")
         
         # prepare survey index data obj
@@ -1217,7 +1223,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=2008:yr,user.bins=bin)
         
         print("simple.surv for German done")
-        
+        browser()
         # The total lined survey object, in 2011 it seems we didn't do repeat tows. This is the object that should be used
         # to look at time series for Germaan as it has the properly caluclated data tied together
         # But it doesn't have the SHF type of data so anything using the SHF data has to use either lined.surve.obj (since 2008)
@@ -1241,7 +1247,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Get the survey estimates for the banks for which we have strata. 
       if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
       {
-        
+        ## Sable was restratified in 2018 to remove WEBCA
         if(bank.4.spatial=="Sab")  
         {
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
@@ -1251,8 +1257,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         
+        ## in 2021, we identified an issue with the strata areas used for BBn. They are for a broader survey domain than the shapefiles used currently. 
+        ## This has been an issue since 2014. In August 2021, we replaced the values in survey_information.csv with the areas that correspond to the strata 
+        ## that have been used since 2014. During this investigation, it was noted that a domain estimator was not applied during the restratification
+        ## in 2013. This should be corrected during the next BBn Framework. See Github issues #86 and #87 
+        ##  https://github.com/Mar-scal/Assessment_fns/issues/87
         if(bank.4.spatial !="Sab")
         {  
+          strata.areas <- subset(strata.areas,startyear == max(strata.areas$startyear))
           survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                           bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
           clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 

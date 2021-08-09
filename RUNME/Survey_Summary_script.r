@@ -22,8 +22,8 @@
 #direct <- "d:/r/"
 direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 #direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-yr <- 2020
+direct_fns <- "C:/Documents/Assessment_fns/"
+yr <- 2019
 
 
 
@@ -52,17 +52,17 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Sou
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=2020,
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
                    surveys = c(#"Banspring", 
                     #"BanIcespring", 
-                       "BBnspring" ,#"BBsspring" ,
+                       "BBnspring" #,#"BBsspring" ,
                      # "Gerspring", "Midspring", 
                        # "Sabspring", "GBspring"# ,
-                      "GBbsummer", 
-                     "GBasummer"
+                    #  "GBbsummer", 
+                    # "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="testing", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="industrysurvey2020")
+                   commercialsampling=T, nickname=NULL)
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),

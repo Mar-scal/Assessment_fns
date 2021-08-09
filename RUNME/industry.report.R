@@ -1,7 +1,7 @@
 #### Run the industry report in R to compare against the SQL developer view
-direct <- "C:/Users/keyserf/Documents/GitHub/FK/"
-direct_fns <- "C:/Users/keyserf/Documents/GitHub/FK/Assessment_fns/" 
-source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.r",sep=""))
+direct <- "Y:/Offshore/Assessment/" 
+direct_fns <- "C:/Documents/Assessment_fns/" 
+source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep=""))
 
 
 require(plyr)
@@ -9,8 +9,8 @@ require(reshape2)
 require(dplyr)
 require(ggplot2)
 
-# scaloff username and pwd needed
-indreport <- get.offshore.survey(direct=direct, cruise="LE10", yr=2019, industry.report = T, un = "scaloff", pw=pwd.ID, direct_fns=direct_fns)
+# scaloff username and pwd needed (keyserf doesn't have the right access)
+indreport <- get.offshore.survey(direct=direct, cruise="LE13", yr=2021, industry.report = T, un = "scaloff", pw=pwd.id, direct_fns=direct_fns)
 
 
 industryreport <- indreport$industryreport
@@ -40,11 +40,11 @@ for(i in 1:length(unique(industryreport$MGT_AREA_CD))){
       
 }
 
-sum(df[[1]]$total) + sum(df[[2]]$total)# + sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
+sum(df[[1]]$total) + sum(df[[2]]$total) + sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
 
 industryreport$lon <- convert.dd.dddd(industryreport$START_LON)
 industryreport$lat <- convert.dd.dddd(industryreport$START_LAT)
-ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBb",], aes(lon,lat, label=TOW_NO)) + coord_map()
+ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBa",], aes(lon,lat, label=TOW_NO)) + coord_map()
 
 # checking out the german rake stuff. No obvious signs of bias. 
 png(paste0(direct, "2019/Presentations/Survey_summary/test_figures/Ger/numberspertow_rake.png"), height=4, width=8, units="in", res=200)

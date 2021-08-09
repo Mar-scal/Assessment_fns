@@ -141,7 +141,7 @@ alloc.poly<-function(poly.lst,bounding.poly,ntows,bank.plot=F,mindist=1,pool.siz
 				strataPolys.lst[[i]]<-combinePolys(tmp)
 				attr(strataPolys.lst[[i]],"projection")<-"LL"
 				# Calculate the area of this strata
-				strataArea[i]<-calcArea(strataPolys.lst[[i]],1)$area
+				strataArea[i]<-calcArea(strataPolys.lst[[i]],1)$area 
 				# Give it it's proper name
 				names(strataArea)[i]<-strata[i]
 				print(strata[i]) # print this name to the screen

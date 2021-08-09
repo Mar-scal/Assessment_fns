@@ -70,7 +70,7 @@ for(i in 1:length(layer.name))
   subs <- which(dat[,names(dat) == layer.names] == layer.name[i])
   tmp <- dat[subs,]
   tmp <- as.PolySet(tmp,projection = proj) # The proj can be "LL", "UTM", or "NULL".
-  
+ 
   if(type == "polygon") dat.sp <- PolySet2SpatialPolygons(tmp)
   if(type == "lines") dat.sp <- PolySet2SpatialLines(tmp)
   

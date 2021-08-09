@@ -118,7 +118,6 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
 	bin<-na.omit(as.numeric(substr(names(shf),2,nchar(names(shf)))))
   bin.loc <- which(is.na(as.numeric(substr(names(shf),2,nchar(names(shf)))))==F)
 	# Now get the abundance and biomass in each SHF bin for each year.
-  browser()
   n.yst <- matrix(NA,nrow=length(years),ncol=length(bin)) 
 	colnames(n.yst) <- bin
 	n.yst <- cbind(years=NA, n.yst)

@@ -43,7 +43,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     if(plot.extent%in% c('GBa',"GBa","gba","Georges A","georges a",
                          "GEORGES A","Georges a","27A","SFA27A"))                                  {y=c(41.20,42.30);x=c(-67.15,-65.85)}
     if(plot.extent%in% c('GBb',"GBB","gbb","Georges B","georges b","GEORGES B","Georges b"))		   {y=c(41.60,42.30);x=c(-66.70,-65.60)}
-    if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german","SFA26C","26C"))             {y=c(42.80,43.80);x=c(-67.00,-65.60)}
+    if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german","SFA26C","26C"))             {y=c(42.80,43.80);x=c(-67.00,-65.40)}
     if(plot.extent%in% c('Sab',"SABLE","sab","sable","SAB","Sable"))		                           {y=c(43.00,44.35);x=c(-62.50,-60.50)}
     if(plot.extent%in% c('SPB','spb','Spb',"St Pierre", "Saint Pierre"))		                       {y=c(44.50,47.50);x=c(-58.00,-55.00)}
     if(plot.extent%in% c('SPB-banks', 'spb-banks',"SPB-BANKS","SPB BANKS", "spb banks",

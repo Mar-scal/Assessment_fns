@@ -1,5 +1,6 @@
 # converting offshore survey strata into Olex format
 
+direct <- "Y:/Offshore/Assessment/"
 # Figure out where your tempfiles are stored
 temp <- tempfile()
 
@@ -33,13 +34,13 @@ require(stars)
 for(i in unique(offshore.strata$label)) {
   
   test <- st_as_sf(offshore.strata[offshore.strata$label==i,])
-  test$raster_id <- as.numeric(test$Strt_ID)*100
+  test$raster_id <- 1:length(unique(test$Strt_ID))*100
   test <- st_rasterize(test, st_as_stars(st_bbox(test), nx = 1000, ny = 1000, values = NA_real_))
   plot(test)
   
   rasterdf <- as.data.frame(test) %>%
     dplyr::select(y, x, raster_id) %>%
-    filter(!is.na(raster_id))
+    dplyr::filter(!is.na(raster_id))
   
   names(rasterdf) <- c("Y", "X", "ID")
   print(paste("printing", i))
@@ -49,10 +50,10 @@ for(i in unique(offshore.strata$label)) {
 }
 
 
-olex_gba <- read.table(paste0(direct,"Data/Maps/approved/Survey/olex_strata_GBa.txt"), header=T)
+olex_gbb <- read.table(paste0(direct,"Data/Maps/approved/Survey/olex_strata_GBb.txt"), header=T)
 
-olex_gba <- st_as_sf(olex_gba, coords=c("X", "Y"))
-plot(olex_gba)
+olex_gbb <- st_as_sf(olex_gbb, coords=c("X", "Y"))
+plot(olex_gbb)
 
 olex_gba %>%
 st_crop(st_bbox(c(xmin=-66.95, xmax=-66.945, ymin=42.17, ymax=42.18)))

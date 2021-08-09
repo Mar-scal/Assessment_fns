@@ -78,9 +78,9 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # Create strata object for PEDstrata package, includes Strata and number of towable units in that strata.
     # I know Strata and strata.id are the same, but Domainestimates.R uses both columns, and I'm rolling with the punches here.
     HSIstrata.obj <- data.frame(Strata=areas[,1], strata.id=areas[,1], NH=areas[,2], startyear=areas[,3])[order(areas[,1]),]
-    
+  
     if(!length(unique(HSIstrata.obj$startyear))==2){
-      print("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
+      stop("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
   or you have to re-write this to accommmodate more than 1 restratification. Sorry that you have to go through that, cuz even doing this much was hard.
   Take a walk to clear your mind and prepare yourself for some coding!")
     }
@@ -247,10 +247,6 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         #source("Y:/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/Domainestimates.R")
         # step 1: get a domain estimation object for each size category using BIOSurvey2::Domain.est function
         scall.dom.IPR <- BIOSurvey2::Domain.est(x = w, Strata="STRATA.ID.OLD",
-                                                Domain="STRATA.ID.NEW", strata.obj=strata.obj,
-                                                domain.obj=domain.obj,
-                                                Species = "pre")
-        scall.dom.IPR_rago <- rago_domain.est(x = w, Strata="STRATA.ID.OLD",
                                                 Domain="STRATA.ID.NEW", strata.obj=strata.obj,
                                                 domain.obj=domain.obj,
                                                 Species = "pre")
