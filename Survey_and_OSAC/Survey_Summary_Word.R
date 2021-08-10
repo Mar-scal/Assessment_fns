@@ -17,6 +17,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   load(data)
   direct <- direct.tmp
   banks <- names(bank.dat)
+
+  source(paste0(direct_fns, "Assessment_fns/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
+
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
 
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
@@ -41,6 +44,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   ntows <- NULL
   highlights <- NULL
   sizes <- NULL
+  spatial.sum.stats <- NULL
+  dates <- NULL
   for (i in 1:length(banks)){
 
     if(banks[i] %in% "BBs") lastyear <- year-2
@@ -50,6 +55,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     # must use surv.Live instead of surv.Rand for German!!
     if(banks[i] == "Ger") surv.Rand$Ger <- surv.Live$Ger
 
+    sched <- data.frame(start = min(surv.dat[banks[i]][[1]]$date[surv.dat[banks[i]][[1]]$year==year]),
+                        end = max(surv.dat[banks[i]][[1]]$date[surv.dat[banks[i]][[1]]$year==year]),
+                        bank = banks[i])
+    
+    dates <- rbind(dates, sched)
+    
     size<-NULL
     size$RS <- survey.obj[banks[i]][[1]]$model.dat$RS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
     size$CS <- survey.obj[banks[i]][[1]]$model.dat$CS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
@@ -322,6 +333,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                                                   surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
     if(banks[i]=="BBs") ntowsaboveC3Q_LY <- length(unique(surv.Rand[banks[i]][[1]]$tow[surv.Rand[banks[i]][[1]]$com>C3Q &
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
+
+    spatial.sum.stats.b <- t(apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, c("pre", "rec", "com")], 2, summary))[,c(1,3,4,6)]
+    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) round(x, 2)))
+    spatial.sum.stats.b$bank <- banks[i]
+    spatial.sum.stats.b$year <- year
+
+    spatial.sum.stats$abund <- rbind(spatial.sum.stats$abund, spatial.sum.stats.b)
+
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
     if(!banks[i] == "Ger"){
@@ -335,7 +354,9 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
     sizerange75 <- NULL
     sizerange75PR <- NULL
-    sizerange75RecFR <- NULL
+    sizerange75Rec <- NULL
+    sizerange75FR <- NULL
+
     for(y in c(lastyear, year)){
       shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
       shf.ty$bin <- seq(0,195,5)
@@ -350,20 +371,28 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
       sizerange75[paste0(y)] <- paste0(round_any(sevfiveperc[1], 5), "-", round_any(sevfiveperc[2], 5))
       sevfivepercPR <- c(quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("PR")], c(0.125, 0.5, 0.875, 1))[3])
       sizerange75PR[paste0(y)] <- paste0(round_any(sevfivepercPR[1], 5), "-", round_any(sevfivepercPR[2], 5))
-      sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec", "FR")], c(0.125, 0.5, 0.875, 1))[3])
-      sizerange75RecFR[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
+      sevfivepercRec <- c(quantile(x=expanded$bin[expanded$class %in% c("Rec")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("Rec")], c(0.125, 0.5, 0.875, 1))[3])
+      sizerange75Rec[paste0(y)] <- paste0(round_any(sevfivepercRec[1], 5), "-", round_any(sevfivepercRec[2], 5))
+      sevfivepercFR <- c(quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[1], quantile(x=expanded$bin[expanded$class %in% c("FR")], c(0.125, 0.5, 0.875, 1))[3])
+      sizerange75FR[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
     }
 
     # breakdown plot biomass size ranges
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
-    if(!banks[i] == "Ger"){
+
+if(!banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y]
+if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$year==y]
+
+    if(!banks[i] %in% c("Ger", "BanIce")){
       df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$w.yst))
       df$year <- survey.obj[[banks[i]]][[1]]$year
+      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg, cx.axs=1,add.title = F, value=T)
     }
     if(banks[i] == "Ger"){
       df <- as.data.frame(round(lined.survey.obj$shf.dat$w.yst))
       df$year <- lined.survey.obj[[1]]$year
+      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], cx.axs=1,add.title = F, value=T)
     }
     sizerange75_bm_65up <- NULL
     for(y in c(lastyear, year)){
@@ -379,20 +408,20 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
     print('check1')
 
-    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(!banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sh_for_mcreg"),
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY, sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75Rec[paste0(lastyear)], sizerange75FR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)], NA),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75Rec[paste0(year)], sizerange75FR[paste0(year)], sizerange75_bm_65up[paste0(year)], round(sht.cnt$sht.cnt, 3)),
                              LTM=NA,
                              word=c(paste0(maxbin, "(LY=", maxbin, ")"), NA, NA, NA,
                                     paste0(ntowsabovePR3Q, " tows (LY=", ntowsabovePR3Q_LY, " tows)"),
                                     paste0(ntowsaboveR3Q, " tows (LY=", ntowsaboveR3Q_LY, " tows)"),
-                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA, NA, NA),
+                                    paste0(ntowsaboveC3Q, " tows (LY=", ntowsaboveC3Q_LY, " tows)"), NA, NA, NA, NA, NA, NA, NA, NA, NA),
                              nearLTM=NA,
                              bank=banks[i])
 
-    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up"),
-                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75RecFR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)]),
-                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)], sizerange75RecFR[paste0(year)], sizerange75_bm_65up[paste0(year)]),
+    if(banks[i] %in% "BanIce") towsummary <- data.frame(variable=c("maxbin", "maxPRtow", "maxRtow", "maxCtow", "PR3Q", "R3Q", "C3Q", "PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sh_for_mcreg"),
+                             lastyear=c(max(shsummary_LY), maxPRtow_LY, maxRtow_LY, maxCtow_LY, PR3Q, R3Q, C3Q, PR75_LY, R75_LY, C75_LY,sizerange75[paste0(lastyear)], sizerange75PR[paste0(lastyear)], sizerange75Rec[paste0(lastyear)], sizerange75FR[paste0(lastyear)], sizerange75_bm_65up[paste0(lastyear)], NA),
+                             thisyear=c(max(shsummary), maxPRtow, maxRtow, maxCtow, PR3Q, R3Q, C3Q, PR75, R75, C75, sizerange75[paste0(year)], sizerange75PR[paste0(year)],  sizerange75Rec[paste0(year)], sizerange75FR[paste0(year)], sizerange75_bm_65up[paste0(year)], NA),
                              LTM=NA,
                             word=NA,
                              nearLTM=NA,
@@ -452,6 +481,14 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                   max(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year==year])),
                        LTM=cf_ltm)
     }
+
+spatial.sum.stats.c <- as.data.frame(rbind(summary(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year == year])[c(1,3,4,6)]))
+spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) round(x, 2))))
+spatial.sum.stats.c$bank <- banks[i]
+spatial.sum.stats.c$year <- year
+
+spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
+
     print('check2')
     # if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]==0){
     #
@@ -530,6 +567,13 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                      word=NA,
                      nearLTM=NA,
                      bank=banks[i])
+
+    spatial.sum.stats.m <- as.data.frame(rbind(summary(CF.current[[banks[i]]]$meat.count)[c(1,3,4,6)]))
+    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) round(x, 2))))
+    spatial.sum.stats.m$bank <- banks[i]
+    spatial.sum.stats.m$year <- year
+
+    spatial.sum.stats$mc <- rbind(spatial.sum.stats$mc, spatial.sum.stats.m)
 
     highlights <- rbind(highlights, mc)
 
@@ -803,9 +847,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   }
 
   #print(bankcheck)
+  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF"),c(2,3,4)] <-
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
 
-  highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed"),c(2,3,4)] <-
-    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75RecFR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+  highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
+    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 1))
+
 
   print(sizes)
   print(ntows)
@@ -814,6 +861,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   sizes <<- as.data.frame(sizes)
   ntows <<- ntows
   highlights <<- highlights
+  spatial.sum.stats <<- spatial.sum.stats
+  dates<<-dates
 
 }
 

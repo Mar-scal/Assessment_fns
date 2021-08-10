@@ -18,13 +18,16 @@ yr <- 2021
 #direct = "d:/r/"
 direct <- "Y:/Offshore/Assessment/"
 # set direct_fns if you don't want to use the marscal github version
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-source(paste(direct_fns,"Survey_design/Survey_design.r",sep=""))
+direct_fns <- "C:/Documents/Assessment_fns/"
+#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
+
+# USE SF IN 2022!!!
 
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
 Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,fig="png",seed=62294,
               point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,relief.plots = F,fig="png",seed=62311,
+Survey.design(yr = yr,banks = "BBn",direct = direct,export=F,relief.plots = F,fig="screen",seed=62311, repo=direct_fns,
               point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20, cables=T)
 Survey.design(yr = yr,banks = "Mid",direct = direct,export=T,relief.plots = F,fig="png",seed=20,
               point.style = "points", x.adj=0.04, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
@@ -44,14 +47,16 @@ Survey.design(yr = yr,banks = "BBs",direct = direct, direct_fns=direct_fns,expor
 
 # use fig="leaflet" if you want an interactive figure. No strata yet though
 floor(runif(n = 1, min = 10000, max=99999)) 
-for(i in c(19174, 19178, 19179, 19180, 19182, 19186,19188)){
-Survey.design(yr = yr,banks = "GBa",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="png",seed=i,
-              point.style = "points", x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, zoom=T, plot = T)
-}
-for(i in c(19174:1984)){
-Survey.design(yr = yr,banks = "GBb",direct = direct, direct_fns=direct_fns, export=T,relief.plots = F,fig="png",seed=i,
+#for(i in c(19174, 19178, 19179, 19180, 19182, 19186,19188)){
+i <- 19188
+Survey.design(yr = yr,banks = "GBa",direct = direct, export=T,relief.plots = F,fig="png",seed=i,
+              point.style = "points", x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=T, ger.rep=20, zoom=T, plot = T)
+#}
+# for(i in c(19174:1984)){
+i <- 19173
+Survey.design(yr = yr,banks = "GBb",direct = direct, export=T,relief.plots = F,fig="png",seed=i,
               point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-}
+#}
 # get bearing from 2012 Ban survey
 source(paste(direct,"Assessment_fns/Survey_and_OSAC/get.offshore.survey.brg.r",sep=""))
 DBpull<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct)

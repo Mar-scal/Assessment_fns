@@ -3,8 +3,8 @@
 #### set up directory, year, cruise info...
 
 direct_fns <- "./"
-year <- 2020
-cruise <- "LE12"
+year <- 2021
+cruise <- "LE13"
 
 #### First, check the data file-by-file (by bank) using scaloff_bank_check.R
 ### Step 1: Load the scaloff_bank_check function
@@ -13,9 +13,9 @@ direct <- "Y:/Offshore/Assessment/"
 
 ### Step 2: Run the function with the various arguments you need:
 scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", 
-                   cruise = cruise, bank = "BBn", survey_name = "BB2020", 
-                   tow=TRUE, hf = TRUE, mwsh = FALSE,
-                   nickname = ".BBNLE12")
+                   cruise = cruise, bank = "BBn", survey_name = "BB2021", 
+                   tow=FALSE, hf = FALSE, mwsh = TRUE,
+                   nickname = ".BBNLE13")
 
 ### Step 3: Scroll through the output and read the error messages to look at issues. Be thorough!
 ### For GB monitoring survey (spring), warnings like "the condition has length > 1 and only the first element will be used" are ok

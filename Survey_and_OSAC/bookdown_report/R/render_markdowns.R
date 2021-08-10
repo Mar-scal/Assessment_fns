@@ -1,8 +1,14 @@
 # name of the parameterised report rmarkdown
 rmarkdown_file <- "parameterised_report.Rmd"
-
+print(getwd())
 # the parameter we're going to pass to the report
-banks <- c("Sab", "Mid")
+banks <- c(#"Ban", "BanIce",
+           "Mid", "Sab", "Ger",
+           #"BBs",
+          "BBn", "GB"#, "GBa", "GBb"
+           )
+banknum <- 1:length(banks)
+
 
 # Run Parameterised Reports ----------------------------------------------------
 # run through the years and render each version of the report.
@@ -12,7 +18,7 @@ markdowns <- lapply(
   banks,
   function(x, filename){
 
-    rmarkdown::render(filename, params = list(bank = x), run_pandoc = FALSE)
+    rmarkdown::render(filename, params = list(bank = x, banknum=which(x==banks)), run_pandoc = FALSE)
 
     base_filename <- xfun::sans_ext(filename)
     # filename.knit.md will be created by the render

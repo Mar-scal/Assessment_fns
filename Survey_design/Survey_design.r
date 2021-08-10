@@ -200,6 +200,20 @@ for(i in 1:num.banks)
       towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
      }
     
+    if(bnk=="GBa" & yr ==2021) {
+      tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBa/Preliminary_Survey_design_Tow_locations_GBa_cruisetrackJL22.csv"))
+      tows2021edited <- arrange(tows2021edited, EID)
+      towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
+      towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
+    }
+    
+    if(bnk=="GBb" & yr ==2021) {
+      tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBb/Preliminary_Survey_design_Tow_locations_GBb_cruisetracksJL20.csv"))
+      tows2021edited <- arrange(tows2021edited, EID)
+      towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
+      towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
+    }
+    
     # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
     # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
     # This was done manually using the CSV and script below.

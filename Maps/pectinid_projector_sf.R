@@ -340,6 +340,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       land.all <- st_read(paste0(gis.repo,"/other_boundaries/Atl_region_land.shp"))
       land.col <- lnd
     }
+    
     # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
     if(c_sys == "4326") 
     {
@@ -694,11 +695,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
         # Figure out what this file was saved as
-        temp2 <- tempfile()
+        temp2 <- tempfile
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
+
         # We need to tidy up the GBa strata as it causes problems with spherical geometry, the hack for the moment is just to turn that off for the detailed strata.
         sf::sf_use_s2(FALSE)
+
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
         # Need to tidy up the object for s2 world... I'm not sure if the MaxLength (in meters given our shape files are lat/lon) is appropriate or not
@@ -745,7 +748,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
-        
         if(add_layer$survey[2] == 'detailed') loc <- paste0(gis.repo,"offshore_survey_strata")
         if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"survey_boundaries")
         

@@ -301,7 +301,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     # Check to ensure vessel gear size and number of rakes and gear size is correct.  I don't want to flag NA"s here as that would be redundant with above
     num.rakes <- fleet.dat$num_rakes[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
     gear.size <- fleet.dat$gear_size[fleet.dat$ID  == unique(trip.log$vrnum)][1] # Add [1] For vessels with multiple entries (e.g. same number different name)
-    
+
     if(any(na.omit(trip.log$numrake) != num.rakes)) num.rakes.mismatch[[as.character(trip.ids[i])]] <- trip.log
     if(any(na.omit(trip.slip$gear.ft) != gear.size)) gear.size.mismatch[[as.character(trip.ids[i])]] <- trip.slip
     
