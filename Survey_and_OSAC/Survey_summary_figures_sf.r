@@ -650,7 +650,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_transform(loc.cf,crs = 32620)
           loc.cf <- as(loc.cf,"Spatial")
           #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32620)[2]$proj4string)
-          bound.poly.surv.sp <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }  
         
         if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
@@ -661,7 +662,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_as_sf(loc.cf,coords = c('lon','lat'),crs = 4326)
           loc.cf <- st_transform(loc.cf,crs = 32619)
           loc.cf <- as(loc.cf,"Spatial")
-          bound.poly.surv.sp <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
         
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
@@ -767,7 +769,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "PR-spatial")    
               {
                 # This is the stack for estimation from the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$pre, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$pre,0), link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.dat))), s = 1:spde$n.spde),
                                   A = list(1, A))
                 # This is the INLA model itself
@@ -781,7 +783,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "Rec-spatial")        
               {
                 # This is the stack for the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$rec, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$rec,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                   A = list(1, A))
                 # This is the INLA model itself
@@ -795,7 +797,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               {
                 
                 # This is the stack for the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$com, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$com,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                   A = list(1, A))
                 #print(stk)
@@ -836,9 +838,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "Clap-spatial")        
               {
                 # This is the stack for the INLA model
+                
                 stk <- inla.stack(tag="est",data=list(y = tmp.clap$clap.prop, link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.clap)), s = 1:spde$n.spde),
                                   A = list(1, A))
+                # if we have some big clapper tows, use gaussian instead?
+                if(any(tmp.clap$clap.prop >= 1)) family.clap <- "gaussian"
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.clap, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
@@ -969,7 +974,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
               # This is the stack for the INLA model
               pick <- which(names(tmp.dat) == bin.names[k])
-              stk <- inla.stack(tag="est",data=list(y = tmp.dat[,pick], link=1L),
+              stk <- inla.stack(tag="est",data=list(y = round(tmp.dat[,pick],0), link=1L),
                                 effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                 A = list(1, A))
               # This is the INLA model itself
