@@ -45,6 +45,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   highlights <- NULL
   sizes <- NULL
   spatial.sum.stats <- NULL
+  dates <- NULL
   for (i in 1:length(banks)){
 
     if(banks[i] %in% "BBs") lastyear <- year-2
@@ -54,6 +55,12 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     # must use surv.Live instead of surv.Rand for German!!
     if(banks[i] == "Ger") surv.Rand$Ger <- surv.Live$Ger
 
+    sched <- data.frame(start = min(surv.dat[banks[i]][[1]]$date[surv.dat[banks[i]][[1]]$year==year]),
+                        end = max(surv.dat[banks[i]][[1]]$date[surv.dat[banks[i]][[1]]$year==year]),
+                        bank = banks[i])
+    
+    dates <- rbind(dates, sched)
+    
     size<-NULL
     size$RS <- survey.obj[banks[i]][[1]]$model.dat$RS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
     size$CS <- survey.obj[banks[i]][[1]]$model.dat$CS[survey.obj[banks[i]][[1]]$model.dat$year==max(survey.obj[banks[i]][[1]]$model.dat$year)]
@@ -332,7 +339,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     spatial.sum.stats.b$bank <- banks[i]
     spatial.sum.stats.b$year <- year
 
-    spatial.sum.stats$abund <- spatial.sum.stats.b
+    spatial.sum.stats$abund <- rbind(spatial.sum.stats$abund, spatial.sum.stats.b)
 
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
@@ -480,7 +487,7 @@ spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x)
 spatial.sum.stats.c$bank <- banks[i]
 spatial.sum.stats.c$year <- year
 
-spatial.sum.stats$cf <- spatial.sum.stats.c
+spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
 
     print('check2')
     # if(dim(cfdat[cfdat$year==lastyear & !is.na(cfdat$year),])[1]==0){
@@ -566,7 +573,7 @@ spatial.sum.stats$cf <- spatial.sum.stats.c
     spatial.sum.stats.m$bank <- banks[i]
     spatial.sum.stats.m$year <- year
 
-    spatial.sum.stats$mc <- spatial.sum.stats.m
+    spatial.sum.stats$mc <- rbind(spatial.sum.stats$mc, spatial.sum.stats.m)
 
     highlights <- rbind(highlights, mc)
 
@@ -855,6 +862,7 @@ spatial.sum.stats$cf <- spatial.sum.stats.c
   ntows <<- ntows
   highlights <<- highlights
   spatial.sum.stats <<- spatial.sum.stats
+  dates<<-dates
 
 }
 

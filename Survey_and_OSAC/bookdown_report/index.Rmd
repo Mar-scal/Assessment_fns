@@ -16,6 +16,15 @@ header-includes:
  - \fancyfoot[LE,RO]{\thepage}
 ---
 
+```{r, echo=F, message=F, warning=F}
+load("summary.Rdata")
+
+dates <- summary_data$dates[summary_data$dates$bank %in% c("Ban", "BanIce",
+           "Mid", "Sab", "Ger",
+          "BBn", "GB"),]
+```
+
+
 \newpage
 
 
@@ -25,4 +34,4 @@ This report provides an overview of survey results. At each survey station, the 
 
 Detailed sampling occurs at a selection of the stations, where the exact heights and weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
 
-In 2019, the spring survey occurred from May 100th to June 60th on Middle Bank, Sable Bank (including WEBCA stations), German Bank, and Browns Bank North, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
+The spring survey occurred from `r min(dates$start)` to `r max(dates$end)` on Middle Bank, Sable Bank (including WEBCA stations), German Bank, and Browns Bank North, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
