@@ -175,15 +175,15 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   ################################## Update the run log   #######################################################
   # add an entry into the run log
-  if(!file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
-  if(file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  if(!file.exists(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
+  if(file.exists(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))
   runlog <- runlog[, !names(runlog) %in% "X"]
   rundate <- as.character(Sys.time())
   runfunction <- "data"
   runassigned <- paste(as.character(deparse(match.call())), collapse="")
   rundefaults <- paste(as.character(deparse(args(survey.data))), collapse="")
   runlog <- rbind(runlog, cbind(rundate, runfunction, runassigned, rundefaults))
-  write.csv(runlog, file = paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  write.csv(runlog, file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))
   ################################# End update the runlog #######################################################
   
   ################################### START LOAD & PRE-PROCESS DATA ############################################
@@ -376,6 +376,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
+    
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
     if(missing(direct_fns))
@@ -454,6 +455,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
   # Remove GBsummer data are ambiguous as to whether they are from GBa or GBb so remove them too...
   all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer")
+  
+  if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
   BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
@@ -1119,7 +1122,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # and in 2008 there were both lined and unlined tows, it's all very comnfusing, but tow ID's of
         # 451 and greater were all lined, less than 451 were unlined...
         lined.dat<-rbind(subset(surv.Live[[bnk]],year==2008 & tow >=451),subset(surv.Live[[bnk]],year > 2008))
+        #lined.dat <- lined.dat[!lined.dat$random == 2,]
         surv.Clap.Rand[[bnk]]<-rbind(subset(surv.Clap.Rand[[bnk]],year==2008 & tow >=451),subset(surv.Clap.Rand[[bnk]],year > 2008))
+        #surv.Clap.Rand[[bnk]] <- surv.Clap.Rand[[bnk]][!surv.Clap.Rand[[bnk]]$random == 2,]
         ### WHICH TOWS ARE MATCHED WITH WHICH!!!!
         #Some funky code to get the matched tows...
         ger.tows <- NULL
@@ -1128,7 +1133,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         for(b in 1:length(ger.years))
         {
           # Get the tows for the current year.
-          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b],c("tow","slon","slat","lat","lon","elon","elat","random","year"))
+          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b] & random != 2,c("tow","slon","slat","lat","lon","elon","elat","random","year"))
           # Get the EID's into the correct format...
           new.ger.tows$EID <- 1:nrow(new.ger.tows)
           # Now get the tows for the previous year, in 2009 we select only the lined tows from the 2008 survey (this is what was done in the past).
@@ -1189,6 +1194,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           
           # In 2017 tow 432 was not a good repeat thus we are treating it as an exploratory tow only and it is excluded from this analysis..
           if(ger.years[b] == 2017) new.ger.tows <- new.ger.tows[new.ger.tows$tow != 432,]
+          
           # Now replace all the ones that were not matched tows with a small number.
           new.ger.tows$EID[new.ger.tows$random == 1] <- 1:length(new.ger.tows$EID[new.ger.tows$random==1] )
           new.ger.tows$stratum <- new.ger.tows$random
@@ -1205,8 +1211,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # This gets us the overall estimates for the bank, but it doesn't get the shell height frequency data we need
         # but in 2011 the survey design was not set up for this so we'll need to grab that data from the lined.survey.obj
         # If this gives you NA's (for any year other than 2011) than you have something wrong in the tow list selection.
-        browser()
-        spr.survey.obj <- sprSurvtemp(lined.dat[-which(lined.dat$random %in% c(2,4,5)),],unique(lined.dat$year),ger.tows,chng=T,user.bins=bin)
+        spr.survey.obj <- sprSurv(lined.dat[!lined.dat$random %in% c(2,4,5),],unique(lined.dat$year),ger.tows,chng=T,user.bins=bin)
         
         message("using SPR for 2021, despite no 2020 survey of German. Compares to 2019.")
         print("sprSurv done")
@@ -1223,7 +1228,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]],years=2008:yr,user.bins=bin)
         
         print("simple.surv for German done")
-        browser()
+        
         # The total lined survey object, in 2011 it seems we didn't do repeat tows. This is the object that should be used
         # to look at time series for Germaan as it has the properly caluclated data tied together
         # But it doesn't have the SHF type of data so anything using the SHF data has to use either lined.surve.obj (since 2008)
@@ -1231,9 +1236,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         merged.survey.obj<-merge(subset(spr.survey.obj$out.obj[[1]],year!=2011),subset(lined.survey.obj[[1]],year==2011),all=T)
         
         # matched survey results.
-        matched.tows<-rbind(subset(surv.Live[[bnk]], year == (yr-1) & tow %in% spr.survey.obj$out.obj[[2]]$tow.y1),
+        ger.years[which(ger.years == yr)-1]
+        matched.tows<-rbind(subset(surv.Live[[bnk]], year == ger.years[which(ger.years == yr)-1] & tow %in% spr.survey.obj$out.obj[[2]]$tow.y1),
                             subset(surv.Live[[bnk]], year == yr & tow %in% spr.survey.obj$out.obj[[2]]$tow.y2))
-        matched.survey.obj<-simple.surv(matched.tows, years=(yr-1):yr,user.bins=bin)
+        matched.survey.obj<-simple.surv(matched.tows, years=c(ger.years[which(ger.years == yr)-1],yr),user.bins=bin)
         # This is used below to generate summarys of the survey data on the bank for the most recent year.
         SS.summary[[bnk]] <- merged.survey.obj
         SS.summary[[bnk]]$bank <- bank.4.spatial

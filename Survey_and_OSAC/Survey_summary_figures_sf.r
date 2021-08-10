@@ -205,7 +205,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(!yr==2021) load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
       if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 191 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
       yr <- tmp.yr
@@ -1033,7 +1034,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
           
           p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                         add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar= scale.bar))
+                         add_layer = list(eez = 'eez', sfa = 'offshore', bathy = bathy, scale.bar= scale.bar))
           
           
           # Initialize a counter...
@@ -1246,7 +1247,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             {
               surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
-              
               surv <- st_transform(surv,crs = st_crs(mesh$crs)[1]$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
               if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
@@ -1307,7 +1307,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
-      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
+      p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
                      add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar))
       #print(p)
       
@@ -1320,10 +1320,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] %in% c("Mid","Ger")) shpf <- st_as_sf(bound.poly.surv.sp)
       if(!banks[i] == "GB") shpf <- st_transform(shpf,crs = st_crs(loc.sf))
       
-      # Now get the points for the figure sorted out.
       surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
         dplyr::filter(year == yr & state == 'live')
-      
       surv <- st_transform(surv,crs = st_crs(loc.sf))
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
@@ -1352,15 +1350,19 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       # That's all we need for the areas without survey strata, pretty easy! No fill on strata
       if(banks[i] %in% c("SPB","Ban", "BanIce","Ger", "Mid"))
       {
-        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
+        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+          theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
       if(banks[i] == "GB")
       {
-        p2 <- p + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
+        p2 <- p + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+          theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
-      if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
+      if(banks[i] %in% c("BBn","BBs","Sab", "GBb", "GBa"))
       {
         # Need to get the factor levels correct, always annoying...
         #Tows per strata is easy...
@@ -1396,7 +1398,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols)), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
-                legend.justification = 'left',legend.key.size = unit(.5,"line"))
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
       # Finally add seedboxes as appropriate
       if(length(sb[,1]) > 0) 
@@ -1657,7 +1659,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       # For german bank
       if(banks[i] == "Ger")
       {
-        browser()
         survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
                   ymin=-5,dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
@@ -2037,7 +2038,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                              width = 11, height = 8.5)
         if(add.title == F) SHFm.title <- ""
         if(add.title == T) SHFm.title <- "SHF - Repeated Tows (Ger)"
-        shf.plt(matched.survey.obj,from='surv',yr=(yr-1):yr,col1='grey80',col2=1,rel=F,rows=2,
+        
+        shf.plt(matched.survey.obj,from='surv',yr=matched.survey.obj[[1]]$year,col1='grey80',col2=1,rel=F,rows=2,
                 recline=c(RS,CS),add.title = T,titl = SHFm.title,cex.mn=2, sample.size = T)	   
         if(fig != "screen") dev.off()
       } # end if(banks[i]=="Ger")
@@ -2279,7 +2281,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
       if(banks[i] != "Ger") 
       {
-        
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
         # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
         # but wanted to look at the 2015 data for example).
