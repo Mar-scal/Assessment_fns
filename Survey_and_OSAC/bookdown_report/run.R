@@ -2,7 +2,7 @@ library(xfun)
 library(rmarkdown)
 
 ######## prep input data if you haven't already
-reportyear <- 2019
+reportyear <- 2021
 
 
 #################################################

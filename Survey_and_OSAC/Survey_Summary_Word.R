@@ -387,12 +387,12 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
     if(!banks[i] %in% c("Ger", "BanIce")){
       df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$w.yst))
       df$year <- survey.obj[[banks[i]]][[1]]$year
-      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg, cx.axs=1,add.title = F, value=T)
+      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg,add.title = F, value=T)
     }
     if(banks[i] == "Ger"){
       df <- as.data.frame(round(lined.survey.obj$shf.dat$w.yst))
       df$year <- lined.survey.obj[[1]]$year
-      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], cx.axs=1,add.title = F, value=T)
+      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], add.title = F, value=T)
     }
     sizerange75_bm_65up <- NULL
     for(y in c(lastyear, year)){

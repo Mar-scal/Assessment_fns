@@ -1088,7 +1088,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
-      
+      bro
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
