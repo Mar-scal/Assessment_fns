@@ -130,7 +130,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     mean.names <- c(mean.names,paste0(mean.names,"_bm"))
     CV.names <- c(CV.names,paste0(CV.names,"_bm"))
   } # end if(!is.null(user.bins))
-  browser()
+  
   # If we aren't using the user bins then we just grab the pre/rec/com data as requested
   if(is.null(user.bins)) 
   {
@@ -359,7 +359,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     
     # Add the SE to the main data...
     if(se==T) segments(shf$year,shf[,mn.tmp[i]]+shf[,se.names[i]],shf$year,shf[,mn.tmp[i]]-shf[,se.names[i]],col=clr[1])
-    browser()
+    
     # Add ID's to each panel
     text(years[ypos], ymax[i]*ys*0.9, plot.names[[i]], cex=1.5, adj = 0)
     

@@ -83,7 +83,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
     # Get the points for the line
     sht.cnt<-with(cntdt,(mc[i]-y[1])/((y[2]-y[1])/(x[2]-x[1]))+x[1])
   } # end for(i in 1:length(mc))
-  browser()
+  
   xlabs <- seq(0,200,5)
   xlabs[which(!xlabs %in% seq(0,200,10))] <- ""
   

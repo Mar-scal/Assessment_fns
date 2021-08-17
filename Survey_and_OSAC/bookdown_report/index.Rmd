@@ -5,6 +5,7 @@ author: "Scallop and Benthic Habitat Unit"
 output: 
   bookdown::pdf_document2:
     extra_dependencies: ["float"]
+    toc_depth: 1
 header-includes:
  - \usepackage{float}
  - \usepackage{pdflscape}
@@ -12,7 +13,7 @@ header-includes:
  - \newcommand{\elandscape}{\end{landscape}}
  - \usepackage{fancyhdr}
  - \pagestyle{fancy}
- - \fancyfoot[CO,CE]{Spring Survey 2019}
+ - \fancyfoot[CO,CE]{Spring Survey 2021}
  - \fancyfoot[LE,RO]{\thepage}
 ---
 
@@ -23,7 +24,7 @@ dates <- summary_data$dates[summary_data$dates$bank %in% c("Mid", "Sab", "Ger",
           "BBn", "BBs", "GB"),]
 ```
 
-
+ 
 \newpage
 
 

@@ -650,8 +650,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_transform(loc.cf,crs = 32620)
           loc.cf <- as(loc.cf,"Spatial")
           #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32620)[2]$proj4string)
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
-          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32620)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32620)
         }  
         
         if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
@@ -666,21 +666,20 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
         
-        if(exists("bound.poly.surv.sf")) {
-          loc_sf <- st_as_sf(loc)
-          out <- loc_sf %>% mutate(
+        if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
+          out <- loc.sf %>% mutate(
             intersection = as.integer(st_intersects(geometry, bound.poly.surv.sf)))
           # check for locations outside the domain
           if(any(is.na(out$intersection))) { # need to expand poly
             message("bound.poly.surv.sp expanded to accomodate stations outside domain for spatial modelling purposes.
-                    These are likely extras. Please make sure you're ok with this!")
+                    These are likely due to extras. Please make sure you're ok with this!")
             
             pts_to_add <- out[is.na(out$intersection),]
             poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 1000)
-            plot(bound.poly.surv.sf)
-            plot(loc_sf, add=T)
-            plot(pts_to_add, add=T)
-            plot(poly_to_add, add=T)
+            # plot(bound.poly.surv.sf)
+            # plot(loc.sf, add=T)
+            # plot(pts_to_add, add=T)
+            # plot(poly_to_add, add=T)
             
             bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
             bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
@@ -1361,7 +1360,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     #Do we want to plot the survey?
     if(any(plots %in% "Survey"))
     {
-      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
+      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 8.5,res=420,bg = "transparent")
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
@@ -2339,9 +2338,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% gsub(x=banks[i], "Ice", ""))$MC_reg
       if(banks[i] %in% spat.name) mc <- subset(fish.reg, year == yr & Bank %in% unique(spat.names$bank[spat.names$label == banks[i]]))$MC_reg
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
+      if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$w.yst)) {
+        survey.obj[[banks[i]]]$shf.dat$w.yst <- survey.obj[[banks[i]]]$shf.dat$w.yst[,-which(names(survey.obj[[banks[i]]]$shf.dat$w.yst) == "years")]
+      }
+      if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$n.yst)) {
+        survey.obj[[banks[i]]]$shf.dat$n.yst <- survey.obj[[banks[i]]]$shf.dat$n.yst[,-which(names(survey.obj[[banks[i]]]$shf.dat$n.yst) == "years")]
+      }
       if(banks[i] != "Ger") 
       {
-        browser()
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
         # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
         # but wanted to look at the 2015 data for example).
@@ -2370,7 +2374,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       # Using the lined surevye object for German bank...
       if(banks[i] == "Ger") 
       {
-        browser()
+        if("years" %in% colnames(lined.survey.obj$shf.dat$w.yst)) {
+          lined.survey.obj$shf.dat$w.yst <- lined.survey.obj$shf.dat$w.yst[,-which(colnames(lined.survey.obj$shf.dat$w.yst) == "years")]
+        }
+        if("years" %in% colnames(lined.survey.obj$shf.dat$n.yst)) {
+          lined.survey.obj$shf.dat$n.yst <- lined.survey.obj$shf.dat$n.yst[,-which(colnames(lined.survey.obj$shf.dat$n.yst) == "years")]
+        }
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
         # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
         # but wanted to look at the 2015 data for example).
