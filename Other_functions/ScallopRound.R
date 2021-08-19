@@ -46,12 +46,13 @@ ScallopRound <- function(x, width=3){
     for(i in 1:length(lvls)){
       digs <- width-nchar(lvls[i])
       if(i < length(lvls) &
-         (x < lvls[i] | x >=lvls[i] & x < lvls[i+1])) {
+         (x < lvls[i] | x >=lvls[i] & x < lvls[i+1]) & !is.na(x)) {
         return(formatC(x, digits=digs, format="f"))
       }
-      if(i == length(lvls)){
+      if(i == length(lvls) & !is.na(x)){
         if(x >= lvls[i]) return(formatC(x, digits=digs, format="f"))
       }
+      if(is.na(x)) return(NA)
     }
   }
 
