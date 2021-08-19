@@ -39,7 +39,7 @@ ScallopRound <- function(x, width=3){
 
 ScallopRound <- function(x, width=3){
 
-  f <- function(x, width=width){
+  f <- function(x, width){
     lvls <- 10^(1:(width-1))
     lvls <- c(0,lvls)
 
@@ -55,7 +55,7 @@ ScallopRound <- function(x, width=3){
     }
   }
 
-  purrr::map(x, f)
+  unlist(purrr::map(x, function(x) f(x, width)))
 
 }
 
