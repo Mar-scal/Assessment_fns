@@ -17,21 +17,21 @@
 
 ### single value version
 
-ScallopRound <- function(x, width=3){
-  lvls <- 10^(1:(width-1))
-  lvls <- c(0,lvls)
-
-  for(i in 1:length(lvls)){
-    digs <- width-nchar(lvls[i])
-    if(i < length(lvls) &
-       (x < lvls[i] | x >=lvls[i] & x < lvls[i+1])) {
-      return(formatC(x, digits=digs, format="f"))
-    }
-    if(i == length(lvls)){
-      if(x >= lvls[i]) return(formatC(x, digits=digs, format="f"))
-    }
-  }
-}
+# ScallopRound <- function(x, width=3){
+#   lvls <- 10^(1:(width-1))
+#   lvls <- c(0,lvls)
+#
+#   for(i in 1:length(lvls)){
+#     digs <- width-nchar(lvls[i])
+#     if(i < length(lvls) &
+#        (x < lvls[i] | x >=lvls[i] & x < lvls[i+1])) {
+#       return(formatC(x, digits=digs, format="f"))
+#     }
+#     if(i == length(lvls)){
+#       if(x >= lvls[i]) return(formatC(x, digits=digs, format="f"))
+#     }
+#   }
+# }
 
 
 #### purrr version for vector (not working)
@@ -81,29 +81,29 @@ ScallopRound <- function(x, width=3){
 # ScallopRound(c(0.00010, 0.1, 1.000, 34932, 839.428, 5.2843, 2334.0), 4)
 
 
-ScallopRound <- function(x, width=3){
-  lvls <- 10^(1:(width-1))
-  lvls <- c(0,lvls)
-
-  out <- NULL
-  for(j in 1:length(x)){
-    if(x[j] < lvls[1]){
-      digs <- width-nchar(lvls[1])
-      rounded <- formatC(x[j], digits=digs, format="f")
-    }
-    if(x[j] >= lvls[1]){
-      for(i in 1:(length(lvls)-1)){
-        digs <- width-nchar(lvls[i])
-        if(x[j] >=lvls[i] & x[j] < lvls[i+1]) {rounded <- formatC(x[j], digits=digs, format="f")}
-      }
-      if(x[j] >= lvls[length(lvls)]) {rounded <- formatC(x[j], digits=digs, format="f")}
-    }
-    out <- c(out, rounded)
-  }
-  return(out)
-}
-
-
+# ScallopRound <- function(x, width=3){
+#   lvls <- 10^(1:(width-1))
+#   lvls <- c(0,lvls)
+#
+#   out <- NULL
+#   for(j in 1:length(x)){
+#     if(x[j] < lvls[1]){
+#       digs <- width-nchar(lvls[1])
+#       rounded <- formatC(x[j], digits=digs, format="f")
+#     }
+#     if(x[j] >= lvls[1]){
+#       for(i in 1:(length(lvls)-1)){
+#         digs <- width-nchar(lvls[i])
+#         if(x[j] >=lvls[i] & x[j] < lvls[i+1]) {rounded <- formatC(x[j], digits=digs, format="f")}
+#       }
+#       if(x[j] >= lvls[length(lvls)]) {rounded <- formatC(x[j], digits=digs, format="f")}
+#     }
+#     out <- c(out, rounded)
+#   }
+#   return(out)
+# }
+#
+#
 
 
 
