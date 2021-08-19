@@ -302,7 +302,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     plot.which.bins <- extra.args$plot.which.bins
   }
   if(is.null(extra.args$plot.which.bins)) {
-    par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+    par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(0.5, 1, 0.5, 0.5))
     plot.which.bins <- 1:length(mn.tmp)
   }
 

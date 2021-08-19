@@ -1510,12 +1510,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       ############
       #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
-      if(fig == "screen") windows(15,8)
+      if(fig == "screen") windows(8,13)
       if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
-                           units="in",width = 13,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
+                           units="in",width = 8.5,height = 13,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 8.5,height = 13)
       
-      par(mfrow=c(1,2))
+      par(mfrow=c(2,1))
       shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
       
       # now the condition factor figure..
@@ -2329,7 +2329,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     {
       # This only works for the banks we have thse data for...
       #if(banks[i] %in% c("BBn" , "GBb", "GBa","GB"))
-      #{
       if(fig == "screen") windows(8.5,11)
       if(fig == "png") png(paste(plot.dir,"breakdown-",(yr),".png",sep=""),units="in",
                            width = 8.5,height = 11,res=420,bg = "transparent")
@@ -2339,10 +2338,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] %in% spat.name) mc <- subset(fish.reg, year == yr & Bank %in% unique(spat.names$bank[spat.names$label == banks[i]]))$MC_reg
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
       if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$w.yst)) {
-        survey.obj[[banks[i]]]$shf.dat$w.yst <- survey.obj[[banks[i]]]$shf.dat$w.yst[,-which(names(survey.obj[[banks[i]]]$shf.dat$w.yst) == "years")]
+        survey.obj[[banks[i]]]$shf.dat$w.yst <- survey.obj[[banks[i]]]$shf.dat$w.yst[,-which(colnames(survey.obj[[banks[i]]]$shf.dat$w.yst) == "years")]
       }
       if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$n.yst)) {
-        survey.obj[[banks[i]]]$shf.dat$n.yst <- survey.obj[[banks[i]]]$shf.dat$n.yst[,-which(names(survey.obj[[banks[i]]]$shf.dat$n.yst) == "years")]
+        survey.obj[[banks[i]]]$shf.dat$n.yst <- survey.obj[[banks[i]]]$shf.dat$n.yst[,-which(colnames(survey.obj[[banks[i]]]$shf.dat$n.yst) == "years")]
       }
       if(banks[i] != "Ger") 
       {

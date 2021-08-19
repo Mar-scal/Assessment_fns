@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.8.17)  17 AUG 2021 18:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.8.17)  19 AUG 2021 13:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -528,8 +528,59 @@ end-pdftex.def
 File: l3backend-pdftex.def 2021-08-04 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count295
 \l__pdf_internal_box=\box62
+) (./output.aux
+
+LaTeX Warning: Label `fig:unnamed-chunk-2' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-4' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-5' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-6' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-7' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-8' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-9' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-11' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-12' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-13' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-14' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-15' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-16' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-17' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-18' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-19' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-20' multiply defined.
+
 )
-No file output.aux.
 \openout1 = `output.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 101.
@@ -581,6 +632,7 @@ Package: gettitlestring 2019/12/15 v1.6 Cleanup title references (HO)
 LaTeX Info: Redefining \ref on input line 101.
 LaTeX Info: Redefining \pageref on input line 101.
 LaTeX Info: Redefining \nameref on input line 101.
+(./output.out) (./output.out)
 \@outlinefile=\write3
 \openout3 = `output.out'.
 
@@ -655,7 +707,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 103
 
 (c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/amsfonts/umsb.fd
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
-)
+) (./output.toc)
 \tf@toc=\write4
 \openout4 = `output.toc'.
 
@@ -664,221 +716,479 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 {c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-var/fonts/map/pdftex/updmap/pdf
 tex.map}] [2]
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 1
-30.
+29.
 (c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [3]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/surv
-ey_strata.png, id=45, 794.97pt x 614.295pt>
+ey_strata.png, id=58, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 survey_strata.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/survey_strata.png  used on input line 165.
+ry/test_figures/Mid/survey_strata.png  used on input line 176.
 (pdftex.def)             Requested size: 422.78772pt x 326.6996pt.
 [4pdfTeX warning (ext4): destination with the same identifier (name{figure.1}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.173 \newpage
+l.184 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/survey_strata.png>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 184.
+(Font)              <10> on input line 195.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 184.
+(Font)              <7> on input line 195.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 184.
+(Font)              <5> on input line 195.
+[5pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
+as been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.222 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{table.2}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.222 \newpage
+              ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/abun
-dance_ts.png, id=56, 614.295pt x 794.97pt>
+dance_ts.png, id=75, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 abundance_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/abundance_ts.png  used on input line 197.
-(pdftex.def)             Requested size: 375.8067pt x 486.3381pt.
-[5pdfTeX warning (ext4): destination with the same identifier (name{table.1}) h
-as been already used, duplicate ignored
+ry/test_figures/Mid/abundance_ts.png  used on input line 226.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[6pdfTeX warning (ext4): destination with the same identifier (name{figure.2}) 
+has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.203 
-      ] [6pdfTeX warning (ext4): destination with the same identifier (name{fig
-ure.2}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.205 \newpage
+l.234 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/biom
-ass_ts.png, id=71, 614.295pt x 794.97pt>
+ass_ts.png, id=83, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 biomass_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/biomass_ts.png  used on input line 224.
-(pdftex.def)             Requested size: 375.8067pt x 486.3381pt.
-[7pdfTeX warning (ext4): destination with the same identifier (name{table.2}) h
-as been already used, duplicate ignored
+ry/test_figures/Mid/biomass_ts.png  used on input line 238.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[7pdfTeX warning (ext4): destination with the same identifier (name{figure.3}) 
+has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.230 
-      ] [8pdfTeX warning (ext4): destination with the same identifier (name{fig
-ure.3}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.232 \newpage
+l.246 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/SHF.
-png, id=85, 614.295pt x 794.97pt>
+png, id=92, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 SHF.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/SHF.png  used on input line 241.
+ry/test_figures/Mid/SHF.png  used on input line 255.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[9pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
+[8pdfTeX warning (ext4): destination with the same identifier (name{figure.4}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.249 \newpage
+l.263 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
-igures/Mid/SHF.png>] [10]
+igures/Mid/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/MWSH
-_and_CF_ts.png, id=102, 939.51pt x 614.295pt>
+_and_CF_ts.png, id=101, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 MWSH_and_CF_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/MWSH_and_CF_ts.png  used on input line 262.
-(pdftex.def)             Requested size: 585.386pt x 382.75238pt.
-[11
-
-pdfTeX warning (ext4): destination with the same identifier (name{figure.5}) ha
-s been already used, duplicate ignored
+ry/test_figures/Mid/MWSH_and_CF_ts.png  used on input line 272.
+(pdftex.def)             Requested size: 340.22537pt x 520.34471pt.
+[9] [10pdfTeX warning (ext4): destination with the same identifier (name{figure
+.5}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.269 \end{landscape}
-                      <y:/Offshore/Assessment/2021/Presentations/Survey_summary
-/test_figures/Mid/MWSH_and_CF_ts.png>] [12
-
-]
+l.280 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Mid/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/PR-s
-patial.png, id=115, 794.97pt x 614.295pt>
+patial.png, id=114, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 PR-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/PR-spatial.png  used on input line 300.
-(pdftex.def)             Requested size: 352.3231pt x 272.24966pt.
+ry/test_figures/Mid/PR-spatial.png  used on input line 306.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[11pdfTeX warning (ext4): destination with the same identifier (name{table.3}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.314 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.6}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.314 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Mid/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/Rec-
-spatial.png, id=116, 794.97pt x 614.295pt>
+spatial.png, id=124, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 Rec-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/Rec-spatial.png  used on input line 309.
-(pdftex.def)             Requested size: 352.3231pt x 272.24966pt.
-[13pdfTeX warning (ext4): destination with the same identifier (name{table.3}) 
-has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.315 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-6}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.315 
-       <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/M
-id/PR-spatial.png>]
+ry/test_figures/Mid/Rec-spatial.png  used on input line 318.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/FR-s
-patial.png, id=127, 794.97pt x 614.295pt>
+patial.png, id=125, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 FR-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/FR-spatial.png  used on input line 318.
-(pdftex.def)             Requested size: 352.3231pt x 272.24966pt.
-[14pdfTeX warning (ext4): destination with the same identifier (name{figure.7})
+ry/test_figures/Mid/FR-spatial.png  used on input line 327.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[12pdfTeX warning (ext4): destination with the same identifier (name{figure.7})
  has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.327 T
-       he spatial distribution of condition factor is shown in Figure 9, and...
-pdfTeX warning (ext4): destination with the same identifier (name{figure.8}) ha
-s been already used, duplicate ignored
+l.335 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.8}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.327 T
-       he spatial distribution of condition factor is shown in Figure 9, and...
- <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/Rec
--spatial.png> <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_fi
-gures/Mid/FR-spatial.png>]
+l.335 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Mid/Rec-spatial.png> <y:/Offshore/Assessment/2021/Presentations/Survey_s
+ummary/test_figures/Mid/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/CF-s
-patial.png, id=137, 794.97pt x 614.295pt>
+patial.png, id=135, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 CF-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/CF-spatial.png  used on input line 347.
-(pdftex.def)             Requested size: 352.3231pt x 272.24966pt.
+ry/test_figures/Mid/CF-spatial.png  used on input line 357.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[13pdfTeX warning (ext4): destination with the same identifier (name{table.4}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.365 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.9}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.365 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Mid/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/MC-s
-patial.png, id=138, 794.97pt x 614.295pt>
+patial.png, id=145, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 MC-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/MC-spatial.png  used on input line 356.
-(pdftex.def)             Requested size: 352.3231pt x 272.24966pt.
-[15pdfTeX warning (ext4): destination with the same identifier (name{table.4}) 
-has been already used, duplicate ignored
+ry/test_figures/Mid/MC-spatial.png  used on input line 369.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[14pdfTeX warning (ext4): destination with the same identifier (name{figure.10}
+) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.362 
-      pdfTeX warning (ext4): destination with the same identifier (name{figure.
-9}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.362 
-       <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/M
-id/CF-spatial.png>] [16pdfTeX warning (ext4): destination with the same identif
-ier (name{figure.10}) has been already used, duplicate ignored
-<argument> ...shipout:D \box_use:N \l_shipout_box 
-                                                  \__shipout_drop_firstpage_...
-l.363 \newpage
+l.377 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/Clap
-per_per_ts.png, id=152, 614.295pt x 794.97pt>
+per_per_ts.png, id=153, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
 Clapper_per_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
-ry/test_figures/Mid/Clapper_per_ts.png  used on input line 387.
-(pdftex.def)             Requested size: 375.8067pt x 486.3381pt.
-[17pdfTeX warning (ext4): destination with the same identifier (name{table.5}) 
+ry/test_figures/Mid/Clapper_per_ts.png  used on input line 401.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[15pdfTeX warning (ext4): destination with the same identifier (name{table.5}) 
 has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.393 
-      ] [18pdfTeX warning (ext4): destination with the same identifier (name{fi
+l.407 
+      ] [16pdfTeX warning (ext4): destination with the same identifier (name{fi
 gure.11}) has been already used, duplicate ignored
 <argument> ...shipout:D \box_use:N \l_shipout_box 
                                                   \__shipout_drop_firstpage_...
-l.395 \newpage
+l.409 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/Clapper_per_ts.png>]
-!pdfTeX error: pdflatex.exe (file y:/Offshore/Assessment/2021/Presentations/Sur
-vey_summary/test_figures/Mid/breakdown-2021.png): reading image file failed
- ==> Fatal error occurred, no output PDF file produced!
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/brea
+kdown-2021.png, id=168, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
+/breakdown-2021.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
+breakdown-2021.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Mid/breakdown-2021.png  used on input line 418.
+(pdftex.def)             Requested size: 375.8067pt x 486.3381pt.
+[17pdfTeX warning (ext4): destination with the same identifier (name{figure.12}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.427 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Mid/breakdown-2021.png>] [18] [19]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/surv
+ey_strata.png, id=202, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/survey_strata.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+survey_strata.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/survey_strata.png  used on input line 483.
+(pdftex.def)             Requested size: 422.78772pt x 326.6996pt.
+[20pdfTeX warning (ext4): destination with the same identifier (name{figure.13}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.491 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/survey_strata.png>] [21pdfTeX warning (ext4): destination with the s
+ame identifier (name{table.6}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.529 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{table.7}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.529 \newpage
+              ]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/abun
+dance_ts.png, id=219, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/abundance_ts.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+abundance_ts.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/abundance_ts.png  used on input line 533.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[22pdfTeX warning (ext4): destination with the same identifier (name{figure.14}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.541 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/abundance_ts.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/biom
+ass_ts.png, id=227, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/biomass_ts.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+biomass_ts.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/biomass_ts.png  used on input line 545.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[23pdfTeX warning (ext4): destination with the same identifier (name{figure.15}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.553 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/biomass_ts.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/SHF.
+png, id=235, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/SHF.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+SHF.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/SHF.png  used on input line 562.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[24pdfTeX warning (ext4): destination with the same identifier (name{figure.16}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.570 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/SHF.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/MWSH
+_and_CF_ts.png, id=244, 614.295pt x 939.51pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/MWSH_and_CF_ts.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+MWSH_and_CF_ts.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/MWSH_and_CF_ts.png  used on input line 579.
+(pdftex.def)             Requested size: 340.22537pt x 520.34471pt.
+[25] [26pdfTeX warning (ext4): destination with the same identifier (name{figur
+e.17}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.587 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/PR-s
+patial.png, id=258, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/PR-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+PR-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/PR-spatial.png  used on input line 613.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[27pdfTeX warning (ext4): destination with the same identifier (name{table.8}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.621 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.18}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.621 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/PR-spatial.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/Rec-
+spatial.png, id=268, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/Rec-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+Rec-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/Rec-spatial.png  used on input line 625.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/FR-s
+patial.png, id=269, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/FR-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+FR-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/FR-spatial.png  used on input line 634.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[28pdfTeX warning (ext4): destination with the same identifier (name{figure.19}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.642 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.20}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.642 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/Rec-spatial.png> <y:/Offshore/Assessment/2021/Presentations/Survey_s
+ummary/test_figures/Sab/FR-spatial.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/CF-s
+patial.png, id=279, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/CF-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+CF-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/CF-spatial.png  used on input line 664.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[29pdfTeX warning (ext4): destination with the same identifier (name{table.9}) 
+has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.672 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name
+{figure.21}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.672 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/CF-spatial.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/MC-s
+patial.png, id=288, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/MC-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+MC-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/MC-spatial.png  used on input line 676.
+(pdftex.def)             Requested size: 328.83894pt x 254.10281pt.
+[30pdfTeX warning (ext4): destination with the same identifier (name{figure.22}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.684 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/MC-spatial.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/Clap
+per_per_ts.png, id=297, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/Clapper_per_ts.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+Clapper_per_ts.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/Clapper_per_ts.png  used on input line 708.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[31pdfTeX warning (ext4): destination with the same identifier (name{table.10})
+ has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.714 
+      ] [32pdfTeX warning (ext4): destination with the same identifier (name{fi
+gure.23}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.716 \newpage
+               <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
+igures/Sab/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/brea
+kdown-2021.png, id=312, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
+/breakdown-2021.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
+breakdown-2021.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2021/Presentations/Survey_summa
+ry/test_figures/Sab/breakdown-2021.png  used on input line 725.
+(pdftex.def)             Requested size: 375.8067pt x 486.3381pt.
+[33pdfTeX warning (ext4): destination with the same identifier (name{figure.24}
+) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.734 \end{document}
+                     <y:/Offshore/Assessment/2021/Presentations/Survey_summary/
+test_figures/Sab/breakdown-2021.png>] [34] (./output.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+Package rerunfilecheck Info: File `output.out' has not changed.
+(rerunfilecheck)             Checksum: 62A07F37F13BC60425DFE84F6095127C;318.
+ ) 
+Here is how much of TeX's memory you used:
+ 11439 strings out of 480502
+ 187097 string characters out of 5897913
+ 486386 words of memory out of 5000000
+ 28784 multiletter control sequences out of 15000+600000
+ 452105 words of font info for 67 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 60i,11n,66p,616b,332s stack positions out of 5000i,500n,10000p,200000b,80000s
+pdfTeX warning (dest): name{toc} has been referenced but does not exist, repl
+aced by a fixed one
+
+{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.
+enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-
+ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/
+lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/
+public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts
+/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist
+/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texm
+f-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTe
+X/texmf-dist/fonts/type1/public/lm/lmro10.pfb>
+Output written on output.pdf (34 pages, 9459462 bytes).
+PDF statistics:
+ 380 PDF objects out of 1000 (max. 8388607)
+ 280 compressed objects within 3 object streams
+ 105 named destinations out of 1000 (max. 500000)
+ 145 words of extra memory for PDF output out of 10000 (max. 10000000)
+

@@ -3,8 +3,8 @@ rmarkdown_file <- "parameterised_report.Rmd"
 print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
-           "Mid", "Sab"#, #"Ger",
-          # "BBs",
+           "Mid", "Sab"#, "Ger",
+         #  "BBs",
           #"BBn", "GB"#, "GBa", "GBb"
            )
 banknum <- 1:length(banks)

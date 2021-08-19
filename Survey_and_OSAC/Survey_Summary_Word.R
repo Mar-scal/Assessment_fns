@@ -14,6 +14,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   require(lubridate)
   require(plyr)
   source(paste0(direct_fns, "Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
+  source(paste0(direct_fns, "Other_functions/ScallopRound.r"))
   
   direct.tmp <- direct
   load(data)
@@ -488,7 +489,7 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
     }
 
 spatial.sum.stats.c <- as.data.frame(rbind(summary(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year == year])[c(1,3,4,6)]))
-spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) round(x, 2))))
+spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) ScallopRound(x, 3))))
 spatial.sum.stats.c$bank <- banks[i]
 spatial.sum.stats.c$year <- year
 
@@ -521,7 +522,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
     ltmtest <- ifelse(cf$thisyear > cf$LTM, "greater than",
                       ifelse(cf$thisyear < cf$LTM, "less than", NA))
 
-    cf$nearLTM <- paste0(ltmtest, " (LTM=", round(cf$LTM,2), ")")
+    cf$nearLTM <- paste0(ltmtest, " (LTM=", ScallopRound(cf$LTM,3), ")")
 
     mwshcf <- rbind(data.frame(variable=c("fittedmw100mm"),
                                lastyear=NA,
@@ -574,7 +575,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                      bank=banks[i])
 
     spatial.sum.stats.m <- as.data.frame(rbind(summary(CF.current[[banks[i]]]$meat.count)[c(1,3,4,6)]))
-    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) round(x, 2))))
+    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) ScallopRound(x, 3))))
     spatial.sum.stats.m$bank <- banks[i]
     spatial.sum.stats.m$year <- year
 
@@ -867,10 +868,10 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
 
   #print(bankcheck)
   highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF"),c(2,3,4)] <-
-    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 
   highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
-    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 1))
+    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 
 
   print(sizes)
