@@ -430,23 +430,33 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         os.nafo <- os.nafo.df
       }
       
+      bbox <- st_bbox(trip.log)
+      
+      if(as.numeric(st_area(st_as_sfc(bbox)))==0) {
+        bbox <- st_transform(st_as_sfc(bbox), 32620)
+        bbox <- st_buffer(bbox, 1)
+        bbox <- st_transform(bbox, st_crs(trip.log)$epsg)
+        bbox <- st_bbox(bbox)
+      }
       # Now make the plot for each trip with all the points.  If a point falls outside the survey domain we give it a different sympbol and color
-      if(is.null(reg.2.plot)) pr <- data.frame(y=c(st_bbox(trip.log)$ymin, st_bbox(trip.log)$ymax), 
-                                               x=c(st_bbox(trip.log)$xmin, st_bbox(trip.log)$xmax),
-                                               crs=st_crs(trip.log)$epsg)
+      if(is.null(reg.2.plot)) pr <- list(y = c(bbox$ymin, bbox$ymax),
+                                         x = c(bbox$xmin, bbox$xmax),
+                                         crs=st_crs(trip.log)$epsg)
       
       # This assumes that you are asking to plot a certain region that pecjector understands (e.g. "GBa","GB","SS", etc) or
       # a dataframe that looks like this...data.frame(y = c(40,46),x = c(-68,-55),proj_sys = "+init=epsg:4326")
       if(!is.null(reg.2.plot)) pr <- reg.2.plot
       
+      if(repo=="local") repo.pec <- direct_fns
+      if(repo=="github") repo.pec <- repo
       # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
       if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
       {
-        pect_plot <- pecjector(area = trip.area, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo,direct=direct, 
+        pect_plot <- pecjector(area = trip.area, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo.pec,direct=direct, 
                                direct_fns=direct_fns)
       } 
       else {
-        pect_plot <- pecjector(area = pr, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo="github",direct=direct, 
+        pect_plot <- pecjector(area = pr, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo.pec,direct=direct, 
                                direct_fns=direct_fns)
       }
       
