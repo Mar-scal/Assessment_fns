@@ -13,6 +13,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   options(scipen=999)
   require(lubridate)
   require(plyr)
+  require(tidyverse)
+  require(ggplot2)
   source(paste0(direct_fns, "Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
   source(paste0(direct_fns, "Other_functions/ScallopRound.r"))
   
@@ -341,7 +343,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
 
     spatial.sum.stats.b <- t(apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, c("pre", "rec", "com")], 2, summary))[,c(1,3,4,6)]
-    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) round(x, 2)))
+    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) ScallopRound(x, 3)))
     spatial.sum.stats.b$bank <- banks[i]
     spatial.sum.stats.b$year <- year
 

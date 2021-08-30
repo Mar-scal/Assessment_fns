@@ -1,49 +1,49 @@
 \contentsline {section}{\numberline {1}Survey overview}{2}{section.1}%
 \contentsline {section}{\numberline {2}Middle Bank}{3}{section.2}%
-\contentsline {subsection}{\numberline {2.1}Survey Design}{4}{subsection.2.1}%
+\contentsline {subsection}{\numberline {2.1}Survey Design \& Analysis}{4}{subsection.2.1}%
 \contentsline {subsection}{\numberline {2.2}Abundance \& biomass time series summary}{5}{subsection.2.2}%
 \contentsline {subsection}{\numberline {2.3}Shell height frequencies}{8}{subsection.2.3}%
 \contentsline {subsection}{\numberline {2.4}Meat weight-shell height \& condition}{9}{subsection.2.4}%
 \contentsline {subsection}{\numberline {2.5}Spatial distribution maps}{11}{subsection.2.5}%
-\contentsline {subsection}{\numberline {2.6}Clapper time series}{15}{subsection.2.6}%
-\contentsline {subsection}{\numberline {2.7}Biomass, meat count, and shell height relationship}{17}{subsection.2.7}%
+\contentsline {subsection}{\numberline {2.6}Clapper time series}{16}{subsection.2.6}%
+\contentsline {subsection}{\numberline {2.7}Biomass, meat count, and shell height relationship}{18}{subsection.2.7}%
 \contentsline {section}{\numberline {3}Sable Bank}{19}{section.3}%
-\contentsline {subsection}{\numberline {3.1}Survey Design}{20}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.1}Survey Design \& Analysis}{20}{subsection.3.1}%
 \contentsline {subsection}{\numberline {3.2}Abundance \& biomass time series summary}{21}{subsection.3.2}%
 \contentsline {subsection}{\numberline {3.3}Shell height frequencies}{24}{subsection.3.3}%
 \contentsline {subsection}{\numberline {3.4}Meat weight-shell height \& condition}{25}{subsection.3.4}%
 \contentsline {subsection}{\numberline {3.5}Spatial distribution maps}{27}{subsection.3.5}%
-\contentsline {subsection}{\numberline {3.6}Clapper time series}{31}{subsection.3.6}%
-\contentsline {subsection}{\numberline {3.7}Biomass, meat count, and shell height relationship}{33}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.6}Clapper time series}{32}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Biomass, meat count, and shell height relationship}{34}{subsection.3.7}%
 \contentsline {section}{\numberline {4}German Bank}{35}{section.4}%
-\contentsline {subsection}{\numberline {4.1}Survey Design}{36}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.1}Survey Design \& Analysis}{36}{subsection.4.1}%
 \contentsline {subsection}{\numberline {4.2}Abundance \& biomass time series summary}{37}{subsection.4.2}%
 \contentsline {subsection}{\numberline {4.3}Shell height frequencies}{40}{subsection.4.3}%
 \contentsline {subsection}{\numberline {4.4}Meat weight-shell height \& condition}{41}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}Spatial distribution maps}{43}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Clapper time series}{47}{subsection.4.6}%
-\contentsline {subsection}{\numberline {4.7}Biomass, meat count, and shell height relationship}{49}{subsection.4.7}%
+\contentsline {subsection}{\numberline {4.6}Clapper time series}{48}{subsection.4.6}%
+\contentsline {subsection}{\numberline {4.7}Biomass, meat count, and shell height relationship}{50}{subsection.4.7}%
 \contentsline {section}{\numberline {5}Browns Bank South}{51}{section.5}%
-\contentsline {subsection}{\numberline {5.1}Survey Design}{52}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.1}Survey Design \& Analysis}{52}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Abundance \& biomass time series summary}{53}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Shell height frequencies}{56}{subsection.5.3}%
 \contentsline {subsection}{\numberline {5.4}Meat weight-shell height \& condition}{57}{subsection.5.4}%
 \contentsline {subsection}{\numberline {5.5}Spatial distribution maps}{59}{subsection.5.5}%
-\contentsline {subsection}{\numberline {5.6}Clapper time series}{63}{subsection.5.6}%
-\contentsline {subsection}{\numberline {5.7}Biomass, meat count, and shell height relationship}{65}{subsection.5.7}%
+\contentsline {subsection}{\numberline {5.6}Clapper time series}{64}{subsection.5.6}%
+\contentsline {subsection}{\numberline {5.7}Biomass, meat count, and shell height relationship}{66}{subsection.5.7}%
 \contentsline {section}{\numberline {6}Browns Bank North}{67}{section.6}%
-\contentsline {subsection}{\numberline {6.1}Survey Design}{68}{subsection.6.1}%
+\contentsline {subsection}{\numberline {6.1}Survey Design \& Analysis}{68}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Abundance \& biomass time series summary}{69}{subsection.6.2}%
 \contentsline {subsection}{\numberline {6.3}Shell height frequencies}{72}{subsection.6.3}%
 \contentsline {subsection}{\numberline {6.4}Meat weight-shell height \& condition}{73}{subsection.6.4}%
 \contentsline {subsection}{\numberline {6.5}Spatial distribution maps}{75}{subsection.6.5}%
-\contentsline {subsection}{\numberline {6.6}Clapper time series}{79}{subsection.6.6}%
-\contentsline {subsection}{\numberline {6.7}Biomass, meat count, and shell height relationship}{81}{subsection.6.7}%
+\contentsline {subsection}{\numberline {6.6}Clapper time series}{80}{subsection.6.6}%
+\contentsline {subsection}{\numberline {6.7}Biomass, meat count, and shell height relationship}{82}{subsection.6.7}%
 \contentsline {section}{\numberline {7}Georges Bank (monitoring stations)}{83}{section.7}%
-\contentsline {subsection}{\numberline {7.1}Survey Design}{84}{subsection.7.1}%
+\contentsline {subsection}{\numberline {7.1}Survey Design \& Analysis}{84}{subsection.7.1}%
 \contentsline {subsection}{\numberline {7.2}Abundance \& biomass time series summary}{85}{subsection.7.2}%
 \contentsline {subsection}{\numberline {7.3}Shell height frequencies}{88}{subsection.7.3}%
 \contentsline {subsection}{\numberline {7.4}Meat weight-shell height \& condition}{90}{subsection.7.4}%
 \contentsline {subsection}{\numberline {7.5}Spatial distribution maps}{92}{subsection.7.5}%
-\contentsline {subsection}{\numberline {7.6}Clapper time series}{96}{subsection.7.6}%
-\contentsline {subsection}{\numberline {7.7}Biomass, meat count, and shell height relationship}{98}{subsection.7.7}%
+\contentsline {subsection}{\numberline {7.6}Clapper time series}{97}{subsection.7.6}%
+\contentsline {subsection}{\numberline {7.7}Biomass, meat count, and shell height relationship}{99}{subsection.7.7}%
