@@ -11,7 +11,8 @@
 # June-July 2017:  Added code so that the directory would be created automatically and various other changes so code works with updated results and new bins...
 # July 2018:  Minor updates to account for the possibility of having multiple strata for a bank, updated to use the most recent strata...
 yr = as.numeric(format(Sys.time(), "%Y"))  # 
-direct = "C:/Documents/Offshore scallop/Assessment/"
+direct = "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Documents/Assessment_fns/"
 database = "ptran" # Set this to your database, needed for a few called to get the bathymetry from ScallopMap. You'll also
 # need to set your username/password to access the database, see the ScallopMap function calls.
 library(viridis) # for colors...
@@ -20,18 +21,19 @@ require(RColorBrewer)
 # Load the survey data.  If you've compiled all the surveys use this...
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_LE13.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
-source(paste(direct,"Assessment_fns/Maps/ScallopMap.r",sep=""))
+source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-# bnk <- c("BBn")#,"Ger","Sab","Mid","GB", "Ban", "BanIce") #"BBs", 
-#          "GBa", "GBb")
-bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
+bnk <- #c("BBn","Ger","Sab","Mid",
+  c("GB", "BBs")#, "Ban", "BanIce"
+         #"GBa", "GBb")
+#bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
@@ -39,8 +41,7 @@ mc.lab <-    expression(paste("MC:",bgroup("(",frac(N,"500 g"),")")))
 
 cf.data2 <- cf.data
 
-for(i in 1:length(bnk))
-{
+for(i in 1:length(bnk)){
   print(bnk[i])
   # Set up the directory to save the figures.
   # Get the plot directory
@@ -684,7 +685,7 @@ dev.off()
 print("8")
 
 ### spatial numbers by tow
-baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
+baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -713,8 +714,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
 
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -765,8 +766,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -816,8 +817,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -869,8 +870,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
@@ -921,8 +922,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -972,8 +973,8 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
@@ -1036,7 +1037,7 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("G
       with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
     }
     
-    addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+    #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
     
     dev.off()
   }
@@ -1076,7 +1077,7 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("G
       with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
     }
     
-    addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+    #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
     
     dev.off()
   }
@@ -1275,7 +1276,7 @@ dev.off()
 ################
 
 # Set up a color palette even I can see for isobaths, the begin-end sets the hue range should be blue
-baths <- rev(viridis(length(seq(40,140,by=10)),option="plasma"))
+baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 #plot(1:10,col=baths[9],type="o")
 # Nice plot of the GBa tow locations with accompanying survey data.
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations.png",sep=""),width=11,height=8.5, units="in", res=400)
@@ -1498,12 +1499,12 @@ if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
   df[2,2]<- clap.year$NR / sum(bank.survey.info$towable_area)*10^6
   df[3,2]  <- clap.year$NPR / sum(bank.survey.info$towable_area)*10^6
 
-} # end if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
-
+} # end if(bnk[i] %in%  c("?viSab","BBs","GBa","BBn","GBb"))
+browser()
 if(bnk[i] %in% c("Ger","Mid","GB"))
 {
   # everythign alive
-  df[1:length(row.names),1] <- as.numeric(this.year[,row.names])
+  df[1:length(row.names),1] <- as.numeric(this.year[,which(names(this.year) %in% row.names)])
   # Get clappers
 
   df[1,2]  <- clap.year$N
