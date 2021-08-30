@@ -8,8 +8,8 @@ reportyear <- 2021
 #################################################
 ### if you need to re-create the summary.RData
 
-#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/"
-direct_fns <- "C:/Documents/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+#direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 

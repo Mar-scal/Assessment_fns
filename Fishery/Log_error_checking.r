@@ -449,6 +449,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       
       if(repo=="local") repo.pec <- direct_fns
       if(repo=="github") repo.pec <- repo
+
       # Now make the plot, add the points, if there is only 1 point the bounding box method doesn't work!
       if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
       {
