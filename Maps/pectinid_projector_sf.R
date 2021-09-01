@@ -129,10 +129,11 @@
 ###  c: fill        The fill of the object, defaults to NA so transparent
 
 ###  d: color       The color of the lines, defaults to 'grey'
+#### e: facet       For the custom object you can facet wrap based on any of the variables in the custom object.  Defaults to missing
 ##########          The full call for the simple custom plots would be custom = list(obj = foo,size = 1, fill = 'pink',color = 'yellow')
 ##########          Or if not an object in R custom = list(obj = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes",size =1 , colour = 'yellow',fill = 'pink')
 
-###  e: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
+###  f: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
 ######            What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
 ######            scale = 'c' has same behaviour as NULL.  scale = 'discrete' (really anything but NULL or "continuous" how it's coded)
 ######            then you get a discrete with these options list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
@@ -158,7 +159,7 @@
 #         scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 ########## If you had an custom layer, a full call to that would be to add this to the above, scale behaves same as INLA scale
-#         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', 
+#         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', facet = 'column name from foo',
 #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 
@@ -169,7 +170,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
-                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
+                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey',  facet = 'column name from foo',
                      #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
@@ -695,7 +696,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
         # Figure out what this file was saved as
-        temp2 <- tempfile
+        temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
 
@@ -784,6 +785,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(any(layers == 'survey')) 
   #sf::st_use_s2(FALSE)
   # Here you can add a custom sp, sf, PBSmapping object or shapefile here
+ 
   if(length(add_custom) != 0)
   {
     
@@ -866,6 +868,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Just to make logic easier later, if either cfd or cfc exists we make this fancy.custom object which will tell the plot
     # not to make the simple custom plot
     if(exists('cfc') || exists('cfd')) fancy.custom <- "I'm fancy!"
+    # If we want to facet_wrap this we do it..
+    if(!is.null(add_custom$facet)) fac.et <- "It's a wrap"
     #
   } # end  if(!is.null(add_custom))
   
@@ -1055,8 +1059,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("cfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=layer), colour = NA) + cfc 
     if(exists("cfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=brk), colour = NA)  + cfd  
     # If we just have a simple custom plot we add here...
-    
     if(exists("custom") & !exists("fancy.custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=phil, color = colr, size= size)
+    if(exists("custom") & exists("fac.et")) pect_plot <- pect_plot + facet_wrap(c(add_custom$facet))
     if(exists("final.strata") && add_layer$survey[2] == "outline") pect_plot <- pect_plot + geom_sf(data=final.strata, fill=NA) 
     if(exists("nafo.divs")) pect_plot <- pect_plot + geom_sf(data=nafo.divs, fill=NA)
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
