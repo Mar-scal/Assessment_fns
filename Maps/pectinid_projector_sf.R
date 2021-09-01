@@ -596,6 +596,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         offshore.spa <- combo.shp(temp2,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         # Because of issues with the polygons immediately needed to turn it into a multilinestring to avoid bad polygons, works a charm after that...
+        if(any(st_is_empty(offshore.spa))) message(paste0("removed ", offshore.spa[st_is_empty(offshore.spa),]$ID, " because they were empty"))
+        offshore.spa <- offshore.spa[!st_is_empty(offshore.spa),]
         offshore.spa <- st_cast(offshore.spa,to= "MULTILINESTRING")
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         offshore.spa <- st_make_valid(offshore.spa)
@@ -695,7 +697,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
         # Figure out what this file was saved as
-        temp2 <- tempfile
+        temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
 
