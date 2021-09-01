@@ -6,7 +6,9 @@
 scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct, direct_fns,
                                type="csv", 
                                cruise, bank, survey_name, nickname=NULL,
-                               spatialplot=TRUE) {
+                               spatialplot=TRUE,
+                               un=NULL,
+                               pwd.ID=NULL) {
   icetow <- NULL
   icehfs <- NULL
   icemwshs <- NULL
@@ -24,7 +26,8 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
   if(missing(direct_fns))
   {
-    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -165,6 +168,10 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
         message("\nThere are more tows than there are unique tow_no's. One or more of the following tows may be mislabelled:")
         print(data.frame(tows[tows$TOW_NO == names(which(table(tows$TOW_NO)>1)),]))
         
+      }
+      
+      if(any(is.na(tows$DIS_COEF_ID) | is.null(tows$DIS_COEF_ID))) {
+        message("Data missing from DIS_COEF_ID column")
       }
       
       # Are there gaps in tow numbers? If so, print the tows before and after the gap. 
@@ -434,16 +441,16 @@ Check the MGT_AREA_CD values for the following tows:")
           plot.list[[i]] <- p
         }
         
-        if(!is.null(nickname)) {
-          pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
-          print(plot.list)
-          dev.off()
-        }
-        if(is.null(nickname)) {
-          pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks.pdf"),onefile=T,width=22,height=12)
-          print(plot.list)
-          dev.off()
-        }
+        # if(!is.null(nickname)) {
+        #   pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
+        #   print(plot.list)
+        #   dev.off()
+        # }
+        # if(is.null(nickname)) {
+        #   pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks.pdf"),onefile=T,width=22,height=12)
+        #   print(plot.list)
+        #   dev.off()
+        # }
       }
       
       if(!is.null(icetow)) {
@@ -616,6 +623,23 @@ Check the MGT_AREA_CD values for the following tows:")
         message("The following rows have no tow number:")
         print(hfs[which(is.na(mwshs$TOW_NUM)),])
       }
+      
+      # missing sampler ID
+      if(any(is.na(mwshs$SAMPLER_ID) | is.null(mwshs$SAMPLER_ID))) {
+        message("Data missing from SAMPLER_ID column")
+      }
+      
+      if(!is.null(un) & !is.null(pwd.ID)){
+        samplers <- ScallopQuery("ROracle", un, pwd.ID, db.con="ptran", 
+                                 SQLtext = "SELECT * FROM SCALOFF.OSSAMPLERCODES")
+        
+        if(any(!unique(mwshs$SAMPLER_ID) %in% paste0(samplers$SAMPLER_ID, " - ", samplers$SAMPLER_NAME))) {
+          message("SAMPLER_ID not found in SCALOFF database. CSV contains following IDs: ")
+          message(c(unique(mwshs$SAMPLER_ID)))
+        }
+      }
+      
+      if(is.null(un) | is.null(pwd.ID)) message("Must supply un and pwd.ID to check SAMPLER_ID column against SCALOFF table")
       
       print("plotting MWSH relationships:")
       

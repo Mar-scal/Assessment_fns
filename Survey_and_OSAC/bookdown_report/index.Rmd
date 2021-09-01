@@ -2,19 +2,36 @@
 title: "Survey Summary"
 subtitle: "Spring 2019"
 author: "Scallop and Benthic Habitat Unit"
-output: bookdown::pdf_document2
+output: 
+  bookdown::pdf_document2:
+    extra_dependencies: ["float"]
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+ - \usepackage{fancyhdr}
+ - \pagestyle{fancy}
+ - \fancyfoot[CO,CE]{Spring Survey 2019}
+ - \fancyfoot[LE,RO]{\thepage}
 ---
 
-```{r, echo=F, include=F, message=F}
-reportyear <- 2019
+```{r, echo=F, message=F, warning=F}
+load("summary.Rdata")
 
-#test
-source("Y:/Offshore/Assessment_fns/Survey_and_OSAC/Survey_Summary_Word.R")
-
-Survey_Summary_Word(year=reportyear, reportseason="spring", data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"), direct="Y:/Offshore/Assessment/")
-
-summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights)
-
-save(summary_data, file = "summary.Rdata")
-
+dates <- summary_data$dates[summary_data$dates$bank %in% c("Ban", "BanIce",
+           "Mid", "Sab", "Ger",
+          "BBn", "GB"),]
 ```
+
+
+\newpage
+
+
+# Survey overview
+
+This report provides an overview of survey results. At each survey station, the 8 ft scallop dredge is towed for 10 minutes, and scallop are counted and assigned to 5mm size bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
+
+Detailed sampling occurs at a selection of the stations, where the exact heights and weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
+
+The spring survey occurred from `r min(dates$start)` to `r max(dates$end)` on Middle Bank, Sable Bank (including WEBCA stations), German Bank, and Browns Bank North, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.

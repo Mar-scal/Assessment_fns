@@ -58,7 +58,8 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
                         Please return to SurveySummary_data.r")
   if(bk=="Sab"){
     # load the PEDstrata package, note this is a locally developed package not available from R repositories
-    require(BIOSurvey2)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
+    require(BIOSurvey2)  || stop("BIOSurvey2 package required please obtain a copy and install this locally developed package")
+    require(PEDstrata)  || stop("PEDstrata package required please obtain a copy and install this locally developed package")
     require(survey)     || stop("survey package required please install package and try again")
     require(splancs)    || stop("splancs package required please install package and try again")
     # This is silly, but for the below code to work we need to increase the RS/CS by 5
@@ -77,9 +78,9 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # Create strata object for PEDstrata package, includes Strata and number of towable units in that strata.
     # I know Strata and strata.id are the same, but Domainestimates.R uses both columns, and I'm rolling with the punches here.
     HSIstrata.obj <- data.frame(Strata=areas[,1], strata.id=areas[,1], NH=areas[,2], startyear=areas[,3])[order(areas[,1]),]
-    
+  
     if(!length(unique(HSIstrata.obj$startyear))==2){
-      print("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
+      stop("Houston you have a problem. You either don't need to restratify this bank at all, and therefore shouldn't be in the survey.dat.restrat function,
   or you have to re-write this to accommmodate more than 1 restratification. Sorry that you have to go through that, cuz even doing this much was hard.
   Take a walk to clear your mind and prepare yourself for some coding!")
     }

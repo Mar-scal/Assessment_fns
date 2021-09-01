@@ -175,15 +175,15 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   ################################## Update the run log   #######################################################
   # add an entry into the run log
-  if(!file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
-  if(file.exists(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  if(!file.exists(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))) runlog <- data.frame(X=NULL, runfunction=NULL, runassigned=NULL, rundefaults=NULL)
+  if(file.exists(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))) runlog <- read.csv(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))
   runlog <- runlog[, !names(runlog) %in% "X"]
   rundate <- as.character(Sys.time())
   runfunction <- "data"
   runassigned <- paste(as.character(deparse(match.call())), collapse="")
   rundefaults <- paste(as.character(deparse(args(survey.data))), collapse="")
   runlog <- rbind(runlog, cbind(rundate, runfunction, runassigned, rundefaults))
-  write.csv(runlog, file = paste0(direct_fns, "Survey_and_OSAC/SurveySummaryRunLog.csv"))
+  write.csv(runlog, file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/SurveySummaryRunLog.csv"))
   ################################# End update the runlog #######################################################
   
   ################################### START LOAD & PRE-PROCESS DATA ############################################
@@ -376,6 +376,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
+    
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
     if(missing(direct_fns))
@@ -454,6 +455,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
   # Remove GBsummer data are ambiguous as to whether they are from GBa or GBb so remove them too...
   all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer")
+  
+  if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
   BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
@@ -564,7 +567,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # first things first, we need to grab the data for the tows that are repeats for the tows in the 2020 survey
       require(readxl)
       require(tidyverse)
-      browser()
+      
       if(bnk=="BBn") {
         repeat.list.full <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"))
         repeat.list <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"), skip = 1)
@@ -741,9 +744,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         attr(detail.poly.surv,"projection")<-"LL"
         
         # Get the strata areas.
-        strata.areas <- subset(survey.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
-        #Read25 read removed... Get all the details of the survey strata
         surv.info <- subset(survey.info,label== bnk)
+        strata.areas <- subset(surv.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
+        #Read25 read removed... Get all the details of the survey strata
+        
       } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
       
       # If we are dealing with a spatial subset we need to do some fancy dancy-ness
@@ -756,6 +760,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         full.detail <- full.detail[full.detail$startyear == max(full.detail$startyear,na.rm=T) ,]
         # I also want the full surv info object as there are some pieces I want to pull out of this.
         full.area.surv.info <- subset(survey.info,label== bank.4.spatial)
+        full.area.surv.info <- full.area.surv.info[full.area.surv.info$startyear == max(full.area.surv.info$startyear),]
         # Get the boundary for our subset area.
         spat.bound <- as.PolySet(newAreaPolys[newAreaPolys$label == bnk,],projection = "LL")
         # Now clip out the boundary area and the detailed polygons
@@ -784,6 +789,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         #names(surv.info) <- names(full.area.survy.info)
         # subset to the strata areas.
         strata.areas <- subset(surv.info,select =c("Strata_ID","towable_area","startyear"))                                                               
+        
       }
       # Save the survey strata table so we have it for later, this is mostly needed for when we have user defined areas carved out.
       survey.strata.table[[bnk]] <- surv.info
@@ -821,7 +827,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab" && bnk!= "Ban" && bnk!="BanIce") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
       # above assigns strata to each tow. 
       
-      print("assign.strata done")
+      print("assign.strata done. Note, this is based on tow start location.")
       
       # MEAT WEIGHT DATA from 2011-current Get the mw data from 2011 to this year, this is if we aren't doing any spatial subsetting
       if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
@@ -897,7 +903,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # data this is like far more complex still than the really allows for.
         # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
         
-        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct)
+        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
         
         if(mwsh.test == T) {
           browser()
@@ -945,8 +951,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
-        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct)
-        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct)
+        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
+        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
@@ -1116,20 +1122,23 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # and in 2008 there were both lined and unlined tows, it's all very comnfusing, but tow ID's of
         # 451 and greater were all lined, less than 451 were unlined...
         lined.dat<-rbind(subset(surv.Live[[bnk]],year==2008 & tow >=451),subset(surv.Live[[bnk]],year > 2008))
+        #lined.dat <- lined.dat[!lined.dat$random == 2,]
         surv.Clap.Rand[[bnk]]<-rbind(subset(surv.Clap.Rand[[bnk]],year==2008 & tow >=451),subset(surv.Clap.Rand[[bnk]],year > 2008))
+        #surv.Clap.Rand[[bnk]] <- surv.Clap.Rand[[bnk]][!surv.Clap.Rand[[bnk]]$random == 2,]
         ### WHICH TOWS ARE MATCHED WITH WHICH!!!!
         #Some funky code to get the matched tows...
         ger.tows <- NULL
-        ger.years <- 2009:yr # Pick the years for which we've had repeated tows.
+        ger.years <- unique(surv.dat$Ger$year[surv.dat$Ger$year>2008]) # Pick the years for which we've had repeated tows.
+        
         for(b in 1:length(ger.years))
         {
           # Get the tows for the current year.
-          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b],c("tow","slon","slat","lat","lon","elon","elat","random","year"))
+          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b] & random != 2,c("tow","slon","slat","lat","lon","elon","elat","random","year"))
           # Get the EID's into the correct format...
           new.ger.tows$EID <- 1:nrow(new.ger.tows)
           # Now get the tows for the previous year, in 2009 we select only the lined tows from the 2008 survey (this is what was done in the past).
           if(ger.years[b] == 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b]-1 & tow >= 451)
-          if(ger.years[b] > 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b]-1)
+          if(ger.years[b] > 2009) last.ger.tows <- subset(surv.Live[[bnk]], year==ger.years[b-1])
           # Now get all the tows that appear to overlap and they are our matched tows, search on end lat/lon, then start lat/lon
           # and finish with mean lat/lon, the mean lat/lon is the final search criteria so overwrites the other two which I think makes the most sense
           # as you could start/finish in opposite directions but you should be closest in the middle so the mean lat/lon should give the best results
@@ -1185,6 +1194,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           
           # In 2017 tow 432 was not a good repeat thus we are treating it as an exploratory tow only and it is excluded from this analysis..
           if(ger.years[b] == 2017) new.ger.tows <- new.ger.tows[new.ger.tows$tow != 432,]
+          
           # Now replace all the ones that were not matched tows with a small number.
           new.ger.tows$EID[new.ger.tows$random == 1] <- 1:length(new.ger.tows$EID[new.ger.tows$random==1] )
           new.ger.tows$stratum <- new.ger.tows$random
@@ -1201,8 +1211,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # This gets us the overall estimates for the bank, but it doesn't get the shell height frequency data we need
         # but in 2011 the survey design was not set up for this so we'll need to grab that data from the lined.survey.obj
         # If this gives you NA's (for any year other than 2011) than you have something wrong in the tow list selection.
-        spr.survey.obj <- sprSurv(lined.dat[-which(lined.dat$random %in% c(2,4,5)),],2008:yr,ger.tows,chng=T,user.bins=bin)
+        spr.survey.obj <- sprSurv(lined.dat[!lined.dat$random %in% c(2,4,5),],unique(lined.dat$year),ger.tows,chng=T,user.bins=bin)
         
+        message("using SPR for 2021, despite no 2020 survey of German. Compares to 2019.")
         print("sprSurv done")
         
         # prepare survey index data obj
@@ -1225,9 +1236,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         merged.survey.obj<-merge(subset(spr.survey.obj$out.obj[[1]],year!=2011),subset(lined.survey.obj[[1]],year==2011),all=T)
         
         # matched survey results.
-        matched.tows<-rbind(subset(surv.Live[[bnk]], year == (yr-1) & tow %in% spr.survey.obj$out.obj[[2]]$tow.y1),
+        ger.years[which(ger.years == yr)-1]
+        matched.tows<-rbind(subset(surv.Live[[bnk]], year == ger.years[which(ger.years == yr)-1] & tow %in% spr.survey.obj$out.obj[[2]]$tow.y1),
                             subset(surv.Live[[bnk]], year == yr & tow %in% spr.survey.obj$out.obj[[2]]$tow.y2))
-        matched.survey.obj<-simple.surv(matched.tows, years=(yr-1):yr,user.bins=bin)
+        matched.survey.obj<-simple.surv(matched.tows, years=c(ger.years[which(ger.years == yr)-1],yr),user.bins=bin)
         # This is used below to generate summarys of the survey data on the bank for the most recent year.
         SS.summary[[bnk]] <- merged.survey.obj
         SS.summary[[bnk]]$bank <- bank.4.spatial
@@ -1241,7 +1253,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Get the survey estimates for the banks for which we have strata. 
       if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
       {
-        
+        ## Sable was restratified in 2018 to remove WEBCA
         if(bank.4.spatial=="Sab")  
         {
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
@@ -1251,8 +1263,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         
+        ## in 2021, we identified an issue with the strata areas used for BBn. They are for a broader survey domain than the shapefiles used currently. 
+        ## This has been an issue since 2014. In August 2021, we replaced the values in survey_information.csv with the areas that correspond to the strata 
+        ## that have been used since 2014. During this investigation, it was noted that a domain estimator was not applied during the restratification
+        ## in 2013. This should be corrected during the next BBn Framework. See Github issues #86 and #87 
+        ##  https://github.com/Mar-scal/Assessment_fns/issues/87
         if(bank.4.spatial !="Sab")
         {  
+          strata.areas <- subset(strata.areas,startyear == max(strata.areas$startyear))
           survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                           bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
           clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 

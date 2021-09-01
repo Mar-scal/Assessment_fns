@@ -205,7 +205,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(!yr==2021) load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
       if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 191 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
       yr <- tmp.yr
@@ -254,7 +255,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results_FINAL.Rdata",sep=""), )  
+      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""), )  
       if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -481,7 +482,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                                                                                                        select=c("PID", "SID", "POS", "X", "Y", "label")), 
                                                                                                                 projection ="LL")
     } # end  if(banks[i] %in% c("Sab"))
-    browser()
+    
     #Detailed survey polygons
     if(banks[i] %in% c("GBa","GBb","BBn","BBs",spat.name)) detail.poly.surv <- as.PolySet(detail.surv.poly[[banks[i]]],projection ="LL")
     if(banks[i] %in% c("Sab")) 
@@ -649,7 +650,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_transform(loc.cf,crs = 32620)
           loc.cf <- as(loc.cf,"Spatial")
           #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32620)[2]$proj4string)
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp,CRS = st_crs(32620)[2]$proj4string)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }  
         
         if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
@@ -660,8 +662,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_as_sf(loc.cf,coords = c('lon','lat'),crs = 4326)
           loc.cf <- st_transform(loc.cf,crs = 32619)
           loc.cf <- as(loc.cf,"Spatial")
-          #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32619)[2]$proj4string)
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp,CRS = st_crs(32619)[2]$proj4string)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
         
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
@@ -767,7 +769,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "PR-spatial")    
               {
                 # This is the stack for estimation from the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$pre, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$pre,0), link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.dat))), s = 1:spde$n.spde),
                                   A = list(1, A))
                 # This is the INLA model itself
@@ -781,7 +783,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "Rec-spatial")        
               {
                 # This is the stack for the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$rec, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$rec,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                   A = list(1, A))
                 # This is the INLA model itself
@@ -795,7 +797,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               {
                 
                 # This is the stack for the INLA model
-                stk <- inla.stack(tag="est",data=list(y = tmp.dat$com, link=1L),
+                stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$com,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                   A = list(1, A))
                 #print(stk)
@@ -836,9 +838,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(spatial.maps[k] == "Clap-spatial")        
               {
                 # This is the stack for the INLA model
+                
                 stk <- inla.stack(tag="est",data=list(y = tmp.clap$clap.prop, link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.clap)), s = 1:spde$n.spde),
                                   A = list(1, A))
+                # if we have some big clapper tows, use gaussian instead?
+                if(any(tmp.clap$clap.prop >= 1)) family.clap <- "gaussian"
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.clap, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
@@ -969,7 +974,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
               # This is the stack for the INLA model
               pick <- which(names(tmp.dat) == bin.names[k])
-              stk <- inla.stack(tag="est",data=list(y = tmp.dat[,pick], link=1L),
+              stk <- inla.stack(tag="est",data=list(y = round(tmp.dat[,pick],0), link=1L),
                                 effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
                                 A = list(1, A))
               # This is the INLA model itself
@@ -1034,7 +1039,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
           
           p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                         add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar= scale.bar))
+                         add_layer = list(eez = 'eez', sfa = 'offshore', bathy = bathy, scale.bar= scale.bar))
           
           
           # Initialize a counter...
@@ -1247,7 +1252,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             {
               surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
-              
               surv <- st_transform(surv,crs = st_crs(mesh$crs)[1]$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
               if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
@@ -1308,22 +1312,21 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
-      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
+      p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
                      add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar))
       #print(p)
       
       # For the banks with detailed strata...
       if(banks[i] %in% c("BBn" ,"BBs" ,"Sab", "GBb", "GBa")) shpf <- st_read(paste0(direct,"Data/Maps/approved/GIS_layers/offshore_survey_strata/",banks[i],".shp"))
       # For the ones we just have a cut of of the survey boundaries
-      if(banks[i] %in% c("Ban","SPB","GB")) shpf <- st_read(paste0(direct,"Data/Maps/approved/GIS_layers/survey_boundaries/",banks[i],".shp"))
+      if(banks[i] %in% c("Ban","SPB")) shpf <- st_read(paste0(direct,"Data/Maps/approved/GIS_layers/survey_boundaries/",banks[i],".shp"))
+
       # Use the cut out I make for the INLA models, it looks o.k.
       if(banks[i] %in% c("Mid","Ger")) shpf <- st_as_sf(bound.poly.surv.sp)
-      shpf <- st_transform(shpf,crs = st_crs(loc.sf))
+      if(!banks[i] == "GB") shpf <- st_transform(shpf,crs = st_crs(loc.sf))
       
-      # Now get the points for the figure sorted out.
       surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
         dplyr::filter(year == yr & state == 'live')
-      
       surv <- st_transform(surv,crs = st_crs(loc.sf))
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
@@ -1350,12 +1353,21 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       #browser()
       # That's all we need for the areas without survey strata, pretty easy! No fill on strata
-      if(banks[i] %in% c("SPB","Ban", "BanIce","Ger", "Mid", "GB"))
+      if(banks[i] %in% c("SPB","Ban", "BanIce","Ger", "Mid"))
       {
-        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
+        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+          theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
-      if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
+      if(banks[i] == "GB")
+      {
+        p2 <- p + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+          theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
+      }
+      
+      if(banks[i] %in% c("BBn","BBs","Sab", "GBb", "GBa"))
       {
         # Need to get the factor levels correct, always annoying...
         #Tows per strata is easy...
@@ -1370,7 +1382,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         } # eend if(banks[i] == "BBs") 
         
         shpf$are_km2 <- round(shpf$are_km2)
-        shpf$`Number of Tows` <-  factor(shpf$tow_num, levels = shpf$tow_num)
+        shpf$`Number of Tows` <-  factor(1:length(shpf$tow_num))
         shpf$`Area (km^2)` <- factor(shpf$are_km2,levels = shpf$are_km2)
         
         shpf$ID <-  factor(shpf$PName, levels = shpf$PName)
@@ -1388,9 +1400,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
           scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols)))  +
           scale_colour_manual(values = rep("black", length(cols)), guide=guide_legend(override.aes = list(fill= cols)))  +
-          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols)))  +
+          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols)), 
+                                labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
-                legend.justification = 'left',legend.key.size = unit(.5,"line"))
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
       # Finally add seedboxes as appropriate
       if(length(sb[,1]) > 0) 
@@ -1651,7 +1664,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       # For german bank
       if(banks[i] == "Ger")
       {
-        
         survey.ts(data.frame(merged.survey.obj, CS=105, RS=95), min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,
                   ymin=-5,dat2=survey.obj[[banks[i]]][[1]],clr=c('red','blue', "red"),pch=c(17,16),se=T,
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5, yl2=c(400, 300, 300))
@@ -2031,7 +2043,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                              width = 11, height = 8.5)
         if(add.title == F) SHFm.title <- ""
         if(add.title == T) SHFm.title <- "SHF - Repeated Tows (Ger)"
-        shf.plt(matched.survey.obj,from='surv',yr=(yr-1):yr,col1='grey80',col2=1,rel=F,rows=2,
+        
+        shf.plt(matched.survey.obj,from='surv',yr=matched.survey.obj[[1]]$year,col1='grey80',col2=1,rel=F,rows=2,
                 recline=c(RS,CS),add.title = T,titl = SHFm.title,cex.mn=2, sample.size = T)	   
         if(fig != "screen") dev.off()
       } # end if(banks[i]=="Ger")
@@ -2273,7 +2286,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
       if(banks[i] != "Ger") 
       {
-        
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
         # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
         # but wanted to look at the 2015 data for example).
