@@ -1084,7 +1084,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end if(exists("s.labels")) 
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width,pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad + 1.5, "cm")) + 
                                                     annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1.25,"cm"), width = unit(1,'cm'),
-                                                                           pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad+1.75, "cm"),style = north_arrow_fancy_orienteering)
+                                                                           pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad+1.9, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
