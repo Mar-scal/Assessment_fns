@@ -79,10 +79,12 @@
 #######              s.labels = "IDS" - Puts in detailed inshore survey strata labesl for all the inshore areas
 
 
-#### h:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  
+#### h:  scale.bar  Do you want to add a scale bar to the figure, it also pops in a fancy north arrow.  Also allowing for 'padding' of the location in x and y direction to allow you
+#######             ability to mess about with the location a bit. Note you have to specify both an x and y shift for this to work.
 #######             To add it you specify what corner you want it in and optionally it's size as a second option.
 #######             scale.bar = 'bl' will put it in bottom left (options are bl,bc,br,tl,tc,tr) 
 #######             scale.bar = c('bl',0.5) will put in a scale bar that is half the length of the figure in the bottom left corner.
+#######             scale.bar = c('bl',0.5,1,2) will put in a scale bar that is half the length of the figure 1 cm horizontally shifted into the figure from corner and 2 cm in the vertical
 
 #################################### INLA OPTIONS#################################### INLA OPTIONS#################################### INLA OPTIONS
 ## The INLA related inputs, if field and mesh are not supplied these won't do anything.  You do need field and mesh if plotting an INLA model result
@@ -129,10 +131,11 @@
 ###  c: fill        The fill of the object, defaults to NA so transparent
 
 ###  d: color       The color of the lines, defaults to 'grey'
+#### e: facet       For the custom object you can facet wrap based on any of the variables in the custom object.  Defaults to missing
 ##########          The full call for the simple custom plots would be custom = list(obj = foo,size = 1, fill = 'pink',color = 'yellow')
 ##########          Or if not an object in R custom = list(obj = "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/seedboxes",size =1 , colour = 'yellow',fill = 'pink')
 
-###  e: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
+###  f: scale   Do you want to use a continuous scale, or a manual scale with categories.  The nature of that scale is controled by the other options in this list
 ######            What colours would you like to use for the colour ramp.  Default = NULL which will plot a viridis based ramp using geom_gradientn() and pecjector defaults
 ######            scale = 'c' has same behaviour as NULL.  scale = 'discrete' (really anything but NULL or "continuous" how it's coded)
 ######            then you get a discrete with these options list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
@@ -158,7 +161,7 @@
 #         scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 ########## If you had an custom layer, a full call to that would be to add this to the above, scale behaves same as INLA scale
-#         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', 
+#         add_custom(obj = foo, size = 1, fill = NA, color = 'grey', facet = 'column name from foo',
 #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 
@@ -169,7 +172,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      
                      # The below control the INLA surface added to the figure, the col subgroup controls what the field looks like
                      add_inla = list(), # list(scale = 'discrete',palette = viridis::viridis(100,begin=0,direction=1,option='D'), limits = c(0,1), breaks =seq(0,1,by=0.05),alpha=0.8)
-                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey', 
+                     add_custom = list(), # list(obj = foo, size = 1, fill = NA, color = 'grey',  facet = 'column name from foo',
                      #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
@@ -250,8 +253,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
-  # This the case in which we enter numbers as our coordinate system
-  
+  # This the case in which we enter numbers as our coordinate system  
   if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   if(any(class(area)=="data.frame")) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
@@ -694,7 +696,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
         if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
         # Figure out what this file was saved as
-        temp2 <- tempfile
+        temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
 
@@ -783,6 +785,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(any(layers == 'survey')) 
   #sf::st_use_s2(FALSE)
   # Here you can add a custom sp, sf, PBSmapping object or shapefile here
+ 
   if(length(add_custom) != 0)
   {
     
@@ -865,6 +868,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Just to make logic easier later, if either cfd or cfc exists we make this fancy.custom object which will tell the plot
     # not to make the simple custom plot
     if(exists('cfc') || exists('cfd')) fancy.custom <- "I'm fancy!"
+    # If we want to facet_wrap this we do it..
+    if(!is.null(add_custom$facet)) fac.et <- "It's a wrap"
     #
   } # end  if(!is.null(add_custom))
   
@@ -909,8 +914,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
       if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
       s.labels <- st_intersection(s.labels, b.box)
-      #browser()
-      
+
       #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
       if(any(grepl("angle",s.labels$region)))
       {
@@ -927,6 +931,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     scal.loc <- add_layer$scale.bar[1]
     # If we wanted to set the scale bar width ourselves
     if(length(add_layer$scale.bar) ==2) {scale.width <- as.numeric(add_layer$scale.bar[2])} else {scale.width = 0.25}
+    # And if we wanted to play with the postion....
+    if(length(add_layer$scale.bar) ==4) 
+    {
+      xpad <- as.numeric(add_layer$scale.bar[3])
+      ypad <- as.numeric(add_layer$scale.bar[4])
+    } else {xpad = 0;ypad = 0}
   }
   
   # If we have a field to plot, i.e. an INLA object and mesh, in here we convert it from a raster to an spatial DF in SF and then we plots it.
@@ -1054,8 +1064,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("cfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=layer), colour = NA) + cfc 
     if(exists("cfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=custom, aes(fill=brk), colour = NA)  + cfd  
     # If we just have a simple custom plot we add here...
-    
     if(exists("custom") & !exists("fancy.custom")) pect_plot <- pect_plot + geom_sf(data=custom, fill=phil, color = colr, size= size)
+    if(exists("custom") & exists("fac.et")) pect_plot <- pect_plot + facet_wrap(c(add_custom$facet))
     if(exists("final.strata") && add_layer$survey[2] == "outline") pect_plot <- pect_plot + geom_sf(data=final.strata, fill=NA) 
     if(exists("nafo.divs")) pect_plot <- pect_plot + geom_sf(data=nafo.divs, fill=NA)
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
@@ -1071,9 +1081,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(any(grepl('inshore',s.labels$region)) && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35,size=3) # rotate it@!
       
     } # end if(exists("s.labels")) 
-    if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width) + 
-        annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1,"cm"), width = unit(1,'cm'),
-                               pad_x = unit(0, "cm"), pad_y = unit(0.75, "cm"),style = north_arrow_fancy_orienteering)
+    if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width,pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad + 1.5, "cm")) + 
+                                                    annotation_north_arrow(location = scal.loc, which_north = "true", height = unit(1.25,"cm"), width = unit(1,'cm'),
+                                                                           pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad+1.9, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
     if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
@@ -1087,7 +1097,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     }
     
   } # end if(plot_as != 'plotly')
-  #browser()
+
   # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
   if(plot_as == "plotly")
   {
