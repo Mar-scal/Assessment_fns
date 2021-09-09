@@ -253,9 +253,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
-  # This the case in which we enter numbers as our coordinate system
+  # This the case in which we enter numbers as our coordinate system  
   if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-  
+  if(any(class(area)=="data.frame")) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
   if(any(class(area) == 'character')) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   if(any(class(area) %in% c("sp"))) area <- st_as_sf(area) # Convert to sf cause I already have that ready to roll below
@@ -267,7 +267,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   }
   
   # All I need from the coords call above is the bounding box.
-  
   b.box <- st_make_valid(coords$b.box)
   # Get the limits of the bounding box
   xlim <- as.numeric(c(st_bbox(b.box)$xmin,st_bbox(b.box)$xmax))

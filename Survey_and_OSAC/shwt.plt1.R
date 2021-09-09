@@ -43,8 +43,8 @@ shwt.plt1 <- function(htwt.fit,graphic='R',ht=8,wd=11.5,cx=1.2,lw=2,xl,yl,titl="
 	#if(graphic=='R')windows(wd,ht)
 
   # Set margins and leave the plot window open
-  if(!nchar(titl) > 35) par(mar=c(3.6,6,2,2))
-  if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))
+  if(!nchar(titl) > 35) par(mar=c(5,6,2,2))
+  if(nchar(titl) > 35) par(mar=c(5,6,6,2))
   par(...)	
 	# If not specified use the data to determine the x and y axis limits.
 	if(missing(xl))xl<-range(htwt.fit$data$sh)

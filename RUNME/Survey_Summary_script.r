@@ -20,10 +20,10 @@
 
 # Load your directory and the survey year
 #direct <- "d:/r/"
-direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
-#direct <- "Y:/Offshore/Assessment/"
+#direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Documents/Assessment_fns/"
-yr <- 2019
+yr <- 2021
 
 
 
@@ -55,14 +55,17 @@ res <- survey.data(direct = direct,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
                    surveys = c(#"Banspring", 
                     #"BanIcespring", 
-                       "BBnspring" #,#"BBsspring" ,
-                     # "Gerspring", "Midspring", 
-                       # "Sabspring", "GBspring"# ,
+                        "BBnspring",
+                     "BBsspring",
+                       "Gerspring",
+                     "Midspring", 
+                       "Sabspring", 
+                     "GBspring"# ,
                     #  "GBbsummer", 
                     # "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="testing", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname=NULL)
+                   commercialsampling=T, nickname="LE13")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -89,42 +92,43 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
-            yr=2020, 
+            yr=2021, 
             banks = c(
-             # "BBn",
-              #"Ger",
-              #"Mid",
-              #"Sab",
-            "GBa"#,
-            # "GBb"#,
-                  #"GB", "BBs",
+                   "BBn",
+                   "Ger",
+                 "Mid",
+                 "Sab",
+            # #"GBa"#,
+            # # "GBb"#,
+                   "GB", 
+            "BBs"#,
              #"Ban",
               # "BanIce"
             ),
             s.res="high",
-            plots = c(
-              # "PR-spatial",
-              #   "Rec-spatial",
-              #  "FR-spatial",
-              # "CF-spatial",
-              # "MC-spatial",
-              # "Clap-spatial",
-             #"Survey",
-             #"user.SH.bins",
-             #  "seedboxes",
-               #"MW-SH"#,
-             #  "abund-ts"#,
-              "biomass-ts"#,
-              #"SHF"#,
-              # "clapper-abund-ts",
-             #  "clapper-per-ts"#,
-             #  "SH-MW-CF-ts",
-            #  "breakdown",
-           # "MW-spatial", "SH-spatial", "MW.GP-spatial",
-           #  "SH.GP-spatial"#,
-             #   "SHF-large"
-            ), 
-            sub.area=F, INLA="load", season="testing", nickname="industrysurvey2020")
+             plots = c(
+               #  "PR-spatial",
+               #  "Rec-spatial",
+               # "FR-spatial",
+               #  "CF-spatial",
+               #  "MC-spatial",
+               # "Clap-spatial",
+             #"Survey"#,
+          # #  "user.SH.bins"#,
+          # #    "seedboxes",
+              #"MW-SH",
+"abund-ts",
+               "biomass-ts",
+            #  "SHF",
+               "clapper-abund-ts",
+              "clapper-per-ts"#,
+          # #     "SH-MW-CF-ts",
+          #"breakdown"#,
+            # "MW-spatial", "SH-spatial", "MW.GP-spatial",
+            #  "SH.GP-spatial"#,
+          #   "SHF-large"
+            ), bathy=c(10,'c'), 
+            sub.area=F, INLA="run.full", season="testing", nickname="LE13")
 
 Sys.time() -str
 

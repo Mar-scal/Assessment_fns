@@ -45,7 +45,7 @@ Clap3.plt <- function(data, years=1981:2009,median.line=T,graphic="R",width = 11
   # Plot device and figure margin options.
 	if(graphic=='pdf')pdf("plots/Clappers.pdf", width = width, height = height, pointsize = 14)
 #	if(graphic=="R")windows( width = width, height = height)
-	par(mfrow = c(3, 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+	par(mfrow = c(3, 1), mar = c(0, 2, 0, 1), omi = c(0.5, 1, 0.5, 0.5))
 
 	# If Proportion is > 100 than make it an NA.
 	data$clap.propPre[data$clap.propPre>100]<-NA

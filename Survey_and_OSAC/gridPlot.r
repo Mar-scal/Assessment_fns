@@ -53,7 +53,7 @@ gridPlot <- function(Data,domain.poly,lvls,bcol="YlGnBu",border=1,FUN=mean,grid.
 	locData<- findCells(Data, grid,includeBdry=1) 
 	# Now take all the data within a cell and create some sort of cell summary (mean, sum, median, variance, 
 	# whatever value FUN is given in the function call.)
-	pdata  <- combineEvents(Data, locData, FUN=FUN)
+	pdata  <- PBSmapping::combineEvents(events=Data, locs = locData, FUN=FUN)
 	
 	# Reset the levels giving the max level a value 100* actual value.
 	lvls<-c(lvls,max(lvls)*100)

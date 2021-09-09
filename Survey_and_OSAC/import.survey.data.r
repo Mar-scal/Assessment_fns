@@ -133,7 +133,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 {
   require(splancs)  || stop("Install splancs package")
   # Imports Ginette's survey data
-	GBsurvey.gin <- read.table(paste(direct,"Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T)
+	GBsurvey.gin <- read.table(paste(direct,"Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T, stringsAsFactors = T)
 		
 	### Run this section of code if we are looking at the may survey.
 	if(survey == 'May')
@@ -149,7 +149,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 		# The list of our banks
 	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce")
 		# The data
-	  tbb<-read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""))
+	  tbb<-read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""), stringsAsFactors = T)
 	  # Select the bank names that we have data for in a given year.
 	  bank<-banks[!is.na(tbb[tbb$Year==year,-c(1,6)])]
 	} # end if(missing(bank)) {
@@ -172,7 +172,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 			# if one of these banks & the data is post 2005 we combine the data in this fashion
 			if((bank[i] == "BB" || bank[i] == "BBn" || bank[i] == "BBs" || bank[i] == "Sab" || bank[i] == "Ger") && year > 2005){
 				# Bring in some new data, looks to be tow and strata information DK Note August 18, 2015 this is something to check if strata is correct
-			  sr <- read.table(paste(path, year, "/sr", bank[i], year, ".txt", sep = ""), header = T)
+			  sr <- read.table(paste(path, year, "/sr", bank[i], year, ".txt", sep = ""), header = T, stringsAsFactors = T)
 			  # Merge hf and dis by tow and keep everything that doesn't match as well
 				tmp <- merge(hf,dis, by = "tow",all=T)
 				# create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
@@ -211,7 +211,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 				
 			  # mearge the shf and dtp data, left join so keep everything in the shf data.
 			  tmp <- merge(shf, dtp, by = "tow", all.x = T)
-			  st <- as.numeric(read.table(paste(path, year, "/sr", year, bank[i], ".txt", sep = "")))
+			  st <- as.numeric(read.table(paste(path, year, "/sr", year, bank[i], ".txt", sep = ""), stringsAsFactors = T))
 				# Make a list with all the Shell height frequency data (among other things) in it.
 			  SHF.lst[[i]] <- with(tmp, data.frame(year = rep(year, nrow(tmp)), cruise = as.character(cruise.x), bank=rep(bank[i], 
 			                                             nrow(tmp)), date, tow, stratum = st, slat, slon, elat, elon, depth, 
@@ -297,7 +297,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 				str <- data.frame(tow=GBsurvey.gin$tow[GBsurvey.gin$year==year],stratum.y=GBsurvey.gin$stratum[GBsurvey.gin$year==year],stringsAsFactors = F)
 				
 				# After 2007 this is our str.
-				if(year>2007) str <- read.table(paste(path, year,"/survstr",bank[i],year,".txt",sep=""),header=T)
+				if(year>2007) str <- read.table(paste(path, year,"/survstr",bank[i],year,".txt",sep=""),header=T, stringsAsFactors = T)
 				# merge shf and str, take all shf data
 				shf <- merge(shf,str, by = "tow", all.x = T)
 				# merge shf and dtp, take all shf data
@@ -370,7 +370,7 @@ parse.dis <- function(dis, survey, yr){
 	
 	# So if we are looking at Spring survey run this section of code, very specific processing here.
 	if(survey=='May'){
-		dis <- read.csv(dis, header = F)
+		dis <- read.csv(dis, header = F, stringsAsFactors = T)
 		dis[,1] <- as.character(dis[,1])
 		n <- nrow(dis)
 		
@@ -453,7 +453,7 @@ parse.dis <- function(dis, survey, yr){
 	
 	if(survey=="Aug"){
 	
-		dis <- read.csv(dis, header = F)
+		dis <- read.csv(dis, header = F, stringsAsFactors = T)
 		dis[,1] <- as.character(dis[,1])
 		n <- nrow(dis)
 		
@@ -545,12 +545,12 @@ parse.dtp <- function(dtpfile, yr, survey='May',direct, direct_fns){
 
   
   # Notice the file is read in as one giant column which is turned into a character and subdivided below, OMG!
-	dtp <- read.csv(dtpfile, header = F)
+	dtp <- read.csv(dtpfile, header = F, stringsAsFactors = T)
 	dtp[,1] <- as.character(dtp[,1])
 	n <- nrow(dtp)
 	
 	if(yr < 1980){
-		tmp <- read.table(dtpfile)
+		tmp <- read.table(dtpfile, stringsAsFactors = T)
 		slat <- tmp[,3] + tmp[,4]/60 + tmp[,5]/3600
 		slon <- tmp[,6] + tmp[,7]/60 + tmp[,8]/3600
 		elat <- tmp[,9] + tmp[,10]/60 + tmp[,11]/3600
@@ -722,7 +722,7 @@ parse.shf <- function(hf, survey='May', yr){
 	
   require(chron) || stop("Install chron package")
 	
-	hf <- read.csv(hf, header = F)
+	hf <- read.csv(hf, header = F, stringsAsFactors = T)
 	hf[,1] <- as.character(hf[,1])
 	n <- nrow(hf)
 	

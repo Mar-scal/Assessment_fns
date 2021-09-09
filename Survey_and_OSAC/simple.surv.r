@@ -85,7 +85,7 @@ simple.surv<-function(shf, years=1981:2008, B=T,user.bins = NULL){
 	bin.means <- aggregate(.~year,FUN=mean,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))])
   names(bin.means) <- gsub(x = names(bin.means), pattern="bin", replacement="mean")
 	
-		# And now the CV's for each year
+	# And now the CV's for each year
 	ns <- aggregate(.~year,FUN=length,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))]) # Using an SE/mean as per above so need the number of tows....
 	bin.CVs <- aggregate(.~year,FUN=sd,dat[,!colnames(dat) %in% names(which(sapply(dat, function(x) any(is.na(x)))))])/ns/bin.means
 	names(bin.CVs) <- gsub(x = names(bin.CVs), pattern="bin", replacement="CV")
