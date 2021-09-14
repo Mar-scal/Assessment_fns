@@ -1,0 +1,2044 @@
+--- 
+title: "Survey Summary"
+subtitle: "Spring 2021"
+author: "Scallop and Benthic Habitat Unit"
+output: 
+  bookdown::pdf_document2:
+    extra_dependencies: ["float"]
+    toc_depth: 1
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+ - \usepackage{fancyhdr}
+ - \pagestyle{fancy}
+ - \fancyfoot[CO,CE]{Spring Survey 2021}
+ - \fancyfoot[LE,RO]{\thepage}
+---
+
+
+
+ 
+\newpage
+
+
+# Survey overview
+
+The spring offshore scallop survey occurred from 2021-06-05 to 2021-06-26 on Middle Bank, Sable Bank, German Bank, and Browns Bank North, Browns Bank South, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
+
+This report summarizes the information collected during the survey. At each survey station, the 8-ft scallop dredge is towed for 10 minutes, and scallop are counted and assigned to 5mm size bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
+
+Detailed sampling occurred at a selection of the stations, where the exact heights and weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
+
+Some of the figures and analyses presented in this report refer to the different size classes of scallop: pre-recruits, recruits, and fully-recruited scallop. The size ranges for each size class differs by bank, but the general convention is that recruits are expected to grow to commercial size in the next year, while fully-recruited scallops were commercial size at the time of the survey. 
+
+We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. 
+
+
+<!--chapter:end:index.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# Middle Bank {#Midlinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance decreased by 61%, and was below the long term median.
+-  Recruit abundance decreased by 88%, and was below the long term median.
+-  Fully-recruited abundance increased by 70%, and was above the long term median.
+
+
+-  Pre-recruit biomass decreased by 82%, and was below the long term median.
+-  Recruit biomass decreased by 87%, and was below the long term median.
+-  Fully-recruited biomass increased by 81%, and was above the long term median.
+
+
+- Condition factor increased and was greater than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#MidSD)  
+
+- [Abundance & biomass time series summary](#MidABTS)  
+
+- [Shell height frequencies](#MidSHF)  
+
+- [Meat weight-shell height & condition](#MidMWSH)  
+
+- [Spatial distribution maps](#Midmap)  
+
+- [Clapper time series](#Midclap)  
+
+- [Biomass, meat count, and shell height relationship](#Midbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#MidSD}
+
+The survey of Middle Bank in 2021 used a fixed survey design. There were 15 fixed stations.
+
+In the Middle Bank survey, pre-recruits are considered to be scallops with shell heights less than 80 mm, recruits have shell heights from 80 mm to 90 mm, and fully-recruited scallop have shell heights greater than 90 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 15 tow locations on Middle Bank in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#MidABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 2 & 3). Estimates are standardized to tows of 800 metres. Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty.  Tables 1 & 2 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 1.20 & 0.47 & 1.15\\
+Recruits (80-90mm) & 1.71 & 0.21 & 0.50\\
+Fully-recruited (>90mm) & 10.5 & 17.9 & 12.6\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 7.12 & 1.31 & 4.36\\
+Recruits (80-90mm) & 17.1 & 2.17 & 4.62\\
+Fully-recruited (>90mm) & 416 & 752 & 416\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/abundance_ts} 
+
+}
+
+\caption{Abundance time series for Middle Bank in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/biomass_ts} 
+
+}
+
+\caption{Biomass time series for Middle Bank in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#Midlinks)
+\newpage
+
+
+## Shell height frequencies {#MidSHF}
+
+For Middle Bank in 2021, the size bin with the most scallop per tow was 125-130 mm (Figure 4).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on Middle Bank in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#MidMWSH}
+
+On Middle Bank in 2021, the empirical meat weight-shell height relationship (Figure 5) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 17 grams. The modelled (GAMM) condition factor estimate increased from 16.0 in the previous survey, to 17.0 in 2021, and was greater than the long term median of 13.7.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on Middle Bank in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#Midlinks)
+\newpage
+
+
+## Spatial distribution maps {#Midmap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 6 - 8, and statistical summaries are in Table 3.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<80mm) & 0 & 0 & 0.47 & 3.13\\
+Recruits (80-90mm) & 0 & 0 & 0.21 & 1.53\\
+Fully-recruited (>90mm) & 0 & 12.9 & 17.9 & 55.0\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on Middle Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on Middle Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on Middle Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#Midlinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 9, and the spatial distribution of meat count is shown in Figure 10. Statistical summaries of condition factor and meat count are provided in Table 4.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 15.3 & 17.1 & 17.0 & 18.5\\
+Meat count & 8.25 & 11.1 & 12.4 & 18.2\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on Middle Bank in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on Middle Bank in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+\newpage
+
+## Clapper time series {#Midclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 11). Survey tows are standardized to 800 metres. Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty.  Table 5 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 0 & 1.33 & 0\\
+Recruits (80-90mm) & 0 & 0 & 0\\
+Fully-recruited (>90mm) & 1.77 & 1.24 & 0.37\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for Middle Bank in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#Midlinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#Midbreakdown}
+
+Figure 12 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 86.8 mm and above at the time of the survey would result in meat counts at or below the regulation (45 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Mid/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for Middle Bank in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 45 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#Midlinks)
+
+<!--chapter:end:parameterised_report_Mid.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# Sable Bank {#Sablinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance decreased by 27%, and was above the long term median.
+-  Recruit abundance decreased by 11%, and was near the long term median.
+-  Fully-recruited abundance decreased by 40%, and was below the long term median.
+
+
+-  Pre-recruit biomass decreased by 39%, and was above the long term median.
+-  Recruit biomass decreased by 23%, and was below the long term median.
+-  Fully-recruited biomass decreased by 48%, and was below the long term median.
+
+
+- Condition factor decreased and was less than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#SabSD)  
+
+- [Abundance & biomass time series summary](#SabABTS)  
+
+- [Shell height frequencies](#SabSHF)  
+
+- [Meat weight-shell height & condition](#SabMWSH)  
+
+- [Spatial distribution maps](#Sabmap)  
+
+- [Clapper time series](#Sabclap)  
+
+- [Biomass, meat count, and shell height relationship](#Sabbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#SabSD}
+
+The survey of Sable Bank in 2021 used a stratified random survey design. There were 100 stratified random stations.
+
+In the Sable Bank survey, pre-recruits are considered to be scallops with shell heights less than 80 mm, recruits have shell heights from 80 mm to 90 mm, and fully-recruited scallop have shell heights greater than 90 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 100 tow locations on Sable Bank in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#SabABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 4 & 6). Estimates are standardized to tows of 800 metres.  Tables 6 & 7 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 163 & 119 & 34.5\\
+Recruits (80-90mm) & 11.1 & 9.87 & 9.27\\
+Fully-recruited (>90mm) & 25.2 & 15.2 & 35.3\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 407 & 247 & 92.9\\
+Recruits (80-90mm) & 74.0 & 57.2 & 67.5\\
+Fully-recruited (>90mm) & 481 & 251 & 609\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/abundance_ts} 
+
+}
+
+\caption{Abundance time series for Sable Bank in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/biomass_ts} 
+
+}
+
+\caption{Biomass time series for Sable Bank in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#Sablinks)
+\newpage
+
+
+## Shell height frequencies {#SabSHF}
+
+For Sable Bank in 2021, the size bin with the most scallop per tow was 65-70 mm (Figure 8).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on Sable Bank in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#SabMWSH}
+
+On Sable Bank in 2021, the empirical meat weight-shell height relationship (Figure 10) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 10 grams. The modelled (GAMM) condition factor estimate decreased from 12.5 in the previous survey, to 11.0 in 2021, and was less than the long term median of 12.3.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on Sable Bank in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#Sablinks)
+\newpage
+
+
+## Spatial distribution maps {#Sabmap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 12 - 16, and statistical summaries are in Table 8.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<80mm) & 0 & 18.2 & 118 & 1323\\
+Recruits (80-90mm) & 0 & 1.52 & 9.91 & 129\\
+Fully-recruited (>90mm) & 0 & 5.25 & 15.3 & 167\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on Sable Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on Sable Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on Sable Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#Sablinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 18, and the spatial distribution of meat count is shown in Figure 20. Statistical summaries of condition factor and meat count are provided in Table 9.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 4.49 & 10.1 & 10.3 & 16.2\\
+Meat count & 13.0 & 33.1 & 36.6 & 71.9\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on Sable Bank in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on Sable Bank in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+\newpage
+
+## Clapper time series {#Sabclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 22). Survey tows are standardized to 800 metres.  Table 10 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<80mm) & 0.45 & 0.05 & 0.65\\
+Recruits (80-90mm) & 3.28 & 0.84 & 1.52\\
+Fully-recruited (>90mm) & 7.05 & 3.90 & 2.08\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for Sable Bank in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#Sablinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#Sabbreakdown}
+
+Figure 24 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 102 mm and above at the time of the survey would result in meat counts at or below the regulation (45 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Sab/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for Sable Bank in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 45 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#Sablinks)
+
+<!--chapter:end:parameterised_report_Sab.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# German Bank {#Gerlinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance decreased by 82%, and was near the long term median.
+-  Recruit abundance decreased by 62%, and was below the long term median.
+-  Fully-recruited abundance decreased by 47%, and was below the long term median.
+
+
+-  Pre-recruit biomass decreased by 42%, and was below the long term median.
+-  Recruit biomass decreased by 70%, and was below the long term median.
+-  Fully-recruited biomass decreased by 51%, and was below the long term median.
+
+
+- Condition factor decreased and was less than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#GerSD)  
+
+- [Abundance & biomass time series summary](#GerABTS)  
+
+- [Shell height frequencies](#GerSHF)  
+
+- [Meat weight-shell height & condition](#GerMWSH)  
+
+- [Spatial distribution maps](#Germap)  
+
+- [Clapper time series](#Gerclap)  
+
+- [Biomass, meat count, and shell height relationship](#Gerbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#GerSD}
+
+The survey of German Bank in 2021 used a sampling with partial replacement survey design. There were 60 random stations within the survey domain, and 20 stations repeated from the previous survey, and 3 exploratory stations.
+
+In the German Bank survey, pre-recruits are considered to be scallops with shell heights less than 95 mm, recruits have shell heights from 95 mm to 105 mm, and fully-recruited scallop have shell heights greater than 105 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 83 tow locations on German Bank in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#GerABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 6 & 9). Estimates are standardized to tows of 800 metres.  Tables 11 & 12 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<95mm) & 403 & 74.3 & 74.3\\
+Recruits (95-105mm) & 2.00 & 0.77 & 3.95\\
+Fully-recruited (>105mm) & 39.8 & 21.0 & 47.3\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<95mm) & 125 & 72.8 & 83.2\\
+Recruits (95-105mm) & 24.6 & 7.47 & 40.2\\
+Fully-recruited (>105mm) & 1069 & 519 & 1180\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/abundance_ts} 
+
+}
+
+\caption{Abundance time series for German Bank in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/biomass_ts} 
+
+}
+
+\caption{Biomass time series for German Bank in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#Gerlinks)
+\newpage
+
+
+## Shell height frequencies {#GerSHF}
+
+For German Bank in 2021, the size bin with the most scallop per tow was 25-30 mm (Figure 12).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on German Bank in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#GerMWSH}
+
+On German Bank in 2021, the empirical meat weight-shell height relationship (Figure 15) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 9.9 grams. The modelled (GAMM) condition factor estimate decreased from 12.0 in the previous survey, to 10.6 in 2021, and was less than the long term median of 11.4.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on German Bank in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#Gerlinks)
+\newpage
+
+
+## Spatial distribution maps {#Germap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 18 - 24, and statistical summaries are in Table 13.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<95mm) & 0 & 17.5 & 65.3 & 1372\\
+Recruits (95-105mm) & 0 & 0 & 0.74 & 10.0\\
+Fully-recruited (>105mm) & 0 & 10.2 & 21.5 & 184\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on German Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on German Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on German Bank in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#Gerlinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 27, and the spatial distribution of meat count is shown in Figure 30. Statistical summaries of condition factor and meat count are provided in Table 14.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 5.59 & 9.98 & 9.90 & 13.0\\
+Meat count & 14.8 & 20.2 & 24.0 & 51.7\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on German Bank in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on German Bank in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+\newpage
+
+## Clapper time series {#Gerclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 33). Survey tows are standardized to 800 metres.  Table 15 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<95mm) & 0.14 & 1.81 & 0.23\\
+Recruits (95-105mm) & 0 & 0 & 0.04\\
+Fully-recruited (>105mm) & 1.96 & 4.55 & 1.38\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for German Bank in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#Gerlinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#Gerbreakdown}
+
+Figure 36 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 109 mm and above at the time of the survey would result in meat counts at or below the regulation (40 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/Ger/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for German Bank in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 40 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#Gerlinks)
+
+<!--chapter:end:parameterised_report_Ger.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# Browns Bank South {#BBslinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance similar by NA%, and was above the long term median.
+-  Recruit abundance decreased by 32%, and was above the long term median.
+-  Fully-recruited abundance decreased by 14%, and was near the long term median.
+
+
+-  Pre-recruit biomass increased by 165%, and was below the long term median.
+-  Recruit biomass decreased by 15%, and was above the long term median.
+-  Fully-recruited biomass similar by NA%, and was near the long term median.
+
+
+- Condition factor increased and was greater than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#BBsSD)  
+
+- [Abundance & biomass time series summary](#BBsABTS)  
+
+- [Shell height frequencies](#BBsSHF)  
+
+- [Meat weight-shell height & condition](#BBsMWSH)  
+
+- [Spatial distribution maps](#BBsmap)  
+
+- [Clapper time series](#BBsclap)  
+
+- [Biomass, meat count, and shell height relationship](#BBsbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#BBsSD}
+
+The survey of Browns Bank South in 2021 used a stratified random survey design. There were 25 stratified random stations.
+
+In the Browns Bank South survey, pre-recruits are considered to be scallops with shell heights less than 85 mm, recruits have shell heights from 85 mm to 95 mm, and fully-recruited scallop have shell heights greater than 95 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 25 tow locations on Browns Bank South in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#BBsABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 8 & 12). Estimates are standardized to tows of 800 metres.  Tables 16 & 17 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2018 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 427 & 451 & 373\\
+Recruits (85-95mm) & 19.5 & 13.3 & 8.79\\
+Fully-recruited (>95mm) & 72.6 & 62.6 & 61.6\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2018 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 78.8 & 209 & 263\\
+Recruits (85-95mm) & 83.2 & 71.0 & 44.9\\
+Fully-recruited (>95mm) & 524 & 563 & 524\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/abundance_ts} 
+
+}
+
+\caption{Abundance time series for Browns Bank South in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/biomass_ts} 
+
+}
+
+\caption{Biomass time series for Browns Bank South in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#BBslinks)
+\newpage
+
+
+## Shell height frequencies {#BBsSHF}
+
+For Browns Bank South in 2021, the size bin with the most scallop per tow was 35-40 mm (Figure 16).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on Browns Bank South in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#BBsMWSH}
+
+On Browns Bank South in 2021, the empirical meat weight-shell height relationship (Figure 20) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 7.3 grams. The modelled (GAMM) condition factor estimate increased from 5.86 in the previous survey, to 7.37 in 2021, and was greater than the long term median of 6.59.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on Browns Bank South in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#BBslinks)
+\newpage
+
+
+## Spatial distribution maps {#BBsmap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 24 - 32, and statistical summaries are in Table 18.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<85mm) & 0 & 58.2 & 440 & 2556\\
+Recruits (85-95mm) & 0 & 2.36 & 12.9 & 87.2\\
+Fully-recruited (>95mm) & 0 & 13.3 & 61.3 & 253\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on Browns Bank South in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on Browns Bank South in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on Browns Bank South in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#BBslinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 36, and the spatial distribution of meat count is shown in Figure 40. Statistical summaries of condition factor and meat count are provided in Table 19.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 5.43 & 6.98 & 7.32 & 9.44\\
+Meat count & 42.9 & 55.8 & 54.5 & 62.1\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on Browns Bank South in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on Browns Bank South in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+\newpage
+
+## Clapper time series {#BBsclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 44). Survey tows are standardized to 800 metres.  Table 20 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2018 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 0 & 0.58 & 0.36\\
+Recruits (85-95mm) & 0.19 & 0.50 & 0.60\\
+Fully-recruited (>95mm) & 0.67 & 0.69 & 2.77\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for Browns Bank South in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#BBslinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#BBsbreakdown}
+
+Figure 48 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 105 mm and above at the time of the survey would result in meat counts at or below the regulation (60 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBs/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for Browns Bank South in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 60 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#BBslinks)
+
+<!--chapter:end:parameterised_report_BBs.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# Browns Bank North {#BBnlinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance decreased by 45%, and was below the long term median.
+-  Recruit abundance increased by 39%, and was below the long term median.
+-  Fully-recruited abundance similar by NA%, and was below the long term median.
+
+
+-  Pre-recruit biomass decreased by 46%, and was below the long term median.
+-  Recruit biomass similar by NA%, and was below the long term median.
+-  Fully-recruited biomass decreased by 11%, and was below the long term median.
+
+
+- Condition factor decreased and was less than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#BBnSD)  
+
+- [Abundance & biomass time series summary](#BBnABTS)  
+
+- [Shell height frequencies](#BBnSHF)  
+
+- [Meat weight-shell height & condition](#BBnMWSH)  
+
+- [Spatial distribution maps](#BBnmap)  
+
+- [Clapper time series](#BBnclap)  
+
+- [Biomass, meat count, and shell height relationship](#BBnbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#BBnSD}
+
+The survey of Browns Bank North in 2021 used a stratified random survey design. There were 100 stratified random stations.
+
+In the Browns Bank North survey, pre-recruits are considered to be scallops with shell heights less than 85 mm, recruits have shell heights from 85 mm to 95 mm, and fully-recruited scallop have shell heights greater than 95 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 100 tow locations on Browns Bank North in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#BBnABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 10 & 15). Estimates are standardized to tows of 800 metres.  Tables 21 & 22 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 292 & 160 & 333\\
+Recruits (85-95mm) & 11.6 & 16.1 & 30.9\\
+Fully-recruited (>95mm) & 82.3 & 90.4 & 146\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 339 & 184 & 590\\
+Recruits (85-95mm) & 121 & 121 & 264\\
+Fully-recruited (>95mm) & 2097 & 1858 & 2929\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/abundance_ts} 
+
+}
+
+\caption{Abundance time series for Browns Bank North in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/biomass_ts} 
+
+}
+
+\caption{Biomass time series for Browns Bank North in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#BBnlinks)
+\newpage
+
+
+## Shell height frequencies {#BBnSHF}
+
+For Browns Bank North in 2021, the size bin with the most scallop per tow was 25-30 mm (Figure 20).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on Browns Bank North in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#BBnMWSH}
+
+On Browns Bank North in 2021, the empirical meat weight-shell height relationship (Figure 25) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 12 grams. The modelled (GAMM) condition factor estimate decreased from 15.0 in the previous survey, to 11.7 in 2021, and was less than the long term median of 12.5.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on Browns Bank North in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#BBnlinks)
+\newpage
+
+
+## Spatial distribution maps {#BBnmap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 30 - 40, and statistical summaries are in Table 23.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<85mm) & 0 & 14.4 & 160 & 2237\\
+Recruits (85-95mm) & 0 & 0.80 & 16.2 & 259\\
+Fully-recruited (>95mm) & 0 & 47.6 & 90.8 & 734\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on Browns Bank North in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on Browns Bank North in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on Browns Bank North in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#BBnlinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 45, and the spatial distribution of meat count is shown in Figure 50. Statistical summaries of condition factor and meat count are provided in Table 24.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 5.97 & 12.1 & 11.6 & 15.0\\
+Meat count & 11.5 & 21.5 & 24.9 & 80.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on Browns Bank North in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on Browns Bank North in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+\newpage
+
+## Clapper time series {#BBnclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 55). Survey tows are standardized to 800 metres.  Table 25 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 0.09 & 0.20 & 1.23\\
+Recruits (85-95mm) & 1.38 & 1.76 & 3.53\\
+Fully-recruited (>95mm) & 0.95 & 0.87 & 1.77\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for Browns Bank North in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#BBnlinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#BBnbreakdown}
+
+Figure 60 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 107 mm and above at the time of the survey would result in meat counts at or below the regulation (40 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/BBn/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for Browns Bank North in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 40 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#BBnlinks)
+
+<!--chapter:end:parameterised_report_BBn.knit.md-->
+
+---
+output: 
+  pdf_document:
+    fig_caption: yes
+    extra_dependencies: ["float"]
+linkcolor: blue
+params:
+  bank: NA
+  banknum: NA
+header-includes:
+ - \usepackage{float}
+ - \usepackage{pdflscape}
+ - \newcommand{\blandscape}{\begin{landscape}}
+ - \newcommand{\elandscape}{\end{landscape}}
+---
+
+
+
+
+\newpage
+
+
+# Georges Bank (monitoring stations) {#GBlinks}
+
+**2021 Summary**
+
+-  Pre-recruit abundance increased by 19%, and was above the long term median.
+-  Recruit abundance decreased by 50%, and was near the long term median.
+-  Fully-recruited abundance decreased by 52%, and was near the long term median.
+
+
+-  Pre-recruit biomass decreased by 21%, and was near the long term median.
+-  Recruit biomass decreased by 35%, and was above the long term median.
+-  Fully-recruited biomass decreased by 47%, and was above the long term median.
+
+
+- Condition factor increased and was greater than the long term median.
+
+
+**Sections**
+
+- [Survey design & analysis](#GBSD)  
+
+- [Abundance & biomass time series summary](#GBABTS)  
+
+- [Shell height frequencies](#GBSHF)  
+
+- [Meat weight-shell height & condition](#GBMWSH)  
+
+- [Spatial distribution maps](#GBmap)  
+
+- [Clapper time series](#GBclap)  
+
+- [Biomass, meat count, and shell height relationship](#GBbreakdown)  
+
+- [Return to Table of Contents](#toc)
+
+
+\newpage
+
+
+## Survey Design & Analysis {#GBSD}
+
+The survey of Georges Bank (monitoring stations) in 2021 used a fixed survey design. There were 24 fixed stations.
+
+In the Georges Bank (monitoring stations) survey, pre-recruits are considered to be scallops with shell heights less than 85 mm, recruits have shell heights from 85 mm to 95 mm, and fully-recruited scallop have shell heights greater than 95 mm. 
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/survey_strata} 
+
+}
+
+\caption{Survey station map. There were 24 tow locations on Georges Bank (monitoring stations) in 2021.}\label{fig:unnamed-chunk-2}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+
+## Abundance & biomass time series summary {#GBABTS}
+
+
+
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures 12 & 18). Estimates are standardized to tows of 800 metres. Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty.  Tables 26 & 27 provide the plotted values for the current and previous surveys, and long term medians, by size class.
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-4}Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 238 & 283 & 247\\
+Recruits (85-95mm) & 165 & 82.4 & 83.6\\
+Fully-recruited (>95mm) & 358 & 172 & 159\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-5}Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 1270 & 1002 & 976\\
+Recruits (85-95mm) & 1886 & 1223 & 821\\
+Fully-recruited (>95mm) & 9379 & 4950 & 2582\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/abundance_ts} 
+
+}
+
+\caption{Abundance time series for Georges Bank (monitoring stations) in 2021, represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-6}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/biomass_ts} 
+
+}
+
+\caption{Biomass time series for Georges Bank (monitoring stations) in 2021, represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The grey dashed line is the long term median.}\label{fig:unnamed-chunk-7}
+\end{figure}
+[Return to bank summary](#GBlinks)
+\newpage
+
+
+## Shell height frequencies {#GBSHF}
+
+For Georges Bank (monitoring stations) in 2021, the size bin with the most scallop per tow was 40-45 mm (Figure 24).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.85\linewidth,height=0.85\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/SHF} 
+
+}
+
+\caption{Shell height frequencies of scallop on Georges Bank (monitoring stations) in 2021. Vertical lines are the recruit size limits.}\label{fig:unnamed-chunk-8}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+
+## Meat weight-shell height & condition {#GBMWSH}
+
+On Georges Bank (monitoring stations) in 2021, the empirical meat weight-shell height relationship (Figure 30) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately 20 grams. The modelled (GAMM) condition factor estimate increased from 19.4 in the previous survey, to 20.2 in 2021, and was greater than the long term median of 14.9.
+
+<!-- \begin{landscape} -->
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.7\linewidth,height=0.7\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/MWSH_and_CF_ts} 
+
+}
+
+\caption{Meat weights and shell heights for sampled tows on Georges Bank (monitoring stations) in 2021 (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.}\label{fig:unnamed-chunk-9}
+\end{figure}
+
+
+<!-- \end{landscape} -->
+[Return to bank summary](#GBlinks)
+\newpage
+
+
+## Spatial distribution maps {#GBmap}
+
+
+
+**Pre-recruit, recruit, and fully-recruited abundance:**
+
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures 36 - 48, and statistical summaries are in Table 28.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-11}Summary statistics for tow abundance by size class, for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+Size class & Minimum & Median & Mean & Maximum\\
+\midrule
+Pre-recruits (<85mm) & 0 & 52.1 & 283 & 2225\\
+Recruits (85-95mm) & 0 & 9.84 & 82.4 & 903\\
+Fully-recruited (>95mm) & 0 & 55.7 & 172 & 1123\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/PR-spatial} 
+
+}
+
+\caption{Spatial distribution of pre-recruit scallop on Georges Bank (monitoring stations) in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-12}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/Rec-spatial} 
+
+}
+
+\caption{Spatial distribution of recruit scallop on Georges Bank (monitoring stations) in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-13}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/FR-spatial} 
+
+}
+
+\caption{Spatial distribution of fully-recruited scallop on Georges Bank (monitoring stations) in 2021. Each point is a survey station, and the colour shows the distribution of abundance based on an INLA model.}\label{fig:unnamed-chunk-14}
+\end{figure}
+[Return to bank summary](#GBlinks)
+\newpage
+
+**Condition factor and meat count:**  
+
+The spatial distribution of condition factor is shown in Figure 54, and the spatial distribution of meat count is shown in Figure 60. Statistical summaries of condition factor and meat count are provided in Table 29.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-15}Summary statistics for condition factor and meat count for the current survey.}
+\centering
+\begin{tabular}[t]{lllll}
+\toprule
+  & Minimum & Median & Mean & Maximum\\
+\midrule
+Condition factor & 15.3 & 18.9 & 19.3 & 22.7\\
+Meat count & 7.98 & 15.7 & 15.7 & 24.4\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/CF-spatial} 
+
+}
+
+\caption{Spatial distribution of scallop condition on Georges Bank (monitoring stations) in 2021.}\label{fig:unnamed-chunk-16}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=1\linewidth,height=1\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/MC-spatial} 
+
+}
+
+\caption{Spatial distribution of meat count on Georges Bank (monitoring stations) in 2021.}\label{fig:unnamed-chunk-17}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+\newpage
+
+## Clapper time series {#GBclap}
+
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure 66). Survey tows are standardized to 800 metres. Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty.  Table 30 provides the plotted values for the current and previous surveys, and long term medians, by size class.
+
+\begin{table}[H]
+
+\caption{\label{tab:unnamed-chunk-18}Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.}
+\centering
+\begin{tabular}[t]{llll}
+\toprule
+Size class & 2019 survey & 2021 survey & Long term median\\
+\midrule
+Pre-recruits (<85mm) & 1.72 & 1.01 & 1.80\\
+Recruits (85-95mm) & 1.65 & 3.31 & 2.15\\
+Fully-recruited (>95mm) & 1.96 & 2.88 & 2.36\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.9\linewidth,height=0.9\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/Clapper_per_ts} 
+
+}
+
+\caption{Clapper time series for Georges Bank (monitoring stations) in 2021, represented by percentage of clappers per tow.}\label{fig:unnamed-chunk-19}
+\end{figure}
+[Return to bank summary](#GBlinks)
+\newpage
+
+## Biomass, meat count, and shell height relationship {#GBbreakdown}
+
+Figure 72 provides an overview the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of 91.1 mm and above at the time of the survey would result in meat counts at or below the regulation (33 mm).
+
+\begin{figure}[H]
+
+{\centering \includegraphics[width=0.75\linewidth,height=0.75\textheight]{Y:/Offshore/Assessment/2021/Presentations/Survey_summary/optipng/GB/breakdown-2021} 
+
+}
+
+\caption{The relationship between biomass and meat count for Georges Bank (monitoring stations) in 2021. Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at wich you would have a meat count of 33 mm or below. The blue vertical lines represent the recruit size range}\label{fig:unnamed-chunk-20}
+\end{figure}
+
+[Return to bank summary](#GBlinks)
+
+<!--chapter:end:parameterised_report_GB.knit.md-->
+
