@@ -6,6 +6,7 @@ output:
   bookdown::pdf_document2:
     extra_dependencies: ["float"]
     toc_depth: 1
+    dev: "png"
 header-includes:
  - \usepackage{float}
  - \usepackage{pdflscape}
