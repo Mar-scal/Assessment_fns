@@ -454,11 +454,11 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       if(nrow(trip.log) == 1 && is.null(reg.2.plot)) 
       {
         pect_plot <- pecjector(area = trip.area, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo.pec,direct=direct, 
-                               direct_fns=direct_fns)
+                               direct_fns=direct_fns, quiet=T)
       } 
       else {
         pect_plot <- pecjector(area = pr, plot=F, add_layer = list(eez='eez', nafo="sub", sfas="all"), repo=repo.pec,direct=direct, 
-                               direct_fns=direct_fns)
+                               direct_fns=direct_fns, quiet=T)
       }
       
       trip_plot <- pect_plot  + geom_sf(data=trip.log) + 

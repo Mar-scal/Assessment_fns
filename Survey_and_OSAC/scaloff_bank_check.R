@@ -292,7 +292,7 @@ Check the MGT_AREA_CD values for the following tows:")
       if(bank=="Sab" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 101)) message("Unexpected tow numbering series. Should be 1-100\n")
       if(bank=="GBa" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 201)) message("Unexpected tow numbering series. Should be 1-200\n")
       if(bank=="GBb" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO < 300 | tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 331)) message("Unexpected tow numbering series. Should be 301-330\n")
-      
+
       # check format of coordinates
       if(!is.numeric(tows$START_LAT) | !is.numeric(tows$START_LON) | !is.numeric(tows$END_LAT) | !is.numeric(tows$END_LON)) {
         message("\nThe following tows have non-numeric values in the coordinates columns:")
