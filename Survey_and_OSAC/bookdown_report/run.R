@@ -5,6 +5,7 @@ require(ggplot2)
 ######## prep input data if you haven't already
 reportyear <- 2021
 
+direct_fns <- "C:/Documents/Assessment_fns/"
 
 #################################################
 ### if you need to re-create the summary.RData
