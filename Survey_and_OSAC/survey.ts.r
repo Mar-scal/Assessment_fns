@@ -182,7 +182,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
   if(type == "N" && !is.null(user.bins)) 
   {
     shf <-  shf[,c(which(names(shf) %in% c("n","year",mean.names,CV.names)))]
-    shf <- shf[,-grep("bm",names(shf))]
+    if(any(grep(x=names(shf), "bm"))) shf <- shf[,-grep(pattern = "bm",names(shf))]
     if(!is.null(dat2))  
     {
       dat2 <-  dat2[,c(which(names(dat2) %in% c("n","year",mean.names,CV.names)))]
@@ -211,9 +211,9 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     # If we have user bins this is our naming convention
     if(!is.null(user.bins))
     {
-      if(i == 1) plot.names[[i]] <- substitute(paste(phantom(x)< a," mm",sep=""),list(a = user.bins[i]))
+      if(i == 1) plot.names[[i]] <- substitute(paste(phantom(0),"<", a," mm",sep=""),list(a = user.bins[i]))
       if(i > 1 && i < length(mn.tmp)) plot.names[[i]] <- substitute(paste(a ,"-", b, " mm",sep=""),list(a = user.bins[i-1],b=user.bins[i]-1))
-      if(i == length(mn.tmp)) plot.names[[i]] <- substitute(paste(phantom(x)>=a, " mm",sep=""),list(a = user.bins[i-1])) #phantom needed to make a leading math symbol...
+      if(i == length(mn.tmp)) plot.names[[i]] <- substitute(paste(phantom(0)>= a, " mm",sep=""),list(a = user.bins[i-1])) #phantom needed to make a leading math symbol...
       
     } # end if(!is.null(user.bins))
     if(is.null(user.bins))
@@ -302,7 +302,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     plot.which.bins <- extra.args$plot.which.bins
   }
   if(is.null(extra.args$plot.which.bins)) {
-    par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(1, 1, 0.5, 0.5))
+    par(mfrow = c(length(mn.tmp), 1), mar = c(0, 2, 0, 1), omi = c(0.5, 1, 0.5, 0.5))
     plot.which.bins <- 1:length(mn.tmp)
   }
 

@@ -13,7 +13,6 @@
 #1b: plot_as   What type of plot do you want to make?  Currently supports plot_as = "ggplot" (default), and plot_as = 'plotly' uses the 
 #              native plotly code to make the figure.  Also, "ggplotly" is an option which runs the ggplot code and sticks a plotly wrapper around it
 
-#2: area       The area you want to plot, this can be a custom field (see function convert_coords.R for options), an sf or sp object (new in 2021), or a list with
 ###               the coordinates and the projection of those coordinates specified.  Default provides Maritime Region boundaries
 ###               in lat/long coordinates and a WGS84 projection.
 
@@ -198,7 +197,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
   require(RCurl) || stop ("Please install RCurl so yo you can pull functions from github")
   require(readr) || stop ("Please install RCurl so yo you can pull csv from github")
-  require(s2) || stop ("Please install s2 so you can tidy up any crappy geography")
+  require(s2) || stop ("Please install s2 so you can tidy up any crappy geography. Note, you may also need to update sf")
   
   if(length(add_inla) > 0) require(INLA) || stop ("If you want to run INLA model output, might help to install the INLA packages!!")
   if(plot_as != 'ggplot') require(ggthemes) ||stop ("Please install ggspatial which is needed for the map theme for plotly")
@@ -234,7 +233,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
-      download.file(fun,destfile = basename(fun))
+      download.file(fun,destfile = basename(fun), quiet=quiet)
       source(paste0(getwd(),"/",basename(fun)))
       file.remove(paste0(getwd(),"/",basename(fun)))
     } # end for(un in funs)
@@ -253,9 +252,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(c_sys == "ll") c_sys <- 4326 # 32620 is UTM 20, just FYI 
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
-  # This the case in which we enter numbers as our coordinate system
+  # This the case in which we enter numbers as our coordinate system  
   if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-  
+  if(any(class(area)=="data.frame")) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
   if(any(class(area) == 'character')) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   if(any(class(area) %in% c("sp"))) area <- st_as_sf(area) # Convert to sf cause I already have that ready to roll below
@@ -267,7 +266,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   }
   
   # All I need from the coords call above is the bounding box.
-  
   b.box <- st_make_valid(coords$b.box)
   # Get the limits of the bounding box
   xlim <- as.numeric(c(st_bbox(b.box)$xmin,st_bbox(b.box)$xmax))
@@ -288,7 +286,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/EEZ/EEZ.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/EEZ/EEZ.zip", temp, quiet=quiet)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -328,7 +326,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(lnd != 'world' & gis.repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/other_boundaries/other_boundaries.zip", temp)
+      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/other_boundaries/other_boundaries.zip", temp,quiet=quiet)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it
@@ -484,7 +482,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to there
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Divisions.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Divisions.zip", temp, quiet=quiet)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -519,7 +517,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Figure out where your tempfiles are stored
       temp <- tempfile()
       # Download this to the temp directory you created above
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Subareas.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/NAFO/Subareas.zip", temp, quiet=quiet)
       # Figure out what this file was saved as
       temp2 <- tempfile()
       # Unzip it
@@ -566,7 +564,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_boundaries.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_boundaries.zip", temp, quiet=quiet)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -588,7 +586,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp, quiet=quiet)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -659,7 +657,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_survey_strata/inshore_survey_strata.zip", temp)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/inshore_boundaries/inshore_survey_strata/inshore_survey_strata.zip", temp, quiet=quiet)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -694,8 +692,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         temp <- tempfile()
         
         # Download this to the temp directory you created above
-        if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp)
-        if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp)
+        if(add_layer$survey[2] == 'detailed') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore_survey_strata/offshore_survey_strata.zip", temp, quiet=quiet)
+        if(add_layer$survey[2] == 'outline') download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/survey_boundaries/survey_boundaries.zip", temp, quiet=quiet)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
@@ -880,7 +878,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(gis.repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels/labels.zip", temp)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/labels/labels.zip", temp, quiet=quiet)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it

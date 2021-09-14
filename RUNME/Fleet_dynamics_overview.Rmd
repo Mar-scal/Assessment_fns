@@ -1,0 +1,100 @@
+---
+title: "Fleet dynamics overview"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+require(patchwork)
+
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Documents/Assessment_fns/"
+year <- 2021
+months <- 1:6
+banks <- c("GBa", "GBb")
+
+source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
+logs_and_fish(loc="offshore",year = 2004:year, direct="Y:/Offshore/Assessment/")
+new.log.dat$year <- year(new.log.dat$fished)
+new.log.dat$month <- month(new.log.dat$fished)
+new.log.dat$date <- ymd(new.log.dat$date)
+```
+
+
+```{r cars}
+
+annual <- new.log.dat %>%
+  filter(bank %in% banks & month %in% months) %>%
+  group_by(year, fleet) %>%
+  summarize(effort = sum(hm),
+            landings = sum(pro.repwt),
+            ntrip = length(unique(tripnum)),
+            nvessels = length(unique(vrnum)))
+
+annual$cpue <- annual$landings/annual$effort
+
+annual_combined <- new.log.dat %>%
+  filter(bank %in% banks & month %in% months) %>%
+  group_by(year) %>%
+  summarize(effort = sum(hm),
+            landings = sum(pro.repwt),
+            ntrip = length(unique(tripnum)),
+            nvessels = length(unique(vrnum))) %>%
+  mutate(fleet="both")
+
+annual_combined$cpue <- annual_combined$landings/annual_combined$effort
+
+annual <- join(annual, annual_combined, type="full")
+
+
+a <- ggplot() + geom_point(data=annual, aes(year, effort, colour=fleet)) + 
+  geom_line(data=annual, aes(year, effort, colour=fleet)) + 
+  theme_bw() +
+  ylab("Effort (hm)") +
+  expand_limits(y = 0)
+
+b <- ggplot() + geom_point(data=annual, aes(year, landings/1000, colour=fleet)) + 
+  geom_line(data=annual, aes(year, landings/1000, colour=fleet)) + 
+  theme_bw() +
+  ylab("Landings (mt)") +
+  expand_limits(y = 0)
+
+c <- ggplot() + geom_point(data=annual, aes(year, cpue, colour=fleet)) + 
+  geom_line(data=annual, aes(year, cpue, colour=fleet)) + 
+  theme_bw() +
+  ylab("CPUE (kg/hm)") +
+  expand_limits(y = 0)
+
+
+t <- ggplot() + geom_point(data=annual, aes(year, ntrip, colour=fleet)) +
+  geom_line(data=annual, aes(year, ntrip,colour=fleet)) +
+  theme_bw() +
+  ylab("Number of trips") +
+  expand_limits(y = 0)
+
+v <- ggplot() + geom_point(data=annual, aes(year, nvessels, colour=fleet)) +
+  geom_line(data=annual, aes(year, nvessels,colour=fleet)) +
+  theme_bw() +
+  ylab("Number of vessels active") +
+  expand_limits(y = 0)
+
+banklab <- paste0(banks, collapse=", ")
+monthlab <- paste0(min(months), " - ", max(months))
+
+plot <- ((b/a/c) | 
+           (plot_spacer()/t/v/plot_spacer()) + plot_layout(nrow = 4, heights=c(0.15, 0.35, 0.35, 0.15))) +
+  plot_layout(guides = "collect") +  plot_annotation(
+    title = 'Offshore scallop fleet dynamics summary',
+    subtitle = paste0('Data aggregated by year for months: ', monthlab, ", and banks: ", banklab))
+
+print(plot)
+
+banklab <- paste0(banks, collapse="_")
+monthlab <- paste0(min(months), "_", max(months))
+
+png(filename = paste0(direct, "Data/Fishery_data/Summary/", year, "/Fleet_dynamics_overview_", monthlab, "_", banklab, ".png"))
+print(plot)
+dev.off()
+
+
+```

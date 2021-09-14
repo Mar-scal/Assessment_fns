@@ -650,8 +650,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_transform(loc.cf,crs = 32620)
           loc.cf <- as(loc.cf,"Spatial")
           #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32620)[2]$proj4string)
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
-          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
+          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32620)[[2]])
+          bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32620)
         }  
         
         if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
@@ -666,6 +666,25 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
         
+        if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
+          out <- loc.sf %>% mutate(
+            intersection = as.integer(st_intersects(geometry, bound.poly.surv.sf)))
+          # check for locations outside the domain
+          if(any(is.na(out$intersection))) { # need to expand poly
+            message("bound.poly.surv.sp expanded to accomodate stations outside domain for spatial modelling purposes.
+                    These are likely due to extras. Please make sure you're ok with this!")
+            
+            pts_to_add <- out[is.na(out$intersection),]
+            poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 1000)
+            # plot(bound.poly.surv.sf)
+            # plot(loc.sf, add=T)
+            # plot(pts_to_add, add=T)
+            # plot(poly_to_add, add=T)
+            
+            bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
+            bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
+          }
+        }
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
       #browser()
       # If we want spatial maps or seedboxes and/or have user SH.bins (for both of which we will produce all figures automatically.)
@@ -694,8 +713,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
           # Will this work for them all I wonder? Max edge should be around 1/5 of the range according to Zuur
           mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge)
-          if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- crs(st_crs(32619)[2]$proj4string)
-          if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- crs(st_crs(32620)[2]$proj4string)
+          if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- crs(st_crs(32619)[[2]])
+          if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- crs(st_crs(32620)[[2]])
           plot(mesh) # For testing I want to plot this to see it and ensure it isn't crazy for the moment...
           #if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge/1.5)
           #if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.04))
@@ -1038,11 +1057,29 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
           
-          p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns,
-                         add_layer = list(eez = 'eez', sfa = 'offshore', bathy = bathy, scale.bar= scale.bar))
+          p <- pecjector(area = banks[i],
+                         plot = F,
+                         repo = direct_fns, 
+                         c_sys = st_crs(mesh$crs), 
+                         quiet=T,
+                         add_layer = list(eez = 'eez', 
+                                          sfa = 'offshore', 
+                                          bathy = bathy, 
+                                          scale.bar= scale.bar)) +
+            theme(panel.grid=element_blank(), 
+                  axis.ticks=element_line(),
+                  legend.position = 'right',
+                  legend.direction = 'vertical',
+                  legend.justification = 'left',
+                  legend.key.size = unit(.5,"line")) #+
+            #coord_sf(expand=F)
+          # 
+          # # manually adjust the bathy lines
+          # p$layers[[2]]$aes_params$colour <- "blue"
+          # p$layers[[2]]$aes_params$alpha <- 0.25
+          # 
           
-          
-          # Initialize a counter...
+         # Initialize a counter...
           count = 0
           #browser()
           # Make the maps...
@@ -1223,8 +1260,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             
             
             # Don't add the titles?
-            if(add.title == T)  p <- p + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20))
-            
+            if(add.title == T)  p <- p + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20, hjust=0.5))
             
             ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
             ######## Produce the figure######## Produce the figure######## Produce the figure######## Produce the figure
@@ -1234,11 +1270,26 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             if(fig == "screen") windows(11,8.5)
             
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
-            p2 <- pecjector(gg.obj = p, area = banks[i],plot = F,direct_fns = direct_fns, crs = st_crs(mesh$crs)[1]$epsg,
-                            add_inla= list(field = mod.res[[maps.to.make[m]]],mesh = mesh, dims=s.res,clip = bound.poly.surv.sp,
-                                           scale = list(scale = "discrete",breaks = base.lvls, palette = cols,leg.name=leg.title))) 
+            p2 <- pecjector(gg.obj = p, 
+                            area = banks[i],
+                            legend=T,
+                            plot=F,
+                            repo = direct_fns, 
+                            c_sys = st_crs(mesh$crs),
+                            add_inla= list(field = mod.res[[maps.to.make[m]]],
+                                           mesh = mesh, 
+                                           dims=s.res,
+                                           clip = bound.poly.surv.sf,
+                                           scale = list(scale = "discrete",
+                                                        breaks = base.lvls, 
+                                                        palette = cols,
+                                                        leg.name=leg.title, 
+                                                        alpha=0.75))) +
+              geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) +
+              coord_sf(expand=F)
             
             
+           
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
             
@@ -1252,7 +1303,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             {
               surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
-              surv <- st_transform(surv,crs = st_crs(mesh$crs)[1]$epsg)
+              surv <- st_transform(surv,crs = st_crs(mesh$crs))
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
               if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
               if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
@@ -1271,7 +1322,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
-              surv <- st_transform(surv,crs = st_crs(mesh$crs)[1]$epsg)
+              surv <- st_transform(surv,crs = st_crs(mesh$crs))
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) 
             }
@@ -1289,7 +1340,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             #browser()
             # Now print the figure
-            print(p3)
+            print(p3 + coord_sf(expand=F))
+       
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
           } # end for(m in 1:n.maps)  
@@ -1308,12 +1360,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     #Do we want to plot the survey?
     if(any(plots %in% "Survey"))
     {
-      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 11,res=420,bg = "transparent")
+      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 8.5,res=420,bg = "transparent")
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
       p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
-                     add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar))
+                     add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar)) +
+        coord_sf(expand=F)
       #print(p)
       
       # For the banks with detailed strata...
@@ -1415,8 +1468,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)
       }
       # }
-      if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
-      print(p2)
+      if(save.gg == T) save(p2,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
+      print(p2 + coord_sf(expand=F))
       if(fig != "screen") dev.off()
       
     } # end if(length(plots[grep("Survey",plots)]>0))
@@ -1457,12 +1510,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       ############
       #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
-      if(fig == "screen") windows(15,8)
+      if(fig == "screen") windows(8,13)
       if(fig == "png") png(paste(plot.dir,"/MWSH_and_CF_ts.png",sep=""),
-                           units="in",width = 13,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 13,height = 8.5)
+                           units="in",width = 8.5,height = 13,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts.pdf",sep=""),width = 8.5,height = 13)
       
-      par(mfrow=c(1,2))
+      par(mfrow=c(2,1))
       shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
       
       # now the condition factor figure..
@@ -2276,14 +2329,20 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     {
       # This only works for the banks we have thse data for...
       #if(banks[i] %in% c("BBn" , "GBb", "GBa","GB"))
-      #{
-      if(fig == "screen") windows(11,8.5)
+      if(fig == "screen") windows(8.5,11)
       if(fig == "png") png(paste(plot.dir,"breakdown-",(yr),".png",sep=""),units="in",
-                           width = 11,height = 8.5,res=420,bg = "transparent")
-      if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 11,height = 8.5)
+                           width = 8.5,height = 11,res=420,bg = "transparent")
+      if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 8.5,height = 11)
+      if(add.title ==T) title.txt <- paste("Biomass & Meat Count by Height (",banks[i],"-",yr,")",sep="")
       if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% gsub(x=banks[i], "Ice", ""))$MC_reg
       if(banks[i] %in% spat.name) mc <- subset(fish.reg, year == yr & Bank %in% unique(spat.names$bank[spat.names$label == banks[i]]))$MC_reg
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
+      if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$w.yst)) {
+        survey.obj[[banks[i]]]$shf.dat$w.yst <- survey.obj[[banks[i]]]$shf.dat$w.yst[,-which(colnames(survey.obj[[banks[i]]]$shf.dat$w.yst) == "years")]
+      }
+      if("years" %in% colnames(survey.obj[[banks[i]]]$shf.dat$n.yst)) {
+        survey.obj[[banks[i]]]$shf.dat$n.yst <- survey.obj[[banks[i]]]$shf.dat$n.yst[,-which(colnames(survey.obj[[banks[i]]]$shf.dat$n.yst) == "years")]
+      }
       if(banks[i] != "Ger") 
       {
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
@@ -2303,17 +2362,23 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         vec<-seq(0,195,5)
         y2max<-max(countmc[(min(c(RS-15,160),na.rm=T)/5):length(vec)],na.rm=T)*1.1
         ## last year
-        bmmc.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==yr-1),which(seq(5,200,5) >= 5)]/1000
-        nummc.last<-survey.obj[[banks[i]]]$shf.dat$n.yst[which(survey.obj[[banks[i]]][[1]]$year==yr-1),which(seq(5,200,5) >= 5)]
+        bmmc.last<-survey.obj[[banks[i]]]$shf.dat$w.yst[which(survey.obj[[banks[i]]][[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
+        nummc.last<-survey.obj[[banks[i]]]$shf.dat$n.yst[which(survey.obj[[banks[i]]][[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]
         countmc.last=nummc.last/bmmc.last*0.5
         y2max.last<-max(countmc.last[(min(c(RS-15,160),na.rm=T)/5):length(vec)],na.rm=T)*1.1
         y2max <- max(c(max(y2max,na.rm=T)*1.1),max(y2max.last,na.rm=T)*1.1)
-        breakdown(survey.obj[[banks[i]]],yr=yr,mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
+        breakdown(survey.obj[[banks[i]]],yr=yr,mc=mc,y1max = ymax, y2max=y2max, add.title = T, title.txt=title.txt)
       } # end if(banks[i] != "Ger") 
       
       # Using the lined surevye object for German bank...
       if(banks[i] == "Ger") 
       {
+        if("years" %in% colnames(lined.survey.obj$shf.dat$w.yst)) {
+          lined.survey.obj$shf.dat$w.yst <- lined.survey.obj$shf.dat$w.yst[,-which(colnames(lined.survey.obj$shf.dat$w.yst) == "years")]
+        }
+        if("years" %in% colnames(lined.survey.obj$shf.dat$n.yst)) {
+          lined.survey.obj$shf.dat$n.yst <- lined.survey.obj$shf.dat$n.yst[,-which(colnames(lined.survey.obj$shf.dat$n.yst) == "years")]
+        }
         # This will make the breakdown figure for the previous year in which there was a survey (typically last year but not always...)
         # This is based on the current year being requested (which could differ from the last year in the data if you are saying using the 2018 survey results
         # but wanted to look at the 2015 data for example).
@@ -2323,33 +2388,30 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         bm<-lined.survey.obj$shf.dat$w.yst[which(lined.survey.obj[[1]]$year==yr),which(seq(5,200,5) >= 5)]/1000
         bm.last<-lined.survey.obj$shf.dat$w.yst[which(lined.survey.obj[[1]]$year==last.surv.year),which(seq(5,200,5) >= 5)]/1000
         ymax <- max(c(max(bm,na.rm=T)*1.1),max(bm.last,na.rm=T)*1.1)
-        breakdown(lined.survey.obj,yr=yr,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
+        breakdown(lined.survey.obj,yr=yr,mc=mc,y1max = ymax,add.title = T, title.txt=title.txt)
       }# end if(banks[i] == "Ger") 
       
-      if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",yr,")",sep=""), cex.main=2,adj=0.35)
       if(fig != "screen") dev.off()   
       
       # I also want to remake the previsou year's breakdown plot, this will go in the current years folder but will
       # be the same y-scale (there is no guarantee that the plot made last year will be, likely it won't).  It's a bit
       # clunky but basically this is the same plot as last year but re-scaled for comparative purposes...
       if(any(!is.na(bm.last))==T) {
-        if(fig == "screen") windows(11,8.5)
+        if(fig == "screen") windows(8.5,11)
         if(fig == "png") png(paste(plot.dir,"breakdown-",last.surv.year,".png",sep=""),units="in",
-                             width = 11,height = 8.5,res=420,bg = "transparent")
-        if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",last.surv.year,".pdf",sep=""),width = 11,height = 8.5)
-        
+                             width = 8.5,height = 11,res=420,bg = "transparent")
+        if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",last.surv.year,".pdf",sep=""),width = 8.5,height = 11)
+        if(add.title ==T) title.txt <- paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep="")
         if(banks[i] != "Ger")
         {
           # To get the ymax the same between succesive years I want to do this...
-          breakdown(survey.obj[[banks[i]]],yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
-          if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep=""), cex.main=2,adj=0.35)
+          breakdown(survey.obj[[banks[i]]],yr=last.surv.year,mc=mc,y1max = ymax, y2max=y2max, add.title = T, title.txt=title.txt)
           
         } # end if(banks[i] != "Ger") 
         
         if(banks[i] == "Ger") 
         {
-          breakdown(lined.survey.obj,yr=last.surv.year,mc=mc,cx.axs=1,y1max = ymax,add.title = F)
-          if(add.title ==T) title(paste("Biomass & Meat Count by Height (",banks[i],"-",last.surv.year,")",sep=""), cex.main=2,adj=0.35)
+          breakdown(lined.survey.obj,yr=last.surv.year,mc=mc,y1max = ymax,add.title = T, title.txt=title.txt)
         }# end if(banks[i] == "Ger") 
         
         if(fig != "screen") dev.off()   

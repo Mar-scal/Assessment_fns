@@ -581,7 +581,6 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
   if(get.marfis==T && max(log.year) >= 2008)
   {
     
-    
     # If the data is from the last 2 years we grab the data from the Production version of MARFIS.
     # If the data is older than this it is stored in the archive version of marfis.
     # This is just needed to make the next if statement work for the case of year == "ALL" can't do math on a character after all.
@@ -731,32 +730,123 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     slip.SQL$bank[slip.SQL$sfa=="3PS"]<-"SPB"
     slip.SQL$bank[slip.SQL$sfa%in% c(10,11,12)]<-"SPB"
     
-      if(max(yr) != current.year & ex.marfis ==T)
-        {
-          #Write7
-          write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log",min(yr),"-",max(yr),
-                                                 ".csv",sep=""),sep=",",row.names=F,col.names=T)
-          #Write8
-          write.table(slip.SQL, file = paste(direct.off,"Data/Fishery_data/Slips/MARFIS/MARIFS_slip",min(yr),"-",max(yr),
-                                                  ".csv",sep=""),sep=",", row.names=F,col.names=T)
-        } # END if(yr[i] != current.year)       
-      
-      # if data are from this year more specific information on how current the data are should be included.
-      if(max(yr) == current.year & ex.marfis ==T)
-        {
-          #Write9
-          write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log_",min(yr),"-",
-                                                 max(log.SQL$fished,na.rm=T), ".csv",sep=""),
-                      sep=",",row.names=F,col.names=T)
-          #Write10
-          write.table(slip.SQL, file = paste(direct.off,"Data/Fishery_data/Slips/MARFIS/MARIFS_slip_",min(yr),"-",
-                                                 max(log.SQL$fished,na.rm=T),".csv",sep=""),
-                      sep=",", row.names=F,col.names=T)
-        } # END if(yr[i] != current.year)   
-      
-      # Return the marifs slip and log data for use elsewhere.
-      assign('marfis.log',log.SQL,pos=1)
-      assign('marfis.slip',slip.SQL,pos=1)
+    
+    if(max(yr) != current.year & ex.marfis ==T)
+    {
+      #Write7
+      write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log",min(yr),"-",max(yr),
+                                        ".csv",sep=""),sep=",",row.names=F,col.names=T)
+      #Write8
+      write.table(slip.SQL, file = paste(direct.off,"Data/Fishery_data/Slips/MARFIS/MARIFS_slip",min(yr),"-",max(yr),
+                                         ".csv",sep=""),sep=",", row.names=F,col.names=T)
+    } # END if(yr[i] != current.year)       
+    
+    # if data are from this year more specific information on how current the data are should be included.
+    if(max(yr) == current.year & ex.marfis ==T)
+    {
+      #Write9
+      write.table(log.SQL, file = paste(direct.off,"Data/Fishery_data/Logs/MARFIS/MARFIS_log_",min(yr),"-",
+                                        max(log.SQL$fished,na.rm=T), ".csv",sep=""),
+                  sep=",",row.names=F,col.names=T)
+      #Write10
+      write.table(slip.SQL, file = paste(direct.off,"Data/Fishery_data/Slips/MARFIS/MARIFS_slip_",min(yr),"-",
+                                         max(log.SQL$fished,na.rm=T),".csv",sep=""),
+                  sep=",", row.names=F,col.names=T)
+    } # END if(yr[i] != current.year)   
+    
+    # Return the marifs slip and log data for use elsewhere.
+    assign('marfis.log',log.SQL,pos=1)
+    assign('marfis.slip',slip.SQL,pos=1)
+    
+    
+    # Make sure all the longitude data are negative as they should be, there at one point were a couple entered incorrectly.
+    log.SQL$lon[log.SQL$lon > 0 & !is.na(log.SQL$lon)] <- log.SQL$lon[log.SQL$lon > 0 & !is.na(log.SQL$lon)]*-1
+    
+    # Now to do fishery calculations we need information on the type of boat we are dealing with.
+    # These are the offshore vessel numbers, ft = freezer trawler, wet is a wet boat (no freezer)
+    # This file location will need adjusted.
+    #Read3
+    boat.types <- read.table(paste(direct.off,"Data/Offshore_fleet.csv",sep=""),sep=",",header=T)
+    # select the freezer trawlers
+    boats.ft <- subset(boat.types,Type== "FT")$ID
+    # select the wet fish boats
+    boats.wet <- subset(boat.types,Type== "WF")$ID
+    
+    # ID the boats as Wet fish or freezers, if you are getting an NA here the "Offshore_fleet.csv" needs to be updated with the ID of 
+    # the new boats in the fleet.
+    log.SQL$fleet[log.SQL$vrnum %in% boats.ft] <- "FT"
+    log.SQL$fleet[log.SQL$vrnum %in% boats.wet] <- "WF"    
+    
+    # Now I want to transfer the landing weight, number of crew shucking, and date information from slips into the logs
+    log.SQL$gear.ft<-slip.SQL[match(log.SQL$mdid, slip.SQL$mdid),]$gear.ft
+    log.SQL$numshuck<-slip.SQL[match(log.SQL$mdid, slip.SQL$mdid),]$numshuck
+    
+    # Combine the data, I'd usually use a tapply here, but with the dates this is occasionally giving a very
+    # annoying error, thus I'm moving to the less efficient for loop
+    # Initialize variables and reset the dates to characters
+    doc.id <- unique(slip.SQL$mdid)
+    num.ids <- length(doc.id)
+    slip.SQL$sail <- as.character(slip.SQL$sail)
+    slip.SQL$land <- as.character(slip.SQL$land)
+    date.sail <- NULL
+    date.land <- NULL
+    landing <- NULL
+    slips <- NULL
+    hdr <- NULL
+    # Run the for loop to extract the unique date/ID combinations to match the landing totals above
+    for(i in 1:num.ids)
+    {
+      date.sail[i] <- slip.SQL$sail[slip.SQL$mdid == doc.id[i]][1]
+      date.land[i] <- slip.SQL$land[slip.SQL$mdid == doc.id[i]][1]
+      landing[i] <- sum(slip.SQL$weight[slip.SQL$mdid == doc.id[i]],na.rm=T)
+      hdr[i] <- slip.SQL$mdid[slip.SQL$mdid == doc.id[i]][1]
+    }
+    
+    # convert it back to a date.
+    date.sail <- as.Date(date.sail, "%Y-%m-%d")
+    date.land <- as.Date(date.land,"%Y-%m-%d")
+    
+    # Add in the landing and date landed information into the log dat.
+    log.SQL<-merge(log.SQL,data.frame(mdid=hdr,landing,date.sail, date.land),all=T)
+    #new.log.dat$date.land <- as.Date(new.log.dat$date.land,"%Y-%m-%d")
+    
+    # fix formatting 
+    if(!is.numeric(log.SQL$depth.f) & is.character(log.SQL$depth.f)) log.SQL$depth.f <- as.numeric(log.SQL$depth.f)
+    if(!is.numeric(log.SQL$numtow) & is.character(log.SQL$numtow)) log.SQL$numtow <- as.numeric(log.SQL$numtow)
+    if(!is.numeric(log.SQL$avgtime) & is.character(log.SQL$avgtime)) log.SQL$avgtime <- as.numeric(log.SQL$avgtime)
+    if(!is.numeric(log.SQL$gear.ft) & is.character(log.SQL$gear.ft)) log.SQL$gear.ft <- as.numeric(log.SQL$gear.ft)
+    if(!is.numeric(log.SQL$numrake) & is.character(log.SQL$numrake)) log.SQL$numrake <- as.numeric(log.SQL$numrake)
+    
+    # Now I want to add some columns to new.log.dat
+    # First make a "date" column
+    log.SQL$date<- log.SQL$fished
+    # Next a column for the year
+    log.SQL$year<-as.numeric(format(log.SQL$date, "%Y"))
+    
+    # A second "trip.id" which is a combination of several other pieces of information
+    log.SQL$trip.id<-with(log.SQL,paste(year,vrnum,tripnum,sep='.'))
+    # Make sure numrake is numeric, there may be some weird data in there from SQL database
+    if(length(log.SQL$numrake == "UNK") > 0) log.SQL$numrake[log.SQL$numrake == "UNK"] <- NA
+    
+    # Also lets make sure we have a depth in meters here
+    log.SQL$depth.m <- log.SQL$depth.f * 1.8828
+    # Finally add a date class, this is for compatibility with old.log.dat
+    log.SQL$datclass<-1
+    
+    # Now calculate the fishery summary data and add this to the file...
+    # Only the "new.log.data" needs this information calculated (it is already in old.log.dat and the inshore too)  
+    # Calculate how effort in hours
+    log.SQL$h <- log.SQL$numtow * log.SQL$avgtime / 60
+    # Calculate the area swept in meters
+    log.SQL$m <- log.SQL$numrake * log.SQL$gear.ft * 0.3048
+    # Now Effort in hour-meters
+    log.SQL$hm <- log.SQL$m * log.SQL$h
+    # CPUE in kg/hr
+    log.SQL$kg.h <- log.SQL$pro.repwt / log.SQL$h
+    # CPUE in kg/(hr-m)
+    log.SQL$kg.hm <- log.SQL$pro.repwt / log.SQL$hm
+   
+    assign('marfis.log.dat',log.SQL,pos=1)
       
   } # end get.marfis==T    
     #################  End Section 3 import the offshore data  from SQL database  #############################

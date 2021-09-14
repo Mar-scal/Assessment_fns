@@ -82,7 +82,10 @@ CPUE.mon <- function(CPUE = "month", bank = NULL, year = as.numeric(format(Sys.D
   if(any(months > 12)) stop("You have specified a month > 12, please fix 'months' in function call")
   #Source1 source("d:/R/fn/logs_and_fishery_data_DK.r") get data from logs and fish function
   if(get.marfis == F) logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = F, direct=direct, direct_fns=direct_fns)
-  if(get.marfis == T) logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = T, un=un, pw=pw, db.con=db.con, direct=direct, direct_fns=direct_fns)
+  if(get.marfis == T) {
+    logs_and_fish(loc="offshore",year=year,export=export.logs, get.marfis = T, un=un, pw=pw, db.con=db.con, direct=direct, direct_fns=direct_fns)
+    new.log.dat <- marfis.log.dat
+  }
   # For these monthly calculations we need to know the month fishing occured
   new.log.dat$month <- as.numeric(format(new.log.dat$fished,"%m"))
   

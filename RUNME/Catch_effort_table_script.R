@@ -9,16 +9,16 @@ require(openxlsx)
 
 ### Set your directory, year, and source the CPUE_monthly_or_observer function
 ### for the data and outputs:
-direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
+direct <- "Y:/Offshore/Assessment/"
 
 ### for the code:
 ### If you want to use the MASTER version:
 # direct_fns <- "Y:/Offshore/Assessment/Assessment_fns/"
 ### If you want to use a development version:
 # direct_fns <- "Y:/Github/Offshore/Assessment_fns/FK/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Documents/Assessment_fns/"
 
-year <- c(2020)
+year <- c(2021)
 
 source(paste0(direct_fns, "Fishery/CPUE_monthly_or_observer.R"))
 
@@ -26,6 +26,9 @@ source(paste0(direct_fns, "Fishery/CPUE_monthly_or_observer.R"))
 ### For catch effort tables by bank and fleet, run the following:
 banks <- c("GBa", "GBb", "Sab", "Ger", "Mid", "BBn", "BBs", "Ban", "SPB") # pick your banks
 fleets <- c("FT", "WF") # pick your fleets
+marfis = F # T for pull from marfis (uncorrected), F for pull from log and slip csvs (corrected)
+# un.ID <- ""
+# pwd.ID <-""
 
 combos <- expand.grid(banks=banks, fleets=fleets)
 combos <- arrange(combos, banks)
@@ -33,7 +36,8 @@ combos$n <- 1:nrow(combos)
 
 bank_fleet_table_all <- NULL
 for(i in 1:nrow(combos)){
-  CPUE.mon(CPUE="month", year=year, bank=combos$banks[i], fleet=combos$fleets[i], print=F, output=T, direct=direct, direct_fns=direct_fns, get.marfis = F)
+  CPUE.mon(CPUE="month", year=year, bank=combos$banks[i], fleet=combos$fleets[i], print=F, output=T, 
+           direct=direct, direct_fns=direct_fns, get.marfis = marfis)#, un=un.ID, pw = pwd.ID) # enter un or pw if get.marfis=F
   bank_fleet_table <- cbind(data.frame(bank=combos$banks[i]), CPUE.monthly[, -which(names(CPUE.monthly) %in% "bank")])
   bank_fleet_table_all <- rbind(bank_fleet_table_all, bank_fleet_table)
 }

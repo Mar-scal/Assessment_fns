@@ -13,12 +13,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   options(scipen=999)
   require(lubridate)
   require(plyr)
+  require(tidyverse)
+  require(ggplot2)
+  source(paste0(direct_fns, "Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
+  source(paste0(direct_fns, "Other_functions/ScallopRound.r"))
+  
   direct.tmp <- direct
   load(data)
   direct <- direct.tmp
   banks <- names(bank.dat)
-
-  source(paste0(direct_fns, "Assessment_fns/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r"))
 
   if(any(grepl(x=banks, pattern="GBa-")) & subarea==F) banks <- banks[-which(grepl(x=banks, pattern = "GBa-"))]
 
@@ -46,11 +49,16 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
   sizes <- NULL
   spatial.sum.stats <- NULL
   dates <- NULL
+  yeartable <- NULL
   for (i in 1:length(banks)){
 
-    if(banks[i] %in% "BBs") lastyear <- year-2
-    if(!banks[i] %in% c("BBs", "Ban", "BanIce")) lastyear <- year-1
-    if(banks[i] %in% c("Ban", "BanIce")) lastyear <- 2012
+    if(!banks[i] == "Ger") years <- survey.obj[[banks[i]]]$model.dat$year[!is.na(survey.obj[[banks[i]]]$model.dat$n)]
+    if(banks[i] == "Ger") years <- lined.survey.obj$model.dat$year[!is.na(lined.survey.obj$model.dat$n)]
+    
+    lastyear <- years[which(years==year)-1]
+    
+    yeartable <- rbind(yeartable, 
+                       data.frame(bank=banks[i], lastyear = lastyear, currentyear=year))
 
     # must use surv.Live instead of surv.Rand for German!!
     if(banks[i] == "Ger") surv.Rand$Ger <- surv.Live$Ger
@@ -335,7 +343,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
                                                                                           surv.Rand[banks[i]][[1]]$year==lastyear]) - 1)
 
     spatial.sum.stats.b <- t(apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, c("pre", "rec", "com")], 2, summary))[,c(1,3,4,6)]
-    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) round(x, 2)))
+    spatial.sum.stats.b <- as.data.frame(apply(spatial.sum.stats.b, 2, function(x) ScallopRound(x, 3)))
     spatial.sum.stats.b$bank <- banks[i]
     spatial.sum.stats.b$year <- year
 
@@ -358,7 +366,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     sizerange75FR <- NULL
 
     for(y in c(lastyear, year)){
-      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% c("year", "years"))]))
       shf.ty$bin <- seq(0,195,5)
       shf.ty$size <- cut(shf.ty$bin, c(0,size$RS, size$CS, 200), include.lowest = T, right = F)
       sizeclass <- data.frame(size=unique(shf.ty$size), class=c("PR", "Rec", "FR"))
@@ -387,16 +395,16 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
     if(!banks[i] %in% c("Ger", "BanIce")){
       df <- as.data.frame(round(survey.obj[[banks[i]]]$shf.dat$w.yst))
       df$year <- survey.obj[[banks[i]]][[1]]$year
-      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg, cx.axs=1,add.title = F, value=T)
+      sht.cnt <- breakdown(survey.obj[[banks[i]]],yr=y,mc=mcreg,add.title = F, value=T)
     }
     if(banks[i] == "Ger"){
       df <- as.data.frame(round(lined.survey.obj$shf.dat$w.yst))
       df$year <- lined.survey.obj[[1]]$year
-      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], cx.axs=1,add.title = F, value=T)
+      sht.cnt <- breakdown(lined.survey.obj,yr=y,mc=fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y], add.title = F, value=T)
     }
     sizerange75_bm_65up <- NULL
     for(y in c(lastyear, year)){
-      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+      shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% c("year", "years"))]))
       shf.ty$bin <- seq(0,195,5)
       names(shf.ty) <- c("npertow", "bin")
       shf.ty <- shf.ty[shf.ty$bin > 60,]
@@ -483,7 +491,7 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
     }
 
 spatial.sum.stats.c <- as.data.frame(rbind(summary(cf.data[banks[i]][[1]]$CF.data$CF[cf.data[banks[i]][[1]]$CF.data$year == year])[c(1,3,4,6)]))
-spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) round(x, 2))))
+spatial.sum.stats.c <- as.data.frame(t(apply(spatial.sum.stats.c, 2, function(x) ScallopRound(x, 3))))
 spatial.sum.stats.c$bank <- banks[i]
 spatial.sum.stats.c$year <- year
 
@@ -516,7 +524,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
     ltmtest <- ifelse(cf$thisyear > cf$LTM, "greater than",
                       ifelse(cf$thisyear < cf$LTM, "less than", NA))
 
-    cf$nearLTM <- paste0(ltmtest, " (LTM=", round(cf$LTM,2), ")")
+    cf$nearLTM <- paste0(ltmtest, " (LTM=", ScallopRound(cf$LTM,3), ")")
 
     mwshcf <- rbind(data.frame(variable=c("fittedmw100mm"),
                                lastyear=NA,
@@ -569,33 +577,42 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                      bank=banks[i])
 
     spatial.sum.stats.m <- as.data.frame(rbind(summary(CF.current[[banks[i]]]$meat.count)[c(1,3,4,6)]))
-    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) round(x, 2))))
+    spatial.sum.stats.m <- as.data.frame(t(apply(spatial.sum.stats.m, 2, function(x) ScallopRound(x, 3))))
     spatial.sum.stats.m$bank <- banks[i]
     spatial.sum.stats.m$year <- year
 
     spatial.sum.stats$mc <- rbind(spatial.sum.stats$mc, spatial.sum.stats.m)
 
     highlights <- rbind(highlights, mc)
-
+    
     # clapper abundance
+    
+    # for proportional LTMs (as in Clap3.plt.R)
+    ts <- aggregate(clap.propPre~year,surv.Clap.Rand[[banks[i]]],mean)
+    ts$clap.propRec <- aggregate(clap.propRec~year,surv.Clap.Rand[[banks[i]]],mean)$clap.propRec
+    ts$clap.propCom <- aggregate(clap.propCom~year,surv.Clap.Rand[[banks[i]]],mean)$clap.propCom
+    
     if(!banks[i] %in% "BBs"){
     clap <- data.frame(variable=c("NPRclap", "NRclap", "Nclap",
                                   "PRpercentclap", "Rpercentclap", "Cpercentclap"),
                        lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==lastyear])),
+                                  ts$clap.propPre[ts$year==lastyear],
+                                  ts$clap.propRec[ts$year==lastyear],
+                                  ts$clap.propCom[ts$year==lastyear]),
                        thisyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                   clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
-                                  mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
-                       LTM=c(median(surv.Clap.Rand[[banks[i]]]$clap.propPre[!surv.Clap.Rand[[banks[i]]]$year == max(surv.Clap.Rand[[banks[i]]]$year)], na.rm=T)
-
-                       ))
+                                  ts$clap.propPre[ts$year==year],
+                                  ts$clap.propRec[ts$year==year],
+                                  ts$clap.propCom[ts$year==year]),
+                       LTM=c(median(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                             median(clap.survey.obj[banks[i]][[1]]$bankpertow$NR[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                             median(clap.survey.obj[banks[i]][[1]]$bankpertow$N[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                             median(ts$clap.propPre[!ts$year==year], na.rm=T),
+                             median(ts$clap.propRec[!ts$year==year], na.rm=T),
+                             median(ts$clap.propCom[!ts$year==year], na.rm=T)))
     }
 
     if(banks[i] %in% "BBs"){
@@ -604,16 +621,21 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                          lastyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==lastyear],
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==lastyear]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==lastyear])),
+                                    ts$clap.propPre[ts$year==lastyear],
+                                    ts$clap.propRec[ts$year==lastyear],
+                                    ts$clap.propCom[ts$year==lastyear]),
                          thisyear=c(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$NR[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
                                     clap.survey.obj[banks[i]][[1]]$bankpertow$N[clap.survey.obj[banks[i]][[1]]$bankpertow$year==year],
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propPre[surv.Clap.Rand[[banks[i]]]$year==year]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propRec[surv.Clap.Rand[[banks[i]]]$year==year]),
-                                    mean(surv.Clap.Rand[[banks[i]]]$clap.propCom[surv.Clap.Rand[[banks[i]]]$year==year])),
-                         LTM=NA)
+                                    ts$clap.propPre[ts$year==year],
+                                    ts$clap.propRec[ts$year==year],
+                                    ts$clap.propCom[ts$year==year]),
+                         LTM=c(median(clap.survey.obj[banks[i]][[1]]$bankpertow$NPR[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                                    median(clap.survey.obj[banks[i]][[1]]$bankpertow$NR[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                                    median(clap.survey.obj[banks[i]][[1]]$bankpertow$N[!clap.survey.obj[banks[i]][[1]]$bankpertow$year==year], na.rm=T),
+                                    median(ts$clap.propPre[!ts$year==year], na.rm=T),
+                                    median(ts$clap.propRec[!ts$year==year], na.rm=T),
+                                    median(ts$clap.propCom[!ts$year==year], na.rm=T)))
     }
 
     clap$thisyear <- as.numeric(as.character(clap$thisyear))
@@ -703,10 +725,10 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
 
          for(y in c(lastyear, year)){
 
-           if(any(!is.na(df[df$year==y, !names(df) %in% "year"]))){
+           if(any(!is.na(df[df$year==y, !names(df) %in% c("year", "years")]))){
              if(dim(df[df$year==y,])[1]==0) sizerange75_seed_y[paste0(y)] <- NA
              if(dim(df[df$year==y,])[1]>0){
-               shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% "year")]))
+               shf.ty <- as.data.frame(t(df[df$year==y, which(!names(df) %in% c("year", "years"))]))
                shf.ty$bin <- seq(0,195,5)
                shf.ty$size <- cut(shf.ty$bin, c(0,size$RS, size$CS, 200), include.lowest = T, right = F)
                sizeclass <- data.frame(size=unique(shf.ty$size), class=c("PR", "Rec", "FR"))
@@ -724,7 +746,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                sizerange75FR_seed_y[paste0(y)] <- paste0(round_any(sevfivepercFR[1], 5), "-", round_any(sevfivepercFR[2], 5))
                #hist(expanded$bin)
 
-               shf.bm.ty <- as.data.frame(t(df2[df2$year==y, which(!names(df2) %in% "year")]))
+               shf.bm.ty <- as.data.frame(t(df2[df2$year==y, which(!names(df2) %in% c("year", "years"))]))
                shf.bm.ty$bin <- seq(0,195,5)
                shf.bm.ty$size <- cut(shf.bm.ty$bin, c(0,size$RS, size$CS, 200), include.lowest = T, right = F)
                sizeclass <- data.frame(size=unique(shf.bm.ty$size), class=c("PR", "Rec", "FR"))
@@ -753,7 +775,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                C75_seed_y[paste0(y)] <- paste0(round_any(C75_seed_t[1], 5), "-", round_any(C75_seed_t[2], 5))
              }
            }
-           if(!any(!is.na(df[df$year==y, !names(df) %in% "year"]))) {
+           if(!any(!is.na(df[df$year==y, !names(df) %in% c("year", "years")]))) {
              sizerange75_seed_y[paste0(lastyear)] <- NA
              sizerange75_seed_y[paste0(year)] <- NA
              sizerange75_seed_bm_y[paste0(lastyear)] <- NA
@@ -845,13 +867,13 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
     }
 
   }
-
+  
   #print(bankcheck)
   highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF"),c(2,3,4)] <-
-    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 2))
+    apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 
   highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
-    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) round(as.numeric(x), 1))
+    apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 
 
   print(sizes)
@@ -863,6 +885,7 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
   highlights <<- highlights
   spatial.sum.stats <<- spatial.sum.stats
   dates<<-dates
+  yeartable <<-yeartable
 
 }
 
