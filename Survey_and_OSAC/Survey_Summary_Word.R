@@ -177,15 +177,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
     # biomass per tow
     if(banks[i] %in% c("Mid", "GB", "Ger", "Ban", "BanIce")){
-      IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]
-      IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==lastyear]
-      IR_current <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year]
-      IR_prev <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==lastyear]
-      I_current <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==year]
-      I_prev <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==lastyear]
-      IPR_LTM <- median(SS.summary[banks[i]][[1]]$IPR, na.rm=T)
-      IR_LTM <- median(SS.summary[banks[i]][[1]]$IR, na.rm=T)
-      I_LTM <- median(SS.summary[banks[i]][[1]]$I, na.rm=T)
+      IPR_current <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==year]/1000
+      IPR_prev <- SS.summary[banks[i]][[1]]$IPR[SS.summary[banks[i]][[1]]$year==lastyear]/1000
+      IR_current <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==year]/1000
+      IR_prev <- SS.summary[banks[i]][[1]]$IR[SS.summary[banks[i]][[1]]$year==lastyear]/1000
+      I_current <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==year]/1000
+      I_prev <- SS.summary[banks[i]][[1]]$I[SS.summary[banks[i]][[1]]$year==lastyear]/1000
+      IPR_LTM <- median(SS.summary[banks[i]][[1]]$IPR, na.rm=T)/1000
+      IR_LTM <- median(SS.summary[banks[i]][[1]]$IR, na.rm=T)/1000
+      I_LTM <- median(SS.summary[banks[i]][[1]]$I, na.rm=T)/1000
 
       if(dim(SS.summary[banks[i]][[1]][SS.summary[banks[i]][[1]]$year==lastyear,])[1]==0){
         IPR_prev <- NA
@@ -195,15 +195,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     }
 
     if(banks[i] %in% c("Sab", "BBn", "GBa", "GBb")| grepl(x=banks[i], pattern="GBa")){
-      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
-      IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
-      I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
+      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)/1000
+      IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)/1000
+      I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)/1000
 
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
@@ -213,15 +213,15 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     }
 
     if(banks[i] %in% c("BBs")){
-      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]
-      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]
-      IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)
-      IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)
-      I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)
+      IPR_current <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      IPR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IPR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      IR_current <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      IR_prev <- survey.obj[banks[i]][[1]]$bankpertow$IR[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      I_current <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==year]/1000
+      I_prev <- survey.obj[banks[i]][[1]]$bankpertow$I[survey.obj[banks[i]][[1]]$bankpertow$year==lastyear]/1000
+      IPR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IPR, na.rm=T)/1000
+      IR_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$IR, na.rm=T)/1000
+      I_LTM <- median(survey.obj[banks[i]][[1]]$bankpertow$I, na.rm=T)/1000
 
       if(dim(survey.obj[banks[i]][[1]]$bankpertow[survey.obj[[1]]$bankpertow$year==lastyear,])[1]==0){
         IPR_prev <- NA
