@@ -2,9 +2,9 @@
 output:
   pdf_document: 
     template: null
-  word_document:
-    fig_caption: yes
-    pandoc_args: ["-Fpandoc-crossref"] # ensure pandoc-crossref.exe is in 
+  #word_document:
+  #  fig_caption: yes
+  #  pandoc_args: ["-Fpandoc-crossref"] # ensure pandoc-crossref.exe is in 
 linkcolor: blue
 graphics: yes
 geometry: margin=2cm
@@ -13,9 +13,6 @@ params:
   banknum: NA
 header-includes:
  - \usepackage{float}
- - \usepackage{pdflscape}
- - \newcommand{\blandscape}{\begin{landscape}}
- - \newcommand{\elandscape}{\end{landscape}}
 ---
 
 

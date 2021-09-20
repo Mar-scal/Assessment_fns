@@ -3,17 +3,12 @@ title: "Survey Summary"
 subtitle: "Spring 2021"
 author: "Scallop and Benthic Habitat Unit"
 output: 
-  bookdown::word_document2:
+  bookdown::pdf_document2:
     extra_dependencies: ["float"]
     toc: yes
     toc_depth: 1
-    dev: "png"
-    reference_docx: "my-styles.docx"
 header-includes:
  - \usepackage{float}
- - \usepackage{pdflscape}
- - \newcommand{\blandscape}{\begin{landscape}}
- - \newcommand{\elandscape}{\end{landscape}}
  - \usepackage{fancyhdr}
  - \pagestyle{fancy}
  - \fancyfoot[CO,CE]{Spring Survey 2021}
