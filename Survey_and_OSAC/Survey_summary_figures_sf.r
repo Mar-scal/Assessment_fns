@@ -1060,7 +1060,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           p <- pecjector(area = banks[i],
                          plot = F,
                          repo = direct_fns, 
-                         c_sys = st_crs(mesh$crs), 
+                         c_sys = st_crs(mesh$crs)$epsg, 
                          quiet=T,
                          add_layer = list(eez = 'eez', 
                                           sfa = 'offshore', 
@@ -1275,7 +1275,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                             legend=T,
                             plot=F,
                             repo = direct_fns, 
-                            c_sys = st_crs(mesh$crs),
+                            c_sys = st_crs(mesh$crs)$epsg,
                             add_inla= list(field = mod.res[[maps.to.make[m]]],
                                            mesh = mesh, 
                                            dims=s.res,
@@ -1298,12 +1298,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
             ############  Add the points and the legend to the figure############  Add the points and the legend to the figure
             # Add the regular survey tows, note this if statement is used to NOT add the following code to these plots...
-            #browser()
+     
             if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial","Clap-spatial"))
             {
               surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
-              surv <- st_transform(surv,crs = st_crs(mesh$crs))
+              surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
               if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
               if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
@@ -1322,7 +1322,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
-              surv <- st_transform(surv,crs = st_crs(mesh$crs))
+              surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) 
             }
@@ -1335,7 +1335,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
               sbs <- as.PolySet(sb, projection = "LL")
               sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
-              sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf))
+              sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
               p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1)
             }
             #browser()
@@ -1376,11 +1376,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
 
       # Use the cut out I make for the INLA models, it looks o.k.
       if(banks[i] %in% c("Mid","Ger")) shpf <- st_as_sf(bound.poly.surv.sp)
-      if(!banks[i] == "GB") shpf <- st_transform(shpf,crs = st_crs(loc.sf))
+      if(!banks[i] == "GB") shpf <- st_transform(shpf,crs = st_crs(loc.sf)$epsg)
       
       surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
         dplyr::filter(year == yr & state == 'live')
-      surv <- st_transform(surv,crs = st_crs(loc.sf))
+      surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
@@ -1449,7 +1449,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           geom_sf(data=shpf,aes(linetype = `Number of Tows`))  + 
           geom_sf(data=shpf,aes(colour = `Area (km^2)`))  +
           new_scale("fill") + geom_sf(data=shpf,aes(fill= ID))    +  
-          geom_point(data=surv,aes(lon, lat, shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + 
+          geom_sf(data=surv, aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
           scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols)))  +
           scale_colour_manual(values = rep("black", length(cols)), guide=guide_legend(override.aes = list(fill= cols)))  +
@@ -1464,7 +1464,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
         sbs <- as.PolySet(sb, projection = "LL")
         sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
-        sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf))
+        sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)
       }
       # }
