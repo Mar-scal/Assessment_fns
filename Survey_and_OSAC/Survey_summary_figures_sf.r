@@ -249,6 +249,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   } # end if(season == "both") 
   season <- tmp.season 
   yr <- tmp.yr
+  dir.temp <- direct
   if(season == "spring") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
@@ -256,11 +257,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     {
       # This loads last years Survey object results.
       load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""), )  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 159 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 259 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 
     yr <- tmp.yr
+    direct <- dir.temp
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
@@ -269,6 +271,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   } # end if(season == "spring") 
   season <- tmp.season 
   yr <- tmp.yr
+  direct <- dir.temp
   if(season == "summer") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
