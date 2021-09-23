@@ -63,23 +63,33 @@ maxbin <- strsplit(highlights$word[highlights$variable=="maxbin" & highlights$ba
 mwshltm <- strsplit(highlights$nearLTM[highlights$variable=="CF" & highlights$bank==params$bank], " (", fixed=T)[[1]][1]
 
 tabnum <- 5*(params$banknum-1) + 1:5
+fignum <- 12*(params$banknum-1) + 1:12
 
-table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
+table <- highlights[#highlights$bank==params$bank & 
+  highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
 
-table$word[table$thisyear < table$lastyear] <- "decreased"
-table$word[table$thisyear > table$lastyear] <- "increased"
+table$word[as.numeric(table$thisyearraw) < as.numeric(table$lastyearraw)] <- "decreased"
+table$word[as.numeric(table$thisyearraw) > as.numeric(table$lastyearraw)] <- "increased"
 
 table$perc[table$word=="increased"] <- 
-  (as.numeric(table$thisyear[table$word=="increased"]) - as.numeric(table$lastyear[table$word=="increased"]))/
-  as.numeric(table$lastyear[table$word=="increased"]) *100
+  (as.numeric(table$thisyearraw[table$word=="increased"]) - as.numeric(table$lastyearraw[table$word=="increased"]))/
+  as.numeric(table$thisyearraw[table$word=="increased"]) *100
 
 table$perc[table$word=="decreased"] <-   
-  (as.numeric(table$lastyear[table$word=="decreased"]) - as.numeric(table$thisyear[table$word=="decreased"]))/
-  as.numeric(table$lastyear[table$word=="decreased"]) *100
+  (as.numeric(table$lastyearraw[table$word=="decreased"]) - as.numeric(table$thisyearraw[table$word=="decreased"]))/
+  as.numeric(table$lastyearraw[table$word=="decreased"]) *100
 
-table$state <- paste0(table$word, " by ", ScallopRound(table$perc, 2), "% since")
+table$perclab <- ScallopRound(table$perc, 2)
+
+table$perclab[table$perc>0 & table$perc < 0.01] <- "<0.01"
+table$perclab[table$perc>99] <- ">99"
+
+table$state <- paste0(table$word, " by ", table$perclab, "% since")
 
 table$state[is.na(table$perc)] <- "was similar to"
+
+highlights$lastyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$lastyearraw) & (highlights$lastyearraw>0 & highlights$lastyearraw<0.01)] <- "<0.01"
+highlights$thisyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$thisyearraw) & (highlights$thisyearraw>0 & highlights$thisyearraw<0.01)] <- "<0.01"
 
 ```
 
@@ -146,7 +156,7 @@ if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot <- paste0("Note th
 
 ```
 
-Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures `r paste0(params$banknum * 2, " & ", params$banknum * 3)`). Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Tables `r paste0(tabnum[1], " & ", tabnum[2])` provide the plotted values for the current and previous surveys, and long term medians, by size class.
+Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures `r paste0(fignum[2], " & ", fignum[3])`). Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Tables `r paste0(tabnum[1], " & ", tabnum[2])` provide the values for the current and previous surveys, and long term medians, by size class.
 
 
 ```{r, echo=F}
@@ -193,7 +203,7 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ## Shell height frequencies {#`r paste0(params$bank, "SHF")`}
 
-For `r bankname` in `r year`, the size bin with the most scallop per tow was `r maxbin` mm (Figure `r params$banknum * 4`).
+For `r bankname` in `r year`, the size bin with the most scallop per tow was `r maxbin` mm (Figure `r fignum[4]`).
 
 ```{r, echo=FALSE, message=F, out.height="85%", out.width="85%", fig.align="center", fig.cap=paste0("Shell height frequencies of scallop on ", bankname, " in ", year, ". Vertical lines are the recruit size limits.")}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/SHF.png"))
@@ -205,11 +215,11 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ## Meat weight-shell height & condition {#`r paste0(params$bank, "MWSH")`}
 
-On `r bankname` in `r year`, the empirical meat weight-shell height relationship (Figure `r params$banknum * 5`) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately `r ScallopRound(as.numeric( highlights$thisyear[highlights$variable=="fittedmw100mm" & highlights$bank==params$bank]),2)` grams. The modelled (GAMM) condition factor estimate `r highlights$word[highlights$variable=="CF" & highlights$bank==params$bank]` from `r highlights$lastyear[highlights$variable=="CF" & highlights$bank==params$bank]` in the previous survey (`r yeartable$lastyear[yeartable$bank == params$bank]`), to `r highlights$thisyear[highlights$variable=="CF" & highlights$bank==params$bank]` in `r year`, and was `r mwshltm` the long term median of `r highlights$LTM[highlights$variable=="CF" & highlights$bank==params$bank]`.
+On `r bankname` in `r year`, the empirical meat weight-shell height relationship (Figure `r fignum[5]`) estimated that a scallop with a a shell height of 100mm would have a meat weight of approximately `r ScallopRound(as.numeric( highlights$thisyear[highlights$variable=="fittedmw100mm" & highlights$bank==params$bank]),2)` grams. The modelled (GAMM) condition factor estimate `r highlights$word[highlights$variable=="CF" & highlights$bank==params$bank]` from `r highlights$lastyear[highlights$variable=="CF" & highlights$bank==params$bank]` in the previous survey (`r yeartable$lastyear[yeartable$bank == params$bank]`), to `r highlights$thisyear[highlights$variable=="CF" & highlights$bank==params$bank]` in `r year`, and was `r mwshltm` the long term median of `r highlights$LTM[highlights$variable=="CF" & highlights$bank==params$bank]`.
 
 <!-- \begin{landscape} -->
 
-```{r, echo=FALSE, message=F, out.height="70%", out.width="70%", fig.align="center", fig.cap=paste0("Meat weights and shell heights for sampled tows on ", bankname, " in ", year, " (top). Red points represent individual scallops, while the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which is similar to the meat weight of a scallop with a shell height of 100mm.")}
+```{r, echo=FALSE, message=F, out.height="70%", out.width="70%", fig.align="center", fig.cap=paste0("Meat weights and shell heights for sampled tows on ", bankname, " in ", year, " (top). Red points represent individual scallops, red lines represent the trend for each sampled tow, and the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which can be thought of as the meat weight of a scallop with a shell height of 100mm.")}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MWSH_and_CF_ts.png"))
 ```
 
@@ -245,7 +255,7 @@ spatial.stats.detail <- rbind(spatial.stats.detail, mc)
 
 **Pre-recruit, recruit, and fully-recruited abundance:**
 
-The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures `r params$banknum * 6` - `r params$banknum * 8`, and statistical summaries are in Table `r tabnum[3]`. Maps are based on a geostatistical model that uses a Gaussian Markov Random Field (GMRF) to predict the spatial distribution. These models may not represent the full range of values observed during the survey.
+The spatial distribution of pre-recruit, recruit, and fully-recruited scallop are shown in Figures `r fignum[6]` - `r fignum[8]`, and statistical summaries are in Table `r tabnum[3]`. Maps are based on a geostatistical model that uses a Gaussian Markov Random Field (GMRF) to predict the spatial distribution. These models may not represent the full range of values observed during the survey.
 
 ```{r, echo=F}
 table <- spatial.stats.abund
@@ -282,7 +292,7 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 **Condition factor and meat count:**  
 
-The spatial distribution of condition factor is shown in Figure `r params$banknum *9`, and the spatial distribution of meat count is shown in Figure `r params$banknum * 10`. Statistical summaries of condition factor and meat count are provided in Table `r tabnum[4]`. Maps are based on a geostatistical model that uses a Gaussian Markov Random Field (GMRF) to predict the spatial distribution. These models may not represent the full range of values observed during the survey.
+The spatial distribution of condition factor is shown in Figure `r fignum[9]`, and the spatial distribution of meat count is shown in Figure `r fignum[10]`. Statistical summaries of condition factor and meat count are provided in Table `r tabnum[4]`. Maps are based on a geostatistical model that uses a Gaussian Markov Random Field (GMRF) to predict the spatial distribution. These models may not represent the full range of values observed during the survey.
 
 ```{r, echo=F}
 table <- spatial.stats.detail
@@ -309,7 +319,7 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ## Clapper time series {#`r paste0(params$bank, "clap")`}
 
-Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure `r params$banknum * 11`). Survey tows are standardized to 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Table `r tabnum[5]` provides the plotted values for the current and previous surveys, and long term medians, by size class.
+Patterns in natural mortality are represented by the percentage of clappers (dead scallop, with empty hinged shells) caught in the survey tows. The percentage is calculated as the number of clappers in each size class relative to the total of dead and live scallop caught in that size class (Figure `r fignum[11]`). Survey tows are standardized to 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Table `r tabnum[5]` provides the plotted values for the current and previous surveys, and long term medians, by size class.
 
 ```{r, echo=FALSE, message=F}
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("PRpercentclap", "Rpercentclap", "Cpercentclap"), c("variable", "lastyear", "thisyear", "LTM")]
@@ -333,9 +343,9 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ## Biomass, meat count, and shell height relationship {#`r paste0(params$bank, "breakdown")`}
 
-Figure `r params$banknum * 12` provides an overview of the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of `r highlights$thisyear[highlights$variable=="sh_for_mcreg" & highlights$bank==params$bank]` mm and above at the time of the survey would result in meat counts at or below the regulation (`r sizes$mc[sizes$bank==params$bank]$size`).
+Figure `r fignum[12]` provides an overview of the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of `r highlights$thisyear[highlights$variable=="sh_for_mcreg" & highlights$bank==params$bank]` mm and above at the time of the survey would result in meat counts at or below the regulation (`r sizes$mc[sizes$bank==params$bank]$size`).
 
-```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap = paste0("The relationship between biomass and meat count for ", bankname, " in ", year, ". Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at which you would have a meat count of ", sizes$mc[sizes$bank==params$bank]$size, " or below. The blue vertical lines represent the recruit size range.")}
+```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap = paste0("The relationship between biomass and meat count for ", bankname, " in ", year, ". Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. The solid red line is the estimated meat count for each shell height bin. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at which you would have a meat count of ", sizes$mc[sizes$bank==params$bank]$size, " or below. The blue vertical lines represent the recruit size range.")}
 knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/breakdown-",year, ".png"))
 ```
 

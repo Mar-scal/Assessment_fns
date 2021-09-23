@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.9.5)  21 SEP 2021 16:48
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.9.5)  23 SEP 2021 16:13
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -2224,11 +2224,11 @@ Package rerunfilecheck Info: File `output.out' has not changed.
 Here is how much of TeX's memory you used:
  12515 strings out of 480559
  239861 string characters out of 5901613
- 502468 words of memory out of 5000000
+ 502599 words of memory out of 5000000
  29621 multiletter control sequences out of 15000+600000
  452105 words of font info for 67 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
- 60i,11n,66p,614b,332s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 60i,11n,66p,650b,332s stack positions out of 5000i,500n,10000p,200000b,80000s
 pdfTeX warning (dest): name{toc} has been referenced but does not exist, repl
 aced by a fixed one
 
@@ -2241,7 +2241,7 @@ public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts
 /fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texm
 f-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTe
 X/texmf-dist/fonts/type1/public/lm/lmro10.pfb>
-Output written on output.pdf (92 pages, 26880538 bytes).
+Output written on output.pdf (92 pages, 26879373 bytes).
 PDF statistics:
  1000 PDF objects out of 1000 (max. 8388607)
  741 compressed objects within 8 object streams

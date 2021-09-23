@@ -106,7 +106,8 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
     ylab(expression(paste("MC: ", frac("N", "500g")))) +
     theme(axis.title.y=element_text(angle=0, vjust=0.5),
           panel.grid=element_blank(),
-          text=element_text(size=16)) +
+          text=element_text(size=16),
+          rect = element_rect(fill = "transparent")) +
     geom_vline(aes(xintercept=RS), col="blue") +
     geom_vline(aes(xintercept=CS), col="blue")
   
@@ -131,7 +132,8 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
     ylab(expression(frac("kg", "tow"))) +
     theme(axis.title.y=element_text(angle=0, vjust=0.5),
           panel.grid=element_blank(),
-          text=element_text(size=16)) +
+          text=element_text(size=16),
+          rect = element_rect(fill = "transparent")) +
     geom_vline(aes(xintercept=sht.cnt), lty="dashed", col="firebrick") +
     geom_vline(aes(xintercept=RS), col="blue") +
     geom_vline(aes(xintercept=CS), col="blue") #+

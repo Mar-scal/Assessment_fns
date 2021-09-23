@@ -521,8 +521,8 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
                                       abs(cf$thisyear - cf$lastyear) < 0.5,
                                     "was similar",
                                     "other")))
-    ltmtest <- ifelse(cf$thisyear > cf$LTM, "greater than",
-                      ifelse(cf$thisyear < cf$LTM, "less than", NA))
+    ltmtest <- ifelse(cf$thisyear > cf$LTM, "above",
+                      ifelse(cf$thisyear < cf$LTM, "below", NA))
 
     cf$nearLTM <- paste0(ltmtest, " (LTM=", ScallopRound(cf$LTM,3), ")")
 
@@ -869,9 +869,14 @@ spatial.sum.stats$cf <- rbind(spatial.sum.stats$cf, spatial.sum.stats.c)
   }
   
   #print(bankcheck)
+  highlights$lastyearraw <- highlights$lastyear
+  highlights$thisyearraw <- highlights$thisyear
+  highlights$LTMraw <- highlights$LTM
   highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75", "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF"),c(2,3,4)] <-
     apply(highlights[!highlights$variable%in% c("PR75", "R75", "C75", "sizerange75",  "sizerange75PR", "sizerange75Rec", "sizerange75FR", "sizerange75_bm_65up", "sizerange75_seed", "sizerange75_seed_bm", "PR75_seed", "R75_seed", "C75_seed", "minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 
+  highlights
+  
   highlights[highlights$variable%in% c("minCF", "maxCF"),c(2,3,4)] <-
     apply(highlights[highlights$variable%in% c("minCF", "maxCF") ,c(2,3,4)], 2, function(x) ScallopRound(as.numeric(x), 3))
 

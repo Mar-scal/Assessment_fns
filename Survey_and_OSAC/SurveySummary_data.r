@@ -110,6 +110,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   require(BIOSurvey2)
   require(sp)
   require(maptools)
+  
   ############################# GENERAL DATA ########################################################
   ############################# GENERAL DATA ########################################################
   # Enter here standard data which is used throughout this script.
@@ -1249,7 +1250,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         lined.survey.obj$model.dat$CS <- CS
         lined.survey.obj$model.dat$RS <- RS
       }# end if(bnk == "Ger")
-      
+      browser()
       # Get the survey estimates for the banks for which we have strata. 
       if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
       {
