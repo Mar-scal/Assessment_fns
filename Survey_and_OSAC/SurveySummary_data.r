@@ -110,6 +110,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   require(BIOSurvey2)
   require(sp)
   require(maptools)
+  
   ############################# GENERAL DATA ########################################################
   ############################# GENERAL DATA ########################################################
   # Enter here standard data which is used throughout this script.
@@ -946,7 +947,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-      browser()
+      
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
@@ -1088,7 +1089,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
-      browser()
+      
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -1249,7 +1250,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         lined.survey.obj$model.dat$CS <- CS
         lined.survey.obj$model.dat$RS <- RS
       }# end if(bnk == "Ger")
-      
+      browser()
       # Get the survey estimates for the banks for which we have strata. 
       if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
       {

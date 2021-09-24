@@ -96,7 +96,7 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
   mcplot <- ggplot() +
     geom_point(aes(x=vec+2.5, y=count), col="firebrick") +
     geom_line(aes(x=vec+2.5, y=count), col="firebrick") +
-    geom_segment(aes(x=sht.cnt, xend=Inf, y=mc, yend=mc), lty="dashed", col="firebrick")+
+    geom_segment(aes(x=0, xend=sht.cnt, y=mc, yend=mc), lty="dashed", col="firebrick")+
     geom_segment(aes(x=sht.cnt, xend=sht.cnt, y=-Inf, yend=mc), lty="dashed", col="firebrick")+
     theme_bw() +
     coord_cartesian(xlim=xlim, ylim=c(0, y2max))+
@@ -105,7 +105,9 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
     xlab(NULL) +
     ylab(expression(paste("MC: ", frac("N", "500g")))) +
     theme(axis.title.y=element_text(angle=0, vjust=0.5),
-          panel.grid=element_blank()) +
+          panel.grid=element_blank(),
+          text=element_text(size=16),
+          rect = element_rect(fill = "transparent")) +
     geom_vline(aes(xintercept=RS), col="blue") +
     geom_vline(aes(xintercept=CS), col="blue")
   
@@ -129,7 +131,9 @@ breakdown<-function(surv.obj,yr=2010,CS=NULL,RS = NULL,xlim=NULL,y1max=NULL,y2ma
     xlab("Shell Height (mm)") +
     ylab(expression(frac("kg", "tow"))) +
     theme(axis.title.y=element_text(angle=0, vjust=0.5),
-          panel.grid=element_blank()) +
+          panel.grid=element_blank(),
+          text=element_text(size=16),
+          rect = element_rect(fill = "transparent")) +
     geom_vline(aes(xintercept=sht.cnt), lty="dashed", col="firebrick") +
     geom_vline(aes(xintercept=RS), col="blue") +
     geom_vline(aes(xintercept=CS), col="blue") #+

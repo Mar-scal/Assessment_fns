@@ -3,20 +3,40 @@
 require(officer)
 require(tidyverse)
 
-load("Y:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/Survey_all_results.Rdata")
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Documents/Assessment_fns/"
+
+load("Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_LE13.Rdata")
 names(survey.obj) <- gsub(names(survey.obj), pattern="-", replacement="")
 names(surv.Live) <- gsub(names(surv.Live), pattern="-", replacement="")
 
-source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/RUNME_Survey_OSAC_Model/Survey_Summary_Word.R")
-Survey_Summary_Word(year=2018, reportseason="summer", data="Y:/Offshore scallop/Assessment/Data/Survey_data/2018/Survey_summary_output/Survey_all_results.Rdata")
+source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
+Survey_Summary_Word(year=reportyear, reportseason="spring",
+                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_LE13.Rdata"),
+                    direct="Y:/Offshore/Assessment/",
+                    direct_fns = direct_fns)
 # objects: "bankcheck" df, ntows" df and "highlights" df
+
+year <- 2021
+
+table <- highlights[highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
+table$word[table$thisyear < table$lastyear] <- "decreased"
+table$word[table$thisyear > table$lastyear] <- "increased"
+table$perc[table$word=="increased"] <- 
+  (as.numeric(table$thisyear[table$word=="increased"]) - as.numeric(table$lastyear[table$word=="increased"]))/
+  as.numeric(table$lastyear[table$word=="increased"]) *100
+table$perc[table$word=="decreased"] <-   
+  (as.numeric(table$lastyear[table$word=="decreased"]) - as.numeric(table$thisyear[table$word=="decreased"]))/
+  as.numeric(table$lastyear[table$word=="decreased"]) *100
+table$state <- paste0(table$word, " by ", ScallopRound(table$perc, 2), "% since")
+table$state[is.na(table$perc)] <- "was similar to"
 
 
 # create an annotated base ppt with all layouts
-annotate_base(path = "Y:/Offshore scallop/Assessment/2019/Presentations/Survey_summary/template.pptx", output_file = "Y:/Offshore scallop/Assessment/2019/Presentations/Survey_summary/annotated_layout.pptx")
+#annotate_base(path = "Y:/Offshore/Assessment/2021/Presentations/Survey_summary/template.pptx", output_file = "Y:/Offshore/Assessment/2021/Presentations/Survey_summary/annotated_layout.pptx")
 
 # build a new ppt from the template
-newpres <- read_pptx("Y:/Offshore scallop/Assessment/2019/Presentations/Survey_summary/template.pptx")
+newpres <- read_pptx("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/template.pptx")
 
 # details on the layouts available from the template. You can edit these by opening the template and then View > Slide Master and edit accordingly.
 layout_summary(newpres)
@@ -27,10 +47,15 @@ layout_properties ( x = newpres, layout = "Scallop map", master = "Default Desig
 layout_properties ( x = newpres, layout = "Scallop INLA map 2", master = "Default Design")
 layout_properties ( x = newpres, layout = "Scallop summary layout", master = "Default Design")
 layout_properties ( x = newpres, layout = "Scallop table", master = "Default Design")
+layout_properties ( x = newpres, layout = "Scallop Time Series Plot", master = "Default Design")
+layout_properties ( x = newpres, layout = "Scallop SHF Plot", master = "Default Design")
+layout_properties ( x = newpres, layout = "Scallop INLA map plot", master = "Default Design")
 # and so on to get the properties for each layout.
 
 # create the overview table for slide 2
-overviewtable <- data.frame(Bank=c("Georges Bank 'a'", "Georges Bank 'b'"), `Last Survey`=2018, `Surveyed this year`="YES")
+overviewtable <- data.frame(Bank=c("Middle", "Sable", "German", "Browns South", "Browns North", 
+                                   "Georges Bank (monitoring stations)"), 
+                            `Last Survey`=c(2019, 2019, 2019, 2018, 2019, 2019), `Surveyed this year`="YES")
 names(overviewtable) <- gsub(x=names(overviewtable), pattern=".", replacement=" ", fixed=T)
 
 # create the first few slides
@@ -38,15 +63,15 @@ newpres <- newpres %>%
   
   # title slide
   add_slide(layout="Title Slide", master="Default Design") %>%
-  ph_with_text(type="ctrTitle", str="Survey Summary Summer 2019", index=1) %>%
-  ph_with_text(type="subTitle", str="Seafood Producers Association of Nova Scotia", index=1) %>%
+  ph_with(location = ph_location_label(ph_label = "Title 1"), value="Survey Summary 2021", index=1) %>%
+  ph_with(location = ph_location_label(ph_label = "Subtitle 2"), value="Seafood Producers Association of Nova Scotia", index=1) %>%
   
   # slide 1
   add_slide(layout="Scallop table", master="Default Design") %>%
-  ph_with_text(type="title", str="Overview", index=1) %>%
-  ph_with_table(overviewtable, type="body", index=2)
+  ph_with(location = ph_location_label(ph_label = "Title 1"), value="Overview", index=1) %>%
+  ph_with(value = overviewtable, location = ph_location_label(ph_label = "Content Placeholder 2"), index=1)
   
-banks <- c("GBa", "GBb")
+banks <- c("Mid")#, "Sab", "Ger", "BBs", "BBn", "GB")
 
 # now do the rest with a big loop
 
@@ -54,96 +79,113 @@ for (i in 1:length(banks)) {
   
   if(banks[i] == "GBa") corner <- "Georges 'a'"
   if(banks[i] == "GBb") corner <- "Georges 'b'"
+  if(banks[i] == "Mid") corner <- "Middle Bank"
+  if(banks[i] == "Sab") corner <- "Sable Bank"
+  if(banks[i] == "Ger") corner <- "German Bank"
+  if(banks[i] == "BBs") corner <- "Browns South"
+  if(banks[i] == "BBn") corner <- "Browns North"
+  if(banks[i] == "GB") corner <- "Georges Bank (monitoring stations)"
   
   newpres <- newpres %>%
     
     # slide 2
     add_slide(layout="Scallop map", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/survey_strata.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/survey_strata.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 3
     add_slide(layout="Scallop Time Series Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/abundance_ts.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/abundance_ts.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 4
     add_slide(layout="Scallop Time Series Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/biomass_ts.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/biomass_ts.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 5
     add_slide(layout="Scallop SHF Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/SHF.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/SHF.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 6
     add_slide(layout="Scallop INLA map plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/PR-spatial.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/PR-spatial.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 7
     add_slide(layout="Scallop INLA map plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/Rec-spatial.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/Rec-spatial.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 8
     add_slide(layout="Scallop INLA map plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/FR-spatial.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/FR-spatial.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 9
     add_slide(layout="Scallop MWSH-CF Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/MWSH_and_CF_ts.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/MWSH_and_CF_ts_wide.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 10"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 10
-    add_slide(layout="Scallop INLA map 2", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2017/Presentations/Survey_summary/", banks[i],"/CF-spatial.png"), type="pic", index=1) %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/CF-spatial.png"), type="pic", index=2) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    add_slide(layout="Scallop INLA map plot", master="Default Design") %>%
+    #ph_with_img(paste0("Y:/Offshore/Assessment/2017/Presentations/Survey_summary/", banks[i],"/CF-spatial.png"), type="pic", index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/CF-spatial.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 11
-    add_slide(layout="Scallop INLA map 2", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2017/Presentations/Survey_summary/", banks[i],"/MC-spatial.png"), type="pic", index=1) %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i],"/MC-spatial.png"), type="pic", index=2) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    add_slide(layout="Scallop INLA map plot", master="Default Design") %>%
+    #ph_with_img(paste0("Y:/Offshore/Assessment/2017/Presentations/Survey_summary/", banks[i],"/MC-spatial.png"), type="pic", index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i],"/MC-spatial.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 3"), index=2) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 12
     add_slide(layout="Scallop Time Series Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i], "/Clapper_abund_ts.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i], "/Clapper_abund_ts.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 13
     add_slide(layout="Scallop Time Series Plot", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i], "/Clapper_per_ts.png"), type="pic", index=1) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i], "/Clapper_per_ts.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=1) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 14
-    add_slide(layout="Scallop Breakdown 2", master="Default Design") %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i], "/breakdown-2018.png"), type="pic", index=1) %>%
-    ph_with_img(paste0("Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/", banks[i], "/breakdown-2017.png"), type="pic", index=2) %>%
-    ph_with_text(type="body", str=corner, index=1) %>%
+    add_slide(layout="Scallop Time Series Plot", master="Default Design") %>%
+    #ph_with_img(paste0("Y:/Offshore/Assessment/2018/Presentations/Survey_summary/", banks[i], "/breakdown-2018.png"), type="pic", index=1) %>%
+    ph_with(external_img(paste0("Y:/Offshore/Assessment/2021/Presentations/Survey_summary/", banks[i], "/breakdown-2021.png")), 
+            location = ph_location_label(ph_label = "Picture Placeholder 2"), index=2) %>%
+    ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1) %>%
     
     # slide 15
     add_slide(layout="Scallop summary layout", master="Default Design") %>%
-    ph_with_text(type="body", str = "Summary", index=1) %>%
-    ph_with_text(type="body", str = "We caught a whole bunch of scallops", index=2) %>%
-    ph_add_par(level=1, type="body", id_chr = 3) %>%
-    ph_add_text(str = "And then we counted them", id_chr = 3) %>%
-    ph_add_par(level=2, type="body",id_chr = 3) %>%
-    ph_add_text(str = "And by we, I mean Tricia", id_chr = 3) %>%
-    ph_add_par(level=1,type="body", id_chr = 3) %>%
-    ph_add_text(str = "Then we did some number magic", id_chr = 3) %>%
-    ph_add_par(level=1,type="body", id_chr = 3) %>%
-    ph_add_text(str = paste0("And voila, we estimated the scallop biomass for ", banks[i], "!"), id_chr = 3) %>%
-    ph_add_par(level=1,type="body", id_chr = 3) %>%
-    ph_add_text(str = paste0("Condition on ", banks[i], " was ",  highlights$thisyear[highlights$variable=="CF" & highlights$bank==banks[i]]), id_chr = 3) %>%
-    ph_with_text(type="body", str=corner, index=3)
-  
+    ph_with(location = ph_location_label(ph_label = "Text Placeholder 3"), value = "Summary", index=1) %>%
+    ph_with(value = unordered_list(
+      level_list = rep(1,7), #Bullet point levels
+      str_list = c(paste0("Pre-recruit abundance ", table$state[table$bank==banks[i] & table$variable == "NPR"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "NPR"], " the long term median."),
+                   paste0("Recruit abundance ", table$state[table$bank==banks[i] & table$variable == "NR"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "NR"], " the long term median."),
+                   paste0("Fully-recruited abundance ", table$state[table$bank==banks[i] & table$variable == "N"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "N"], " the long term median."),
+                   paste0("Pre-recruit biomass ", table$state[table$bank==banks[i] & table$variable == "IPR"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "NPR"], " the long term median."), 
+                   paste0("Recruit biomass ", table$state[table$bank==banks[i] & table$variable == "IR"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "NR"], " the long term median."),
+                   paste0("Fully-recruited biomass ", table$state[table$bank==banks[i] & table$variable == "I"], " ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", table$nearLTM[table$bank==banks[i] & table$variable == "N"], " the long term median."),
+                   paste0("Condition factor ", highlights$word[highlights$variable=="CF" & highlights$bank==banks[i]], " since ", yeartable$lastyear[yeartable$bank == banks[i]], " and was ", strsplit(highlights$nearLTM[highlights$variable=="CF" & highlights$bank==banks[i]], " (", fixed=T)[[1]][1], " the long term median.")
+      )),
+      location = ph_location_label(ph_label = "Text Placeholder 2"), index=1)
 }
 
-print(newpres, target = "Y:/Offshore scallop/Assessment/2019/Presentations/Survey_summary/officer_example3.pptx")   
+print(newpres, target = "Y:/Offshore/Assessment/2021/Presentations/Survey_summary/officer_output.pptx")   
 ###################################################################
 ###################################################################
 ##################### BASE POWERPOINT DONE ########################
@@ -175,7 +217,7 @@ editedpres <- editedpres %>%
   add_slide(layout="Scallop Seedbox SHF detail", master="Default Design") %>%
   ph_with_img(type="pic", index=2, src = "Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/GBa/Experimental-spatial-2018.png") %>%
   ph_with_img(type="pic", index=1, src="Y:/Offshore scallop/Assessment/2018/Presentations/Survey_summary/GBa/Experimental-SHF.png") %>%
-  ph_with_text(type="body", str=corner) %>%
+  ph_with_text(type="body", value=corner) %>%
   move_slide(index=31, to=16)
 
 # delete an unnecessary slide (e.g. slide clapper abundance for GBb)
@@ -196,7 +238,7 @@ slidenums <- unique(pptx_summary(editedpres)$slide_id)
 for(i in 2:max(slidenums)) {
   editedpres <- editedpres %>%
     on_slide(index=slidenums[i]) %>%
-    ph_with_text(type="sldNum", str=paste0(slidenums[i] - 1))
+    ph_with_text(type="sldNum", value=paste0(slidenums[i] - 1))
 }
 
 

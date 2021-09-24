@@ -3,10 +3,8 @@ title: "Survey Summary"
 subtitle: "Spring 2021"
 author: "Scallop and Benthic Habitat Unit"
 output: 
-  bookdown::pdf_document2:
-    extra_dependencies: ["float"]
-    toc: yes
-    toc_depth: 1
+  officedown::rdocx_document:
+     reference_docx: my-styles.docx
 header-includes:
  - \usepackage{float}
  - \usepackage{fancyhdr}
@@ -23,7 +21,11 @@ dates <- summary_data$dates[summary_data$dates$bank %in% c("Mid", "Sab", "Ger",
           "BBn", "BBs", "GB"),]
 ```
 
- 
+## Table of contents
+
+<!---BLOCK_TOC--->
+
+
 \newpage
 
 
@@ -37,5 +39,5 @@ Detailed sampling occurred at a selection of the stations, where the exact heigh
 
 Some of the figures and analyses presented in this report refer to the different size classes of scallop: pre-recruits, recruits, and fully-recruited scallop. The shell height ranges for each size class differs by bank, but the general convention is that recruits are expected to grow to commercial size in the next year, while fully-recruited scallops were commercial size at the time of the survey. 
 
-We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. For this 2021 survey, results are compared to the 2019 survey results since the full assessment survey did not occur in 2020.
+We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. 
 

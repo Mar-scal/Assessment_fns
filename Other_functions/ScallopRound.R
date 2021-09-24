@@ -1,110 +1,58 @@
 ## Scallop Number Formatting
 
 ##### x is the number to be formatted. Can only do one number at a time!
-##### width is the number of digits desired (while ensuring number is accurate)
-##### width=4 will give, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000
-##### width=3 will give: 0.01, 0.10, 1.00, 10.0, 100, 1000, 10000
-##### width=2 will give: 0.0, 0.1, 1.0, 10, 100, 1000, 10000
-##### width=1 will give 0, 0, 1, 10, 100, 1000, 10000
+##### digits is the number of digits desired (while ensuring number is accurate)
+##### options can be "presentation", "int" or "round". You will have to test these out to pick your preferred option
 
 # Examples
-# ScallopRound(4748.34, width=3)
-# ScallopRound(0.0001, width=3)
-# ScallopRound(0.1, width=3)
-#
-# purrr::map(c(0.00010, 0.1, 1.000, 34932, 839.428, 5.2843, 2334.0), function(x) ScallopRound(x, width=3))
+x <- c(4.02233, 52.04, 0.256, 4530.44, -0.401, -1.74, -1203.55)
+# > ScallopRound(x, digits=3, option="round")
+# [1] "4.02"   "52.04"  "0.256"  "4530"   "-0.401" "-1.74"  "-1200" 
+# > ScallopRound(x, digits=3, option="int")
+# [1] "4.02"   "52.04"  "0.256"  "4530"   "-0.401" "-1.74"  "-1203" 
+# > ScallopRound(x, digits=3, option="presentation")
+# [1] "4.02"  "52.0"  "0.26"  "4530"  "-0.40" "-1.74" "-1204"
 
-
-### single value version
-
-# ScallopRound <- function(x, width=3){
-#   lvls <- 10^(1:(width-1))
-#   lvls <- c(0,lvls)
-#
-#   for(i in 1:length(lvls)){
-#     digs <- width-nchar(lvls[i])
-#     if(i < length(lvls) &
-#        (x < lvls[i] | x >=lvls[i] & x < lvls[i+1])) {
-#       return(formatC(x, digits=digs, format="f"))
-#     }
-#     if(i == length(lvls)){
-#       if(x >= lvls[i]) return(formatC(x, digits=digs, format="f"))
-#     }
-#   }
-# }
-
-
-#### purrr version for vector (not working)
-
-
-ScallopRound <- function(x, width=3){
-
-  f <- function(x, width){
-    lvls <- 10^(1:(width-1))
-    lvls <- c(0,lvls)
-
-    for(i in 1:length(lvls)){
-      digs <- width-nchar(lvls[i])
-      if(i < length(lvls) &
-         (x < lvls[i] | x >=lvls[i] & x < lvls[i+1]) & !is.na(x)) {
-        return(formatC(x, digits=digs, format="f"))
+ScallopRound <- function(x, digits=3, option="presentation"){
+  
+  if(option=="presentation"){
+    f <- function(x, digits){
+      lvls <- 10^(1:(digits-1))
+      lvls <- c(0,lvls)
+      
+      for(i in 1:length(lvls)){
+        digs <- digits-nchar(lvls[i])
+        if(i < length(lvls) &
+           (abs(x) < lvls[i] | abs(x) >=lvls[i] & abs(x) < lvls[i+1]) & !is.na(x) & !x == 0) {
+          return(formatC(x, digits=digs, format="f"))
+        }
+        if(i < length(lvls) & (abs(x) == 0 & !is.na(x))) {
+          return(formatC(x, digits=0, format="f"))
+        }
+        if(i == length(lvls) & !is.na(x)){
+          if(abs(x) >= lvls[i]) return(formatC(x, digits=digs, format="f"))
+        }
+        if(is.na(x)) return(NA)
       }
-      if(i == length(lvls) & !is.na(x)){
-        if(x >= lvls[i]) return(formatC(x, digits=digs, format="f"))
-      }
-      if(is.na(x)) return(NA)
     }
+    return(unlist(purrr::map(x, function(x) f(x, digits))))
   }
-
-  unlist(purrr::map(x, function(x) f(x, width)))
-
+  
+  if(option %in% c("round", "int")) {
+    y <- rep(NA,length(x))
+    for(i in 1:length(x))
+    {
+      # Stuff between 1 and 10 is easy peasy
+      if((x[i] <= -1 & x[i] > -10) | (x[i] >= 1 & x[i] < 10)) y[i] <- formatC(x[i],digits = digits-1,format='f')
+      # Stuff between 10 and 100, here is where I have some 'illogical' behaviour, but I think the 10-99 stuff should have (or at least usually has) 1 decimal place for reporting.
+      if((x[i] <= -10 & x[i] > -100) | (x[i] >= 10 & x[i] < 100)) y[i] <-  format(x[i],digits = digits+1,nsmall = digits-1)
+      # Stuff that is between -1 and 1, the nsmall forces it to print 2 decimal places
+      if(x[i] > -1 & x[i] < 1) y[i] <- format(x[i],digits = digits,nsmall=digits)
+      # Now for the 100 and larger numbers.  Here we can round them to x digits, or just make them an integer and drop any decimal places.
+      if(option == 'round')  if(x[i] <= -100 | x[i] >= 100)  y[i] <- signif(x[i],digits) 
+      if(option == 'int')       if(x[i] <= -100 | x[i] >= 100) y[i] <- as.integer(x[i])
+    }
+    return(y)
+  }    
 }
-
-
-
-
-
-
-# vector version (not working!)
-
-## Scallop Number Formatting
-
-##### x is the number to be formatted. Can only do one number at a time!
-##### width is the number of digits desired (while ensuring number is accurate)
-##### width=4 will give, 0.010, 0.100, 1.000, 10.00, 100.0, 1000, 10000
-##### width=3 will give: 0.01, 0.10, 1.00, 10.0, 100, 1000, 10000
-##### width=2 will give: 0.0, 0.1, 1.0, 10, 100, 1000, 10000
-##### width=1 will give 0, 0, 1, 10, 100, 1000, 10000
-
-# Examples
-# ScallopRound(1235.23, width=3)
-#
-# ScallopRound(c(0.00010, 0.1, 1.000, 34932, 839.428, 5.2843, 2334.0), 4)
-
-
-# ScallopRound <- function(x, width=3){
-#   lvls <- 10^(1:(width-1))
-#   lvls <- c(0,lvls)
-#
-#   out <- NULL
-#   for(j in 1:length(x)){
-#     if(x[j] < lvls[1]){
-#       digs <- width-nchar(lvls[1])
-#       rounded <- formatC(x[j], digits=digs, format="f")
-#     }
-#     if(x[j] >= lvls[1]){
-#       for(i in 1:(length(lvls)-1)){
-#         digs <- width-nchar(lvls[i])
-#         if(x[j] >=lvls[i] & x[j] < lvls[i+1]) {rounded <- formatC(x[j], digits=digs, format="f")}
-#       }
-#       if(x[j] >= lvls[length(lvls)]) {rounded <- formatC(x[j], digits=digs, format="f")}
-#     }
-#     out <- c(out, rounded)
-#   }
-#   return(out)
-# }
-#
-#
-
-
 
