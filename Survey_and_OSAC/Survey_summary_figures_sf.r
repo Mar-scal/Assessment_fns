@@ -215,7 +215,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -678,23 +678,25 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
         
-        if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
-          out <- loc.sf %>% mutate(
-            intersection = as.integer(st_intersects(geometry, bound.poly.surv.sf)))
-          # check for locations outside the domain
-          if(any(is.na(out$intersection))) { # need to expand poly
-            message("bound.poly.surv.sp expanded to accomodate stations outside domain for spatial modelling purposes.
+        if(!banks[i] %in% c("GBa", "GBb")) {
+          if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
+            out <- loc.sf %>% mutate(
+              intersection = as.integer(st_intersects(geometry, bound.poly.surv.sf)))
+            # check for locations outside the domain
+            if(any(is.na(out$intersection))) { # need to expand poly
+              message("bound.poly.surv.sp expanded to accomodate stations outside domain for spatial modelling purposes.
                     These are likely due to extras. Please make sure you're ok with this!")
-            
-            pts_to_add <- out[is.na(out$intersection),]
-            poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 1000)
-            # plot(bound.poly.surv.sf)
-            # plot(loc.sf, add=T)
-            # plot(pts_to_add, add=T)
-            # plot(poly_to_add, add=T)
-            
-            bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
-            bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
+              
+              pts_to_add <- out[is.na(out$intersection),]
+              poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 1000)
+              # plot(bound.poly.surv.sf)
+              # plot(loc.sf, add=T)
+              # plot(pts_to_add, add=T)
+              # plot(poly_to_add, add=T)
+              
+              bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
+              bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
+            }
           }
         }
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
@@ -725,8 +727,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
           # Will this work for them all I wonder? Max edge should be around 1/5 of the range according to Zuur
           mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge)
-          if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- crs(st_crs(32619)[[2]])
-          if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- crs(st_crs(32620)[[2]])
+          if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- raster::crs(st_crs(32619)[[2]])
+          if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- raster::crs(st_crs(32620)[[2]])
           plot(mesh) # For testing I want to plot this to see it and ensure it isn't crazy for the moment...
           #if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge/1.5)
           #if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.04))
@@ -1139,8 +1141,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # Get the levels correct add extra levels to this to get a better resolution if we have levels > 18
               if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) 
               {
-                byextra <- (round(max(mod.res[[maps.to.make[m]]], na.rm=T)) - max(base.lvls[-length(base.lvls)]))/3
-                extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra,  max(base.lvls[-length(base.lvls)]) + byextra*2,  ceiling(max(mod.res[[maps.to.make[m]]])))
+                byextra <- pretty(max(base.lvls[-length(base.lvls)]):round(max(mod.res[[maps.to.make[m]]], na.rm=T)), n = 3)
+                extra.lvls <- byextra[-1]
+                # extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra, 
+                #                 max(base.lvls[-length(base.lvls)]) + byextra*2,  
+                #                 ceiling(max(mod.res[[maps.to.make[m]]])))
                 extra.cols <- viridis::inferno(length(extra.lvls) + 1 ,alpha=0.7,begin=0.35,end=0.05)[-1]
                 base.lvls <- c(base.lvls[-length(base.lvls)], extra.lvls)
                 cols <- c(cols, extra.cols[-length(extra.cols)])
@@ -1350,9 +1355,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
               p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1)
             }
-            #browser()
+            
             # Now print the figure
-            print(p3 + coord_sf(expand=F))
+            if(!banks[i] == "GBb") print(p3 + coord_sf(expand=F))
+            if(banks[i] == "GBb") print(p3)
        
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
@@ -1394,15 +1400,15 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         dplyr::filter(year == yr & state == 'live')
       surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
+      
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
-      if(length(unique(surv$`Tow type`)) ==1) shp <- 21
-      if(length(unique(surv$`Tow type`)) ==2) shp <- c(17,21)
-      if(length(unique(surv$`Tow type`)) ==3) shp <- c(17,21,15)
-      if(banks[i] == "Ger" & length(shp) == 2) shp <- c(21,15)
-      
+      if(length(unique(surv$`Tow type`)) ==1) shp <- 16
+      if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("darkorange", "black")
+      if(banks[i] == "Ger" & length(unique(surv$`Tow type`))==2) shp <- c(16,22); ptcol <- c("black", "yellow")
+      if(length(unique(surv$`Tow type`)) ==3) shp <- c(24,16,22); ptcol <- c("darkorange", "black", "yellow")
       
       # For this figure we want full bank names, this is ugly hack but does the trick.
       if(banks[i] %in% c("SPB","Ban", "BanIce", "BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa") && add.title == T)
@@ -1415,19 +1421,22 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                    list(year=as.character(yr),bank=as.character(full.names$full[full.names$abrv == banks[i]])))
         p <- p + ggtitle(survey.title)
       }
-      
-      #browser()
+
       # That's all we need for the areas without survey strata, pretty easy! No fill on strata
       if(banks[i] %in% c("SPB","Ban", "BanIce","Ger", "Mid"))
       {
-        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`, fill=`Tow type`), stroke=1.1) + 
+          scale_shape_manual(values = shp) +
+          scale_fill_manual(values = ptcol) +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
       if(banks[i] == "GB")
       {
-        p2 <- p + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+        p2 <- p + geom_sf(data=surv,aes(shape=`Tow type`, fill=`Tow type`), stroke=1.1) + 
+          scale_shape_manual(values = shp) +
+          scale_fill_manual(values = ptcol) +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
@@ -1463,12 +1472,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         p2 <- p  + #geom_sf(data=shpf,aes(fill= Details))    +  scale_fill_manual(values = cols) + 
           geom_sf(data=shpf,aes(linetype = `Number of Tows`))  + 
           geom_sf(data=shpf,aes(colour = `Area (km^2)`))  +
-          new_scale("fill") + geom_sf(data=shpf,aes(fill= ID))    +  
-          geom_sf(data=surv, aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) +
+          new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA)    +  
+          geom_sf(data=surv, aes(shape=`Tow type`)) + 
+          scale_shape_manual(values = shp) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
-          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols)))  +
-          scale_colour_manual(values = rep("black", length(cols)), guide=guide_legend(override.aes = list(fill= cols)), name=expression(paste("Area (", km^{2}, ")")))  +
-          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols)), 
+          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)))  +
+          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)), name=expression(paste("Area (", km^{2}, ")")))  +
+          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols)), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line")) 

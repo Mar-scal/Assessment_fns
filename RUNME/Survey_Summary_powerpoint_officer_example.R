@@ -6,31 +6,46 @@ require(tidyverse)
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Documents/Assessment_fns/"
 
-load("Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_LE13.Rdata")
+load("Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/Survey_spring_results.Rdata")
 names(survey.obj) <- gsub(names(survey.obj), pattern="-", replacement="")
 names(surv.Live) <- gsub(names(surv.Live), pattern="-", replacement="")
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 Survey_Summary_Word(year=reportyear, reportseason="spring",
-                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_LE13.Rdata"),
+                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_spring_results.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 # objects: "bankcheck" df, ntows" df and "highlights" df
 
 year <- 2021
 
-table <- highlights[highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
-table$word[table$thisyear < table$lastyear] <- "decreased"
-table$word[table$thisyear > table$lastyear] <- "increased"
+
+table <- highlights[#highlights$bank==params$bank & 
+  highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
+
+table$word[as.numeric(table$thisyearraw) < as.numeric(table$lastyearraw)] <- "decreased"
+table$word[as.numeric(table$thisyearraw) > as.numeric(table$lastyearraw)] <- "increased"
+
 table$perc[table$word=="increased"] <- 
-  (as.numeric(table$thisyear[table$word=="increased"]) - as.numeric(table$lastyear[table$word=="increased"]))/
-  as.numeric(table$lastyear[table$word=="increased"]) *100
+  (as.numeric(table$thisyearraw[table$word=="increased"]) - as.numeric(table$lastyearraw[table$word=="increased"]))/
+  as.numeric(table$thisyearraw[table$word=="increased"]) *100
+
 table$perc[table$word=="decreased"] <-   
-  (as.numeric(table$lastyear[table$word=="decreased"]) - as.numeric(table$thisyear[table$word=="decreased"]))/
-  as.numeric(table$lastyear[table$word=="decreased"]) *100
-table$state <- paste0(table$word, " by ", ScallopRound(table$perc, 2), "% since")
+  (as.numeric(table$lastyearraw[table$word=="decreased"]) - as.numeric(table$thisyearraw[table$word=="decreased"]))/
+  as.numeric(table$lastyearraw[table$word=="decreased"]) *100
+
+table$perclab <- ScallopRound(table$perc, 2)
+
+table$perclab[table$perc>0 & table$perc < 0.01] <- "<0.01"
+table$perclab[table$perc>99] <- ">99"
+
+table$state <- paste0(table$word, " by ", table$perclab, "% since")
+
 table$state[is.na(table$perc)] <- "was similar to"
 
+highlights$lastyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$lastyearraw) & (highlights$lastyearraw>0 & highlights$lastyearraw<0.01)] <- "<0.01"
+highlights$thisyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$thisyearraw) & (highlights$thisyearraw>0 & highlights$thisyearraw<0.01)] <- "<0.01"
+highlights$LTM[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$LTMraw) & (highlights$LTMraw>0 & highlights$LTMraw<0.01)] <- "<0.01"
 
 # create an annotated base ppt with all layouts
 #annotate_base(path = "Y:/Offshore/Assessment/2021/Presentations/Survey_summary/template.pptx", output_file = "Y:/Offshore/Assessment/2021/Presentations/Survey_summary/annotated_layout.pptx")

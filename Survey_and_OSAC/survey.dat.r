@@ -126,7 +126,6 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	mw <- NULL
 	bankpertow <- NULL
 	
-	
 	# If CS and RS are just one value turn them into a vector the same length as the number of years of data.
 	if(length(CS) == 1)	CS <- rep(CS, length(years))
 	if(length(RS) == 1)	RS <- rep(RS, length(years))
