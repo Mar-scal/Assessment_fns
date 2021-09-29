@@ -22,7 +22,8 @@
 #direct <- "d:/r/"
 #direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Documents/Assessment_fns/"
+#direct_fns <- "C:/Documents/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 yr <- 2021
 
 
@@ -94,13 +95,13 @@ str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
             yr=2021, 
             banks = c(
-                   "BBn",
+                   "BBn"#,
                     "Ger",
 "Mid",
                  "Sab",
             # #"GBa"#,
             # # "GBb"#,
-                   "GB", 
+                   "GB",
            "BBs"#,
              #"Ban",
               # "BanIce"
@@ -112,8 +113,8 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
              #    "FR-spatial",
              #    "CF-spatial",
              #    "MC-spatial",
-           #      "Clap-spatial",
-             "Survey"#,
+                 "Clap-spatial"#,
+           #  "Survey"#,
 #             "user.SH.bins",
 #               "seedboxes",
                #"MW-SH"#,
@@ -128,7 +129,7 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
            #    "SH.GP-spatial",
             #  "SHF-large"
             ), bathy=c(10,'c'), 
-            sub.area=F, INLA="load", season="spring", nickname=NULL)#, layout="landscape")
+            sub.area=F, INLA="run", season="testing", nickname="LE13")#, layout="landscape")
 
 Sys.time() -str
 

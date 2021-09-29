@@ -199,6 +199,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     season <- tmp.season 
     yr <- tmp.yr
     dir.temp <- direct
+    dir.fn.temp <- direct_fns
     
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
@@ -222,6 +223,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     nickname <- temp.nick
     direct <- dir.temp
+    direct_fns <- dir.fn.temp
     season <- tmp.season 
     yr <- tmp.yr
     
@@ -233,10 +235,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                        "/Survey_summary_output/testing_results.Rdata",sep=""))
       if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
                                         "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
-      
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
-  
+  nickname <- temp.nick
+  direct <- dir.temp
+  direct_fns <- dir.fn.temp
+  season <- tmp.season 
+  yr <- tmp.yr
   if(season == "both") 
   {
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
@@ -249,6 +254,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   season <- tmp.season 
   yr <- tmp.yr
   dir.temp <- direct
+  dir.fn.temp <- direct_fns
   if(season == "spring") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
@@ -262,6 +268,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     season <- tmp.season 
     yr <- tmp.yr
     direct <- dir.temp
+    direct_fns <- dir.fn.temp
     if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))==T)
     {
       load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
@@ -271,6 +278,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   season <- tmp.season 
   yr <- tmp.yr
   direct <- dir.temp
+  direct_fns <- dir.fn.temp
   if(season == "summer") 
   {
     # If we are making the MW/SH plot & looking at GB we need to get both the spring and summer GB data
@@ -297,7 +305,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.else stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_summer_results.Rdata' gets created, Thanks eh!!") # end if/else file.
     } 
   }# if(season == "summer")
-  
+  nickname <- temp.nick
+  direct <- dir.temp
+  direct_fns <- dir.fn.temp
+  season <- tmp.season 
+  yr <- tmp.yr
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
@@ -953,6 +965,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # print a message if the model didn't work:
               if(max(mod.res[[spatial.maps[k]]], na.rm=T) == "Inf") stop(paste0("Inf predictions in mod.res[[spatial.maps[k]]]. Please try a different mesh for ", banks[i], " ", spatial.maps[k], ".\nRecommend changing inla.mesh.2d max.edge argument very slightly."))
               # Needed to make the clapper spatial work...
+              
               if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
               
               #browser()
@@ -1305,7 +1318,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) +
               coord_sf(expand=F)
             
-            
+           plot(mesh)
            
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
