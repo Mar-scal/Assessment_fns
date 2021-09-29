@@ -771,7 +771,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           ## All of our abundance spatial plots are counts
           family1 = "poisson"
           family1.cf <- "gaussian" # For CF, MC,MW, and SH they are more normal so go with a gaussian.
-          family.clap <- "poisson" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
+          family.clap <- "beta" # I haven't found a good family for the clapper data, for the moment the poisson does a decent job as long
           # as we don't have very high clapper values (i.e. near 100%), it can get weird there, but I can't find a better likelihood yet...
           # I tried a beta and it wants to really smooth the surface far too much unfortunately, might work if we had higher clapper values, but when
           # low it just basically sets everything down toward 0.
@@ -882,13 +882,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               
               if(spatial.maps[k] == "Clap-spatial")        
               {
+                # Beta transform
+                tmp.clap$clap.prop <- beta.transform(tmp.clap$clap.prop)
                 # This is the stack for the INLA model
-                
                 stk <- inla.stack(tag="est",data=list(y = tmp.clap$clap.prop, link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.clap)), s = 1:spde$n.spde),
                                   A = list(1, A))
                 # if we have some big clapper tows, use gaussian instead?
-                if(any(tmp.clap$clap.prop >= 1)) family.clap <- "gaussian"
+                #if(any(tmp.clap$clap.prop >= 1)) family.clap <- "gaussian"
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.clap, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=link, compute=TRUE))
@@ -954,19 +955,17 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               } # end if(spatial.maps[k] == "PR-spatial")  
               
               
-              if(spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","Clap-spatial","SH-spatial","SH.GP-spatial",
+              if(spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","SH-spatial","SH.GP-spatial",
                                         "MW-spatial","MW.GP-spatial")) mod.res[[spatial.maps[k]]] <- 
                   exp(mod$summary.random$s$mean + mod$summary.fixed$mean)
               
               # Now for the Gaussian models.
-              if(spatial.maps[k] %in% c("CF-spatial","MC-spatial")) mod.res[[spatial.maps[k]]] <- 
-                  mod$summary.random$s$mean + mod$summary.fixed$mean
+              if(spatial.maps[k] %in% c("CF-spatial","MC-spatial")) mod.res[[spatial.maps[k]]] <- mod$summary.random$s$mean + mod$summary.fixed$mean
               
               # print a message if the model didn't work:
               if(max(mod.res[[spatial.maps[k]]], na.rm=T) == "Inf") stop(paste0("Inf predictions in mod.res[[spatial.maps[k]]]. Please try a different mesh for ", banks[i], " ", spatial.maps[k], ".\nRecommend changing inla.mesh.2d max.edge argument very slightly."))
               # Needed to make the clapper spatial work...
-              
-              if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
+              if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]] <- inv.logit(mod$summary.random$s$mean + mod$summary.fixed$mean)
               
               #browser()
               #       if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
