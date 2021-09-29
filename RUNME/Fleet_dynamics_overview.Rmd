@@ -21,8 +21,7 @@ new.log.dat$date <- ymd(new.log.dat$date)
 ```
 
 
-```{r cars}
-
+```{r}
 annual <- new.log.dat %>%
   filter(bank %in% banks & month %in% months) %>%
   group_by(year, fleet) %>%
@@ -92,7 +91,7 @@ print(plot)
 banklab <- paste0(banks, collapse="_")
 monthlab <- paste0(min(months), "_", max(months))
 
-png(filename = paste0(direct, "Data/Fishery_data/Summary/", year, "/Fleet_dynamics_overview_", monthlab, "_", banklab, ".png"))
+png(filename = paste0(direct, "Data/Fishery_data/Summary/", year, "/Fleet_dynamics_overview_", monthlab, "_", banklab, ".png"), height=8.5, width=8.5, units="in", res=400)
 print(plot)
 dev.off()
 

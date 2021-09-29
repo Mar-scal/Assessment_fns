@@ -37,7 +37,11 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
     } # end for(un in funs)
   } # end  if(missing(direct_fns))
   
-  if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+  if(!missing(direct_fns)) {
+    source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
+    source(paste(direct_fns,"Other_functions/ScallopQuery.r",sep=""))
+  }
+    
   
   ### load the data
   ## from the xlsx template:
