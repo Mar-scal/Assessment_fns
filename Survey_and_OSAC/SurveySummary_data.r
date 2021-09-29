@@ -110,6 +110,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   require(BIOSurvey2)
   require(sp)
   require(maptools)
+  
   ############################# GENERAL DATA ########################################################
   ############################# GENERAL DATA ########################################################
   # Enter here standard data which is used throughout this script.
@@ -711,6 +712,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         SH.dat <- data.frame(year = 1980:2030,CS = c(rep(75,6),rep(85,10),rep(95,2030-1995)),RS = c(rep(60,6),rep(75,10),rep(85,2030-1995)))
         CS <- SH.dat$CS[SH.dat$year %in% years]
         RS <- SH.dat$RS[SH.dat$year %in% years]
+        
       } # End if(bnk == "GBa")
       
       # Now we can set up our more detailed SHF bins as well
@@ -946,7 +948,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-      browser()
+      
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
@@ -999,6 +1001,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # e.g. in 1984 RS =60 and CS=75, so the pre's will be < 60 while the user specified bins are constrained
       # to use just the current RS size (unless of course you specify something yourself).
       #Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
+      
       if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn","GB","GBa","GBb")) 
       {
         surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
@@ -1088,7 +1091,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
-      browser()
+      
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -1271,6 +1274,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bank.4.spatial !="Sab")
         {  
           strata.areas <- subset(strata.areas,startyear == max(strata.areas$startyear))
+          
+          if(!length(CS) == length(unique(surv.Rand[[bnk]]$year))){
+            CS <- SH.dat$CS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
+            RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
+          }
           survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                           bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
           clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
@@ -1287,6 +1295,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } # end if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban")
       
       # Mostly due to GB, but I want to have the CS and RS for each year of the calculations here...
+      
       survey.obj[[bnk]][[1]]$CS <- CS
       survey.obj[[bnk]][[1]]$RS <- RS
       clap.survey.obj[[bnk]][[1]]$CS <- CS
@@ -1352,6 +1361,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {  
           key <-findPolys(box.dat, subset(boxes,SCALLOP_Group_ID == box.names[m]))
           seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
+          if(!length(CS) == length(seedbox.obj[[bnk]][[m]]$model.dat$year)){
+            CS <- SH.dat$CS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
+            RS <- SH.dat$RS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
+          }
           seedbox.obj[[bnk]][[m]]$model.dat$RS <- RS
           seedbox.obj[[bnk]][[m]]$model.dat$CS <- CS
           seedbox.obj[[bnk]][[m]]$box.tow.data <- surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,]

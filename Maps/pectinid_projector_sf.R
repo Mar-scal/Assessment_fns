@@ -596,6 +596,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         offshore.spa <- combo.shp(temp2,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         # Because of issues with the polygons immediately needed to turn it into a multilinestring to avoid bad polygons, works a charm after that...
+        if(any(st_is_empty(offshore.spa))) message(paste0("removed ", offshore.spa[st_is_empty(offshore.spa),]$ID, " because they were empty"))
+        offshore.spa <- offshore.spa[!st_is_empty(offshore.spa),]
         offshore.spa <- st_cast(offshore.spa,to= "MULTILINESTRING")
         offshore.spa  <- st_transform(offshore.spa,c_sys)
         offshore.spa <- st_make_valid(offshore.spa)
@@ -962,7 +964,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
     # Project the values appropriately for the data, the xlim/ylim will come from the mesh itself.
     projec = inla.mesh.projector(add_inla$mesh, xlim = range(add_inla$mesh$loc[,1],na.rm=T) , ylim = range(add_inla$mesh$loc[,2],na.rm=T), dims=add_inla$dims)
-    if(add_inla$mesh$n == length(add_inla$field)) inla.field = inla.mesh.project(projec, add_inla$field)
+    if(add_inla$mesh$n == length(add_inla$field)) {
+      inla.field = inla.mesh.project(projec, add_inla$field)
+      # above step adds tiny decimal places. This is a problem for clap-spatial, which should top out at 100 (not 100.000000000000014210854715202003717...). 
+      # let's round these to the nearest 0.000001. 
+      inla.field <- round(inla.field, digits = 6)
+    }
     # If the above step has already happened (this is mostly for backwards compatibility with old code)....
     if(add_inla$mesh$n != length(add_inla$field)) inla.field <- add_inla$field
     raster <- raster(rotate(rotate(rotate(inla.field))))
@@ -1019,7 +1026,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       }
     } else { # if not continuous then it's discrete...
       # Cut it up into the bins you want and force it to spit out numbers not scientific notation for <= 10 digits.
-      spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10)) 
+      spd <- spd %>% mutate(brk = cut(layer, breaks = brk,dig.lab=10))
       n.breaks <- length(unique(spd$brk))
       #scd <- scale_colour_manual(values = col[1:n.breaks])
       if(plot_as != "plotly") sfd <- scale_fill_manual(values = col[1:n.breaks],name=leg)

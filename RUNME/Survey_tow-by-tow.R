@@ -1500,16 +1500,22 @@ if(bnk[i] %in%  c("Sab","BBs","GBa","BBn","GBb"))
   df[3,2]  <- clap.year$NPR / sum(bank.survey.info$towable_area)*10^6
 
 } # end if(bnk[i] %in%  c("?viSab","BBs","GBa","BBn","GBb"))
-browser()
+
 if(bnk[i] %in% c("Ger","Mid","GB"))
 {
   # everythign alive
-  df[1:length(row.names),1] <- as.numeric(this.year[,which(names(this.year) %in% row.names)])
+  if(length(which(names(this.year) %in% row.names)) < length(row.names)){
+    present <- names(this.year)[which(names(this.year) %in% row.names)]
+    df[present, 1] <- as.numeric(this.year[,present])
+  }
+  if(length(which(names(this.year) %in% row.names)) == length(row.names)){ 
+    df[1:length(row.names),1] <- as.numeric(this.year[,which(names(this.year) %in% row.names)])
+  }
   # Get clappers
 
-  df[1,2]  <- clap.year$N
-  df[2,2] <- clap.year$NR
-  df[3,2]  <- clap.year$NPR
+  df["N",2]  <- clap.year$N
+  df["NR",2] <- clap.year$NR
+  df["NPR",2]  <- clap.year$NPR
 } # end if(bnk[i] %in% c("Ger","Mid","GB"))
 
 

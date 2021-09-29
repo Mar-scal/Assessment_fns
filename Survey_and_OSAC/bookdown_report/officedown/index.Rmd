@@ -1,0 +1,43 @@
+--- 
+title: "Survey Summary"
+subtitle: "Spring 2021"
+author: "Scallop and Benthic Habitat Unit"
+output: 
+  officedown::rdocx_document:
+     reference_docx: my-styles.docx
+header-includes:
+ - \usepackage{float}
+ - \usepackage{fancyhdr}
+ - \pagestyle{fancy}
+ - \fancyfoot[CO,CE]{Spring Survey 2021}
+ - \fancyfoot[LE,RO]{\thepage}
+---
+
+```{r, echo=F, message=F, warning=F}
+require(lubridate)
+load("summary.Rdata")
+
+dates <- summary_data$dates[summary_data$dates$bank %in% c("Mid", "Sab", "Ger",
+          "BBn", "BBs", "GB"),]
+```
+
+## Table of contents
+
+<!---BLOCK_TOC--->
+
+
+\newpage
+
+
+# Survey overview
+
+The Spring Offshore Scallop Survey occurred from `r stamp("March 1")(min(dates$start))` to `r stamp("March 1, 2021")(max(dates$end))` on Middle Bank, Sable Bank, German Bank, Browns Bank North, Browns Bank South, and the Georges Bank monitoring stations. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
+
+This report summarizes the information collected during the survey. At each survey station, the 8-ft scallop dredge is towed for 10 minutes, and scallop are counted and assigned to 5mm shell height bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
+
+Detailed sampling occurred at a selection of the stations, where the exact heights and weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
+
+Some of the figures and analyses presented in this report refer to the different size classes of scallop: pre-recruits, recruits, and fully-recruited scallop. The shell height ranges for each size class differs by bank, but the general convention is that recruits are expected to grow to commercial size in the next year, while fully-recruited scallops were commercial size at the time of the survey. 
+
+We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. 
+
