@@ -3,9 +3,10 @@ rmarkdown_file <- "parameterised_report.Rmd"
 print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
-           "Mid", "Sab", "Ger",
-           "BBs",
-          "BBn", "GB"#, "GBa", "GBb"
+          # "Mid", "Sab", "Ger",
+          # "BBs",
+          #"BBn", "GB"#,
+  "GBa", "GBb"
            )
 banknum <- 1:length(banks)
 
@@ -45,7 +46,7 @@ markdowns <- append(index_file, markdowns)
 
 # Stitch together markdowns ----------------------------------------------------
 # output file
-to = "output.Rmd"
+to = "output2.Rmd"
 
 # paste the markdowns together
 # this is taken from bookdown:::merge_chapters()

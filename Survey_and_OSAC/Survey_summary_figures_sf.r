@@ -192,6 +192,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     plots <- c("MW-SH","abund-ts","biomass-ts","SHF","SHF-large","SHF-split",
                "clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown")
   }# end if(plots == 'simple'
+  temp.nick <- nickname
+  season <- tmp.season 
+  yr <- tmp.yr
+  dir.temp <- direct
+  dir.fn.temp <- direct_fns
   if(season == "testing") 
   {
     # Some temporary assignments so we can load in old data without overwritting more important crap
