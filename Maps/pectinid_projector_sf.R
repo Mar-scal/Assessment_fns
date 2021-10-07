@@ -966,9 +966,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     projec = inla.mesh.projector(add_inla$mesh, xlim = range(add_inla$mesh$loc[,1],na.rm=T) , ylim = range(add_inla$mesh$loc[,2],na.rm=T), dims=add_inla$dims)
     if(add_inla$mesh$n == length(add_inla$field)) {
       inla.field = inla.mesh.project(projec, add_inla$field)
-      # above step adds tiny decimal places. This is a problem for clap-spatial, which should top out at 100 (not 100.000000000000014210854715202003717...). 
-      # let's round these to the nearest 0.000001. 
-      inla.field <- round(inla.field, digits = 6)
     }
     # If the above step has already happened (this is mostly for backwards compatibility with old code)....
     if(add_inla$mesh$n != length(add_inla$field)) inla.field <- add_inla$field

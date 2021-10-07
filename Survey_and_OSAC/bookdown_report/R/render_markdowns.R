@@ -3,12 +3,20 @@ rmarkdown_file <- "parameterised_report.Rmd"
 print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
-           "Mid", "Sab", "Ger",
-           "BBs",
-          "BBn", "GB"#, "GBa", "GBb"
+          # "Mid", "Sab", "Ger",
+         #  "BBs",
+         #"BBn", "GB"#,
+  "GBa", "GBb"
            )
 banknum <- 1:length(banks)
 
+# index file
+if(!any(c("GBa", "GBb") %in% banks)) index_file <- "index.Rmd"
+if(any(c("GBa", "GBb") %in% banks)) index_file <- "index2.Rmd"
+
+# output file
+if(!any(c("GBa", "GBb") %in% banks)) to = "output.Rmd"
+if(any(c("GBa", "GBb") %in% banks)) to = "output2.Rmd"
 
 # Run Parameterised Reports ----------------------------------------------------
 # run through the years and render each version of the report.
@@ -36,7 +44,6 @@ markdowns <- lapply(
 
 # Run index file ---------------------------------------------------------------
 # do the same for the index file
-index_file <- "index.Rmd"
 rmarkdown::render(index_file, run_pandoc = FALSE)
 index_file <- xfun::with_ext(xfun::sans_ext(index_file), ".knit.md")
 
@@ -44,8 +51,6 @@ index_file <- xfun::with_ext(xfun::sans_ext(index_file), ".knit.md")
 markdowns <- append(index_file, markdowns)
 
 # Stitch together markdowns ----------------------------------------------------
-# output file
-to = "output.Rmd"
 
 # paste the markdowns together
 # this is taken from bookdown:::merge_chapters()
