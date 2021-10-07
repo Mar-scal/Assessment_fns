@@ -21,7 +21,7 @@ options(tinytex.verbose = TRUE)
 
 year <- 2021
 
-load("summary.Rdata")
+load("summary2.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows
@@ -99,7 +99,6 @@ highlights$lastyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR
 highlights$thisyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$thisyearraw) & (highlights$thisyearraw>0 & highlights$thisyearraw<0.01)] <- "<0.01"
 highlights$LTM[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$LTMraw) & (highlights$LTMraw>0 & highlights$LTMraw<0.01)] <- "<0.01"
 
-
 ```
 
 \newpage
@@ -172,9 +171,14 @@ Abundance and biomass throughout the survey time series are presented using numb
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("NPR", "NR", "N"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited (>=", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
-knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+rownames(table) <- NULL
+
+kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex', 
+  caption = "Number of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+  kableExtra::kable_styling(full_width = F) %>% 
+  kableExtra::kable_styling(full_width = F) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -184,9 +188,14 @@ knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Number o
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("IPR", "IR", "I"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited (>=", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
-knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+rownames(table) <- NULL
+
+kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex', 
+  caption = "Kilograms (kg) of scallop per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+  kableExtra::kable_styling(full_width = F) %>% 
+  kableExtra::kable_styling(full_width = F) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -270,9 +279,12 @@ The spatial distribution of pre-recruit, recruit, and fully-recruited scallop ar
 table <- spatial.stats.abund
 table$`Size class` <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited (>=", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 
-knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Summary statistics for tow abundance by size class, for the current survey.") %>%
+kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex', 
+  caption = "Summary statistics for tow abundance by size class, for the current survey.") %>%
+  kableExtra::kable_styling(full_width = F) %>% 
+  kableExtra::kable_styling(full_width = F) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
 
 ```
@@ -334,12 +346,15 @@ Patterns in natural mortality are represented by the percentage of clappers (dea
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("PRpercentclap", "Rpercentclap", "Cpercentclap"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited (>=", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
+rownames(table) <- NULL
 
-knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex', 
+  caption = "Percentage of clappers per standardized tow by size class, for the current survey, previous survey, and long term median.") %>%
+  kableExtra::kable_styling(full_width = F) %>% 
+  kableExtra::kable_styling(full_width = F) %>%
   kableExtra::kable_styling(latex_options = "HOLD_position")
-
 ```
 
 

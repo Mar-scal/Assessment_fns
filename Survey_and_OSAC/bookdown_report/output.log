@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.9.5)  27 SEP 2021 18:18
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2021.9.5)  5 OCT 2021 14:12
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -948,7 +948,7 @@ l.223 \newpage
 l.223 \newpage
               ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/abun
-dance_ts.png, id=95, 614.295pt x 794.97pt>
+dance_ts.png, id=96, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -964,7 +964,7 @@ l.235 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/biom
-ass_ts.png, id=103, 614.295pt x 794.97pt>
+ass_ts.png, id=104, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -980,7 +980,7 @@ l.247 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/SHF.
-png, id=112, 614.295pt x 794.97pt>
+png, id=113, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -996,7 +996,7 @@ l.264 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/MWSH
-_and_CF_ts.png, id=121, 614.295pt x 939.51pt>
+_and_CF_ts.png, id=122, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1012,7 +1012,7 @@ l.281 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/PR-s
-patial.png, id=130, 794.97pt x 614.295pt>
+patial.png, id=131, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1033,7 +1033,7 @@ l.315 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/Rec-
-spatial.png, id=140, 794.97pt x 614.295pt>
+spatial.png, id=141, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1049,7 +1049,7 @@ l.327 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/FR-s
-patial.png, id=148, 794.97pt x 614.295pt>
+patial.png, id=149, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1065,7 +1065,7 @@ l.339 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/CF-s
-patial.png, id=157, 794.97pt x 614.295pt>
+patial.png, id=158, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1086,7 +1086,7 @@ l.369 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/MC-s
-patial.png, id=167, 794.97pt x 614.295pt>
+patial.png, id=168, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1102,7 +1102,7 @@ l.381 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/Clap
-per_per_ts.png, id=175, 614.295pt x 794.97pt>
+per_per_ts.png, id=176, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1123,7 +1123,7 @@ l.413 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/brea
-kdown-2021.png, id=189, 614.295pt x 794.97pt>
+kdown-2021.png, id=190, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid
 /breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Mid/
@@ -1139,7 +1139,7 @@ l.431 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Mid/breakdown-2021.png>] [18]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/surv
-ey_strata.png, id=218, 794.97pt x 614.295pt>
+ey_strata.png, id=219, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1165,7 +1165,7 @@ l.533 \newpage
 l.533 \newpage
               ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/abun
-dance_ts.png, id=236, 614.295pt x 794.97pt>
+dance_ts.png, id=237, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1181,7 +1181,7 @@ l.545 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/biom
-ass_ts.png, id=244, 614.295pt x 794.97pt>
+ass_ts.png, id=245, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1197,7 +1197,7 @@ l.557 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/SHF.
-png, id=252, 614.295pt x 794.97pt>
+png, id=253, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1213,7 +1213,7 @@ l.574 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/MWSH
-_and_CF_ts.png, id=261, 614.295pt x 939.51pt>
+_and_CF_ts.png, id=262, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1229,7 +1229,7 @@ l.591 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/PR-s
-patial.png, id=270, 794.97pt x 614.295pt>
+patial.png, id=271, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1250,7 +1250,7 @@ l.625 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/Rec-
-spatial.png, id=281, 794.97pt x 614.295pt>
+spatial.png, id=282, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1266,7 +1266,7 @@ l.637 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/FR-s
-patial.png, id=289, 794.97pt x 614.295pt>
+patial.png, id=290, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1282,7 +1282,7 @@ l.649 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/CF-s
-patial.png, id=298, 794.97pt x 614.295pt>
+patial.png, id=299, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1303,7 +1303,7 @@ l.679 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/MC-s
-patial.png, id=307, 794.97pt x 614.295pt>
+patial.png, id=308, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1319,7 +1319,7 @@ l.691 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/Clap
-per_per_ts.png, id=315, 614.295pt x 794.97pt>
+per_per_ts.png, id=316, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1340,7 +1340,7 @@ l.723 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/brea
-kdown-2021.png, id=330, 614.295pt x 794.97pt>
+kdown-2021.png, id=331, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab
 /breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Sab/
@@ -1356,7 +1356,7 @@ l.741 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Sab/breakdown-2021.png>] [33]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/surv
-ey_strata.png, id=359, 794.97pt x 614.295pt>
+ey_strata.png, id=360, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1382,7 +1382,7 @@ l.843 \newpage
 l.843 \newpage
               ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/abun
-dance_ts.png, id=376, 614.295pt x 794.97pt>
+dance_ts.png, id=377, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1398,7 +1398,7 @@ l.855 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/biom
-ass_ts.png, id=384, 614.295pt x 794.97pt>
+ass_ts.png, id=385, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1414,7 +1414,7 @@ l.867 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/SHF.
-png, id=393, 614.295pt x 794.97pt>
+png, id=394, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1430,7 +1430,7 @@ l.884 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/MWSH
-_and_CF_ts.png, id=402, 614.295pt x 939.51pt>
+_and_CF_ts.png, id=403, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1446,7 +1446,7 @@ l.901 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/PR-s
-patial.png, id=411, 794.97pt x 614.295pt>
+patial.png, id=412, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1467,7 +1467,7 @@ l.935 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/Rec-
-spatial.png, id=421, 794.97pt x 614.295pt>
+spatial.png, id=422, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1483,7 +1483,7 @@ l.947 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/FR-s
-patial.png, id=429, 794.97pt x 614.295pt>
+patial.png, id=430, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1499,7 +1499,7 @@ l.959 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/CF-s
-patial.png, id=437, 794.97pt x 614.295pt>
+patial.png, id=438, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1520,7 +1520,7 @@ l.989 \newpage
                <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_f
 igures/Ger/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/MC-s
-patial.png, id=448, 794.97pt x 614.295pt>
+patial.png, id=449, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1536,7 +1536,7 @@ l.1001 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/Ger/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/Clap
-per_per_ts.png, id=456, 614.295pt x 794.97pt>
+per_per_ts.png, id=457, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1557,7 +1557,7 @@ l.1033 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/Ger/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/brea
-kdown-2021.png, id=470, 614.295pt x 794.97pt>
+kdown-2021.png, id=471, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger
 /breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/Ger/
@@ -1573,7 +1573,7 @@ l.1051 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/Ger/breakdown-2021.png>] [48]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/surv
-ey_strata.png, id=499, 794.97pt x 614.295pt>
+ey_strata.png, id=500, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1599,7 +1599,7 @@ e{table.17}) has been already used, duplicate ignored
 l.1153 \newpage
                ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/abun
-dance_ts.png, id=517, 614.295pt x 794.97pt>
+dance_ts.png, id=518, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1615,7 +1615,7 @@ l.1165 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/biom
-ass_ts.png, id=525, 614.295pt x 794.97pt>
+ass_ts.png, id=526, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1631,7 +1631,7 @@ l.1177 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/SHF.
-png, id=533, 614.295pt x 794.97pt>
+png, id=534, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1647,7 +1647,7 @@ l.1194 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/MWSH
-_and_CF_ts.png, id=542, 614.295pt x 939.51pt>
+_and_CF_ts.png, id=543, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1663,7 +1663,7 @@ l.1211 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/PR-s
-patial.png, id=551, 794.97pt x 614.295pt>
+patial.png, id=552, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1684,7 +1684,7 @@ l.1245 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/Rec-
-spatial.png, id=562, 794.97pt x 614.295pt>
+spatial.png, id=563, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1700,7 +1700,7 @@ l.1257 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/FR-s
-patial.png, id=570, 794.97pt x 614.295pt>
+patial.png, id=571, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1716,7 +1716,7 @@ l.1269 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/CF-s
-patial.png, id=578, 794.97pt x 614.295pt>
+patial.png, id=579, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1737,7 +1737,7 @@ l.1299 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/MC-s
-patial.png, id=588, 794.97pt x 614.295pt>
+patial.png, id=589, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1753,7 +1753,7 @@ l.1311 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/Clap
-per_per_ts.png, id=596, 614.295pt x 794.97pt>
+per_per_ts.png, id=597, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1774,7 +1774,7 @@ l.1343 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/brea
-kdown-2021.png, id=611, 614.295pt x 794.97pt>
+kdown-2021.png, id=612, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs
 /breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBs/
@@ -1790,7 +1790,7 @@ l.1361 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBs/breakdown-2021.png>] [63]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/surv
-ey_strata.png, id=640, 794.97pt x 614.295pt>
+ey_strata.png, id=641, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1816,7 +1816,7 @@ e{table.22}) has been already used, duplicate ignored
 l.1463 \newpage
                ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/abun
-dance_ts.png, id=657, 614.295pt x 794.97pt>
+dance_ts.png, id=658, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1832,7 +1832,7 @@ l.1475 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/biom
-ass_ts.png, id=665, 614.295pt x 794.97pt>
+ass_ts.png, id=666, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1848,7 +1848,7 @@ l.1487 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/SHF.
-png, id=674, 614.295pt x 794.97pt>
+png, id=675, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1864,7 +1864,7 @@ l.1504 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/MWSH
-_and_CF_ts.png, id=683, 614.295pt x 939.51pt>
+_and_CF_ts.png, id=684, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1880,7 +1880,7 @@ l.1521 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/PR-s
-patial.png, id=692, 794.97pt x 614.295pt>
+patial.png, id=693, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1901,7 +1901,7 @@ l.1555 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/Rec-
-spatial.png, id=702, 794.97pt x 614.295pt>
+spatial.png, id=703, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1917,7 +1917,7 @@ l.1567 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/FR-s
-patial.png, id=710, 794.97pt x 614.295pt>
+patial.png, id=711, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1933,7 +1933,7 @@ l.1579 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/CF-s
-patial.png, id=718, 794.97pt x 614.295pt>
+patial.png, id=719, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1954,7 +1954,7 @@ l.1609 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/MC-s
-patial.png, id=729, 794.97pt x 614.295pt>
+patial.png, id=730, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1970,7 +1970,7 @@ l.1621 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/Clap
-per_per_ts.png, id=737, 614.295pt x 794.97pt>
+per_per_ts.png, id=738, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -1991,7 +1991,7 @@ l.1653 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/brea
-kdown-2021.png, id=751, 614.295pt x 794.97pt>
+kdown-2021.png, id=752, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn
 /breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/BBn/
@@ -2007,7 +2007,7 @@ l.1671 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/BBn/breakdown-2021.png>] [78]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/surve
-y_strata.png, id=780, 794.97pt x 614.295pt>
+y_strata.png, id=781, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/s
@@ -2033,7 +2033,7 @@ e{table.27}) has been already used, duplicate ignored
 l.1773 \newpage
                ]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/abund
-ance_ts.png, id=798, 614.295pt x 794.97pt>
+ance_ts.png, id=799, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/a
@@ -2049,7 +2049,7 @@ l.1785 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/abundance_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/bioma
-ss_ts.png, id=806, 614.295pt x 794.97pt>
+ss_ts.png, id=807, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/b
@@ -2065,7 +2065,7 @@ l.1797 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/biomass_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/SHF.p
-ng, id=814, 614.295pt x 794.97pt>
+ng, id=815, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/S
@@ -2081,7 +2081,7 @@ l.1814 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/SHF.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/MWSH_
-and_CF_ts.png, id=823, 614.295pt x 939.51pt>
+and_CF_ts.png, id=824, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/M
@@ -2097,7 +2097,7 @@ l.1831 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/MWSH_and_CF_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/PR-sp
-atial.png, id=832, 794.97pt x 614.295pt>
+atial.png, id=833, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/P
@@ -2118,7 +2118,7 @@ l.1865 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/PR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/Rec-s
-patial.png, id=843, 794.97pt x 614.295pt>
+patial.png, id=844, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/R
@@ -2134,7 +2134,7 @@ l.1877 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/Rec-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/FR-sp
-atial.png, id=851, 794.97pt x 614.295pt>
+atial.png, id=852, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/F
@@ -2150,7 +2150,7 @@ l.1889 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/FR-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/CF-sp
-atial.png, id=859, 794.97pt x 614.295pt>
+atial.png, id=860, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/C
@@ -2171,7 +2171,7 @@ l.1919 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/CF-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/MC-sp
-atial.png, id=869, 794.97pt x 614.295pt>
+atial.png, id=870, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/M
@@ -2187,7 +2187,7 @@ l.1931 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/MC-spatial.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/Clapp
-er_per_ts.png, id=877, 614.295pt x 794.97pt>
+er_per_ts.png, id=878, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/C
@@ -2208,7 +2208,7 @@ l.1963 \newpage
                 <y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_
 figures/GB/Clapper_per_ts.png>]
 <Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/break
-down-2021.png, id=892, 614.295pt x 794.97pt>
+down-2021.png, id=893, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/
 breakdown-2021.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2021/Presentations/Survey_summary/test_figures/GB/b
@@ -2232,7 +2232,7 @@ Package rerunfilecheck Info: File `output.out' has not changed.
 Here is how much of TeX's memory you used:
  12108 strings out of 480559
  233457 string characters out of 5901613
- 487470 words of memory out of 5000000
+ 487595 words of memory out of 5000000
  29209 multiletter control sequences out of 15000+600000
  452105 words of font info for 67 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
@@ -2240,19 +2240,21 @@ Here is how much of TeX's memory you used:
 pdfTeX warning (dest): name{toc} has been referenced but does not exist, repl
 aced by a fixed one
 
-{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.
-enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-
-ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/
-lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/
-public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts
-/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist
-/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texm
-f-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTe
-X/texmf-dist/fonts/type1/public/lm/lmro10.pfb>
-Output written on output.pdf (92 pages, 26847538 bytes).
+{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-math
+sy.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/
+lm-ts1.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips
+/lm/lm-ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/
+public/lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts
+/type1/public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dis
+t/fonts/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/tex
+mf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyT
+eX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming
+/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/keyserf/AppData/
+Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on output.pdf (92 pages, 26853199 bytes).
 PDF statistics:
- 1000 PDF objects out of 1000 (max. 8388607)
- 741 compressed objects within 8 object streams
+ 1006 PDF objects out of 1200 (max. 8388607)
+ 745 compressed objects within 8 object streams
  295 named destinations out of 1000 (max. 500000)
  417 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -21,7 +21,7 @@ require(RColorBrewer)
 # Load the survey data.  If you've compiled all the surveys use this...
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_LE13.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_LE14.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
@@ -31,8 +31,8 @@ source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
 bnk <- #c("BBn","Ger","Sab","Mid",
-  c("GB", "BBs")#, "Ban", "BanIce"
-         #"GBa", "GBb")
+  c(#"GB", "BBs")#, "Ban", "BanIce"
+         "GBa", "GBb")
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"
@@ -121,13 +121,13 @@ for(j in seq(1,length(bank.live[,1])))
   # Get both plots on the same scale...
   ymax <- max(max(bank.clap[j,cols],na.rm=T),
               max(bank.live[j,cols],na.rm=T))
-  plot(t(bank.live[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
+  graphics::plot(t(bank.live[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
   axis(1,at=1:40,labels=F,tcl=0.2)
   axis(1,at=1:40,labels=F,tcl=-0.2)
   axis(1,at = seq(3,40,by=5),labels = names(bank.live[j,seq(16,55,by=5)]))
   title(paste("Standardized Number alive per tow (tow ID-",bank.live$tow[j],")",sep=""),cex=0.6)
 
-  plot(t(bank.clap[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
+  graphics::plot(t(bank.clap[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
   axis(1,at=1:40,labels=F,tcl=0.2)
   axis(1,at=1:40,labels=F,tcl=-0.2)
   axis(1,at = seq(3,40,by=5),labels = names(bank.clap[j,seq(16,55,by=5)]))
@@ -139,7 +139,7 @@ print("2")
 # Look at Condition factor from each tow, any stand out higher or low?
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(11,8.5)
-plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
+graphics::plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,bank.live$tow,cex=0.5)
 axis(1,at=seq(5,length(bank.live$CF),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$CF),by=5)]))
 title("Condition Factor by tow")
@@ -151,7 +151,7 @@ dev.off()
 # Look at Condition factor from each tow but label as depth, any stand out higher or low?
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow and_depth.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(11,8.5)
-plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
+graphics::plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,round(bank.live$depth),cex=0.5)
 axis(1,at=seq(5,length(bank.live$CF),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$CF),by=5)]))
 title("Condition Factor by tow and depth")
@@ -166,26 +166,26 @@ png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bn
     width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
-plot(1:length(bank.clap$clap.prop),bank.clap$clap.prop,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.prop),bank.clap$clap.prop,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.prop),bank.clap$clap.prop,round(bank.clap$depth),cex=0.8)
 text(10,80,"Overall")
 title("Clappers by tow and depth")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,round(bank.clap$depth),cex=0.8)
 text(10,80,"Fully recruited")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,round(bank.clap$depth),cex=0.8)
 text(10,80,"Recruits")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,round(bank.clap$depth),cex=0.8)
 text(10,80,"Pre-recruits")
@@ -197,26 +197,26 @@ print("3")
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
-plot(1:length(bank.clap$clap.prop),bank.clap$clap.prop,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.prop),bank.clap$clap.prop,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.prop),bank.clap$clap.prop,round(bank.clap$tow),cex=0.8)
 text(10,80,"Overall")
 title("Clappers by tow")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propCom),bank.clap$clap.propCom,round(bank.clap$tow),cex=0.8)
 text(10,80,"Fully recruited")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propRec),bank.clap$clap.propRec,round(bank.clap$tow),cex=0.8)
 text(10,80,"Recruits")
 axis(1,at=seq(5,length(bank.clap$clap.prop),by=5),
      labels = c(bank.clap$tow[seq(5,length(bank.clap$clap.prop),by=5)]))
-plot(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,xaxt="n",xlab="tow ID",
+graphics::plot(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,xaxt="n",xlab="tow ID",
      ylab="% dead",bty="L",pch=20,type="n",ylim=c(0,100))
 text(1:length(bank.clap$clap.propPre),bank.clap$clap.propPre,round(bank.clap$tow),cex=0.8)
 text(10,80,"Pre-recruits")
@@ -229,7 +229,7 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_by_depth.png",sep=""),width=8.5,height=11, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.clap$depth,bank.clap$clap.prop,
+graphics::plot(bank.clap$depth,bank.clap$clap.prop,
      xaxt="n",xlab="depth", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.prop,na.rm=T),max(bank.clap$clap.prop,na.rm=T)),yaxt="n")
 text(bank.clap$depth,bank.clap$clap.prop,
@@ -243,7 +243,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now fully recruited
-plot(bank.clap$depth,bank.clap$clap.propCom,
+graphics::plot(bank.clap$depth,bank.clap$clap.propCom,
      xaxt="n",xlab="depth", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propCom,na.rm=T),max(bank.clap$clap.propCom,na.rm=T)),yaxt="n")
 text(bank.clap$depth,bank.clap$clap.propCom,
@@ -254,7 +254,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propCom,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.clap$depth,bank.clap$clap.propRec,
+graphics::plot(bank.clap$depth,bank.clap$clap.propRec,
      xaxt="n",xlab="depth", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propRec,na.rm=T),max(bank.clap$clap.propRec,na.rm=T)),yaxt="n")
 text(bank.clap$depth,bank.clap$clap.propRec,
@@ -266,7 +266,7 @@ abline(h=mean(bank.clap$clap.propRec,na.rm=T),lwd=2,lty=2,col="blue")
 
 print("4")
 # Now the Pre-recruits
-plot(bank.clap$depth,bank.clap$clap.propPre,
+graphics::plot(bank.clap$depth,bank.clap$clap.propPre,
      xaxt="n",xlab="depth", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propPre,na.rm=T),max(bank.clap$clap.propPre,na.rm=T)),yaxt="n")
 text(bank.clap$depth,bank.clap$clap.propPre,
@@ -285,7 +285,7 @@ png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bn
     width=8.5,height=11, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.live$tot,bank.clap$clap.prop,
+graphics::plot(bank.live$tot,bank.clap$clap.prop,
      xaxt="n",xlab="Abundance", ylab="% dead",log="x",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.prop,na.rm=T),max(bank.clap$clap.prop,na.rm=T)),yaxt="n")
 text(bank.live$tot,bank.clap$clap.prop,
@@ -298,7 +298,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now fully recruited
-plot(bank.live$tot,bank.clap$clap.propCom,
+graphics::plot(bank.live$tot,bank.clap$clap.propCom,
      xaxt="n",xlab="Abundance", ylab="% dead",log="x",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propCom,na.rm=T),max(bank.clap$clap.propCom,na.rm=T)),yaxt="n")
 text(bank.live$tot,bank.clap$clap.propCom,
@@ -309,7 +309,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propCom,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.live$tot,bank.clap$clap.propRec,
+graphics::plot(bank.live$tot,bank.clap$clap.propRec,
      xaxt="n",xlab="Abundance", ylab="% dead",log="x",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propRec,na.rm=T),max(bank.clap$clap.propRec,na.rm=T)),yaxt="n")
 text(bank.live$tot,bank.clap$clap.propRec,
@@ -320,7 +320,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propRec,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the Pre-recruits
-plot(bank.live$tot,bank.clap$clap.propPre,
+graphics::plot(bank.live$tot,bank.clap$clap.propPre,
      xaxt="n",xlab="Abundance", ylab="% dead",log="x",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propPre,na.rm=T),max(bank.clap$clap.propPre,na.rm=T)),yaxt="n")
 text(bank.live$tot,bank.clap$clap.propPre,
@@ -342,7 +342,7 @@ png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bn
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
 
-plot(bank.live$com[bank.live$com>0],bank.clap$clap.prop[bank.live$com>0],
+graphics::plot(bank.live$com[bank.live$com>0],bank.clap$clap.prop[bank.live$com>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.prop,na.rm=T),
                                     max(bank.clap$clap.prop,na.rm=T)),
@@ -367,7 +367,7 @@ abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 print("5")
 
 # Now fully recruited
-plot(bank.live$com[bank.live$com>0],bank.clap$clap.propCom[bank.live$com>0],
+graphics::plot(bank.live$com[bank.live$com>0],bank.clap$clap.propCom[bank.live$com>0],
      xaxt="n",xlab="Fully Recruited abunance", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propCom,na.rm=T),
                                     max(bank.clap$clap.propCom,na.rm=T)),
@@ -389,7 +389,7 @@ axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propCom,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.live$com[bank.live$com>0],bank.clap$clap.propRec[bank.live$com>0],
+graphics::plot(bank.live$com[bank.live$com>0],bank.clap$clap.propRec[bank.live$com>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propRec,na.rm=T),
                                     max(bank.clap$clap.propRec,na.rm=T)),
@@ -411,7 +411,7 @@ axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propRec,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the Pre-recruits
-plot(bank.live$com[bank.live$com>0],bank.clap$clap.propPre[bank.live$com>0],
+graphics::plot(bank.live$com[bank.live$com>0],bank.clap$clap.propPre[bank.live$com>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propPre,na.rm=T),
                                     max(bank.clap$clap.propPre,na.rm=T)),
@@ -442,7 +442,7 @@ png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bn
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
 
-plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.prop[bank.live$pre>0],
+graphics::plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.prop[bank.live$pre>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.prop,na.rm=T),
                                     max(bank.clap$clap.prop,na.rm=T)),
@@ -467,7 +467,7 @@ abline(h=mean(bank.clap$clap.prop,na.rm=T),lwd=2,lty=2,col="blue")
 print("6")
 
 # Now fully recruited
-plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propCom[bank.live$pre>0],
+graphics::plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propCom[bank.live$pre>0],
      xaxt="n",xlab="Fully Recruited abunance", ylab="% dead",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propCom,na.rm=T),
                                     max(bank.clap$clap.propCom,na.rm=T)),
@@ -489,7 +489,7 @@ axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propCom,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propRec[bank.live$pre>0],
+graphics::plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propRec[bank.live$pre>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propRec,na.rm=T),
                                     max(bank.clap$clap.propRec,na.rm=T)),
@@ -511,7 +511,7 @@ axis(1,at=axTicks(1,nintLog=10),labels=c(0,axTicks(1,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.clap$clap.propRec,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the Pre-recruits
-plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propPre[bank.live$pre>0],
+graphics::plot(bank.live$pre[bank.live$pre>0],bank.clap$clap.propPre[bank.live$pre>0],
      xaxt="n",xlab="depth", ylab="Total",
      bty="L",pch=20,type="n",ylim=c(min(bank.clap$clap.propPre,na.rm=T),
                                     max(bank.clap$clap.propPre,na.rm=T)),
@@ -541,26 +541,26 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clapper_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
-plot(1:length(bank.clap$tot),bank.clap$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.clap$tot),bank.clap$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.clap$tot,na.rm=T)))
 text(1:length(bank.clap$tot),bank.clap$tot,round(bank.clap$tow),cex=0.8)
 text(10,max(bank.clap$tot,na.rm=T),"Overall")
 title("Clappers by tow")
 axis(1,at=seq(5,length(bank.clap$tot),by=5),labels = c(bank.clap$tow[seq(5,length(bank.clap$tow),by=5)]))
 
-plot(1:length(bank.clap$com),bank.clap$com,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.clap$com),bank.clap$com,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.clap$com,na.rm=T)))
 text(1:length(bank.clap$com),bank.clap$com,round(bank.clap$tow),cex=0.8)
 text(10,max(bank.clap$com,na.rm=T),"Fully recruited")
 axis(1,at=seq(5,length(bank.clap$com),by=5),labels = c(bank.clap$tow[seq(5,length(bank.clap$tow),by=5)]))
 
-plot(1:length(bank.clap$rec),bank.clap$rec,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.clap$rec),bank.clap$rec,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.clap$rec,na.rm=T)))
 text(1:length(bank.clap$rec),bank.clap$rec,round(bank.clap$tow),cex=0.8)
 text(10,max(bank.clap$rec,na.rm=T),"Recruits")
 axis(1,at=seq(5,length(bank.clap$rec),by=5),labels = c(bank.clap$tow[seq(5,length(bank.clap$tow),by=5)]))
 
-plot(1:length(bank.clap$pre),bank.clap$pre,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.clap$pre),bank.clap$pre,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.clap$pre,na.rm=T)))
 text(1:length(bank.clap$pre),bank.clap$pre,round(bank.clap$tow),cex=0.8)
 text(10,max(bank.clap$pre,na.rm=T),"Pre-recruits")
@@ -573,26 +573,26 @@ print("7")
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
-plot(1:length(bank.live$tot),bank.live$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.live$tot),bank.live$tot,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$tot,na.rm=T)))
 text(1:length(bank.live$tot),bank.live$tot,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$tot,na.rm=T),"Overall")
 title("Numbers by tow")
 axis(1,at=seq(5,length(bank.live$tot),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$com),bank.live$com,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.live$com),bank.live$com,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$com,na.rm=T)))
 text(1:length(bank.live$com),bank.live$com,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$com,na.rm=T),"Fully recruited")
 axis(1,at=seq(5,length(bank.live$com),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$rec),bank.live$rec,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.live$rec),bank.live$rec,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$rec,na.rm=T)))
 text(1:length(bank.live$rec),bank.live$rec,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$rec,na.rm=T),"Recruits")
 axis(1,at=seq(5,length(bank.live$rec),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$pre),bank.live$pre,xaxt="n",xlab="tow ID", ylab="N/tow",
+graphics::plot(1:length(bank.live$pre),bank.live$pre,xaxt="n",xlab="tow ID", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$pre,na.rm=T)))
 text(1:length(bank.live$pre),bank.live$pre,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$pre,na.rm=T),"Pre-recruits")
@@ -603,26 +603,26 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,4,1,1))
-plot(1:length(bank.live$tot.bm),bank.live$tot.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
+graphics::plot(1:length(bank.live$tot.bm),bank.live$tot.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$tot.bm,na.rm=T)))
 text(1:length(bank.live$tot.bm),bank.live$tot.bm,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$tot.bm,na.rm=T),"Overall")
 title("Biomass by tow")
 axis(1,at=seq(5,length(bank.live$tot),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$com.bm),bank.live$com.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
+graphics::plot(1:length(bank.live$com.bm),bank.live$com.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$com.bm,na.rm=T)))
 text(1:length(bank.live$com.bm),bank.live$com.bm,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$com.bm,na.rm=T),"Fully recruited")
 axis(1,at=seq(5,length(bank.live$com),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$rec.bm),bank.live$rec.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
+graphics::plot(1:length(bank.live$rec.bm),bank.live$rec.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$rec.bm,na.rm=T)))
 text(1:length(bank.live$rec.bm),bank.live$rec.bm,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$rec.bm,na.rm=T),"Recruits")
 axis(1,at=seq(5,length(bank.live$rec),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 
-plot(1:length(bank.live$pre.bm),bank.live$pre.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
+graphics::plot(1:length(bank.live$pre.bm),bank.live$pre.bm,xaxt="n",xlab="tow ID", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$pre.bm,na.rm=T)))
 text(1:length(bank.live$pre.bm),bank.live$pre.bm,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$pre.bm,na.rm=T),"Pre-recruits")
@@ -635,7 +635,7 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Mean_indy_sh_and_mw.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(11,8.5)
 par(mfrow=c(2,1),mar=c(2,4,1,1))
-plot(1:length(bank.live$l.bar),bank.live$l.bar,xaxt="n",xlab="tow ID", ylab="Mean SH (mm)",
+graphics::plot(1:length(bank.live$l.bar),bank.live$l.bar,xaxt="n",xlab="tow ID", ylab="Mean SH (mm)",
      bty="L",pch=20,type="n",ylim=c(min(bank.live$l.bar,na.rm=T),max(bank.live$l.bar,na.rm=T)))
 text(1:length(bank.live$tow),bank.live$l.bar,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$l.bar,na.rm=T),"Shell Height (mm)")
@@ -643,7 +643,7 @@ title("Mean Shell Height and Meat Weight by tow (Fully Recruited)")
 axis(1,at=seq(5,length(bank.live$l.bar),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$tow),by=5)]))
 abline(h=mean(bank.live$l.bar,na.rm=T),lwd=2,lty=2,col="blue")
 
-plot(1:length(bank.live$w.bar),bank.live$w.bar,xaxt="n",xlab="tow ID", ylab="Meat weight (g)",
+graphics::plot(1:length(bank.live$w.bar),bank.live$w.bar,xaxt="n",xlab="tow ID", ylab="Meat weight (g)",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$w.bar,na.rm=T)))
 text(1:length(bank.live$w.bar),bank.live$w.bar,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$w.bar,na.rm=T),"Meat Weight (g)")
@@ -657,7 +657,7 @@ png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bn
     width=11,height=8.5, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(3,1),mar=c(2,4,1,1))
-plot(bank.live$depth,bank.live$l.bar,xaxt="n",xlab="tow ID", ylab="Mean SH (mm)",
+graphics::plot(bank.live$depth,bank.live$l.bar,xaxt="n",xlab="tow ID", ylab="Mean SH (mm)",
      bty="L",pch=20,type="n",ylim=c(min(bank.live$l.bar,na.rm=T),max(bank.live$l.bar,na.rm=T)))
 text(bank.live$depth,bank.live$l.bar,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$l.bar,na.rm=T),"Shell Height (mm)")
@@ -665,14 +665,14 @@ title("Mean Shell Height, Meat Weight, and CF by depth")
 axis(1)
 abline(h=mean(bank.live$l.bar,na.rm=T),lwd=2,lty=2,col="blue")
 
-plot(bank.live$depth,bank.live$w.bar,xaxt="n",xlab="tow ID", ylab="Meat weight (g)",
+graphics::plot(bank.live$depth,bank.live$w.bar,xaxt="n",xlab="tow ID", ylab="Meat weight (g)",
      bty="L",pch=20,type="n",ylim=c(0,max(bank.live$w.bar,na.rm=T)))
 text(bank.live$depth,bank.live$w.bar,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$w.bar,na.rm=T),"Meat Weight (g)")
 axis(1)
 abline(h=mean(bank.live$w.bar,na.rm=T),lwd=2,lty=2,col="blue")
 
-plot(bank.live$depth,bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",
+graphics::plot(bank.live$depth,bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",
      bty="L",pch=20,type="n",ylim=c(min(bank.live$CF,na.rm=T),max(bank.live$CF,na.rm=T)))
 text(bank.live$depth,bank.live$CF,round(bank.live$tow),cex=0.8)
 text(10,max(bank.live$w.bar,na.rm=T),"Meat Weight (g)")
@@ -1089,7 +1089,7 @@ print("11")
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Abundance_by_depth.png",sep=""),width=8.5,height=11, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
+graphics::plot(bank.live$depth[bank.live$tot>0],bank.live$tot[bank.live$tot>0],
      xaxt="n",xlab="depth", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot[bank.live$tot>0],na.rm=T),
                                     5*max(bank.live$tot[bank.live$tot>0],na.rm=T)),
@@ -1110,7 +1110,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.live$tot,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now fully recruited
-plot(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
+graphics::plot(bank.live$depth[bank.live$com>0],bank.live$com[bank.live$com>0],
      xaxt="n",xlab="depth", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com[bank.live$com>0],na.rm=T),
                                     5*max(bank.live$com,na.rm=T)),
@@ -1130,7 +1130,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.live$com,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
+graphics::plot(bank.live$depth[bank.live$rec>0],bank.live$rec[bank.live$rec>0],
      xaxt="n",xlab="depth", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec[bank.live$rec>0],na.rm=T),
                                     5*max(bank.live$rec,na.rm=T)),
@@ -1151,7 +1151,7 @@ abline(h=mean(bank.live$rec,na.rm=T),lwd=2,lty=2,col="blue")
 
 
 # Now the Pre-recruits
-plot(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
+graphics::plot(bank.live$depth[bank.live$pre>0],bank.live$pre[bank.live$pre>0],
      xaxt="n",xlab="depth", ylab="N/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre[bank.live$pre>0],na.rm=T),
                                     5*max(bank.live$pre,na.rm=T)),
@@ -1183,7 +1183,7 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Biomass_by_depth.png",sep=""),width=8.5,height=11, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(2,6,1,1))
-plot(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
+graphics::plot(bank.live$depth[bank.live$tot.bm>0],bank.live$tot.bm[bank.live$tot.bm>0],
      xaxt="n",xlab="depth", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T),
                                     5*max(bank.live$tot.bm[bank.live$tot.bm>0],na.rm=T)),
@@ -1206,7 +1206,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.live$tot.bm,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now fully recruited
-plot(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
+graphics::plot(bank.live$depth[bank.live$com.bm>0],bank.live$com.bm[bank.live$com.bm>0],
      xaxt="n",xlab="depth", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$com.bm[bank.live$com.bm>0],na.rm=T),
                                     5*max(bank.live$com.bm,na.rm=T)),
@@ -1228,7 +1228,7 @@ axis(2,at=axTicks(2,nintLog=10),labels=c(0,axTicks(2,nintLog=10)[-1]),las=1)
 abline(h=mean(bank.live$com.bm,na.rm=T),lwd=2,lty=2,col="blue")
 
 # Now the recruits
-plot(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
+graphics::plot(bank.live$depth[bank.live$rec.bm>0],bank.live$rec.bm[bank.live$rec.bm>0],
      xaxt="n",xlab="depth", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$rec.bm[bank.live$rec.bm>0],na.rm=T),
                                     5*max(bank.live$rec.bm,na.rm=T)),
@@ -1251,7 +1251,7 @@ abline(h=mean(bank.live$rec.bm,na.rm=T),lwd=2,lty=2,col="blue")
 
 
 # Now the Pre-recruits
-plot(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
+graphics::plot(bank.live$depth[bank.live$pre.bm>0],bank.live$pre.bm[bank.live$pre.bm>0],
      xaxt="n",xlab="depth", ylab="kg/tow",
      bty="L",pch=20,type="n",ylim=c(0.05*min(bank.live$pre.bm[bank.live$pre.bm>0],na.rm=T),
                                     5*max(bank.live$pre.bm,na.rm=T)),
@@ -1414,14 +1414,14 @@ dev.off()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Clappers_vs_CF.png",sep=""),width=8.5,height=11, units="in", res=400)
 #windows(8.5,11)
 par(mfrow=c(4,1),mar=c(4,7,1,1))
-plot(cf.dat$clap.prop~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+graphics::plot(cf.dat$clap.prop~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
 text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.prop,na.rm=T),"Total")
 title("Clappers_vs_CF")
-plot(cf.dat$clap.propCom~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+graphics::plot(cf.dat$clap.propCom~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
 text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propCom,na.rm=T),"Fully Recruited")
-plot(cf.dat$clap.propRec~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
+graphics::plot(cf.dat$clap.propRec~cf.dat$cf,pch=20,xlab="",ylab = "% dead",bty="L")
 text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propRec,na.rm=T),"Recruits")
-plot(cf.dat$clap.propPre~cf.dat$cf,pch=20,xlab=cf.lab,ylab = "% dead",bty="L")
+graphics::plot(cf.dat$clap.propPre~cf.dat$cf,pch=20,xlab=cf.lab,ylab = "% dead",bty="L")
 text(min(cf.dat$cf,na.rm=T)*1.05,max(cf.dat$clap.propPre,na.rm=T),"Pre-recruits")
 dev.off()
 
@@ -1602,13 +1602,13 @@ for(j in seq(1,length(bank.live[,1])))
 {
   # Get both plots on the same scale...
   ymax <- max(max(bank.clap[j,cols],na.rm=T),max(bank.live[j,cols],na.rm=T))
-  plot(t(bank.live[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
+  graphics::plot(t(bank.live[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
   axis(1,at=1:40,labels=F,tcl=0.2)
   axis(1,at=1:40,labels=F,tcl=-0.2)
   axis(1,at = seq(1,40,by=5),labels = names(bank.live[j,seq(16,55,by=5)]))
   title(paste("Standardized Number alive per tow (tow ID-",bank.live$tow[j],")",sep=""),cex=0.6)
   
-  plot(t(bank.clap[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
+  graphics::plot(t(bank.clap[j,cols]),type="h",xaxt="n",xlab="Shell Height",ylab="Number",ylim=c(0,ymax),bty="L")
   axis(1,at=1:40,labels=F,tcl=0.2)
   axis(1,at=1:40,labels=F,tcl=-0.2)
   axis(1,at = seq(1,40,by=5),labels = names(bank.clap[j,seq(16,55,by=5)]))

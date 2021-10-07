@@ -68,3 +68,5 @@ markdown/
 *.Rproj
 
 *.exe
+
+*.RData
