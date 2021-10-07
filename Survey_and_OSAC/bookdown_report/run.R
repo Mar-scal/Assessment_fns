@@ -27,6 +27,7 @@ save(summary_data, file = "summary2.Rdata")
 
 ######################################################
 #### build the book!
+# Modify render_markdowns.R based on the banks/survey you desire. Also make sure the Rdata file in parameterised_report.Rmd is right.
 source("R/render_markdowns.R")
 ########################################################
 
