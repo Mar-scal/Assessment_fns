@@ -1275,7 +1275,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {  
           strata.areas <- subset(strata.areas,startyear == max(strata.areas$startyear))
           
-          if(!length(CS) == length(unique(surv.Rand[[bnk]]$year))){
+          if(!length(CS) == length(unique(surv.Rand[[bnk]]$year)) & bank.4.spatial %in% c("GBa", "GBb")){
             CS <- SH.dat$CS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
             RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
           }
@@ -1361,7 +1361,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {  
           key <-findPolys(box.dat, subset(boxes,SCALLOP_Group_ID == box.names[m]))
           seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
-          if(!length(CS) == length(seedbox.obj[[bnk]][[m]]$model.dat$year)){
+          if(!length(CS) == length(seedbox.obj[[bnk]][[m]]$model.dat$year) & bank.4.spatial %in% c("GBa", "GBb")){
             CS <- SH.dat$CS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
             RS <- SH.dat$RS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
           }

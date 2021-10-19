@@ -569,7 +569,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       survey.obj[[banks[i]]][[2]]$w.yst <- survey.obj[[banks[i]]][[2]]$w.yst[,-1]
     } # if(length(missing.year > 0))
     
-    
     if(banks[i] == "GBa" & sub.area==T) {
       subarea_df <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x$bankpertow),data.frame))
       subarea_cv <- do.call(rbind,lapply(lapply(survey.obj[c("GBa-North", "GBa-West", "GBa-East", "GBa-Central", "GBa-South")], function(x) x[[1]]),data.frame))
@@ -1319,9 +1318,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                                         palette = cols,
                                                         leg.name=leg.title, 
                                                         alpha=0.75))) +
-              geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) +
-              coord_sf(expand=F)
-            
+              geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) + coord_sf(expand=F)
+           
            plot(mesh)
            
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
@@ -1349,7 +1347,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(banks[i] == "Ger" & length(shp) == 2) shp <- c(21,15)
               
               # Make the plot
-              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) 
+              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F)
             }
             
             
@@ -1358,7 +1356,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
-              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) 
+              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F)
             }
             
             ## NEXT UP FIGURE OUT THE SEEDBOXES!
@@ -1370,12 +1368,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               sbs <- as.PolySet(sb, projection = "LL")
               sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
               sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
-              p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1)
+              p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1) + coord_sf(expand=F)
             }
-            
+            browser()
             # Now print the figure
-            if(!banks[i] == "GBb") print(p3 + coord_sf(expand=F))
-            if(banks[i] == "GBb") print(p3)
+            print(p3)
        
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
@@ -1498,7 +1495,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols)), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
-                legend.justification = 'left',legend.key.size = unit(.5,"line")) 
+                legend.justification = 'left',legend.key.size = unit(.5,"line")) + coord_sf(expand=F)
+      
+        p2$layers <- c(p2$layers, p2$layers[[2]])
+        
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
       # Finally add seedboxes as appropriate
       if(length(sb[,1]) > 0) 
@@ -1507,7 +1507,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         sbs <- as.PolySet(sb, projection = "LL")
         sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
         sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
-        p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)
+        p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)+coord_sf(expand=F)
       }
       # }
       if(save.gg == T) save(p2,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
@@ -1872,10 +1872,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             ggtitle(paste0(yr, " Survey Abundance by GBa Sub-area")) +
             facet_wrap(~variable, nrow=3, scales="free_y") +
             theme(strip.text = element_blank()) + 
-            scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
-            annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_abund$variable), size=5)+
+            scale_y_continuous(expand=expansion(mult=c(0.1, 0.25), add=0)) +
+            geom_text(data=subarea_abund, aes(x=0.5, y=Inf, label=variable), vjust=2, hjust=0, size=5)+
             geom_vline(xintercept = 2.5, linetype="dashed") +
-            scale_colour_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
+            scale_colour_manual(guide="none", values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
         )
         if(fig != "screen") dev.off()
       }
@@ -1978,7 +1978,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         levels(subarea_LTM$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
         subarea_LTM$subarea <- factor(subarea_LTM$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
         levels(subarea_LTM$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
-        
+   
         print(
           ggplot() + geom_point(data=subarea_biomass, aes(subarea, value, colour=subarea), size=3) + 
             geom_point(data=subarea_LTM, aes(subarea, value), shape="-", size=10) + 
@@ -1991,7 +1991,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             facet_wrap(~variable, nrow=3, scales="free_y") +
             theme(strip.text = element_blank()) + 
             scale_y_continuous(expand=expand_scale(mult=c(0.1, 0.25), add=0)) +
-            annotate(geom="text", x=0.5, y=Inf, vjust=2, hjust=0, label=levels(subarea_biomass$variable), size=5) +
+            geom_text(data=subarea_biomass, aes(x=0.5, y=Inf, label=variable), vjust=2, hjust=0, size=5)+
             geom_vline(xintercept = 2.5, linetype="dashed") +
             scale_colour_manual(guide=F, values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
           
@@ -2517,8 +2517,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           surv.seed <- surv.Live[[banks[i]]][1:nrow(surv.Live[[banks[i]]]) %in% key$EID,]
           
           # adjust the number of years ago for determine the "previous year" plots (esp. for breakdown plots)
-          if(!(banks[i] == "Sab" && this.box$Common_name == "Starbox")) yrsago <- 1
-          if(banks[i] == "Sab" && this.box$Common_name == "Starbox") yrsago <- 2
+          if(!(banks[i] == "Sab" && this.box$Common_name == "Starbox") & !yr==2021) yrsago <- 1
+          if(banks[i] == "Sab" && this.box$Common_name == "Starbox"| yr==2021) yrsago <- 2
           
           # Titles for the seedbox plots....
           seedbox.bm.title <- substitute(bold(paste(box,"-Biomass time series (",bank,")",sep="")),
@@ -2626,10 +2626,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           y2max <- ifelse(length(countmc.last[!is.na(countmc.last)]) > 0, max(c(max(y2max,na.rm=T)*1.1),max(y2max.last,na.rm=T)*1.1),max(y2max,na.rm=T)*1.1)
           # Now make the breakdown plot...
           if(!ymax %in% "-Inf") {
-            breakdown(boxy,yr=yr,mc=mc,cx.axs=1,add.title="F",y1max = ymax, y2max=y2max,
-                      CS = survey.obj[[banks[i]]][[1]]$CS[length(survey.obj[[banks[i]]][[1]]$CS)],
-                      RS = survey.obj[[banks[i]]][[1]]$RS[length(survey.obj[[banks[i]]][[1]]$RS)])
-            if(add.title==T) title(breakdown.title.seed, cex.main=2,adj=0.35)
+            breakdown(boxy,yr=yr,mc=mc,y1max = ymax, y2max=y2max, add.title = T, title.txt=breakdown.title.seed)
           }
           if(fig != "screen") dev.off()   
           
@@ -2646,8 +2643,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                  width = 11,height = 8.5)
             # To get the ymax the same between succesive years I want to do this...
             if(!ymax %in% "-Inf") {
-              breakdown(boxy,yr=(yr-yrsago),mc=mc,cx.axs=1,y1max = ymax, y2max=y2max, add.title = F)
-              if(add.title==T) title(last.yr.breakdown.title.seed, cex.main=2,adj=0.35)
+              breakdown(boxy,yr=(yr-yrsago),mc=mc,y1max = ymax, y2max=y2max, add.title = T, title.txt=breakdown.title.seed)
             }
             if(fig != "screen") dev.off()   
           } # end if(length(bm.last[!is.na(bm.last)]) > 0)

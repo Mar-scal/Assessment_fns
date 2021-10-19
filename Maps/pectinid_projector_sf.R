@@ -301,6 +301,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # We then need to transform these coordinates to the coordinates of the eez data
     eez.bbox <- b.box %>% st_transform(st_crs(eez.all))
     # Then intersect the coordiates so we only plot the part of the eez we want
+    # sf::sf_use_s2(FALSE)
+    # eez.all <- st_make_valid(eez.all)
     eez <- st_intersection(eez.all,eez.bbox)
     # Make the eez a big mutlilinestring, it makes plotly happier...
     #eez <- st_cast(eez, to = "MULTILINESTRING")
@@ -1046,10 +1048,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(is.null(gg.obj))
     {
       pect_plot <- ggplot() + 
-        geom_sf(data=b.box, fill=NA) +
-        theme_minimal() + xlab("") + ylab("") #+
-        #scale_x_continuous(expand = c(0,0)) + # These cause problems with new sf() package for some reason...
-        #scale_y_continuous(expand = c(0,0)) 
+       # geom_sf(data=b.box, fill=NA) +
+        theme_minimal() + xlab("") + ylab("") +
+        coord_sf(expand=F) 
+        #scale_x_continuous(expand = 0) + # These cause problems with new sf() package for some reason...
+        #scale_y_continuous(expand = 0)
     } # end if(!is.null(gg.obj))
     
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
@@ -1227,6 +1230,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(legend == T) pect_plot <- ggplotly(pect_plot) 
   }
 
+  pect_plot <- pect_plot +
+    coord_sf(expand=F) +
+    theme(panel.background=element_rect(colour="black"), axis.ticks=element_line(colour="black"))
+  
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
 
   return(pect_plot = pect_plot)

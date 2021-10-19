@@ -21,17 +21,17 @@ require(RColorBrewer)
 # Load the survey data.  If you've compiled all the surveys use this...
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_LE14.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
-
+source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- #c("BBn","Ger","Sab","Mid",
-  c(#"GB", "BBs")#, "Ban", "BanIce"
+bnk <- c("BBn","Ger","Sab","Mid",
+  "GB", "BBs",#, "Ban", "BanIce"
          "GBa", "GBb")
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
@@ -685,6 +685,42 @@ dev.off()
 print("8")
 
 ### spatial numbers by tow
+# if(!bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32619)[[2]])
+# if(bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32620)[[2]])
+# 
+# nums <- bank.live[bank.live$year==yr, c("slon", "slat", "pre", "rec", "com", "CF", "meat.count")] %>%
+#   tidyr::pivot_longer(cols=c("pre", "rec", "com", "CF", "meat.count")) %>%
+#   dplyr::group_by(name) %>%
+#   dplyr::slice(which.max(value))
+#   
+# nums <- sf::st_as_sf(nums, coords=c("slon", "slat"), crs=sf::st_crs(4326)[[2]]) %>%
+#   sf::st_transform(crs)
+# 
+# p <- pecjector(area = bnk[i],
+#           plot = T,
+#           repo = direct_fns, 
+#           c_sys = sf::st_crs(crs)$epsg, 
+#           quiet=T,
+#           add_layer = list(eez="eez", 
+#                            sfa="offshore", 
+#                            survey=c("offshore", "outline"))) + 
+#   coord_sf(expand=F) +
+#   theme(panel.grid=element_blank(), panel.background=element_rect(fill="transparent"), 
+#         axis.ticks=element_line(),
+#         legend.position = 'right',
+#         legend.direction = 'vertical',
+#         legend.justification = 'left',
+#         legend.key.size = unit(.5,"line"))
+# 
+# for(j in 1:nrow(nums)){
+#   png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", nums$name[j], "_map_overlay.png",sep=""),width=11,height=8.5, units="in", res=400, bg = "transparent")
+#   p$layers[[1]]$aes_params$colour <- NA
+#   p$layers[[2]]$aes_params$colour <- NA
+#   p$layers[[3]]$aes_params$colour <- NA
+#   print(p + geom_sf(data=nums[j,], shape=1, size=3, stroke=2) + coord_sf(expand=F) + theme(axis.text=element_blank()))
+#   dev.off()
+# }
+# 
 baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
@@ -817,6 +853,56 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
 
 with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
 with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+
+if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  legend("bottomleft",legend=c(bank.survey.info$PName),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+  legend("topright",legend = round(bank.survey.info$area_km2),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+  
+  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+} # end if(is.null(bank.survey.info) ==F)
+dev.off()
+
+png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CFspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title="Condition Factor",dec.deg=F)
+} # end if(is.null(bank.survey.info) ==F)
+
+if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title="Condition Factor",dec.deg=F)
+} # end if(is.null(bank.survey.info) ==T)
+
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Condition Factor",dec.deg = F)
+}
+
+with(bank.live[bank.live$year==yr & bank.live$CF==max(bank.live$CF[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+with(bank.live[bank.live$year==yr,],text(lon,lat,round(CF, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
@@ -1407,7 +1493,7 @@ if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
 } # end if(is.null(bank.survey.info) ==T)
 
 points(x=cf.data2[[bnk[i]]]$CFyrs$lon[cf.data2[[bnk[i]]]$CFyrs$year==yr], y=cf.data2[[bnk[i]]]$CFyrs$lat[cf.data2[[bnk[i]]]$CFyrs$year==yr], cex=3)
-
+points(x=bank.live$slon[bank.live$tow==cf.data$tow[cf.data$cf==max(cf.data$cf)]], y=bank.live$slat[bank.live$tow==cf.data$tow[cf.data$cf==max(cf.data$cf)]], cex=3, col="red")
 dev.off()
 
 # Now for the clappers by CF, any indication low CF is associated with High clapper numbers.
@@ -1921,3 +2007,71 @@ source("C:/Documents/Offshore scallop/Assessment/Assessment_fns/RUNME_Survey_OSA
 Survey_Summary_Word(year=2019, reportseason="spring", data="C:/Documents/Offshore scallop/Assessment/Data/Survey_data/2019/Survey_summary_output/testing_results_SCALOFF_LE09.Rdata")
 # objects: "bankcheck" df, ntows" df and "highlights" df
 
+gb_bathy_map <- pecjector(area = "GBa",plot = T, 
+          add_layer = list(eez = 'eez' , 
+                           sfa = 'offshore',
+                           survey=c("offshore", "outline"),
+                           bathy = c(10,'both'))) +
+  coord_sf(expand=F)
+
+gb_bathy_map$layers[[3]]$aes_params$colour <- "blue"
+gb_bathy_map$layers[[3]]$aes_params$alpha <- 0.2
+png(paste0(direct, "2021/Presentations/Survey_summary/Exploratory_figures/GBa/GB_bathy.png",sep=""),units="in",width = 11, height = 8.5,res=420,bg = "transparent")
+print(gb_bathy_map)
+dev.off()
+
+
+load("Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_spatial.Rdata")
+north2021 <- survey.obj$`GBa-North`
+
+load("Y:/Offshore/Assessment/Data/Survey_data/2020/Survey_summary_output/Survey_all_results.Rdata")
+north2020 <- survey.obj$GBa
+
+north2020 <- north2020$model.dat[north2020$model.dat$year=="20.19",]
+north2020$year <- 2020
+north2020 <- dplyr::select(north2020, year, N, NR, NPR, I, IR, IPR)
+
+pertow <- dplyr::full_join(north2021$bankpertow, data.frame(year=2020)) %>%
+  dplyr::select(-N.se, -NR.se, -NPR.se, -I.se, -IR.se, -IPR.se) %>%
+  tidyr::pivot_longer(cols=c("N", "NR", "NPR", "I", "IR", "IPR"))
+
+pertow$name <- factor(pertow$name, levels=c("NPR", "NR", "N", "IPR", "IR", "I"))
+pertow$lab <- as.character(pertow$name)
+pertow$lab[which(grepl(x=pertow$lab, pattern = "PR"))] <- "Pre-recruits" 
+pertow$lab[which(pertow$lab %in% c("NR", "IR"))] <- "Recruits" 
+pertow$lab[which(pertow$lab %in% c("N", "I"))] <- "Fully-recruited" 
+pertow$lab <- factor(pertow$lab, levels=c("Pre-recruits", "Recruits", "Fully-recruited"))
+
+north2020 <- north2020 %>%
+  tidyr::pivot_longer(cols=c("N", "NR", "NPR", "I", "IR", "IPR"))
+north2020$name <- factor(north2020$name, levels=c("NPR", "NR", "N", "IPR", "IR", "I"))
+north2020$lab <- as.character(north2020$name)
+north2020$lab[which(grepl(x=north2020$lab, pattern = "PR"))] <- "Pre-recruits" 
+north2020$lab[which(north2020$lab %in% c("NR", "IR"))] <- "Recruits" 
+north2020$lab[which(north2020$lab %in% c("N", "I"))] <- "Fully-recruited" 
+north2020$lab <- factor(north2020$lab, levels=c("Pre-recruits", "Recruits", "Fully-recruited"))
+
+
+abund_north <- ggplot() + geom_point(data=pertow[pertow$name %in% c("N", "NR", "NPR"),], aes(year, value), colour="blue") + 
+  geom_point(data=north2020[north2020$name %in% c("N", "NR", "NPR"),], aes(year, value), colour="red", shape=17) + 
+  geom_line(data=pertow[pertow$name %in% c("N", "NR", "NPR"),], aes(year, value), colour="blue")+
+  facet_wrap(~lab, ncol=1, scales="free_y") +
+  geom_text(data=unique(pertow[pertow$name %in% c("N", "NR", "NPR"),c("name", "lab")]), aes(x=1984, y=Inf, label=lab), hjust=-0.1, vjust=1.5)+
+  theme_bw() +
+  ylab("N/tow") +
+  xlab("Year") +
+  ggtitle("GBa-North abundance") +
+  theme(strip.text = element_blank(), panel.grid=element_blank())
+ 
+biomass_north <- ggplot() + geom_point(data=pertow[pertow$name %in% c("I", "IR", "IPR"),], aes(year, value/1000), colour="blue") +
+  geom_point(data=north2020[north2020$name %in% c("I", "IR", "IPR"),], aes(year, value/1000), colour="red", shape=17) + 
+  geom_line(data=pertow[pertow$name %in% c("I", "IR", "IPR"),], aes(year, value/1000), colour="blue")+
+  facet_wrap(~lab, ncol=1, scales="free_y") +
+  geom_text(data=unique(pertow[pertow$name %in% c("I", "IR", "IPR"),c("name", "lab")]), aes(x=1984, y=Inf, label=lab), hjust=-0.1, vjust=1.5)+
+  theme_bw() +
+  ylab("kg/tow") +
+  xlab("Year") +
+  ggtitle("GBa-North biomass") +
+  theme(strip.text = element_blank(), panel.grid=element_blank())
+
+abund_north + biomass_north
