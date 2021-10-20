@@ -3,14 +3,14 @@ library(rmarkdown)
 require(ggplot2)
 
 ######## prep input data if you haven't already
-reportyear <- 2021
+year <- 2021
 
-direct_fns <- "C:/Documents/Assessment_fns/"
+#direct_fns <- "C:/Documents/Assessment_fns/"
 
 #################################################
 ### if you need to re-create the summary.RData
 
-#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))

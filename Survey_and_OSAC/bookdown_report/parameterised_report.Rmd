@@ -9,6 +9,8 @@ params:
   banknum: NA
 header-includes:
  - \usepackage{float}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r, echo=F, message=F, warning=F}
@@ -51,7 +53,7 @@ bank$towtype1[bank$lab=="Ger"] <- "random"
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & !params$bank %in% c("Ger", "GB")) surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1==1], " ", "exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==1 & !params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, and ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey.")
-if(length(ntows$Freq[ntows$bank==params$bank])>2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, and ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1 %in% c(1, 3)], " exploratory stations.")
+if(length(ntows$Freq[ntows$bank==params$bank])>2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1 %in% c(1, 3)], " exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1==3], " ", "exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==1 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations.")
 

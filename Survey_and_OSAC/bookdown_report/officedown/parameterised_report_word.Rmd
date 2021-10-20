@@ -1,7 +1,6 @@
 ---
 output:
-  officedown::rdocx_document:
-     reference_docx: my-styles.docx
+  officedown::rdocx_document
 params:
   bank: NA
   banknum: NA
@@ -19,14 +18,6 @@ options(tinytex.verbose = TRUE)
 
 knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
 library(officedown)
-library(officer)
-
-fp <- fp_par(
-  text.align = "center", 
-  padding.bottom = 20, padding.top = 120, 
-  border.bottom = fp_border())
-
-ft <- fp_text(shading.color='#EFEFEF', bold = TRUE)
 
 year <- 2021
 
@@ -60,7 +51,7 @@ bank$towtype1[bank$lab=="Ger"] <- "random"
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & !params$bank %in% c("Ger", "GB")) surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1==1], " ", "exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==1 & !params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, and ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey.")
-if(length(ntows$Freq[ntows$bank==params$bank])>2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, and ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1 %in% c(1, 3)], " exploratory stations.")
+if(length(ntows$Freq[ntows$bank==params$bank])>2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1 %in% c(1, 3)], " exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1==3], " ", "exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==1 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations.")
 
@@ -81,28 +72,28 @@ mwshltm <- strsplit(highlights$nearLTM[highlights$variable=="CF" & highlights$ba
 tabnum <- 5*(params$banknum-1) + 1:5
 fignum <- 12*(params$banknum-1) + 1:12
 
-table <- highlights[#highlights$bank==params$bank & 
+sumtable <- highlights[#highlights$bank==params$bank & 
   highlights$variable %in% c("NPR", "NR", "N", "IPR", "IR", "I"), ]
 
-table$word[as.numeric(table$thisyearraw) < as.numeric(table$lastyearraw)] <- "decreased"
-table$word[as.numeric(table$thisyearraw) > as.numeric(table$lastyearraw)] <- "increased"
+sumtable$word[as.numeric(sumtable$thisyearraw) < as.numeric(sumtable$lastyearraw)] <- "decreased"
+sumtable$word[as.numeric(sumtable$thisyearraw) > as.numeric(sumtable$lastyearraw)] <- "increased"
 
-table$perc[table$word=="increased"] <- 
-  (as.numeric(table$thisyearraw[table$word=="increased"]) - as.numeric(table$lastyearraw[table$word=="increased"]))/
-  as.numeric(table$thisyearraw[table$word=="increased"]) *100
+sumtable$perc[sumtable$word=="increased"] <- 
+  (as.numeric(sumtable$thisyearraw[sumtable$word=="increased"]) - as.numeric(sumtable$lastyearraw[sumtable$word=="increased"]))/
+  as.numeric(sumtable$thisyearraw[sumtable$word=="increased"]) *100
 
-table$perc[table$word=="decreased"] <-   
-  (as.numeric(table$lastyearraw[table$word=="decreased"]) - as.numeric(table$thisyearraw[table$word=="decreased"]))/
-  as.numeric(table$lastyearraw[table$word=="decreased"]) *100
+sumtable$perc[sumtable$word=="decreased"] <-   
+  (as.numeric(sumtable$lastyearraw[sumtable$word=="decreased"]) - as.numeric(sumtable$thisyearraw[sumtable$word=="decreased"]))/
+  as.numeric(sumtable$lastyearraw[sumtable$word=="decreased"]) *100
 
-table$perclab <- ScallopRound(table$perc, 2)
+sumtable$perclab <- ScallopRound(sumtable$perc, 2)
 
-table$perclab[table$perc>0 & table$perc < 0.01] <- "<0.01"
-table$perclab[table$perc>99] <- ">99"
+sumtable$perclab[sumtable$perc>0 & sumtable$perc < 0.01] <- "<0.01"
+sumtable$perclab[sumtable$perc>99] <- ">99"
 
-table$state <- paste0(table$word, " by ", table$perclab, "% since")
+sumtable$state <- paste0(sumtable$word, " by ", sumtable$perclab, "% since")
 
-table$state[is.na(table$perc)] <- "was similar to"
+sumtable$state[is.na(sumtable$perc)] <- "was similar to"
 
 highlights$lastyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$lastyearraw) & (highlights$lastyearraw>0 & highlights$lastyearraw<0.01)] <- "<0.01"
 highlights$thisyear[highlights$variable %in% c("N", "NR", "NPR", "I", "IR", "IPR", "Nclap", "NRclap", "NPRclap", "PRpercentclap", "Rpercentclap", "Cpercentclap") & !is.na(highlights$thisyearraw) & (highlights$thisyearraw>0 & highlights$thisyearraw<0.01)] <- "<0.01"
@@ -141,14 +132,14 @@ _In the `r bankname` survey, pre-recruits are considered to be scallops with she
 
 Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively.   
 
--  Pre-recruit abundance `r table$state[table$bank==params$bank & table$variable == "NPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "NPR"]` the long term median. 
--  Recruit abundance `r table$state[table$bank==params$bank & table$variable == "NR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "NR"]` the long term median.
--  Fully-recruited abundance `r table$state[table$bank==params$bank & table$variable == "N"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "N"]` the long term median.
+-  Pre-recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NPR"]` the long term median. 
+-  Recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NR"]` the long term median.
+-  Fully-recruited abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "N"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "N"]` the long term median.
 
 
--  Pre-recruit biomass `r table$state[table$bank==params$bank & table$variable == "IPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "IPR"]` the long term median.
--  Recruit biomass `r table$state[table$bank==params$bank & table$variable == "IR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "IR"]` the long term median.
--  Fully-recruited biomass `r table$state[table$bank==params$bank & table$variable == "I"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "I"]` the long term median.
+-  Pre-recruit biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "IPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "IPR"]` the long term median.
+-  Recruit biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "IR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "IR"]` the long term median.
+-  Fully-recruited biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "I"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "I"]` the long term median.
 
 _Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Tables `r paste0(tabnum[1], " & ", tabnum[2])` provide the values for the current and previous surveys, and long term medians, by size class._
 
@@ -260,14 +251,14 @@ Figure `r fignum[12]` provides an overview of the relationship between biomass, 
 
 **`r year` Summary**
 
--  Pre-recruit abundance `r table$state[table$bank==params$bank & table$variable == "NPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "NPR"]` the long term median. 
--  Recruit abundance `r table$state[table$bank==params$bank & table$variable == "NR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "NR"]` the long term median.
--  Fully-recruited abundance `r table$state[table$bank==params$bank & table$variable == "N"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "N"]` the long term median.
+-  Pre-recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NPR"]` the long term median. 
+-  Recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NR"]` the long term median.
+-  Fully-recruited abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "N"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "N"]` the long term median.
 
 
--  Pre-recruit biomass `r table$state[table$bank==params$bank & table$variable == "IPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "IPR"]` the long term median.
--  Recruit biomass `r table$state[table$bank==params$bank & table$variable == "IR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "IR"]` the long term median.
--  Fully-recruited biomass `r table$state[table$bank==params$bank & table$variable == "I"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r table$nearLTM[table$bank==params$bank & table$variable == "I"]` the long term median.
+-  Pre-recruit biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "IPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "IPR"]` the long term median.
+-  Recruit biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "IR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "IR"]` the long term median.
+-  Fully-recruited biomass `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "I"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "I"]` the long term median.
 
 
 - Condition factor `r paste0(highlights$word[highlights$variable=="CF" & highlights$bank==params$bank], " ", yeartable$lastyear[yeartable$bank == params$bank])`, and was `r mwshltm` the long term median.
