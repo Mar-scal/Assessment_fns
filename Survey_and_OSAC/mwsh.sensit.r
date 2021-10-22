@@ -120,12 +120,12 @@ mwsh.sensit <- function(mwdat, shfdat, bank, sub.size=NULL, sub.year=NULL, sub.t
     }
     
   # Run condition model first because we're going to convert sh next. CFs are predicted for entire tow dataset
-  if(bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct)
-  if(!bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct)
+  if(bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='glm',dirct=direct_fns)
+  if(!bank %in% c("Mid", "Ban", "BanIce", "GBa-Large_core")) condmod <- condFac(na.omit(mwdat),shfdat,model.type='gam_f',dirct=direct_fns)
 
   
   # fill in any missing years with NAs
-  condmod$CFyrs <- join(condmod$CFyrs, data.frame(year=min(condmod$CFyrs$year):max(condmod$CFyrs$year)), type="right")
+  condmod$CFyrs <- dplyr::right_join(condmod$CFyrs, data.frame(year=as.character(min(condmod$CFyrs$year):max(condmod$CFyrs$year))))
   
   #######  
 
