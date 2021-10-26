@@ -10,8 +10,8 @@ year <- 2021
 #################################################
 ### if you need to re-create the summary.RData
 
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-#direct_fns <- "C:/Documents/Assessment_fns/"
+#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
@@ -22,7 +22,7 @@ Survey_Summary_Word(year=reportyear, reportseason="summer",
 
 summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights, spatial.sum.stats=spatial.sum.stats, dates=dates, yeartable=yeartable)
 
-save(summary_data, file = "summary3.Rdata")
+save(summary_data, file = "summary4.Rdata")
 #######################################################
 
 ######################################################

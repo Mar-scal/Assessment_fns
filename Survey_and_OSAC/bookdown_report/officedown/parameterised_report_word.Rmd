@@ -21,7 +21,7 @@ library(officedown)
 
 year <- 2021
 
-load("summary3.Rdata")
+load("summary4.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows
