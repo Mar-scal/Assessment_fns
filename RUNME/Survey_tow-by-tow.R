@@ -12,7 +12,7 @@
 # July 2018:  Minor updates to account for the possibility of having multiple strata for a bank, updated to use the most recent strata...
 yr = as.numeric(format(Sys.time(), "%Y"))  # 
 direct = "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Documents/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 database = "ptran" # Set this to your database, needed for a few called to get the bathymetry from ScallopMap. You'll also
 # need to set your username/password to access the database, see the ScallopMap function calls.
 library(viridis) # for colors...
@@ -21,18 +21,21 @@ require(RColorBrewer)
 # Load the survey data.  If you've compiled all the surveys use this...
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
+#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_removeBtow.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn","Ger","Sab","Mid",
-  "GB", "BBs",#, "Ban", "BanIce"
-         "GBa", "GBb")
+bnk <- c(#"BBn",
+         #"Ger","Sab","Mid",
+  #"GB", "BBs",#, "Ban", "BanIce"
+         "GBa"#, 
+  #"GBb"
+  )
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"
@@ -101,7 +104,7 @@ if(bnk[i] == "BanIce") bank.mw <- MW.dat.new[MW.dat.new$bank=="BanIce" & MW.dat.
 bank.mw$CF_samp <- bank.mw$wmw/(bank.mw$sh/100)^3
 
 # Check out the Clappers by "real" CF from the bank.mw...
-# This gets the mean CF for each tow and adds that to the data 
+# This gets the mean CF for each tow and adds that to the data
 tmp<- tapply(bank.mw$CF_samp, bank.mw$tow,mean)
 
 cf.data <- as.data.frame(1:length(tmp))
@@ -680,201 +683,201 @@ axis(1)
 abline(h=mean(bank.live$CF,na.rm=T),lwd=2,lty=2,col="blue")
 
 dev.off()
-##############
-
-print("8")
-
-### spatial numbers by tow
-# if(!bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32619)[[2]])
-# if(bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32620)[[2]])
+# ##############
 # 
-# nums <- bank.live[bank.live$year==yr, c("slon", "slat", "pre", "rec", "com", "CF", "meat.count")] %>%
-#   tidyr::pivot_longer(cols=c("pre", "rec", "com", "CF", "meat.count")) %>%
-#   dplyr::group_by(name) %>%
-#   dplyr::slice(which.max(value))
+# print("8")
+# 
+# ### spatial numbers by tow
+# # if(!bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32619)[[2]])
+# # if(bnk[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) crs <- raster::crs(sf::st_crs(32620)[[2]])
+# # 
+# # nums <- bank.live[bank.live$year==yr, c("slon", "slat", "pre", "rec", "com", "CF", "meat.count")] %>%
+# #   tidyr::pivot_longer(cols=c("pre", "rec", "com", "CF", "meat.count")) %>%
+# #   dplyr::group_by(name) %>%
+# #   dplyr::slice(which.max(value))
+# #   
+# # nums <- sf::st_as_sf(nums, coords=c("slon", "slat"), crs=sf::st_crs(4326)[[2]]) %>%
+# #   sf::st_transform(crs)
+# # 
+# # p <- pecjector(area = bnk[i],
+# #           plot = T,
+# #           repo = direct_fns, 
+# #           c_sys = sf::st_crs(crs)$epsg, 
+# #           quiet=T,
+# #           add_layer = list(eez="eez", 
+# #                            sfa="offshore", 
+# #                            survey=c("offshore", "outline"))) + 
+# #   coord_sf(expand=F) +
+# #   theme(panel.grid=element_blank(), panel.background=element_rect(fill="transparent"), 
+# #         axis.ticks=element_line(),
+# #         legend.position = 'right',
+# #         legend.direction = 'vertical',
+# #         legend.justification = 'left',
+# #         legend.key.size = unit(.5,"line"))
+# # 
+# # for(j in 1:nrow(nums)){
+# #   png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", nums$name[j], "_map_overlay.png",sep=""),width=11,height=8.5, units="in", res=400, bg = "transparent")
+# #   p$layers[[1]]$aes_params$colour <- NA
+# #   p$layers[[2]]$aes_params$colour <- NA
+# #   p$layers[[3]]$aes_params$colour <- NA
+# #   print(p + geom_sf(data=nums[j,], shape=1, size=3, stroke=2) + coord_sf(expand=F) + theme(axis.text=element_blank()))
+# #   dev.off()
+# # }
+# # 
+# baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T) & !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Pre-recruit abundances",dec.deg = F)
+# }
 #   
-# nums <- sf::st_as_sf(nums, coords=c("slon", "slat"), crs=sf::st_crs(4326)[[2]]) %>%
-#   sf::st_transform(crs)
+# with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
 # 
-# p <- pecjector(area = bnk[i],
-#           plot = T,
-#           repo = direct_fns, 
-#           c_sys = sf::st_crs(crs)$epsg, 
-#           quiet=T,
-#           add_layer = list(eez="eez", 
-#                            sfa="offshore", 
-#                            survey=c("offshore", "outline"))) + 
-#   coord_sf(expand=F) +
-#   theme(panel.grid=element_blank(), panel.background=element_rect(fill="transparent"), 
-#         axis.ticks=element_line(),
-#         legend.position = 'right',
-#         legend.direction = 'vertical',
-#         legend.justification = 'left',
-#         legend.key.size = unit(.5,"line"))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 # 
-# for(j in 1:nrow(nums)){
-#   png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", nums$name[j], "_map_overlay.png",sep=""),width=11,height=8.5, units="in", res=400, bg = "transparent")
-#   p$layers[[1]]$aes_params$colour <- NA
-#   p$layers[[2]]$aes_params$colour <- NA
-#   p$layers[[3]]$aes_params$colour <- NA
-#   print(p + geom_sf(data=nums[j,], shape=1, size=3, stroke=2) + coord_sf(expand=F) + theme(axis.text=element_blank()))
-#   dev.off()
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# dev.off()
+# 
+# 
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Recruit abundances",dec.deg = F)
 # }
 # 
-baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T) & !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Pre-recruit abundances",dec.deg = F)
-}
-  
-with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
-
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-
-dev.off()
-
-
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Recruit abundances",dec.deg = F)
-}
-
-with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
-
-
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Fully-recruited abundances",dec.deg = F)
-}
-
-with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
+# with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# 
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
+# 
+# 
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Fully-recruited abundances",dec.deg = F)
+# }
+# 
+# with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# 
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CFspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
@@ -901,8 +904,59 @@ if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East"
              nafo.bord = F,nafo.lab = F,title="Condition Factor",dec.deg = F)
 }
 
-with(bank.live[bank.live$year==yr & bank.live$CF==max(bank.live$CF[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat,round(CF, 1),cex=0.5))
+with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr & CF.current[[bnk[i]]]$CF==max(CF.current[[bnk[i]]]$CF[CF.current[[bnk[i]]]$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr,],text(lon,lat,round(CF, 1),cex=0.5))
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+
+if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  legend("bottomleft",legend=c(bank.survey.info$PName),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+  legend("topright",legend = round(bank.survey.info$area_km2),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+  
+  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+} # end if(is.null(bank.survey.info) ==F)
+dev.off()
+
+browser()
+png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MCspatial_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title="Meat Count",dec.deg=F)
+} # end if(is.null(bank.survey.info) ==F)
+
+if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+{
+  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+             nafo.bord = T,nafo="all",nafo.lab = F,title="Meat Count",dec.deg=F)
+} # end if(is.null(bank.survey.info) ==T)
+
+if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+  x.bound <- range(bound.poly.surv$X)
+  y.bound <- range(bound.poly.surv$Y)
+  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+             nafo.bord = F,nafo.lab = F,title="Meat Count",dec.deg = F)
+}
+
+with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr & CF.current[[bnk[i]]]$meat.count==min(CF.current[[bnk[i]]]$meat.count[CF.current[[bnk[i]]]$year==yr], na.rm=T),],points(lon,lat,cex=1,lwd=2,col="black"))
+with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr,],text(lon,lat,round(meat.count, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
@@ -929,158 +983,158 @@ dev.off()
 print("9")
 ### spatial biomass by tow
 
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Pre-recruit biomass",dec.deg = F)
-}
-
-with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
-
-
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Recruit biomass",dec.deg = F)
-}
-
-with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
-
-
-png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==F)
-
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-             plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
-} # end if(is.null(bank.survey.info) ==T)
-
-if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
-  x.bound <- range(bound.poly.surv$X)
-  y.bound <- range(bound.poly.surv$Y)
-  ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
-             plot.boundries = T,bathy.source="quick", xlab="",ylab="",
-             nafo.bord = F,nafo.lab = F,title="Fully-recruited biomass",dec.deg = F)
-}
-
-with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
-# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-# if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
-
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
-   c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
-{
-  legend("bottomleft",legend=c(bank.survey.info$PName),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
-  # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
-  legend("topright",legend = round(bank.survey.info$area_km2),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
-  
-  legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
-         fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
-         pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
-         pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
-} # end if(is.null(bank.survey.info) ==F)
-dev.off()
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Pre-recruit biomass",dec.deg = F)
+# }
+# 
+# with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# 
+# 
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
+# 
+# 
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Recruit biomass",dec.deg = F)
+# }
+# 
+# with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# 
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
+# 
+# 
+# png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==F)
+# 
+# if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
+# } # end if(is.null(bank.survey.info) ==T)
+# 
+# if(bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")){
+#   x.bound <- range(bound.poly.surv$X)
+#   y.bound <- range(bound.poly.surv$Y)
+#   ScallopMap(xlim=x.bound,ylim=y.bound,poly.lst=list(detail.poly.surv,surv.info),direct = direct,cex.mn=2, boundries="offshore",
+#              plot.boundries = T,bathy.source="quick", xlab="",ylab="",
+#              nafo.bord = F,nafo.lab = F,title="Fully-recruited biomass",dec.deg = F)
+# }
+# 
+# with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+# with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
+# # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+# # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
+# 
+# if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+#    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
+# {
+#   legend("bottomleft",legend=c(bank.survey.info$PName),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Strata",title.adj=0.01,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n',inset=0.01)
+#   # Add area, convert to km^2 from number of towable units. (NTU/(1000*1000/800/2.4384)
+#   legend("topright",legend = round(bank.survey.info$area_km2),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = expression(paste("Area - ",km^2,"")),title.adj=0.9,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty='n')
+#   
+#   legend("bottomright",legend = as.numeric(with(bank.live,tapply(tow,Strata_ID,length))),
+#          fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
+#          pch=c(rep(NA,length(bank.survey.info$PName))),title = "Number of tows",title.adj=0.1,
+#          pt.bg = c(rep(NA,length(bank.survey.info$PName))),col='black',bty="n",bg="white")
+# } # end if(is.null(bank.survey.info) ==F)
+# dev.off()
 
 print("10")
 ### spatials for seedboxes
