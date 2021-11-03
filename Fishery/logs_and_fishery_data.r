@@ -311,7 +311,6 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
             }
           }
           
-          
           log1 <- do.call("rbind",log.lst)
           slip1 <- do.call("rbind",slip.lst)
 

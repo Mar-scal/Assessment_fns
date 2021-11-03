@@ -10,7 +10,7 @@ editor_options:
 
 ```{r, echo=F, message=F, warning=F}
 require(lubridate)
-load("summary3.Rdata")
+load("summary4.Rdata")
 
 dates <- summary_data$dates[summary_data$dates$bank %in% c("Mid", "Sab", "Ger",
           "BBn", "BBs", "GB", "GBa", "GBb"),]
