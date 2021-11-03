@@ -866,8 +866,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # MODEL - This is the meat weight Shell height realationship.  
       #MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
       #Source5 source("fn/shwt.lme.r") note that the exponent is set as a parameter here b=3
-      browser()
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm[!mw.dm$tow==301,],random.effect='tow',b.par=3)
+
+      # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
+      if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
+  
+      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -949,20 +952,22 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-      browser()
+      
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
+        # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
+        if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.301",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
-        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.301",]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
+        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
         
         browser()
         source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
-        mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]])[!mw.dat.all[[bnk]]$tow==301,], shfdat=bank.dat[[bnk]][!bank.dat[[bnk]]$ID=="2021.301",], bank=bnk, plot=F, 
+        mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                 sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
                                 direct=direct, seed=1234, direct_fns=direct_fns)
         cf.data[[bnk]] <- mwshtest$condmod
