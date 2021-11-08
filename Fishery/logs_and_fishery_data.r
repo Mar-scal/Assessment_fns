@@ -566,7 +566,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
       } # end if(min(log.year) <= 2008 ) 
     
 
-  } # end if(loc == "offshore" || loc == "both")  
+
      
     #############################  End Section 2 import the the offshore data from local flat files  #############################
     
@@ -851,7 +851,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
   } # end get.marfis==T    
     #################  End Section 3 import the offshore data  from SQL database  #############################
     
-    
+  } # end if(loc == "offshore" || loc == "both")  
 
   
 } # End function logs_and_fishery_data.r
