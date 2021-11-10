@@ -374,7 +374,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   
   source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
-  #require(INLA) || stop("Install the INLA package for the spatial plots")
+  require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")
   require(maptools)|| stop("Install the maptools package for the spatial plots")
   require(mapdata)|| stop("Install the mapdata package for the spatial plots")
