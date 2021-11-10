@@ -10,13 +10,13 @@ direct_fns <- "C:/Documents/Assessment_fns/"
 #################################################
 ### if you need to re-create the summary.RData
 
-#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
 Survey_Summary_Word(year=reportyear, reportseason="summer",
-                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_LE14.Rdata"),
+                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 
