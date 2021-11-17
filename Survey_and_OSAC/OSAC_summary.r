@@ -89,7 +89,9 @@ if(!missing(direct_fns))
   
 require(xlsx) || stop("Hold up!  If you don't install the xlsx package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 require(plyr) || stop("Hold up!  If you don't install the plyr package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
-# If you set bank to be NULL we skip almost the entire function and just run the meat count bit, if you set to NULL and don't calc.mc then
+require(splancs) || stop("Hold up!  If you don't install the splancs package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
+
+  # If you set bank to be NULL we skip almost the entire function and just run the meat count bit, if you set to NULL and don't calc.mc then
 # a big nothing happens!
 if(!is.null(bank))
 {

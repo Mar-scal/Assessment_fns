@@ -182,7 +182,30 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       # Get the survey boundary polygon for the bank 
       bnk.survey.bound.poly <- subset(survey.bound.polys,label==bnk[i])
       bnk.survey.bound.poly <- bnk.survey.bound.poly[bnk.survey.bound.poly$startyear == max(bnk.survey.bound.poly$startyear),]
-      
+      # discovered in 2021 that german was being clipped to the detailed polygon. Stole this code from survey summary figures_sf to get boundary
+      if(bnk[i] == "Ger" & yr>2020) {
+        g.bnds <- survey.bound.polys[survey.bound.polys$label==bnk[i],]
+        Y.range <- range(g.bnds$Y,na.rm=T)
+        X.range <- range(g.bnds$X,na.rm=T)
+        newAreaPolys<-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep="")
+                               ,stringsAsFactors = F,header=T)
+        g.tmp <- newAreaPolys[newAreaPolys$label=="SFA26",]
+        g.tmp <- g.tmp[, c("PID", "POS", "X", "Y", "label", "bank")]
+        g.tmp$X[g.tmp$X < X.range[1]] <- X.range[1]
+        g.tmp$X[g.tmp$X > X.range[2]] <- X.range[2]
+        g.tmp$Y[g.tmp$Y > Y.range[2]] <- Y.range[2]
+        g.tmp$Y[g.tmp$Y < Y.range[1]] <- Y.range[1]
+        # Now I want to insert a segemnt into the boundary to run a diagonal line from around 43?9/-66.755 to 43/-66?24
+        g.tmp[2,] <- c(5,2,-66.4,Y.range[1],"SFA26","Ger")
+        g.tmp <- as.data.frame(rbind(g.tmp[c(1,2),],c(5,2,X.range[1],43.15,"SFA26","Ger"),g.tmp[3:nrow(g.tmp),]))
+        for(k in 1:4) g.tmp[,k] <- as.numeric(g.tmp[,k]) # Silly rbind making everything characters...
+        g.tmp$POS <- 1:nrow(g.tmp)
+        g.tmp$PID <- as.numeric(g.tmp$PID)
+        g.tmp$X <- as.numeric(g.tmp$X)
+        g.tmp$Y <- as.numeric(g.tmp$Y)
+        bnk.survey.bound.poly <- as.PolySet(g.tmp,projection="LL")
+      }
+        
       # Set the levels, might need to think a bit about these!
       lvls=lvl
       #Get the total removals from each 1 minute cell within the bank for the levels (10 kg to 50 tonnes!)
@@ -198,6 +221,7 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       } # end if(save.fig==T) 
       if(add.titles == T) titl <- paste("Spatial Distribution of Catch (",bnk[i],"-",yr,")",sep="")
       if(add.titles== F) titl <- c("")
+      
       if(bnk[i] != "SPB"  && bnk[i] != "Sab") ScallopMap(bnk[i],poly.lst=bnk.polys[1:2],poly.border=bnk.polys[[2]]$border,xlab="",ylab="",
                                                           title=titl, bathy.source="quick",
                                                           plot.bathy = T,plot.boundries = T,boundries="offshore",direct=direct, direct_fns=direct_fns,cex.mn=2,dec.deg = F)

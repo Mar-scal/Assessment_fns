@@ -369,6 +369,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # Also need to save some of the function arguements so they don't get overwritten  when loading the preprocessed data...
     tmp <- surveys		
     dirc <- direct
+    dircfns <- direct_fns
     s.year <- survey.year
     ssn <- season
     bins.tmp <- bins
@@ -380,6 +381,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
+    direct_fns <- dircfns
     if(missing(direct_fns))
     {
       funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.survey.data.r",

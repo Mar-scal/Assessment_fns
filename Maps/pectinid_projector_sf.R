@@ -217,6 +217,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # # If getting the data from a local source...
   # if(repo == "local")
   # {
+  
   ## always pull from local... these should be in the same location as pectinid_projector, right?  
   if(repo != 'github')
   {
