@@ -69,7 +69,6 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
   
   if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
 	
-  
   # Here we bring in all the survey data loop runs through all the years chosen for the survey chosen (May vs. Aug) and the type chosen.
 	shf.lst<-list(NULL)
 	for(i in 1:length(years)){
@@ -134,7 +133,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
   require(splancs)  || stop("Install splancs package")
   # Imports Ginette's survey data
 	GBsurvey.gin <- read.table(paste(direct,"Data/Survey_data/Old_Summer/GBSurvey.txt",sep=""),header=T, stringsAsFactors = T)
-		
+
 	### Run this section of code if we are looking at the may survey.
 	if(survey == 'May')
 	  {
@@ -156,7 +155,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 	
 	# This runs a loop to return the data for the banks that we are interested in (default is all banks)
 		for(i in 1:length(bank)){
-			# read hf file, this file has  with the data for a specific bank/year combination for shell height frequencies
+		  # read hf file, this file has  with the data for a specific bank/year combination for shell height frequencies
 			hf <- parse.shf(paste(path, year, "/hf", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
 			# read dis file (1994- ) If later than 1994 we need to run the parse.dis function to align the data. Contains data for distance coefficients.
 			if(year>1993)dis <- parse.dis(paste(path, year, "/dis", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
@@ -197,7 +196,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 					# create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
 					# is the shell height frequencies.
 					shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',tmp$dc2))
-					# We've decided that dc2 is the distance coefficient although there were 4 to chose from, why?
+					# We've decided that dc2 is the distance coefficient although there were 4 to chose from, why? due to the change in DC reporting frequency over time! Thanks Amy!
 					shf$dis<-tmp$dc2
 				} # end else if bank[i] == ...
 				else if(year<1994){ 
