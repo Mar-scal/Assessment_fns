@@ -1718,19 +1718,6 @@ ranges <- apply(bank.live,2,range,na.rm=T)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ##################  Some other plots I made that might be useful...########  These are for Browns bank i=2 at time of writing...
 
 # 2014 SHF
@@ -2074,9 +2061,20 @@ png(paste0(direct, "2021/Presentations/Survey_summary/Exploratory_figures/GBa/GB
 print(gb_bathy_map)
 dev.off()
 
+############################ Summarizing spatial variation in SS results on GBa #####################
 
 load("Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_spatial.Rdata")
 north2021 <- survey.obj$`GBa-North`
+west2021 <- survey.obj$`GBa-West`
+east2021 <- survey.obj$`GBa-East`
+central2021 <- survey.obj$`GBa-Central`
+
+require(sf)
+load("Y:/Offshore/Assessment/Data/Fishery_data/Summary/2021/OSAC_summary.RData")
+fish.cells.sf <- st_set_crs(st_as_sf(fish.cells[fish.cells$bank=="GBa",], coords=c("lon", "lat"), remove=F), 4326)
+
+# source()
+
 
 load("Y:/Offshore/Assessment/Data/Survey_data/2020/Survey_summary_output/Survey_all_results.Rdata")
 north2020 <- survey.obj$GBa
