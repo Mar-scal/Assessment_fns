@@ -442,7 +442,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       
       bbox <- st_bbox(trip.log)
       
-      if(as.numeric(st_area(st_as_sfc(bbox)))==0) {
+      if(bbox$xmin == bbox$xmax | bbox$ymin==bbox$ymax) {
         bbox <- st_transform(st_as_sfc(bbox), 32620)
         bbox <- st_buffer(bbox, 1)
         bbox <- st_transform(bbox, st_crs(trip.log)$epsg)
