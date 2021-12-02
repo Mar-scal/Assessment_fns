@@ -23,7 +23,7 @@
 #direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 yr <- 2021
 
 
@@ -56,17 +56,17 @@ res <- survey.data(direct = direct,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
                    surveys = c(#"Banspring", 
                     #"BanIcespring", 
-                        "BBnspring"#,
-                     # "BBsspring",
-                     #   "Gerspring",
-                     # "Midspring", 
-                     #   "Sabspring", 
-                     # "GBspring"# ,
-                    #  "GBbsummer", 
-                    # "GBasummer"
+                        "BBnspring",
+                      "BBsspring",
+                        "Gerspring",
+                      "Midspring", 
+                        "Sabspring", 
+                      "GBspring",
+                      "GBbsummer", 
+                     "GBasummer"
                      ), 
-                   db.con="ptran",testing=F, season="spring", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="LE13")
+                   db.con="ptran",testing=F, season="both", spatial=F, mwsh.test=F,
+                   commercialsampling=T, nickname=NULL)
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -133,31 +133,8 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
 
 Sys.time() -str
 
-
-# Testing for issues.
-
-survey.figs(direct = direct, fig="png",
-            yr=2019, 
-            banks = c(
-              "BBn"
-            ),
-            s.res="low",
-            plots = c(
-              "seedboxes"
-            ), 
-            sub.area=F, 
-            add.scale=T, INLA="run", contour=T, season="testing", nickname="DK_testing_revisions")
-
-survey.figs(direct = direct,fig="png",yr=2017,banks = c("GB" ),s.res="high",add.scale=T,INLA="run",
-            contour=T,season="spring",plots = c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial"))
-Sys.time() -str
-
-survey.figs(direct = direct,fig="png",yr=2016,banks = c("BBs"),season="both",s.res="high",add.scale=T,INLA="load",contour=T,plots = c("abund-ts","biomass-ts"))
-
-survey.figs(direct = direct,fig="png",yr=2017,banks = c("BBn","Ger","Mid"),season="testing",s.res="high",add.scale=T,INLA="load",contour=T)
-
-survey.figs(direct = direct,fig="screen",yr=2017,banks = c("Sab"),season="both",s.res="high",add.scale=T,INLA="run",contour=T,plots = c("FR-spatial"))
-
+#mean SH FR:
+survey.obj$GBa$model.dat$l.bar[survey.obj$GBa$model.dat$year==year]
 
 
 year=2018

@@ -260,11 +260,11 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     highlights <- rbind(highlights, bmPT)
 
     # shell height frequencies
-    shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, 14:53], 2, mean)
+shcols <- paste0("h", 5:200)
+    shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, which(names(surv.Rand[banks[i]][[1]]) %in% shcols)], 2, mean)
     maxbin <- names(shsummary[shsummary==max(shsummary)])
     maxbin <- gsub(x=maxbin, "h", "")
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
-
     if(!banks[i] == "BBs"){
       shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])

@@ -255,7 +255,7 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  # Average weight of fully recruited scallop by year
 	  strat.res$w.bar[i] <- sum(w.yst[i,which(mw.bin==CS[i]):which(mw.bin==200)]) /
 	    sum(n.yst[i,which(mw.bin==CS[i]):which(mw.bin==200)])							
-	  
+
 	  # Average shell height of fully recruited scallop by year
 	  strat.res$l.bar[i] <- sum((n.yst[i,]*seq(2.5,200,5))[which(mw.bin==CS[i]):which(mw.bin==200)]) / 
 	    sum(n.yst[i,which(mw.bin==CS[i]):which(mw.bin==200)])

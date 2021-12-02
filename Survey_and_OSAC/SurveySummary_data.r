@@ -243,7 +243,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
     # Import 2006 for BanIce data, then we'll remove back to 2000 in a few lines.
-    
     survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,direct=direct, direct_fns=direct_fns)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,direct=direct, direct_fns=direct_fns)
     
@@ -369,6 +368,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # Also need to save some of the function arguements so they don't get overwritten  when loading the preprocessed data...
     tmp <- surveys		
     dirc <- direct
+    dircfns <- direct_fns
     s.year <- survey.year
     ssn <- season
     bins.tmp <- bins
@@ -380,6 +380,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     
     # Reset the arguement names and re-load the functions to ensure we have the latest versions
     direct <- dirc
+    direct_fns <- dircfns
     if(missing(direct_fns))
     {
       funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.survey.data.r",
@@ -866,6 +867,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # MODEL - This is the meat weight Shell height realationship.  
       #MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
       #Source5 source("fn/shwt.lme.r") note that the exponent is set as a parameter here b=3
+
+      # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
+      if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
+  
       SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
@@ -952,6 +957,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
+        # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
+        if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.301",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
         if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
@@ -1275,7 +1282,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {  
           strata.areas <- subset(strata.areas,startyear == max(strata.areas$startyear))
           
-          if(!length(CS) == length(unique(surv.Rand[[bnk]]$year))){
+          if(!length(CS) == length(unique(surv.Rand[[bnk]]$year)) & bank.4.spatial %in% c("GBa", "GBb")){
             CS <- SH.dat$CS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
             RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
           }
@@ -1361,7 +1368,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {  
           key <-findPolys(box.dat, subset(boxes,SCALLOP_Group_ID == box.names[m]))
           seedbox.obj[[bnk]][[m]] <- simple.surv(surv.Live[[bnk]][1:nrow(surv.Live[[bnk]]) %in% key$EID,],years=years,user.bins = bin)
-          if(!length(CS) == length(seedbox.obj[[bnk]][[m]]$model.dat$year)){
+          if(!length(CS) == length(seedbox.obj[[bnk]][[m]]$model.dat$year) & bank.4.spatial %in% c("GBa", "GBb")){
             CS <- SH.dat$CS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
             RS <- SH.dat$RS[which(SH.dat$year %in% seedbox.obj[[bnk]][[m]]$model.dat$year)]
           }

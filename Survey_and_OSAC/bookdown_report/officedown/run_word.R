@@ -3,32 +3,32 @@ library(rmarkdown)
 require(ggplot2)
 
 ######## prep input data if you haven't already
-reportyear <- 2021
+year <- 2021
 
-direct_fns <- "C:/Users/keyserf/Documents/GitHub/Assessment_fns/"
+#direct_fns <- "C:/Documents/Assessment_fns/"
 
 #################################################
 ### if you need to re-create the summary.RData
 
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-#direct_fns <- "C:/Documents/Assessment_fns/"
+#direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
+direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
-Survey_Summary_Word(year=reportyear, reportseason="both",
+Survey_Summary_Word(year=reportyear, reportseason="summer",
                     data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 
 summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights, spatial.sum.stats=spatial.sum.stats, dates=dates, yeartable=yeartable)
 
-save(summary_data, file = "summary2.Rdata")
+save(summary_data, file = "summary4.Rdata")
 #######################################################
 
 ######################################################
 #### build the book!
 # Modify render_markdowns.R based on the banks/survey you desire. Also make sure the Rdata file in parameterised_report.Rmd is right.
-source("R/render_markdowns.R")
+source("officedown/render_markdowns_word.R")
 ########################################################
 
 
