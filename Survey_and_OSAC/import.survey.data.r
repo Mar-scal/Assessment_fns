@@ -322,7 +322,6 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 	  # There is grid information available for GB.
 		if(type=='grid'){
 				path = paste(direct,"Data/Survey_data/Old_Summer/",sep="")
-			
 			bank <- "GB"
 			# So here we chose the grid flat files instead of the regular ones and we process the data similar to how we did above.
 			hf <- parse.shf(paste(path, year, "/gridhf", bank, year, ".txt", sep = ""),survey=survey, yr = year)
@@ -330,8 +329,12 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 			if(year>1993){
 				dis <- parse.dis(paste(path, year, "/griddis", bank, year, ".txt", sep = ""),survey=survey, yr = year)
 				shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',dis$dc2))
+				shf$dis<-dis$dc2
 			}# end if year > 1993
-			else if(year<1994){ shf <- cbind(hf[,1:6], hf[,7:46] * dtp$dc) }
+			else if(year<1994){ 
+			  shf <- cbind(hf[,1:6], hf[,7:46] * dtp$dc) 
+			  shf$dis <- dtp$dc
+			}
 			
 			shf$id<-sort(rep(1:(nrow(shf)/2),2))
 			dtp$id<-1:nrow(dtp)
@@ -339,7 +342,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 			
 			# The SHF datafram
 			SHF <- with(tmp, data.frame(year = rep(year, nrow(tmp)), cruise = as.character(cruise.x), bank=rep(bank, nrow(tmp)), date, 
-			                            tow=tow.y, slat, slon, elat, elon, depth, state, shf[, 7:46],stringsAsFactors = F))
+			                            tow=tow.y, slat, slon, elat, elon, depth, state, dis, brg, shf[, 7:46],baskets,totwt,stringsAsFactors = F))
 			# GB area boundaries so we can split the area up into GBa and b.
 			GBarea.xy<-data.frame(slon=c(-67.30935,-66.754167,-66,-65.666667,-65.666667,-66.16895,-67.30935),slat=c(42.333333,42.333333,42.333333,42,41.583333,41,42.333333))
 			SHF$bank<-as.character(SHF$bank)
