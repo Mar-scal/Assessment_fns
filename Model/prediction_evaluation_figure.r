@@ -24,9 +24,10 @@
 ###############################################################################################################
 # Arguments
 #
-# 1:  input:      The data to input, default = NULL which looks for the most recent data and plots that.
+# 1:  input:      The data to input, default = NULL which looks for the most recent data and plots that. 
+#                 If providing input, and you want to do "both" growth types, input must be in a list. 
 # 2:  growth:     The growth plot to make, default = "both" which produces the "modelled" growth and "realized" growth figures.
-#                 both only works if you have NOT specified the input data.  Options are "realized", "modelled", and "both"
+#                 Options are "realized", "modelled", and "both". If providing input, and you want to do "both", input must be in a list. 
 # 3:  years:      The years for the model runs.  Default is missing, should be the same as you used to run the main model 
 # 4:  graphic:    What to do if making a figure.  Print to "screen" by default, you can now save as any valid image type (jpg, png, pdf, etc).
 # 5:  plot:       The plot to produce the various potential figures.  There are 3 options here, 
@@ -53,8 +54,6 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
   options(stringsAsFactors = F)
   # If you haven't specified the path set it to the working directory...
   if(is.null(path)) path <- getwd()
-  # If going to plot both growth terms...
-  if(growth == "both") growth <- c("modelled", "realized")
   
   # If years is supplied get the max from that
   if(!missing(years)) yr <- max(years)
@@ -66,11 +65,20 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
   if(!is.null(input))
   {
     out.tmp <- input
+  
     if(growth == "realized") out.realized <- input
     if(growth == "modelled") out.modelled <- input
+    if(growth == "both") {
+      out.realized <- input$realized
+      out.modelled <- input$modelled
+    }
     if(length(growth) > 1) stop("Hey, heads up, if you are inputting the Pred-Eval results directly you need to specify if it is 'modelled' growth (i.e. g and gR) 
-                                or 'realized' growth (g2 and gR2) input data, growth cannot = 'both' in this case")
+                                or 'realized' growth (g2 and gR2) input data, or 'both' and provide them realized and modelled in a list called input")
   } # end if(!is.null(input))
+  
+  # If going to plot both growth terms...
+  if(growth == "both") growth <- c("modelled", "realized")
+  
   # If you haven't supplied the data we pull out all of the historic projections we've run
   if(is.null(input))
   {
@@ -109,10 +117,18 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
         post.years <- 2017:years
         for(i in 1:length(post.years))
         {
-          if(file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData")))
-          {load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))}
-          if(exists("out")==T) out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
-          if(exists("out")==F) print(paste0("missing ", post.years[i]+1, " Projection_evaluation_modelled_growth.RData for ", bank, ". Your figures are doomed to fail unless you go back and run this model."))
+          if(post.years[i]+1 == 2021) out.tmp[[as.character(post.years[i])]] <- NULL
+          if(!post.years[i]+1 == 2021){
+            if(file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData"))){
+              load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+              out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
+            }
+            
+            if(!file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_modelled_growth.RData"))){
+              print(paste0("missing ", post.years[i]+1, " Projection_evaluation_modelled_growth.RData for ", bank, ". Your figures are doomed to fail unless you go back and run this model."))
+            }
+            
+          }
         } # end for(i in 1:length(years[years > 2016])) 
       } # end if(max(years) >=2017)
       # Get the data in a sensisble order...
@@ -144,8 +160,18 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
         post.years <- 2017:years
         for(i in 1:length(post.years))
         {
-          load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
-          out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
+          if(post.years[i]+1 == 2021) out.tmp[[as.character(post.years[i])]] <- NULL
+          if(!post.years[i]+1 == 2021) {
+            if(file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData"))){
+              load(paste(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
+              out.tmp[[as.character(post.years[i])]] <- out[[as.character(post.years[i])]]
+            }
+            
+            if(!file.exists(paste0(direct,"Data/Model/",post.years[i]+1,"/",bank,"/Results/Projection_evaluation_realized_growth.RData"))){
+              print(paste0("missing ", post.years[i]+1, " Projection_evaluation_realized_growth.RData for ", bank, ". Your figures are doomed to fail unless you go back and run this model."))
+            }
+            
+          }
         } # end for(i in 1:length(years[years > 2016])) 
       }
       # Get the names in a reasonable order...
@@ -301,6 +327,7 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
         tmp <- out.realized[[i]]$bm.sims[,ncol(out.realized[[i]]$bm.sims)]
         mod.bm[[names(out.realized)[i]]] <- tmp[tmp > quantile(tmp,0.1) & tmp < quantile(tmp,0.9)]
       } # for (i in 1:num.years)
+      
       proj.bm <- melt(proj.bm,value.name = "bm")
       names(proj.bm) <- c("bm","year")
       mod.bm <- melt(mod.bm,value.name = "bm")
@@ -341,7 +368,6 @@ pe.fig <- function(input = NULL, growth = "both", years, graphic="screen",plot= 
       bm.dat <- rbind(proj.bm,mod.bm)
       # Because we don't have data for both the projection and model in the 1st and final year lets toss those...
       bm.dat <- bm.dat[bm.dat$year != min(bm.dat$year) & bm.dat$year != max(bm.dat$year),]
-      
       
       # Now make the figure
       p <- ggplot(bm.dat,aes(x=as.factor(year),y=biomass/1000,fill=type)) + geom_boxplot(position="dodge") + ylab("Fully recruited biomass (Kt)") + xlab("")+ 
