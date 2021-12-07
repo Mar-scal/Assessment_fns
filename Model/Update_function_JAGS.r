@@ -43,7 +43,7 @@
 # 2:  yr:                       The year of the survey used to generate update. Default = as.numeric(format(Sys.time(), "%Y"))-1 
 #                               Since the updates occur the year after the survey this gets confusing, for example the 2015
 #                               survey was used to create the 2016 update, in this case you specifiy yr = 2015 even though the update is 
-#                               the 2016 update and all the files related to the update are found in Update/2016/...  
+#                               the 2016 update and all the files related to the update are found in 2016/Updates/... The survey data inputs are in data/Survey_data/2015.  
 # 3:  strt.mod.yr:              Start year for the models.  Set to 1986 but note that BBn doesn't have data back that far so starts in 1991.
 # 4:  bank:                     The bank to run.  Default is both banks c("GBa","BBn"), but specifying either works as well.
 # 5:  use.final                 If run.mod = F do you want to use the "final results" for figures or use the temporary results. 
@@ -99,7 +99,7 @@
 
 ###############################################################################################################
 
-update_JAGS <- function(direct_fns, direct, yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
+update_JAGS <- function(direct_fns, direct, direct_out, yr = as.numeric(format(Sys.time(), "%Y"))-1 , strt.mod.yr = 1986,
                    bank = c("GBa","BBn") , use.final = F,fig="screen",
                    # The output options (note that export tables only works if run.mod=T)
                    preprocessed = F, run.mod = T, make.update.figs=T,make.diag.figs = T,
@@ -112,7 +112,7 @@ update_JAGS <- function(direct_fns, direct, yr = as.numeric(format(Sys.time(), "
                    # and run.pred.eval.model = T)
                    pred.eval.fig.type = "box",pe.years = NULL, pe.iter = NULL,pe.burn= NULL,pe.thin = NULL,pe.chains = NULL ,
                    un=NULL,pw=NULL,db.con="ptran",
-                   mwsh.test=F, nickname=NULL, language="en"
+                   mwsh.test=F, nickname=NULL, language="en", impute="previous_year"
                   ){
   
 # Load in the functions needed for this function to run.
@@ -254,6 +254,33 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
       master.bank <-ifelse(grepl(pattern="GBa",x=bank[i])==T , "GBa","BBn")
       years <- min(survey.obj[[bank[i]]][[1]]$year):max(survey.obj[[bank[i]]][[1]]$year)
      
+      # in 2020, the covid-19 pandemic prevented the DFO survey from occurring. An industry-lead survey of limited scope occurred, but is not suitable for inclusion in the 
+      # assessment models. As such, we need to fill-in the blank row for 2020 with some data. We'll try out different options for doing that here. 
+      if(yr>2020) {
+        # what if we add an empty row full of NAs... NO. jags model fails. the 2021 row is complete, but it doesn't know what to do with NA's in 2019 and 2020. Try something else.
+        # empty <- survey.obj[[bank[i]]][[1]][1,]
+        # empty[1,] <- NA
+        # empty$year <- 2020
+        # survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], empty, all=T)
+        if(impute=="previous_year") {
+          year2020 <- data.frame(year=2020, survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year==2019,c(2:ncol(survey.obj[[bank[i]]][[1]]))])
+          names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+          survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        }
+        if(impute=="LTM") {
+          year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, median))
+          year2020$year <- 2020
+          names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+          survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        }
+        if(impute=="midpoint") {
+          year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year %in% 2019:2020,], MARGIN = 2, mean))
+          year2020$year <- 2020
+          names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+          survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        }
+      }
+      
       # First off we subset the data to the area of interest using the survey boundary polygon, only do this for the sub-areas though
       if(!bank[i] %in% c("GBa","BBn"))
       {
@@ -362,8 +389,8 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
     } # end for(i in 1:length(bank))
 
     # Save the results so you don't have to do section 1 over and over.
-    if(is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
-    if(!is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct,"Data/Model/",(yr+1),"/Model_input_", nickname, ".RData",sep=""))
+    if(is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct_out,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
+    if(!is.null(nickname)) save(mod.dat,cpue.dat,proj.dat,file=paste(direct_out,"Data/Model/",(yr+1),"/Model_input_", nickname, ".RData",sep=""))
     print("done pre-processing")
   } # end if(preprocessed == F)
   
@@ -376,10 +403,14 @@ require(sp)  || stop("You shall not pass until you install the *sp* package... y
 #############  Section 2 Model#############  Section 2 Model#############  Section 2 Model#############  Section 2 Model ###########
 #############  Section 2 Model#############  Section 2 Model#############  Section 2 Model#############  Section 2 Model ###########
 #############  Section 2 Model#############  Section 2 Model#############  Section 2 Model#############  Section 2 Model ###########
-# Load the data if the above has already been compiled.
-if(preprocessed==T) load(file=paste(direct,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
-# Initialize variables...
-if(run.mod == T)
+  # Load the data if the above has already been compiled.
+  if(preprocessed==T) {
+    if(is.null(nickname)) load(file=paste(direct_out,"Data/Model/",(yr+1),"/Model_input.RData",sep=""))
+    if(!is.null(nickname)) load(file=paste(direct_out,"Data/Model/",(yr+1),"/Model_input_", nickname, ".RData",sep=""))
+  }
+  
+  #Initialize variables...
+  if(run.mod == T)
   {
     DD.out <- NULL
     DD.lst <- NULL
@@ -622,10 +653,9 @@ for(j in 1:num.banks)
       ### Note that from the 2015 SSR we have these definitely set at...
       #Georges Bank 'a' reference points are based on 30% and 80% of the mean biomass from 1986 to 2009. 
       #The Lower Reference Point (LRP) is 7,137 t and the Upper Stock Reference (USR) is 13,284 t.
-      
       if (bnk == "GBa") 
       {
-        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,refs=c(URP[[bnk]],LRP[[bnk]]),post.survey.C=proj.catch[[bnk]])
+        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,refs=c(URP[[bnk]],LRP[[bnk]]),post.survey.C=proj.catch[[bnk]], yr=yr)
         if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_GBa.csv",sep=""),row.names=F) #Write1
 
       } # END if(bnk == "GBa")
@@ -633,31 +663,32 @@ for(j in 1:num.banks)
       # Now Browns North or the sub areas
       if (bnk != "GBa") 
       {
-        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,post.survey.C=proj.catch[[bnk]])
+        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,post.survey.C=proj.catch[[bnk]], yr=yr)
         if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_",bnk,".csv",sep=""),row.names=F) #Write2
       } # END if(bnk == "BBn")
       
       # For i = 1 this will just get the first bank, unfortunately if i =2 then this will pull in results for both 
       #  (if running this as a loop) which is silly, but work arounds are dumber than this solution
       # If you are happy and want to keep these results 
+      
       if(final.run == T) 
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
            URP,LRP,proj,bnk,TACi,yrs,j,
-           file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
+           file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
       } # end if(final.run == T) 
       # If you are still testing results the model will save here, 
       if(final.run == F && is.null(nickname))
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
-             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+             file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
       } # if(final.run == F) 
       if(final.run == F && !is.null(nickname))
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
-             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
+             file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
       } # if(final.run == F) 
       
       print("done running model. Results saved in Data/Model/year/bank/Results/")
@@ -669,23 +700,29 @@ for(j in 1:num.banks)
 
 
 
-
 ############# Section 3 Results for Update Doc and Model Diagonistics############# Section 3 Results for Update Doc and Model Diagonistics
 ############# Section 3 Results for Update Doc and Model Diagonistics############# Section 3 Results for Update Doc and Model Diagonistics
 # We now make diagnostics automatically, it takes no time so just do it...
     if(run.mod==F) # First load the data if we didn't just run the model.
     {
       # If we have the final run run we pull the data from that files
-      if(file.exists(paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))==T && use.final==T)
+      if(file.exists(paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))==T && use.final==T)
       {
-        load(file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
+        load(file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
         writeLines("Good day!  You are using the final model results \'Final_model_results.RData\', great idea! \n")
       } # end if(file.exists(paste(direct,"Data/... == T
       
       # If we haven't yet run the final model we'll pull the data from here and print a warning that these results aren't final yet!
-      if(file.exists(paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))==T && use.final==F)
+      if(file.exists(paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))==T && use.final==F && is.null(nickname))
       {
-        load(file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+        load(file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+        writeLines("YO HEADS UP!!  You are using the testing results \'Model_testing_results.RData\' results NOT the \'FINAL_model_results.RData\'
+               please treat these results as exploratory. Always remember.. you're the best! \n")
+        
+      } # end if(file.exists(paste(direct,"Data/... == F
+      if(file.exists(paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))==T && use.final==F && !is.null(nickname))
+      {
+        load(file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
         writeLines("YO HEADS UP!!  You are using the testing results \'Model_testing_results.RData\' results NOT the \'FINAL_model_results.RData\'
                please treat these results as exploratory. Always remember.. you're the best! \n")
         
@@ -744,9 +781,9 @@ for(j in 1:num.banks)
 
 
     if(is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
-         file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
+         file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
     if(!is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
-                               file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
+                               file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
 
 
     print("done running diagnostics")
@@ -754,7 +791,7 @@ for(j in 1:num.banks)
 ##################### END Section 3 Model Diagnostics #####################  END Section 3 Model Diagnostics #################  
 ##################### END Section 3 Model Diagnostics #####################  END Section 3 Model Diagnostics #################  
 
-
+    
 #################  SECTION 4 Figures #################  SECTION 4 Figures #################  SECTION 4 Figures #################  
 #################  SECTION 4 Figures #################  SECTION 4 Figures #################  SECTION 4 Figures #################  
 # Now if I want to make the figures both from the model output and for the update document do these...
@@ -980,7 +1017,7 @@ for(j in 1:num.banks)
       # Turn off the plot device if making a pdf.
       if(fig!="screen") dev.off()
 
-  
+  #browser()
       #############  FINALLY I WANT TO MAKE AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
       # Also make the overall plot of the banks...
       if(fig== "screen") windows(11,8.5)
@@ -1015,11 +1052,11 @@ for(j in 1:num.banks)
     # Make sure the pe.years is sorted from most recent year to past
     pe.years <- rev(sort(pe.years))
     #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
-    pred.eval(input = DD.lst[[bnk]], priors = DD.out[[bnk]]$priors, pe.years= pe.years, growth="both",model = jags.model,  bank=bnk,
-              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct)
+    pred.eval(input = DD.lst[[bnk]], priors = DD.out[[bnk]]$priors, pe.years= pe.years, growth="both",model = paste0("Github/", jags.model),  bank=bnk,
+              parameters = DD.out[[bnk]]$parameters,niter = pe.iter,nburn = pe.burn, nthin = pe.thin,nchains=pe.chains,direct=direct_out)
 
     # Now we make the figures and save them...
-    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
+    pe.fig(years=max(yrs[[bnk]]),growth="both",graphic = fig,direct= direct, direct_out=direct_out, bank = bnk,plot=pred.eval.fig.type,path=plotsGo)
     #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     
     print("done running prediction evaluation")
