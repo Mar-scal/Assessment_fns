@@ -1,0 +1,312 @@
+---
+title: "Update model scenarios 2022"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: bootstrap
+orientation: columns
+vertical_layout: fill
+---
+
+```{r, include=F}
+
+banks <- c("GBa", "BBn")
+imputetype <- c("LTM", "previous_year", "midpoint")
+res<-NULL
+proj.box<-NULL
+fit <- NULL
+biomass <- NULL
+for(b in banks){
+  for(it in imputetype){
+    # this lets me load the data and get the file names. The parentheses are correct!!
+    objs <- (load(paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep="")))
+    
+    DD.plt <- DD.out[[b]]
+    DD.plt$median$B[which(yrs[[b]]==2020)] <- NA
+    DD.plt$sims.list$B[,which(yrs[[b]]==2020)] <- NA
+    DD.plt$median$R[which(yrs[[b]]==2020)] <- NA
+    DD.plt$sims.list$R[,which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$I[which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$IR[which(yrs[[b]]==2020)] <- NA
+    
+    DD.gg <- data.frame(year=yrs[[b]], bank=b, impute=it, B=DD.plt$median$B, q=DD.plt$median$q, R=DD.plt$median$R, qU=DD.plt$median$qU, 
+                        I=DD.plt$data$I, IR = DD.plt$data$IR, U=DD.plt$data$U,
+                        I.cv=DD.plt$data$I.cv,
+                        IR.cv=DD.plt$data$IR.cv, 
+                        U.cv=DD.plt$data$U.cv)
+    
+    TACI<-which(DD.out[[b]]$data$C.p==TACi[[b]]+proj.catch[[b]])
+    proj <- data.frame(year=2022, B.p=DD.out[[b]]$sims.list$B.p[,TACI], tac=TACi[[b]]+proj.catch[[b]])
+    proj.q <- proj$B.p[proj$B.p>quantile(proj$B.p,0.1)&proj$B.p<quantile(proj$B.p,1-0.1)]
+    proj.q <- data.frame(year=2022, vals = boxplot(proj.q)$stats, labs=c("y0", "y10", "y50", "y90", "y100"))
+    proj.q <- pivot_wider(proj.q, values_from = vals, names_from=labs)
+    proj.q <- data.frame(proj.q, bank=b, impute=it)
+
+    res <- rbind(res, DD.gg)
+    proj.box <- rbind(proj.box, proj.q)
+  }
+  
+  fitB <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B*q, colour=impute)) + ylab("Fully recruited biomass") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*q, colour=impute), linetype="dashed") +
+    geom_point(data=res[res$bank==b,], aes(x=year, y=I, colour=impute, shape=impute))+
+    geom_segment(data=res[res$bank==b,], aes(x=year, xend=year, y=I-I.cv*I, yend=I+I.cv*I, colour=impute, shape=impute)) +
+    #ylim(0,8000) +
+    theme_bw() 
+  fitR <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=R*q, colour=impute)) + ylab("Recruit biomass") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, R*q, colour=impute), linetype="dashed") +
+    geom_point(data=res[res$bank==b,], aes(x=year, y=IR, colour=impute, shape=impute))+
+    geom_segment(data=res[res$bank==b,], aes(x=year, xend=year, y=IR-IR.cv*IR, yend=IR+IR.cv*IR, colour=impute, shape=impute)) +
+    #ylim(0,2100)+
+    theme_bw()
+  fitU <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B*qU, colour=impute)) + ylab("CPUE") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*qU, colour=impute), linetype="dashed") +
+    geom_point(data=res[res$bank==b,], aes(x=year, y=U, colour=impute, shape=impute))+
+    #geom_segment(data=res, aes(x=year, xend=year, y=U-U.cv*U, yend=U+U.cv*U), colour="red") +
+    #ylim(0,75)+
+    theme_bw()
+  
+  fit[[b]] <- fitB / fitR / fitU
+  
+  
+  biomass[[b]] <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B, colour=impute)) + geom_point(data=res[res$bank==b,], aes(x=year, y=B, colour=impute, shape=impute)) + 
+     geom_boxplot(data=proj.box[proj.box$bank==b,], aes(x=year, ymin=y0, lower=y10, middle=y50, upper=y90, ymax=y100, colour=impute), stat="identity") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B, colour=impute), linetype="dashed") +
+    theme_bw() #+
+   # ylim(0,25000)
+}
+
+
+fit$GBa
+biomass$GBa
+
+fit$BBn
+biomass$BBn
+
+
+
+proj.B.yr <- NULL
+base.year <- 2018
+scenarios <- c("BM.Current","BM.All","BM.Last","BM.Realized","BM.BT", "BM.BTSST")
+for(y in 2000:2018)
+{
+  pick <- base.year - y+1
+  gb.out <- DD.out
+  gb.out$data$NY <- gb.out$data$NY-pick
+  proj.B <- data.frame("BM.Current"=rep(NA,30000),"BM.All"=rep(NA,30000),
+                       "BM.Last"=rep(NA,30000),"BM.Realized" = rep(NA,30000),
+                       #"BM.Aug" = rep(NA,30000),
+                       "BM.Actual" = rep(NA,30000),
+                       "BM.BT" = rep(NA,30000),
+                       "BM.BTSST" = rep(NA,30000),
+                       "Prop.Current"=rep(NA,30000),"Prop.All"=rep(NA,30000),
+                       "Prop.Last"=rep(NA,30000),"Prop.Realized"=rep(NA,30000),
+                       #"Prop.Aug"=rep(NA,30000),
+                       'year' = rep(y,30000))
+  # Now run through 4 scenarios
+  for(i in 1:(length(scenarios)))
+  {
+    # Note these are all y-1 because I put them in the year before in the above (i.e. 1986 g's are for the 1987 projection)
+    if(i == 2) 
+    {
+      gb.out$data$g[gb.out$data$NY] <- all.dat$g.all[all.dat$year == y-1]
+      gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.all[all.dat$year == y-1]
+    }
+    if(i == 3) 
+    {
+      gb.out$data$g[gb.out$data$NY] <- all.dat$g.last[all.dat$year == y-1]
+      gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.last[all.dat$year == y-1]
+    }
+    if(i == 4) 
+    {
+      gb.out$data$g[gb.out$data$NY] <- all.dat$g.actual[all.dat$year == y-1]
+      gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.actual[all.dat$year == y-1]
+    }  
+    if(i == 5) 
+    {
+      gb.out$data$g[gb.out$data$NY] <- all.dat$g.BT[all.dat$year == y-1]
+      gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.BT[all.dat$year == y-1]
+    }  
+    if(i == 6) 
+    {
+      gb.out$data$g[gb.out$data$NY] <- all.dat$g.BTSST[all.dat$year == y-1]
+      gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.BTSST[all.dat$year == y-1]
+    }  
+    # if(i == 4) 
+  # {
+  #   gb.out$data$g[gb.out$data$NY] <- all.dat$g.aug[all.dat$year == y]
+  #   gb.out$data$gR[gb.out$data$NY] <- all.dat$gr.aug[all.dat$year == y]
+  # }  
+  # Note that I don't need to include the projected catch here because the data for catches is for the survey
+  # years and so that is all nicely accounted for in this I checked and even 2019 looks to be correct, so no
+  # need to do anything here since we only run to 2019... if we had 2020 we'd probably need to get funky.
+    res <- projections(gb.out, C.p=(gb.fish.dat$GBa$catch[gb.fish.dat$GBa$year == y])) # C.p = potential catches in decision table
+    
+    proj.B[scenarios[i]] <- as.vector(res$sims.list$B.p)
+  } # end for(i in 1:4)
+  proj.B["BM.Actual"] <- as.vector(gb.out$sims.list$B[,gb.out$data$NY+1]) # I want next year's result because I'm projecting forward right!
+  proj.B["Prop.Current"] <- (proj.B["BM.Current"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  proj.B["Prop.All"] <- (proj.B["BM.All"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  proj.B["Prop.Last"] <- (proj.B["BM.Last"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  proj.B["Prop.Realized"] <- (proj.B["BM.Realized"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  proj.B["Prop.BT"] <- (proj.B["BM.BT"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  proj.B["Prop.BTSST"] <- (proj.B["BM.BTSST"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  #proj.B["Prop.Aug"] <- (proj.B["BM.Aug"] - proj.B["BM.Actual"]) /  proj.B["BM.Actual"]
+  # Difference
+  proj.B["Diff.Current"] <- (proj.B["BM.Current"] - proj.B["BM.Actual"]) 
+  proj.B["Diff.All"] <- (proj.B["BM.All"] - proj.B["BM.Actual"]) 
+  proj.B["Diff.Last"] <- (proj.B["BM.Last"] - proj.B["BM.Actual"]) 
+  proj.B["Diff.Realized"] <- (proj.B["BM.Realized"] - proj.B["BM.Actual"]) 
+  proj.B["Diff.BT"] <- (proj.B["BM.BT"] - proj.B["BM.Actual"]) 
+  proj.B["Diff.BTSST"] <- (proj.B["BM.BTSST"] - proj.B["BM.Actual"]) 
+  #proj.B["Diff.Aug"] <- (proj.B["BM.Aug"] - proj.B["BM.Actual"])
+  proj.B.yr[[as.character(y)]] <- proj.B
+  
+} # end for(y in 1987:2018)
+bm.res <- do.call('rbind',proj.B.yr)
+# Now switch the data to long
+all.res.long <- bm.res %>% reshape2::melt(id.var = "year")
+# I don't think I want the realized method on there, it is kinda relevant but makes story complicated.
+bm.res.long <-  all.res.long %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'BM'))
+prop.res.long <- all.res.long %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'Prop'))
+diff.res.long <- all.res.long %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'Diff'))
+#bm.res.long <-  all.res.long %>% dplyr::filter(str_detect(variable,'BM'))
+#prop.res.long <- all.res.long %>% dplyr::filter(str_detect(variable,'Prop'))
+#diff.res.long <- all.res.long %>% dplyr::filter(str_detect(variable,'Diff'))
+# SO we can model the raw data, not sure that's the best plan ever, but let's see!
+# So a model...
+bm.res.mod <- lm(value~variable,bm.res.long)
+summary(bm.res.mod)
+diff.res.mod <- lm(value~variable,diff.res.long)
+summary(diff.res.mod)
+#par(mfrow=c(2,2));plot(diff.res.mod)
+prop.res.mod <- lm(value~variable-1,prop.res.long)
+summary(prop.res.mod)
+#par(mfrow=c(2,2));plot(prop.res.mod)
+fit.summary <- all.res.long %>% dplyr::group_by(year,variable) %>% dplyr::summarise(median = median(value),
+                                                                                   mn = mean(value),
+                                                                                  uqr = quantile(value,probs=0.75,na.rm=T),
+                                                                                  lqr = quantile(value,probs=0.25,na.rm=T))
+# I don't think I want the realized method on there, it is kinda relevant but makes story complicated.
+# It also is just about identical to the "Last" model in terms of results, so really using
+# August or May data for the projection doesn't matter as it over-estimates biomass almost identically.
+bm.summary <- fit.summary %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'BM'))
+prop.summary <- fit.summary %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'Prop'))
+diff.summary <- fit.summary %>% dplyr::filter(!str_detect(variable,'Realized'), str_detect(variable,'Diff'))
+#bm.summary <- fit.summary %>% dplyr::filter(str_detect(variable,'BM'))
+#prop.summary <- fit.summary %>% dplyr::filter(str_detect(variable,'Prop'))
+#diff.summary <- fit.summary %>% dplyr::filter(str_detect(variable,'Diff'))
+diff.summary %>% group_by(variable) %>% dplyr::summarise(m = mean(median))
+# The labels for the levels...
+labs <- c("Full SST Model","Previous Year SST Model","Current Method","Actual", "BT", "BTSST")
+bm.summary$variable <- factor(bm.summary$variable,levels =c("BM.All","BM.Last","BM.Current","BM.Actual", "BM.BT", "BM.BTSST"),
+                              labels = labs[c(1,2,3,4,5,6)])
+prop.summary$variable <- factor(prop.summary$variable,levels =c("Prop.All","Prop.Last","Prop.Current", "Prop.BT", "Prop.BTSST"),#,"Prop.Aug"),
+                              labels = labs[c(1,2,3,5,6)])
+diff.summary$variable <- factor(diff.summary$variable,levels =c("Diff.All","Diff.Last","Diff.Current", "Diff.BT", "Diff.BTSST"),#,"Diff.Aug"),
+                                labels = labs[c(1,2,3,5,6)])
+cols <- addalpha(c("orange","darkgreen","grey20","darkblue",'red', "purple"))
+# Time series plots
+p.bm.ts <- ggplot(bm.summary#[bm.summary$variable %in% c("Current Method", "BT", "BTSST"),]
+                  , aes(x=year,y=median/1000,color = variable, group =variable)) + geom_line(lwd=1.5) +
+                #geom_ribbon(aes(x=year,ymin=lqr/1000,ymax=uqr/1000,fill=variable,group = variable),alpha = 0.5) +
+    geom_line() +              
+  xlab("") + ylab("Biomass (kilotonnes)") +
+                scale_fill_manual(values = cols) +
+                scale_color_manual(values=cols) + 
+                scale_x_continuous(breaks = seq(1987,2020,by=3),limits = c(1987,2020)) +
+                theme(legend.position = "top",axis.text.x=element_blank(),legend.title = element_blank())
+# Grab the legend then remove it from the figure....
+leg <- get_legend(p.bm.ts)
+p.bm.ts <- p.bm.ts + theme(legend.position = "none")
+#grobs <- ggplotGrob(p.bm.ts)$grobs
+#leg <- grobs[[which(sapply(grobs, function(x) x$name) == "guide-box")]]
+p.diff.ts <- ggplot(diff.summary#[diff.summary$variable %in% c("Current Method", "BT", "BTSST"),]
+                    , aes(x=year,y=median/1000,color = variable, group =variable)) + geom_line(lwd=1.5) +
+                #geom_ribbon(aes(x=year,ymin=lqr/1000,ymax=uqr/1000,fill=variable,group = variable),alpha = 0.5) +
+  geom_line() +
+                xlab("") + ylab("Difference from Actual Biomass (kilotonnes)") +
+                scale_fill_manual(values = cols[1:5]) +
+                scale_color_manual(values=cols[1:5]) + 
+                geom_hline(yintercept = 0)+ 
+                scale_x_continuous(breaks = seq(1987,2020,by=3),limits = c(1987,2020)) +
+                theme(legend.position = "none",axis.text.x=element_blank())
+p.prop.ts <- ggplot(prop.summary#[prop.summary$variable %in% c("Current Method", "BT", "BTSST"),]
+                    , aes(x=year,y=100*median,color = variable, group =variable)) + geom_line(lwd=1.5) +
+                #geom_ribbon(aes(x=year,ymin=100*lqr,ymax=100*uqr,fill=variable,group = variable),alpha = 0.5) +
+    geom_line() +              
+  xlab("") + ylab("Difference from Actual Biomass (%)") +
+                scale_fill_manual(values = cols[1:5]) +
+                scale_color_manual(values=cols[1:5]) + 
+                geom_hline(yintercept = 0)+
+                scale_x_continuous(breaks = seq(1987,2020,by=3),limits = c(1987,2020)) +
+                theme(legend.position = "none")
+              
+p.ts <- plot_grid(leg,p.bm.ts,p.diff.ts,p.prop.ts,ncol=1,rel_heights = c(0.2,1,1,1))
+print(p.ts)
+#save_plot(plot = p.ts, filename = "D:/Github/Paper_2_Cond_Env/Results/Figures/timeseries_bm_comparision.png", base_width = 6,base_height = 10)
+```
+
+```{r, message=F, echo=F, warning=F, fig.width=12,fig.height=7}
+actual <- bm.summary %>%
+  filter(variable=="Actual") %>%
+  rename(Actual=median) %>%
+  dplyr::select(year, Actual)
+bm.summary <- dplyr::left_join(bm.summary, actual)
+ggplot() + geom_point(data=bm.summary[!bm.summary$variable == "Actual",], aes(median, Actual)) +
+  geom_smooth(data=bm.summary[!bm.summary$variable == "Actual",], aes(median, Actual), method = "lm") +
+  geom_abline(slope=1, intercept=0, lwd=1)+
+  facet_wrap(~variable) + theme_bw()
+## Now we can fit a model which should replace the below fun...
+# So a model...
+bm.mod <- lm(median~variable,bm.summary)
+summary(bm.mod)
+diff.mod <- lm(median~variable,diff.summary)
+summary(diff.mod)
+par(mfrow=c(2,2));plot(diff.mod)
+prop.mod <- lm(median~variable,prop.summary)
+summary(prop.mod)
+par(mfrow=c(2,2));plot(prop.mod)
+d.mod.pred <- data.frame(variable = unique(diff.summary$variable))
+d.mod.pred$est <- predict(diff.mod,d.mod.pred)
+d.mod.pred$se <- predict(diff.mod,d.mod.pred,se=T)$se.fit
+d.mod.pred$uci <- d.mod.pred$est + 2*d.mod.pred$se
+d.mod.pred$lci <- d.mod.pred$est - 2*d.mod.pred$se
+# Now the proportion model...
+p.mod.pred <- data.frame(variable = unique(prop.summary$variable))
+p.mod.pred$est <- predict(prop.mod,p.mod.pred)
+p.mod.pred$se <- predict(prop.mod,p.mod.pred,se=T)$se.fit
+p.mod.pred$uci <- p.mod.pred$est + 2*p.mod.pred$se
+p.mod.pred$lci <- p.mod.pred$est - 2*p.mod.pred$se
+p.diff <- ggplot(d.mod.pred,  aes(x=variable,y=est/1000)) + geom_point(lwd=2) +
+                                  geom_errorbar(aes(x=variable,ymin=lci/1000,ymax=uci/1000),width=0) +
+                                  xlab("") + ylab("Difference from Actual Biomass (kilotonnes)") +
+                                  scale_fill_manual(values = cols[1:3]) +
+                                  scale_color_manual(values=cols[1:3]) + 
+                                  geom_hline(yintercept = 0,linetype=2)+
+                                  scale_y_continuous(breaks = seq(-3,6,by=1)) +
+                                  theme(legend.title = element_blank())
+p.prop <- ggplot(p.mod.pred, aes(x=variable,y=100*est)) + geom_point(lwd=2) +
+                                  geom_errorbar(aes(x=variable,ymin=100*lci,ymax=100*uci),width=0) +
+                                  xlab("") + ylab("Difference from Actual Biomass (%)") +
+                                  scale_fill_manual(values = cols[1:3]) +
+                                  scale_color_manual(values=cols[1:3]) + 
+                                  geom_hline(yintercept = 0,linetype=2)+
+                                  scale_y_continuous(breaks = seq(-20,40,by=10)) +
+                                  theme(legend.title = element_blank())
+p <- plot_grid(p.diff,p.prop,ncol=1)
+print(p)
+
+```
+
+
+
+GBa overview (no threshold)
+===========================================================================================================================
+
+Column {data-width=300}
+------------------------------------------
+
+```{r}
+knitr::include_graphics(bbn[grep(x=bbn, pattern="Biomass.png")])
+```
+
+

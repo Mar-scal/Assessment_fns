@@ -808,8 +808,17 @@ for(j in 1:num.banks)
       exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
       #dev.off()
       
+      # for 2020, we have to insert NAs because of COVID non-survey
+      DD.plt <- DD.out[[bnk]]
+      DD.plt$median$B[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$B[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$median$R[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$R[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$I[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$IR[which(yrs[[bnk]]==2020)] <- NA
+      
       # model biomass fit to survey
-      fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
+      fit.plt(DD.plt, years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
       # diagnostic plot
       diag.plt(DD.out[[bnk]], years = yrs[[bnk]],graphic=fig,path=plotsGo)
       
@@ -924,21 +933,28 @@ for(j in 1:num.banks)
       if(bnk == "GBa") bm.max <- NULL
       if(bnk == "BBn") bm.max <- 25000
 
+      # After 2020, we need an extra step due to remove the missing survey year (COVID...)
+      DD.plt <- DD.out[[bnk]]
+      DD.plt$median$B[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$B[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$median$R[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$R[,which(yrs[[bnk]]==2020)] <- NA
+      
       # Now make the biomass plots for the areas as necessary
       if(bnk != "GBa")
       {
         # If it's BBn, we have a y-axis maximum that we want to use (bm.max)
-        if(bnk=="BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
+        if(bnk=="BBn") biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
         # If it's a GBa subarea (i.e. not BBn and not GBa), we rely on biomass.plt to assign the y-axis maximum based on the upper credible limit,
         # we also don't have a TAC for the subareas
-        if(bnk!= "BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
+        if(bnk!= "BBn") biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
                                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL, language=language)
       } # end if(bnk == "BBn")
 
       if(bnk == "GBa")
       {
-        biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
+        biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
       } # end if(bnk == "GBa")
 

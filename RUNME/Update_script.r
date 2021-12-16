@@ -89,30 +89,30 @@ yr <- 2021
 
 for(b in banks){
   for(it in imputetype){
-    # model_inputs(bank=b, 
+    # model_inputs(bank=b,
     #              yr=2021, # the survey year, not the current year if running in January-April
-    #              impute=it, 
-    #              nickname=it, 
-    #              direct, 
+    #              impute=it,
+    #              nickname=it,
+    #              direct,
     #              direct_fns)
-    # 
-    # 
-    # run_model(banks=b,
-    #           yr=2021,
-    #           nickname=it,
-    #           direct, 
-    #           direct_fns,
-    #           parallel=T,
-    #           final.run=F,
-    #           nchains = 8/2,niter = 175000/1000, nburn = 100000/1000, nthin = 20,
-    #           export.tables=T,
-    #           make.diag.figs = T,
-    #           make.update.figs = T,
-    #           language="en",
-    #           fig="png")
-    # 
-    
-    load(paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
+
+    run_model(banks=b,
+              yr=2021,
+              nickname=it,
+              direct,
+              direct_fns,
+              run.model = F, 
+              model.dat = paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+              parallel=T,
+              final.run=F,
+              nchains = 8/2,niter = 175000/1000, nburn = 100000/1000, nthin = 20,
+              export.tables=T,
+              make.diag.figs = T,
+              make.update.figs = T,
+              language="en",
+              fig="png")
+
+    #load(paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
     
     #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
     pred.eval(input = DD.lst[[b]], priors = DD.out[[b]]$priors, pe.years= yr:(yr-6), growth="both",

@@ -1,7 +1,7 @@
 # Run the Offshore scallop JAGS model
 # can run multiple banks at once
 
-run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname, 
+run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname, run.model = T, model.dat = NULL,
                       strt.mod.yr=1986, nchains = 8,niter = 175000, nburn = 100000, nthin = 20,final.run = F,parallel = T,
                       make.diag.figs=T, make.update.figs=T, fig="screen", language="en",
                       jags.model = "Assessment_fns/Model/DDwSE3_jags.bug",seed = 123,parameters = NULL){
@@ -17,7 +17,8 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/fit.plt.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/diag.plt.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Model/biomass.plt.R",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/fishery.dat.R"
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/fishery.dat.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.R"
     )
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
@@ -35,6 +36,8 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
     source(paste(direct_fns,"Model/diag.plt.R",sep=""))
     source(paste(direct_fns,"Model/biomass.plt.r",sep=""))
     source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
+    source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""))
+    source(paste(direct_fns,"Fishery/fishery.dat.R",sep=""))
   }
   
   #Initialize variables...
@@ -66,7 +69,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
     if(!is.null(nickname)) load(file=paste(direct,"Data/Model/",(yr+1),"/", bnk, "/Model_input_", nickname, ".RData",sep=""))
     
     # If we are running a sub-area we need to make sure we have the correct bank to pull the data from.
-    master.bank <-ifelse(grepl("GBa",bank[j])==T , "GBa","BBn")
+    master.bank <-ifelse(grepl("GBa",bnk[j])==T , "GBa","BBn")
     # We need to create the working directories needed to save the results...
     # Get the plot directory
     if(is.null(nickname)) plotsGo <- paste(direct,(yr+1),"/Updates/",bnk,"/Figures_and_tables/",sep="")
@@ -116,211 +119,217 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
             for details if this is news to you!! \n"))    
     } # end if(any(mod.dat[[bnk]] == 0)
     
-    # Grab the data, start model at either 1986 (note that BBn data starts in 1991 so anything earlier will default to 1991)
-    DD.dat <- subset(mod.dat[[bnk]],year %in% strt.mod.yr:max(mod.dat[[bnk]]$year),
-                     select = c("year","n.x","I","I.cv","IR",  "IR.cv", "IPR", "IPR.cv","N","N.cv","NR","NR.cv", "NPR", "NPR.cv",
-                                "w.bar","l.bar", "l.k", "w.k","CF","clappers","clappersR","CS",  "RS","catch","effort","n.y","cpue",
-                                "cpue.var","cpue.se","LCI","UCI","U.cv", "g","g2","gR","gR2"))
-    
-    names(DD.dat) <- c( "year","n","I","I.cv","IR",  "IR.cv", "IPR", "IPR.cv","N","N.cv","NR","NR.cv", "NPR", "NPR.cv",
-                        "w.bar","l.bar", "l.k", "w.k","CF","clappers","clappersR","CS",  "RS","C","E","n.trips","U",
-                        "U.var","U.se","LCI","UCI","U.cv", "g","g2","gR","gR2") 
-    # Organize the data and set up the model priors/initialization data, then run the model.
-    yrs[[bnk]]<-min(DD.dat$year):max(DD.dat$year)
-    NY<- length(yrs[[bnk]])
-    DD.lst[[bnk]]<-as.list(subset(DD.dat,year %in% yrs[[bnk]],c("I","I.cv","IR","IR.cv","g","gR","C","U","U.cv","N","NR","clappers",
-                                                                "clappersR","g2","gR2")))
-    # DK NOTE: Downweight the CV for the CPUE data. This is done to be consistent with CV used
-    # Previously in the model assessments. This has been flagged as an action item to investigate 
-    # and resolve in the next framework.
-    cat(paste0("*NOTE # 2* See code for message about the CPUE CV being downweighted artificially, this needs revised in next Framework as it ain't legit.\n"))
-    ifelse(names(DD.lst[[bnk]])[9] == "U.se", names(DD.lst[[bnk]])[9] <- "U.cv", DD.lst[[bnk]]$U.cv <- DD.lst[[bnk]]$U.cv*50)
-    # Also, if doing this we need to change the original data to represent what the model is seeing..
-    # So if we used the SE let's replace the U.cv data with the U.se data, if we are doing the
-    # 50x to match what we've done before than we need to change those data as well.
-    ifelse(names(DD.lst[[bnk]])[9] == "U.se", DD.dat$U.cv <- DD.dat$U.se, DD.dat$U.cv <- DD.dat$U.cv*50)
-    
-    # Add a couple items to the DD.lst list...
-    DD.lst[[bnk]]$NY<- length(DD.lst[[bnk]]$C)
-    DD.lst[[bnk]]$year<-min(DD.dat$year):max(DD.dat$year)
-    # Set up Priors.  This first bit is getting our variance correct for the CV's for Biomass, Recruit biomass, and catch rates.
-    # This is then added to our list of priors to get them correct.
-    # Biomass CV
-    uI=log(DD.lst[[bnk]]$I.cv^2+1) # See Smith and Hubley 2014 for details, this is variance of the log of a CV
-    # DK Note:  Smith/Hubley suggest this should be 3, so why we setting it to 2???
-    Ip.a=2+(uI/uI)^2 # This is the alpha prior term for the prior (an inverse-gamma, i.e. gamma using 1/var); a rather funky way of setting alpha =2
-    Ip.b=1/(uI*((uI/uI)^2+1)) # This is the beta term for the prior, again a strangly complex way of saying 1/(2*(uI))
-    # Recruit biomass CV, see above comments for details.
-    uIR=log(DD.lst[[bnk]]$IR.cv^2+1)
-    IRp.a=2+(uIR/uIR)^2
-    IRp.b=1/(uIR*((uIR/uIR)^2+1))
-    # Catch Rate CV, see above comments for details.
-    uU=log(DD.lst[[bnk]]$U.cv^2+1)
-    Up.a=2+(uU/uU)^2
-    Up.b=1/(uU*((uU/uU)^2+1))
-    
-    DDpriors[[bnk]]=list(
-      logK=			    list(a=7,		  b=7,		d="dnorm",	l=1		),		# scaler to total biomass, a= mean  b = sd, this gives a huge range of starting values
-      r=				    list(a=0, 		b=1,		d="dlnorm",	l=NY	),		# scaled recruit biomass, a= meanlog  b = sdlog
-      m=				    list(a=-2,		b=2,		d="dlnorm",	l=NY	),		# natural mortality fully recruited a= meanlog  b = sdlog
-      mR=				    list(a=-2,		b=2,		d="dlnorm",	l=NY	),		# natural mortality  recruits a= meanlog  b = sdlog
-      S=				    list(a=8, 		b=11,		d="dbeta",  l=1		),		# clapper dissolution rate a= shape1, b=shape2, 8 & 11 gives ~ normal mean of .45ish
-      q=				    list(a=20, 		b=40,		d="dbeta",	l=1		),		# survey catchability fully recruited a= shape1, b=shape2
-      qU=				    list(a=0,		  b=1,	  d="dunif",	l=1		),		# fishery catchability CPUE a= min, b = max
-      sigma=			  list(a=0, 		b=5,		d="dunif",	l=1		),		# process error (SD) a = min, b = max
-      ikappa.tau2=	list(a=3, 		b=2.2407,	d="dgamma",	l=1		),	# measurement error FR clappers  a = shape, b = scale (1/rate)
-      ikappa.rho2=	list(a=3, 		b=2.2407,	d="dgamma",	l=1		),	# measurement error recruit clappers a = shape, b = scale (1/rate)
-      I.precision=	list(a=Ip.a,	b=Ip.b,	d="dgamma",	l=NY	),		# measurement error variance survey FR a = shape, b = scale (1/rate)
-      IR.precision=	list(a=IRp.a,	b=IRp.b,d="dgamma",	l=NY	),		# measurement error variance survey recruits a = shape, b = scale (1/rate)
-      U.precision=	list(a=Up.a,	b=Up.b,	d="dgamma",	l=NY	)		  # measurement error variance CPUE  a = shape, b = scale
-    )
-    
-    #Prepare priors for JAGS
-    for(h in 1:length(DDpriors[[bnk]]))
-    {
-      # Get the variances for log-normal and normal converted to precisions, note that in BUGS language the precision is
-      # the inverse of the squared standard deviation (which is what you specify in R).  The standard deviation is what
-      # was specified in the Prior list (as it is more intuitive)
-      if(DDpriors[[bnk]][[h]]$d%in%c("dlnorm","dnorm")) DDpriors[[bnk]][[h]]$b <- 1/DDpriors[[bnk]][[h]]$b^2
-      # For a Gamma to convert to precision the precision term is  the inverse of the 'Scale" term in a typical 
-      # gamma distribution parameterization, aka this is now knonwn as the rate.
-      # Happily this is the same as the parameterization in R dgamma(x,shape,rate) so our b parameter is correct for posterior plots.
-      if(DDpriors[[bnk]][[h]]$d=="dgamma")DDpriors[[bnk]][[h]]$b<-1/DDpriors[[bnk]][[h]]$b
-    } # end for(h in 1:length(DDpriors[[bnk]]))
-    # Made a data.frame of the priors, unwrap the list and combine by row.
-    prior.dat<- data.frame(par=names(DDpriors[[bnk]]),do.call("rbind",lapply(DDpriors[[bnk]],rbind)))
-    prior.lst<-list()
-    # Now turn this into a list
-    for(k in seq(1,nrow(prior.dat)*2,2))
-    {
-      prior.lst[[k]]<-prior.dat$a[[ceiling(k/2)]]
-      prior.lst[[k+1]]<-prior.dat$b[[ceiling(k/2)]]
-    } # end for(k in seq(1,nrow(prior.dat)*2,2))
-    # And give the list names
-    names(prior.lst)<-paste(rep(prior.dat$par,2)[order(rep(1:nrow(prior.dat),2))],rep(c('a','b'),nrow(prior.dat)),sep='.')
-    
-    # Now if they haven't already been selected grab the parameters you want for the model.
-    ifelse(is.null(parameters) == T, parameters <- c(names(DDpriors[[bnk]]),'K','P','B','R','mu','Imed','Ipred','Irep', 'IRmed','IRpred','IRrep',
-                                                     "Cmed","Crep","CRmed","CRrep",'sIresid','sIRresid','sPresid','Iresid',
-                                                     'IRresid','Presid',"Cresid","CRresid","sCresid","sCRresid"),parameters)
-    # Run the model and see how long it takes.
-    # n = 400,000 and burn = 100,000, thin = 20 with 2 chains do not decrease these as retaining this much
-    # data is needed to stabilize the projections, it does lengthen the run time to 10-20 minutes in serial
-    # Running in parallel stick with that burn in but we can get away with n=200,000, burn = 100,000, thin = 20, and 6 chains
-    # they are longer chains than really are needed for the model to converge, but this is really being done just for the projections.
-    # Run the model now.
-    start<-Sys.time()
-    ## Call to JAGS, do you want to run in parallel?
-    
-    if(parallel==F)
-    {
-      out <- jags(data =  c(prior.lst,DD.lst[[bnk]]), inits = NULL,parameters.to.save = parameters,  
-                  model.file = paste(direct,jags.model,sep=""),n.chains = nchains, n.iter = niter, n.burnin = nburn, 
-                  n.thin = nthin)
-    }
-    
-    if(parallel==T)
-    {
-      out <- jags.parallel(data =  c(prior.lst,DD.lst[[bnk]]), inits = NULL,parameters.to.save = parameters,  
-                           model.file = paste(direct,jags.model,sep=""),n.chains = nchains, n.iter = niter, n.burnin = nburn, 
-                           n.thin = nthin,jags.seed = seed)
-    }
-    # How long did that take?
-    print(Sys.time()-start)
-    
-    # Rename the output so I retain the results 
-    DD.out[[bnk]] <- list(data=c(prior.lst,DD.lst[[bnk]],yrs[[bnk]]), sims.list=out$BUGSoutput$sims.list,median=out$BUGSoutput$median,
-                          mean=out$BUGSoutput$mean,summary=out$BUGSoutput$summary,priors = prior.lst,parameters=parameters)
-    
-    # I will also retain the MCMC object produced in case I want it for something.
-    mod.out[[bnk]] <- out
-    
-    #source("fn/projections.r")
-    # The catch since the survey for the most recent year is this, if there was no catch set this to 0.
-    proj.catch[[bnk]] <- max(proj.dat[[bnk]]$catch[proj.dat[[bnk]]$year == max(DD.dat$year)],0)
-    # Get the low and upper boundaries for the decision table (this might be a silly way to do this...)
-    if(bnk %in% c("GBa","BBn"))
-    {
-      D_low[[bnk]] <- subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$D_tab_low
-      D_high[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$D_tab_high
-    } # end if(bnk %in% c("GBa","BBn"))
-    # If we are looking at one of the sub-areas we will go for 1/3 of the mean biomass estimate for the current year...
-    if(!bnk %in% c("GBa","BBn")) {D_low[[bnk]] <- 0; D_high[[bnk]] <- out$BUGSoutput$mean$B[length(out$BUGSoutput$mean$B)]/3}
-    # The increment size for the decision table.  500 for GBa and 50 for BBn
-    step <- ifelse(bnk == "GBa", 500,50)
-    # The URP and LRP for the bank, for the moment only GBa has been accepted so it's the only one used.
-    if(bnk %in% c("GBa","BBn"))
-    {
-      URP[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$URP
-      LRP[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$LRP
-    } # end if(bnk %in% c("GBa","BBn"))
-    
-    # For the sub-areas just make these NA.
-    if(!bnk %in% c("GBa","BBn")) {URP[[bnk]] <- NA; LRP[[bnk]]<- NA}
-    
-    # Get the projection scenarios of interest
-    if(length(proj.catch[[bnk]]) > 0) proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
-    # If we don't have projected catch data yet (i.e. I'm running the model before the logs have data in them..)
-    if(length(proj.catch[[bnk]]) == 0) 
-    {
-      # Set projected catch to 0
-      proj.catch[[bnk]] <- 0
-      proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
-      writeLines("YO YO LOOK HERE!!  The projected catch used in this model is 0, this should only happen in preliminary runs!!")
-    }
-    # The interim TAC is known for GBa and BBn,
-    if(bnk %in% c("GBa","BBn")) TACi[[bnk]] <- subset(manage.dat,year== (max(DD.dat$year)+1) & bank == bnk)$TAC
-    # For the sub-areas let's just make this last years catch from the area, not perfect but should be reasonable
-    if(!bnk %in% c("GBa","BBn")) TACi[[bnk]] <- DD.lst[[bnk]]$C[DD.lst[[bnk]]$NY]
-    
-    # Now do the projections
-    DD.out[[bnk]]<- projections(DD.out[[bnk]],C.p=proj[[bnk]]) # C.p = potential catches in decision table
-    
-    ### Generate Decision Table ###
-    ### Note that from the 2015 SSR we have these definitely set at...
-    #Georges Bank 'a' reference points are based on 30% and 80% of the mean biomass from 1986 to 2009. 
-    #The Lower Reference Point (LRP) is 7,137 t and the Upper Stock Reference (USR) is 13,284 t.
-    if (bnk == "GBa") 
-    {
-      D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,refs=c(URP[[bnk]],LRP[[bnk]]),post.survey.C=proj.catch[[bnk]], yr=yr)
-      if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_GBa.csv",sep=""),row.names=F) #Write1
+    if(run.model==T){
       
-    } # END if(bnk == "GBa")
+      # Grab the data, start model at either 1986 (note that BBn data starts in 1991 so anything earlier will default to 1991)
+      DD.dat <- subset(mod.dat[[bnk]],year %in% strt.mod.yr:max(mod.dat[[bnk]]$year),
+                       select = c("year","n.x","I","I.cv","IR",  "IR.cv", "IPR", "IPR.cv","N","N.cv","NR","NR.cv", "NPR", "NPR.cv",
+                                  "w.bar","l.bar", "l.k", "w.k","CF","clappers","clappersR","CS",  "RS","catch","effort","n.y","cpue",
+                                  "cpue.var","cpue.se","LCI","UCI","U.cv", "g","g2","gR","gR2"))
+      
+      names(DD.dat) <- c( "year","n","I","I.cv","IR",  "IR.cv", "IPR", "IPR.cv","N","N.cv","NR","NR.cv", "NPR", "NPR.cv",
+                          "w.bar","l.bar", "l.k", "w.k","CF","clappers","clappersR","CS",  "RS","C","E","n.trips","U",
+                          "U.var","U.se","LCI","UCI","U.cv", "g","g2","gR","gR2") 
+      # Organize the data and set up the model priors/initialization data, then run the model.
+      yrs[[bnk]]<-min(DD.dat$year):max(DD.dat$year)
+      NY<- length(yrs[[bnk]])
+      DD.lst[[bnk]]<-as.list(subset(DD.dat,year %in% yrs[[bnk]],c("I","I.cv","IR","IR.cv","g","gR","C","U","U.cv","N","NR","clappers",
+                                                                  "clappersR","g2","gR2")))
+      # DK NOTE: Downweight the CV for the CPUE data. This is done to be consistent with CV used
+      # Previously in the model assessments. This has been flagged as an action item to investigate 
+      # and resolve in the next framework.
+      cat(paste0("*NOTE # 2* See code for message about the CPUE CV being downweighted artificially, this needs revised in next Framework as it ain't legit.\n"))
+      ifelse(names(DD.lst[[bnk]])[9] == "U.se", names(DD.lst[[bnk]])[9] <- "U.cv", DD.lst[[bnk]]$U.cv <- DD.lst[[bnk]]$U.cv*50)
+      # Also, if doing this we need to change the original data to represent what the model is seeing..
+      # So if we used the SE let's replace the U.cv data with the U.se data, if we are doing the
+      # 50x to match what we've done before than we need to change those data as well.
+      ifelse(names(DD.lst[[bnk]])[9] == "U.se", DD.dat$U.cv <- DD.dat$U.se, DD.dat$U.cv <- DD.dat$U.cv*50)
+      
+      # Add a couple items to the DD.lst list...
+      DD.lst[[bnk]]$NY<- length(DD.lst[[bnk]]$C)
+      DD.lst[[bnk]]$year<-min(DD.dat$year):max(DD.dat$year)
+      # Set up Priors.  This first bit is getting our variance correct for the CV's for Biomass, Recruit biomass, and catch rates.
+      # This is then added to our list of priors to get them correct.
+      # Biomass CV
+      uI=log(DD.lst[[bnk]]$I.cv^2+1) # See Smith and Hubley 2014 for details, this is variance of the log of a CV
+      # DK Note:  Smith/Hubley suggest this should be 3, so why we setting it to 2???
+      Ip.a=2+(uI/uI)^2 # This is the alpha prior term for the prior (an inverse-gamma, i.e. gamma using 1/var); a rather funky way of setting alpha =2
+      Ip.b=1/(uI*((uI/uI)^2+1)) # This is the beta term for the prior, again a strangly complex way of saying 1/(2*(uI))
+      # Recruit biomass CV, see above comments for details.
+      uIR=log(DD.lst[[bnk]]$IR.cv^2+1)
+      IRp.a=2+(uIR/uIR)^2
+      IRp.b=1/(uIR*((uIR/uIR)^2+1))
+      # Catch Rate CV, see above comments for details.
+      uU=log(DD.lst[[bnk]]$U.cv^2+1)
+      Up.a=2+(uU/uU)^2
+      Up.b=1/(uU*((uU/uU)^2+1))
+      
+      DDpriors[[bnk]]=list(
+        logK=			    list(a=7,		  b=7,		d="dnorm",	l=1		),		# scaler to total biomass, a= mean  b = sd, this gives a huge range of starting values
+        r=				    list(a=0, 		b=1,		d="dlnorm",	l=NY	),		# scaled recruit biomass, a= meanlog  b = sdlog
+        m=				    list(a=-2,		b=2,		d="dlnorm",	l=NY	),		# natural mortality fully recruited a= meanlog  b = sdlog
+        mR=				    list(a=-2,		b=2,		d="dlnorm",	l=NY	),		# natural mortality  recruits a= meanlog  b = sdlog
+        S=				    list(a=8, 		b=11,		d="dbeta",  l=1		),		# clapper dissolution rate a= shape1, b=shape2, 8 & 11 gives ~ normal mean of .45ish
+        q=				    list(a=20, 		b=40,		d="dbeta",	l=1		),		# survey catchability fully recruited a= shape1, b=shape2
+        qU=				    list(a=0,		  b=1,	  d="dunif",	l=1		),		# fishery catchability CPUE a= min, b = max
+        sigma=			  list(a=0, 		b=5,		d="dunif",	l=1		),		# process error (SD) a = min, b = max
+        ikappa.tau2=	list(a=3, 		b=2.2407,	d="dgamma",	l=1		),	# measurement error FR clappers  a = shape, b = scale (1/rate)
+        ikappa.rho2=	list(a=3, 		b=2.2407,	d="dgamma",	l=1		),	# measurement error recruit clappers a = shape, b = scale (1/rate)
+        I.precision=	list(a=Ip.a,	b=Ip.b,	d="dgamma",	l=NY	),		# measurement error variance survey FR a = shape, b = scale (1/rate)
+        IR.precision=	list(a=IRp.a,	b=IRp.b,d="dgamma",	l=NY	),		# measurement error variance survey recruits a = shape, b = scale (1/rate)
+        U.precision=	list(a=Up.a,	b=Up.b,	d="dgamma",	l=NY	)		  # measurement error variance CPUE  a = shape, b = scale
+      )
+      
+      #Prepare priors for JAGS
+      for(h in 1:length(DDpriors[[bnk]]))
+      {
+        # Get the variances for log-normal and normal converted to precisions, note that in BUGS language the precision is
+        # the inverse of the squared standard deviation (which is what you specify in R).  The standard deviation is what
+        # was specified in the Prior list (as it is more intuitive)
+        if(DDpriors[[bnk]][[h]]$d%in%c("dlnorm","dnorm")) DDpriors[[bnk]][[h]]$b <- 1/DDpriors[[bnk]][[h]]$b^2
+        # For a Gamma to convert to precision the precision term is  the inverse of the 'Scale" term in a typical 
+        # gamma distribution parameterization, aka this is now knonwn as the rate.
+        # Happily this is the same as the parameterization in R dgamma(x,shape,rate) so our b parameter is correct for posterior plots.
+        if(DDpriors[[bnk]][[h]]$d=="dgamma")DDpriors[[bnk]][[h]]$b<-1/DDpriors[[bnk]][[h]]$b
+      } # end for(h in 1:length(DDpriors[[bnk]]))
+      # Made a data.frame of the priors, unwrap the list and combine by row.
+      prior.dat<- data.frame(par=names(DDpriors[[bnk]]),do.call("rbind",lapply(DDpriors[[bnk]],rbind)))
+      prior.lst<-list()
+      # Now turn this into a list
+      for(k in seq(1,nrow(prior.dat)*2,2))
+      {
+        prior.lst[[k]]<-prior.dat$a[[ceiling(k/2)]]
+        prior.lst[[k+1]]<-prior.dat$b[[ceiling(k/2)]]
+      } # end for(k in seq(1,nrow(prior.dat)*2,2))
+      # And give the list names
+      names(prior.lst)<-paste(rep(prior.dat$par,2)[order(rep(1:nrow(prior.dat),2))],rep(c('a','b'),nrow(prior.dat)),sep='.')
+      
+      # Now if they haven't already been selected grab the parameters you want for the model.
+      ifelse(is.null(parameters) == T, parameters <- c(names(DDpriors[[bnk]]),'K','P','B','R','mu','Imed','Ipred','Irep', 'IRmed','IRpred','IRrep',
+                                                       "Cmed","Crep","CRmed","CRrep",'sIresid','sIRresid','sPresid','Iresid',
+                                                       'IRresid','Presid',"Cresid","CRresid","sCresid","sCRresid"),parameters)
+      # Run the model and see how long it takes.
+      # n = 400,000 and burn = 100,000, thin = 20 with 2 chains do not decrease these as retaining this much
+      # data is needed to stabilize the projections, it does lengthen the run time to 10-20 minutes in serial
+      # Running in parallel stick with that burn in but we can get away with n=200,000, burn = 100,000, thin = 20, and 6 chains
+      # they are longer chains than really are needed for the model to converge, but this is really being done just for the projections.
+      # Run the model now.
+      start<-Sys.time()
+      ## Call to JAGS, do you want to run in parallel?
+      
+      if(parallel==F)
+      {
+        out <- jags(data =  c(prior.lst,DD.lst[[bnk]]), inits = NULL,parameters.to.save = parameters,  
+                    model.file = paste(direct,jags.model,sep=""),n.chains = nchains, n.iter = niter, n.burnin = nburn, 
+                    n.thin = nthin)
+      }
+      
+      if(parallel==T)
+      {
+        out <- jags.parallel(data =  c(prior.lst,DD.lst[[bnk]]), inits = NULL,parameters.to.save = parameters,  
+                             model.file = paste(direct,jags.model,sep=""),n.chains = nchains, n.iter = niter, n.burnin = nburn, 
+                             n.thin = nthin,jags.seed = seed)
+      }
+      # How long did that take?
+      print(Sys.time()-start)
+      
+      # Rename the output so I retain the results 
+      DD.out[[bnk]] <- list(data=c(prior.lst,DD.lst[[bnk]],yrs[[bnk]]), sims.list=out$BUGSoutput$sims.list,median=out$BUGSoutput$median,
+                            mean=out$BUGSoutput$mean,summary=out$BUGSoutput$summary,priors = prior.lst,parameters=parameters)
+      
+      # I will also retain the MCMC object produced in case I want it for something.
+      mod.out[[bnk]] <- out
+      
+      #source("fn/projections.r")
+      # The catch since the survey for the most recent year is this, if there was no catch set this to 0.
+      proj.catch[[bnk]] <- max(proj.dat[[bnk]]$catch[proj.dat[[bnk]]$year == max(DD.dat$year)],0)
+      # Get the low and upper boundaries for the decision table (this might be a silly way to do this...)
+      if(bnk %in% c("GBa","BBn"))
+      {
+        D_low[[bnk]] <- subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$D_tab_low
+        D_high[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$D_tab_high
+      } # end if(bnk %in% c("GBa","BBn"))
+      # If we are looking at one of the sub-areas we will go for 1/3 of the mean biomass estimate for the current year...
+      if(!bnk %in% c("GBa","BBn")) {D_low[[bnk]] <- 0; D_high[[bnk]] <- out$BUGSoutput$mean$B[length(out$BUGSoutput$mean$B)]/3}
+      # The increment size for the decision table.  500 for GBa and 50 for BBn
+      step <- ifelse(bnk == "GBa", 500,50)
+      # The URP and LRP for the bank, for the moment only GBa has been accepted so it's the only one used.
+      if(bnk %in% c("GBa","BBn"))
+      {
+        URP[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$URP
+        LRP[[bnk]] <-  subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$LRP
+      } # end if(bnk %in% c("GBa","BBn"))
+      
+      # For the sub-areas just make these NA.
+      if(!bnk %in% c("GBa","BBn")) {URP[[bnk]] <- NA; LRP[[bnk]]<- NA}
+      
+      # Get the projection scenarios of interest
+      if(length(proj.catch[[bnk]]) > 0) proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
+      # If we don't have projected catch data yet (i.e. I'm running the model before the logs have data in them..)
+      if(length(proj.catch[[bnk]]) == 0) 
+      {
+        # Set projected catch to 0
+        proj.catch[[bnk]] <- 0
+        proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
+        writeLines("YO YO LOOK HERE!!  The projected catch used in this model is 0, this should only happen in preliminary runs!!")
+      }
+      # The interim TAC is known for GBa and BBn,
+      if(bnk %in% c("GBa","BBn")) TACi[[bnk]] <- subset(manage.dat,year== (max(DD.dat$year)+1) & bank == bnk)$TAC
+      # For the sub-areas let's just make this last years catch from the area, not perfect but should be reasonable
+      if(!bnk %in% c("GBa","BBn")) TACi[[bnk]] <- DD.lst[[bnk]]$C[DD.lst[[bnk]]$NY]
+      
+      # Now do the projections
+      DD.out[[bnk]]<- projections(DD.out[[bnk]],C.p=proj[[bnk]]) # C.p = potential catches in decision table
+      
+      ### Generate Decision Table ###
+      ### Note that from the 2015 SSR we have these definitely set at...
+      #Georges Bank 'a' reference points are based on 30% and 80% of the mean biomass from 1986 to 2009. 
+      #The Lower Reference Point (LRP) is 7,137 t and the Upper Stock Reference (USR) is 13,284 t.
+      if (bnk == "GBa") 
+      {
+        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,refs=c(URP[[bnk]],LRP[[bnk]]),post.survey.C=proj.catch[[bnk]], yr=yr)
+        if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_GBa.csv",sep=""),row.names=F) #Write1
+        
+      } # END if(bnk == "GBa")
+      
+      # Now Browns North or the sub areas
+      if (bnk != "GBa") 
+      {
+        D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,post.survey.C=proj.catch[[bnk]], yr=yr)
+        if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_",bnk,".csv",sep=""),row.names=F) #Write2
+      } # END if(bnk == "BBn")
+      
+      # For i = 1 this will just get the first bank, unfortunately if i =2 then this will pull in results for both 
+      #  (if running this as a loop) which is silly, but work arounds are dumber than this solution
+      # If you are happy and want to keep these results 
+      
+      if(final.run == T) 
+      {
+        save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
+             URP,LRP,proj,bnk,TACi,yrs,j,
+             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
+      } # end if(final.run == T) 
+      # If you are still testing results the model will save here, 
+      if(final.run == F && is.null(nickname))
+      {
+        save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
+             URP,LRP,proj,bnk,TACi,yrs,j,
+             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+      } # if(final.run == F) 
+      if(final.run == F && !is.null(nickname))
+      {
+        save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
+             URP,LRP,proj,bnk,TACi,yrs,j,
+             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
+      } # if(final.run == F) 
+      
+      print("done running model. Results saved in Data/Model/year/bank/Results/")
+    }
     
-    # Now Browns North or the sub areas
-    if (bnk != "GBa") 
-    {
-      D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,post.survey.C=proj.catch[[bnk]], yr=yr)
-      if (export.tables == T) write.csv(D.tab[[bnk]],paste0(plotsGo,"Decision_",bnk,".csv",sep=""),row.names=F) #Write2
-    } # END if(bnk == "BBn")
-    
-    # For i = 1 this will just get the first bank, unfortunately if i =2 then this will pull in results for both 
-    #  (if running this as a loop) which is silly, but work arounds are dumber than this solution
-    # If you are happy and want to keep these results 
-    
-    if(final.run == T) 
-    {
-      save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
-           URP,LRP,proj,bnk,TACi,yrs,j,
-           file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
-    } # end if(final.run == T) 
-    # If you are still testing results the model will save here, 
-    if(final.run == F && is.null(nickname))
-    {
-      save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
-           URP,LRP,proj,bnk,TACi,yrs,j,
-           file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
-    } # if(final.run == F) 
-    if(final.run == F && !is.null(nickname))
-    {
-      save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
-           URP,LRP,proj,bnk,TACi,yrs,j,
-           file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
-    } # if(final.run == F) 
-    
-    print("done running model. Results saved in Data/Model/year/bank/Results/")
-    
-    
+    if(run.model==F) {
+      load(model.dat)
+    }
+        
     ##################################################################################
     ################### run model diagnostics
     ##################################################################################
@@ -402,8 +411,17 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
       exploit.plt(DD.out[[bnk]], years=yrs[[bnk]], plt=c('f','m','mR'),graphic=fig,path=plotsGo)
       #dev.off()
       
+      # for 2020, we have to insert NAs because of COVID non-survey
+      DD.plt <- DD.out[[bnk]]
+      DD.plt$median$B[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$B[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$median$R[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$R[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$I[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$IR[which(yrs[[bnk]]==2020)] <- NA
+      
       # model biomass fit to survey
-      fit.plt(DD.out[[bnk]], years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
+      fit.plt(DD.plt, years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
       # diagnostic plot
       diag.plt(DD.out[[bnk]], years = yrs[[bnk]],graphic=fig,path=plotsGo)
       
@@ -516,21 +534,30 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname,
       if(bnk == "GBa") bm.max <- NULL
       if(bnk == "BBn") bm.max <- 25000
       
+      # for 2020, we have to insert NAs because of COVID non-survey
+      DD.plt <- DD.out[[bnk]]
+      DD.plt$median$B[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$B[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$median$R[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$sims.list$R[,which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$I[which(yrs[[bnk]]==2020)] <- NA
+      DD.plt$data$IR[which(yrs[[bnk]]==2020)] <- NA
+      
       # Now make the biomass plots for the areas as necessary
       if(bnk != "GBa")
       {
         # If it's BBn, we have a y-axis maximum that we want to use (bm.max)
-        if(bnk=="BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
+        if(bnk=="BBn") biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs=NULL,pred=1,
                                    URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
         # If it's a GBa subarea (i.e. not BBn and not GBa), we rely on biomass.plt to assign the y-axis maximum based on the upper credible limit,
         # we also don't have a TAC for the subareas
-        if(bnk!= "BBn") biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
+        if(bnk!= "BBn") biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=NULL,path=plotsGo,refs=NULL,pred=1,
                                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median, Bymax=NULL, language=language)
       } # end if(bnk == "BBn")
       
       if(bnk == "GBa")
       {
-        biomass.plt(DD.out[[bnk]],years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
+        biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
       } # end if(bnk == "GBa")
       
