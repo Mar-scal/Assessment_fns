@@ -8,8 +8,10 @@ vertical_layout: fill
 ---
 
 ```{r, include=F}
-
-banks <- c("GBa", "BBn")
+require(patchwork)
+require(ggplot2)
+require(tidyverse)
+banks <- c("GBa")#, "BBn")
 imputetype <- c("LTM", "previous_year", "midpoint")
 res<-NULL
 proj.box<-NULL

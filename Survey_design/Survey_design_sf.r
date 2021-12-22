@@ -110,7 +110,9 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Relief.plots.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R")
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/github_spatial_import.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -128,6 +130,8 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
     source(paste0(repo,"Survey_and_OSAC/convert.dd.dddd.r"))
     source(paste0(repo,"Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
     source(paste0(repo,"Maps/pectinid_projector_sf.R"))
+    source(paste0(repo,"Maps/github_spatial_import.R"))
+    source(paste0(repo,"Maps/combo_shp.R"))
   } # end if(repo !='github')
   
   
@@ -136,9 +140,21 @@ if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet packag
   #eval(parse(text = sc))  
   
 if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
+
 # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
-surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
-areas <- read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),stringsAsFactors = F) #Read1
+if(repo =='github')
+{
+#surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
+surv.polyset <- github_spatial_import(subfolder="offshore_survey_strata", "offshore_survey_strata.zip", direct_fns=direct_fns, quiet=T)
+#areas <- read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),stringsAsFactors = F) #Read1
+areas <- github_spatial_import(subfolder="offshore", "offshore.zip", direct_fns=direct_fns, quiet=T)
+}
+if(!repo =='github')
+{
+  surv.polyset <- combo.shp(paste0(direct, "Data/Maps/approved/GIS_layers/offshore_survey_strata"),make.sf=T,make.polys=F, quiet=T)
+  areas <- combo.shp(paste0(direct, "Data/Maps/approved/GIS_layers/offshore"),make.sf=T,make.polys=F, quiet=T)
+}
+# these have to come in as CSV
 surv.polydata <- read.csv(paste(direct,"Data/Survey_data/survey_information.csv",sep=""),stringsAsFactors = F)#Read2
 seedboxes <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Seed_boxes_and_monitoring_areas.csv",sep=""),
                      stringsAsFactors = F,header=T) # Read3
@@ -194,27 +210,32 @@ for(i in 1:num.banks)
     sb <- st_as_sf(sb.sp, coords = c("X","Y"),crs=4326)
     
   }
-  
+
   # Now for the banks that have survey strata we get the allocation.
   if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
   {
     # Get the correct survey polygons
     surv.poly[[i]] <- subset(surv.polyset,label==bnk)
-    surv.poly[[i]] <- subset(surv.poly[[i]], startyear == max(surv.poly[[i]]$startyear))
-    attr(surv.poly[[i]],"projection")<-"LL"
-    polydata[[i]] <- subset(surv.polydata,label==bnk)
+    
+    sf_use_s2(FALSE) # do this for historical consistency
+    shp_strata <- subset(surv.poly[[i]], startyr == max(surv.poly[[i]]$startyr)) %>%
+      rename(startyear = 'startyr') %>%
+      rename(Strata_ID = 'Strt_ID') %>%
+      rename(towable_area = 'towbl_r') %>%
+      mutate(allocation = round(as.numeric(st_area(.)/sum(st_area(.)))*100, 0))
+    #attr(surv.poly[[i]],"projection")<-"LL"
+    
+    #polydata[[i]] <- subset(surv.polydata,label==bnk)
     # For areas in which we have mutliple survey strata information... e.g. Sable which was changed due to WEBCA.
-    polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
+    #polydata[[i]] <- polydata[[i]][polydata[[i]]$startyear == max(polydata[[i]]$startyear,na.rm=T),]
     # For GBa we actually want a different allocation scheme, I've set the number of tows in each strata to be what we had in 2016, this is similar to what we've
     # observed since 2010, but every year has varied slightly (in the north).
     # This scheme is based on a vague comment in the 2013 GBa Assessment about preferentially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
     # had simply stratified by area based on disscusions with Ginette and a collective lack of knowledge about the details around the 2013 comment.
-    if(bnk == "GBa") polydata[[i]]$allocation <- c(51,37,32,26,35,11,8) 
-    
-    shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
-    shp_strata <- st_cast(st_as_sf(shp_strata), to="MULTIPOLYGON")
-    shp_strata <- st_transform(shp_strata, crs = 4326)
-    shp_strata <- left_join(shp_strata,polydata[[i]], by = c("ID" = "PID")) # Get the polydata into this the strata shape file for fun later...
+    if(bnk == "GBa") shp_strata$allocation <- c(51,37,32,26,35,11,8) 
+    browser()
+    #shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
+    #shp_strata <- left_join(surv.poly[[i]],polydata[[i]]) # Get the polydata into this the strata shape file for fun later...
     # Give them their correct colors and order
     shp_strata$Strata <- factor(shp_strata$Strata_ID,labels = shp_strata$PName)
     
@@ -225,11 +246,26 @@ for(i in 1:num.banks)
     #actual randomization of the tow locations?
     # DK revised Sable to be a minimum distance of 2 km given that the Haddock box has removed a percentage of the bank...
     
-    if(bnk == "BBn") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=100,pool.size=3,mindist=1,seed=seed)
-    if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=25,seed=seed)
-    if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),ntows=100,pool.size=3,mindist=2,seed=seed)
-    if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=30,pool.size=5,seed=seed)
-    if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),ntows=200,pool.size=5,mindist=1,seed=seed)
+    
+    towlst[[i]] <-st_sample(shp_strata, size = shp_strata$allocation, type = 'random', exact = T) %>%
+      st_sf('ID' = seq(length(.)), 'geometry' = .) %>%
+      st_intersection(., nafo.strata)
+    
+    browser() # above lines switch code to sf, but this is not complete. almost done though! 
+   
+    #%>%
+    #st_sf('strata' = seq(length(.)), 'geometry' = .) %>%
+     
+    if(bnk == "BBn") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),
+                                             ntows=100,pool.size=3,mindist=1,seed=seed)
+    if(bnk == "BBs") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),
+                                             ntows=25,seed=seed)
+    if(bnk == "Sab") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]][surv.poly[[i]]$startyear==max(surv.poly[[i]]$startyear),], polydata[[i]]),
+                                             ntows=100,pool.size=3,mindist=2,seed=seed)
+    if(bnk == "GBb") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),
+                                             ntows=30,pool.size=5,seed=seed)
+    if(bnk == "GBa") towlst[[i]]<-alloc.poly(poly.lst=list(surv.poly[[i]], polydata[[i]]),
+                                             ntows=200,pool.size=5,mindist=1,seed=seed)
    
      if(bnk == "GBa" & yr==2019) {
       # manually shift 3 stations in 2019:
@@ -495,7 +531,7 @@ for(i in 1:num.banks)
     # tows that you want to repeat for this year, if trying to reproduce something specific for past years you'd need to change yr
     # to the year that you are interested in (if going back before 2012 you may need to create this csv file)
     survey.dat <- read.csv(paste(direct,"Data/Survey_data/",(yr-1),"/Spring/Ger/Survey1985-",(yr-1),".csv",sep=""))
-    lastyearstows <- subset(survey.dat,state=='live'& year==(yr-1),c('tow','slon','slat','stratum'))
+    lastyearstows <- subset(survey.dat,state=='live'& year==(yr-1) & random==1,c('tow','slon','slat','stratum'))
     lastyearstows$stratum<-1
     #Read7 This contains the boundary polygon from the file "GerSurvPoly1.csv".
     Ger.polyset <- subset(read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),stringsAsFactors = F),label==bnk)
@@ -505,6 +541,11 @@ for(i in 1:num.banks)
     # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
     Ger.tow.lst<-alloc.poly(poly.lst=list(Ger.polyset, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
                             ntows=ger.new+20,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)
+    
+    st_sample(your.strata, size = your.strata$n.stations,type = 'random', exact = T) %>% 
+      st_sf('strata' = seq(length(.)), 'geometry' = .) %>% 
+      st_intersection(., your.strata)
+    
     
     # FK modfidied the last piece of alloc.poly and added in a the sample command afterwards, this was
     # done so that we can re-create the sample stations for TPD (i.e. our survey technician).

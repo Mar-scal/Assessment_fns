@@ -137,6 +137,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
       # empty[1,] <- NA
       # empty$year <- 2020
       # survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], empty, all=T)
+      
       if(impute=="previous_year") {
         year2020 <- data.frame(year=2020, survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year==2019,c(2:ncol(survey.obj[[bank[i]]][[1]]))])
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
@@ -149,7 +150,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
       }
       if(impute=="midpoint") {
-        year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year %in% 2019:2020,], MARGIN = 2, mean))
+        year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year %in% 2019:2021,], MARGIN = 2, mean))
         year2020$year <- 2020
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)

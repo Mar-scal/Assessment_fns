@@ -1,7 +1,7 @@
 # Run the Offshore scallop JAGS model
 # can run multiple banks at once
 
-run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname, run.model = T, model.dat = NULL,
+run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, nickname, run.model = T, model.dat = NULL,
                       strt.mod.yr=1986, nchains = 8,niter = 175000, nburn = 100000, nthin = 20,final.run = F,parallel = T,
                       make.diag.figs=T, make.update.figs=T, fig="screen", language="en",
                       jags.model = "Assessment_fns/Model/DDwSE3_jags.bug",seed = 123,parameters = NULL){
@@ -307,20 +307,20 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname, ru
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
-             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
+             file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Final_model_results.RData",sep=""))
       } # end if(final.run == T) 
       # If you are still testing results the model will save here, 
       if(final.run == F && is.null(nickname))
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
-             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
+             file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results.RData",sep=""))
       } # if(final.run == F) 
       if(final.run == F && !is.null(nickname))
       {
         save(DD.lst, DDpriors,DD.out,DD.dat,mod.out,mod.dat,cpue.dat,proj.dat,yr,D.tab,manage.dat,proj.catch,
              URP,LRP,proj,bnk,TACi,yrs,j,
-             file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
+             file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_testing_results_", nickname, ".RData",sep=""))
       } # if(final.run == F) 
       
       print("done running model. Results saved in Data/Model/year/bank/Results/")
@@ -386,9 +386,9 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, nickname, ru
       
       
       if(is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
-                                 file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
+                                 file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
       if(!is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
-                                  file=paste(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
+                                  file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics_", nickname, ".RData",sep=""))
       
       
       print("done running diagnostics")

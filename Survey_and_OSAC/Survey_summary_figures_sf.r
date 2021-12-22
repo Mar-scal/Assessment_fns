@@ -1469,6 +1469,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           shpf$tow_num <- tmp
         } # eend if(banks[i] == "BBs") 
         
+        #sf package update for spherical geometry results in slightly different area calcs than before, so force it NOT to use spherical geometry here.
+        sf::sf_use_s2(FALSE)
         # due to the issue with BBn strata that was discovered in 2021
         if(banks[i] == "BBn") shpf$are_km2 <- as.numeric(st_area(shpf)/1000000)
         
