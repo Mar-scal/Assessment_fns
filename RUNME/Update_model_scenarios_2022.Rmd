@@ -11,16 +11,21 @@ vertical_layout: fill
 require(patchwork)
 require(ggplot2)
 require(tidyverse)
-banks <- c("GBa")#, "BBn")
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_out <- "C:/Users/keyserf/Documents/"
+yr <- 2021 # survey year
+banks <- c("GBa", "BBn")
 imputetype <- c("LTM", "previous_year", "midpoint")
 res<-NULL
 proj.box<-NULL
 fit <- NULL
 biomass <- NULL
+res <- NULL
 for(b in banks){
   for(it in imputetype){
     # this lets me load the data and get the file names. The parentheses are correct!!
-    objs <- (load(paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep="")))
+    objs <- (load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep="")))
     
     DD.plt <- DD.out[[b]]
     DD.plt$median$B[which(yrs[[b]]==2020)] <- NA
@@ -74,8 +79,18 @@ for(b in banks){
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B, colour=impute), linetype="dashed") +
     theme_bw() #+
    # ylim(0,25000)
+  
 }
 
+# I is survey index
+# B is model 
+test <- select(res, year, bank, impute, B) %>%
+  pivot_wider(id_cols=c(year, bank), names_from = impute, values_from = B) %>%
+  mutate(previous_year==midpoint) %>%
+  mutate(previous_year==LTM)
+
+test[!test$`previous_year == LTM`,]
+test[!test$`previous_year == midpoint`,]
 
 fit$GBa
 biomass$GBa
