@@ -445,16 +445,16 @@ Check the MGT_AREA_CD values for the following tows:")
           plot.list[[i]] <- p
         }
         
-        # if(!is.null(nickname)) {
-        #   pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
-        #   print(plot.list)
-        #   dev.off()
-        # }
-        # if(is.null(nickname)) {
-        #   pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks.pdf"),onefile=T,width=22,height=12)
-        #   print(plot.list)
-        #   dev.off()
-        # }
+        if(!is.null(nickname)) {
+          pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks", nickname, ".pdf"),onefile=T,width=22,height=12)
+          print(plot.list)
+          dev.off()
+        }
+        if(is.null(nickname)) {
+          pdf(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/spatial_checks.pdf"),onefile=T,width=22,height=12)
+          print(plot.list)
+          dev.off()
+        }
       }
       
       if(!is.null(icetow)) {
