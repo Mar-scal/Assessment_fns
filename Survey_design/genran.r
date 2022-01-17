@@ -29,7 +29,6 @@
 
 genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 {
-
   # Load required packages
 	require(spatstat)|| stop("Install spatstat Package")
 	require(splancs)|| stop("Install splancs Package")
@@ -64,7 +63,8 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 	  pool.EventData<-st_transform(pool.EventData,32620)
 
 		# Get the nearest neighbour distances
-		pool.EventData$nndist<-st_nearest_feature(pool.EventData)
+		nearest<-st_nearest_feature(pool.EventData)
+		pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
 	
 		# Now run a loop for all of the points	
 		for(i in 1:npoints)
@@ -92,13 +92,30 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 				    seed <- sample(seeds,size=1)
 				    set.seed(seed)
 				  }# end if(!is.null(seed)) 
-				    
-				  # Get the point
-					st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T)
-					pool.EventData[i, c("X","Y")] <- st_coordinates(st_geometry(pool.EventData[i,]))
-					
-					# Get the nearest neighbour distance
-					pool.EventData$nndist<-st_nearest_feature(pool.EventData)
+				  
+				  # Get a new point
+				  st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T) %>% st_transform(st_crs(pool.EventData))
+				  pool.EventData[i, c("X","Y")] <- st_geometry(pool.EventData[i,]) %>% st_transform(4326) %>% st_coordinates()
+		 
+# old way
+				  # # Fix the projection to UTM
+				  # # Convert the data to spatstat happy
+				  # pool <- pool.EventData 
+				  # st_geometry(pool) <- NULL
+				  # attr(pool,"projection")<-"LL"
+				  # # Get the window for the whole bank
+				  # pool<- convUL(pool)
+				  # W<-owin(range(pool$X),range(pool$Y))
+				  # pool.ppp<-as.ppp(subset(pool,select=c('X','Y')),W)
+				  # # Get the nearest neighbour distance
+				  # pool$nndist<-nndist(pool.ppp)
+				  # # Again make sure the projection isn't LL
+				  # pool$nndist[i]
+				  
+				  # Get the nearest neighbour distance
+					nearest<-st_nearest_feature(pool.EventData)
+					pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
+					#pool.EventData$nndist[i]
 					
 					# Once the distance is >= mindist break out of the repeat command.
 					if(pool.EventData$nndist[i] >= mindist) break
