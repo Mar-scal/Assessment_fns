@@ -88,7 +88,7 @@
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          pt.txt.sz = 1,repo = 'github')
+                          pt.txt.sz = 1,repo = 'github', load_stations=F)
 {
   # Make sure data imported doesn't become a factor
   options(stringsAsFactors=F)
@@ -221,7 +221,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         dplyr::rename(startyear = 'startyr') %>%
         dplyr::rename(Strata_ID = 'Strt_ID') %>%
         dplyr::rename(towable_area = 'towbl_r')
-        
+      
       #attr(surv.poly[[i]],"projection")<-"LL"
       
       #polydata[[i]] <- subset(surv.polydata,label==bnk)
@@ -247,95 +247,133 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       
       #table(towlst[[i]]$Strata_ID)
       
-      if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
-                                               ntows=100,pool.size=3,mindist=1,seed=seed, repo=repo)
-      if(bnk == "BBs") towlst[[i]]<-alloc.poly(strata=shp_strata,
-                                               ntows=25,seed=seed, repo=repo)
-      if(bnk == "Sab") towlst[[i]]<-alloc.poly(strata = shp_strata,
-                                               ntows=100,pool.size=3,mindist=2,seed=seed, repo=repo)
-      if(bnk == "GBb") towlst[[i]]<-alloc.poly(strata=shp_strata,
-                                               ntows=30,pool.size=5,seed=seed, repo=repo)
-      if(bnk == "GBa") towlst[[i]]<-alloc.poly(strata=shp_strata,
-                                               ntows=200,pool.size=5,mindist=1,seed=seed, repo=repo)
-      
-      if(bnk == "GBa" & yr==2019) {
-        # manually shift 3 stations in 2019:
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
-      }
-      
-      if(bnk=="GBa" & yr ==2021) {
-        tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBa/Preliminary_Survey_design_Tow_locations_GBa_cruisetrackJL22.csv"))
-        towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
-        towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
-      }
-      
-      if(bnk=="GBb" & yr ==2021) {
-        tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBb/Preliminary_Survey_design_Tow_locations_GBb_cruisetracksJL20.csv"))
-        towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
-        towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
-      }
-      
-      # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
-      # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
-      # This was done manually using the CSV and script below.
-      # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
-      # And emails in Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification
-      if(bnk=="Sab" & yr ==2019) {
-        tows2019edited <- read.csv(paste0(direct, "/Data/Survey_data/2019/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab_edited.csv"))
-        towlst[[i]]$Tows$X <- tows2019edited$X[!tows2019edited$STRATA %in% "extra"]
-        towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
-      }
-      
-      if(bnk == "Sab" & yr==2020) {
-        # manually shift 3 stations in 2019:
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==23, "Y"] <- 43.365
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==63, "Y"] <- 43.675
-      }
-      
-      if(bnk == "BBs" & yr==2020) {
-        # manually shift 3 stations in 2019:
-        towlst[[i]]$Tows[towlst[[i]]$Tows$EID==24, c("X", "Y")] <- c(-65.835, 42.516)
-      }
-      
-      #get the deg dec minutes coordinates too
-      if(!bnk == "Ger")  {
-        writetows <- towlst[[i]]$Tows
-        if(add.extras==T) {
-          extras$Poly.ID <- "extra"
-          writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID")])
+      if(load_stations==F){
+        
+        if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
+                                                 ntows=100,pool.size=3,mindist=1,seed=seed, repo=repo)
+        if(bnk == "BBs") towlst[[i]]<-alloc.poly(strata=shp_strata,
+                                                 ntows=25,seed=seed, repo=repo)
+        if(bnk == "Sab") towlst[[i]]<-alloc.poly(strata = shp_strata,
+                                                 ntows=100,pool.size=3,mindist=2,seed=seed, repo=repo)
+        if(bnk == "GBb") towlst[[i]]<-alloc.poly(strata=shp_strata,
+                                                 ntows=30,pool.size=5,seed=seed, repo=repo)
+        if(bnk == "GBa") towlst[[i]]<-alloc.poly(strata=shp_strata,
+                                                 ntows=200,pool.size=5,mindist=1,seed=seed, repo=repo)
+        
+        if(bnk == "GBa" & yr==2019) {
+          # manually shift 3 stations in 2019:
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==15, c("X", "Y")] <- c(-66.445, 42.101)
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==64, c("X", "Y")] <- c(-66.668, 42.148)
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==84, c("X", "Y")] <- c(-67.048, 42.056)
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==190, c("X", "Y")] <- c(-66.416, 41.407)
         }
-        writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
-        writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
-        st_geometry(writetows) <- NULL
-        writestrata <- dplyr::rename(towlst[[i]]$Strata, Poly.ID="PID")
-        st_geometry(writestrata) <- NULL
-        if(is.character(writetows$Poly.ID)) writestrata$Poly.ID <- as.character(writestrata$Poly.ID)
-        writetows <- left_join(writetows, writestrata[, c("Poly.ID", "Strata")], by="Poly.ID")
-        writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "Strata")]
+        
+        if(bnk=="GBa" & yr ==2021) {
+          tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBa/Preliminary_Survey_design_Tow_locations_GBa_cruisetrackJL22.csv"))
+          towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
+          towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
+        }
+        
+        if(bnk=="GBb" & yr ==2021) {
+          tows2021edited <- read.csv(paste0(direct, "/Data/Survey_data/2021/Summer/GBb/Preliminary_Survey_design_Tow_locations_GBb_cruisetracksJL20.csv"))
+          towlst[[i]]$Tows$X <- tows2021edited$X[!tows2021edited$STRATA %in% "extra"]
+          towlst[[i]]$Tows$Y <- tows2021edited$Y[!tows2021edited$STRATA %in% "extra"]
+        }
+        
+        # In 2019, we noticed that the strata created during the 2018 restratification of of Sable were slightly wrong. However, the stations had already been made for the 2019 survey and presented to the SWG.
+        # Instead of creating an brand new survey design for Sable in 2019, we opted to simply move station 27 from it's original location outside of the SFZ (inside WEBCA).
+        # This was done manually using the CSV and script below.
+        # To see the changes made in 2019 to the Sable strata, see: Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification/Restratification_of_SB_pkg_sp_Updated2019.R
+        # And emails in Y:/Offshore/Assessment/2018/Misc/Sable_re_stratification
+        if(bnk=="Sab" & yr ==2019) {
+          tows2019edited <- read.csv(paste0(direct, "/Data/Survey_data/2019/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab_edited.csv"))
+          towlst[[i]]$Tows$X <- tows2019edited$X[!tows2019edited$STRATA %in% "extra"]
+          towlst[[i]]$Tows$Y <- tows2019edited$Y[!tows2019edited$STRATA %in% "extra"]
+        }
+        
+        if(bnk == "Sab" & yr==2020) {
+          # manually shift 3 stations in 2019:
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==23, "Y"] <- 43.365
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==63, "Y"] <- 43.675
+        }
+        
+        if(bnk == "BBs" & yr==2020) {
+          # manually shift 3 stations in 2019:
+          towlst[[i]]$Tows[towlst[[i]]$Tows$EID==24, c("X", "Y")] <- c(-65.835, 42.516)
+        }
+        
+        #get the deg dec minutes coordinates too
+        if(!bnk == "Ger")  {
+          writetows <- towlst[[i]]$Tows
+          if(add.extras==T) {
+            extras$Poly.ID <- "extra"
+            writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID")])
+          }
+          writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
+          writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
+          st_geometry(writetows) <- NULL
+          writestrata <- dplyr::rename(towlst[[i]]$Strata, Poly.ID="PID")
+          st_geometry(writestrata) <- NULL
+          if(is.character(writetows$Poly.ID)) writestrata$Poly.ID <- as.character(writestrata$Poly.ID)
+          writetows <- left_join(writetows, writestrata[, c("Poly.ID", "Strata")], by="Poly.ID")
+          writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "Strata")]
+        }
+        
+        # if you want to save the tow lists you can export them to csv's.
+        if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
+        {
+          savetowlst <- towlst[[i]]
+          if(!seed == yr-2000) seedlab <- seed
+          if(!seed == yr-2000) {
+            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+            write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+            save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
+          } #Write1
+          if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+            save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
+          } #Write1
+        } # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
+        if(export == T && bnk %in% c("GBa","GBb")) 
+        {  
+          savetowlst <- towlst[[i]]
+          if(!seed == yr-2000) seedlab <- seed
+          if(!seed == yr-2000) {
+            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
+            write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+            save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Summer/",bnk,"/", seedlab, "/towlst.RData"))
+          } #Write1
+          if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
+            save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Summer/",bnk,"/towlst.RData"))
+          } #Write1
+          
+        } # end if(export == T && bnk %in% c("GBa,GBb")) 
+        
+      } # end (if(load_stations==F))
+      
+      if(load_stations==T){
+        if(bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
+        {
+          if(!seed == yr-2000) seedlab <- seed
+          if(!seed == yr-2000) {
+            load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "towlst.RData"))
+          } #Write1
+          if(seed == yr-2000) {
+            load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
+          } #Write1
+        } # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
+        if(bnk %in% c("GBa","GBb")) 
+        {  
+          if(!seed == yr-2000) seedlab <- seed
+          if(!seed == yr-2000) {
+            load(paste0(direct, "Data/Survey_Data/", yr, "/Summer/",bnk,"/", seedlab, "/towlst.RData"))
+          } #Write1
+          if(seed == yr-2000) {
+            load(file = paste0(direct, "Data/Survey_Data/", yr, "/Summer/",bnk,"/towlst.RData"))
+          } #Write1
+        }
+        towlst[[i]] <- savetowlst
       }
       
-      # if you want to save the tow lists you can export them to csv's.
-      if(export == T && bnk %in% c("BBn","BBs","GB","Mid","Sab", "Ban")) 
-      {
-        if(!seed == yr-2000) seedlab <- seed
-        if(!seed == yr-2000) {
-          dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
-          write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
-        } #Write1
-        if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
-      } # end if(export == T && bnk %in% c("BBn","BBs","GB","Ger","Mid","Sab","Ban")) 
-      if(export == T && bnk %in% c("GBa","GBb")) 
-      {  
-        if(!seed == yr-2000) seedlab <- seed
-        if(!seed == yr-2000) {
-          dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
-          write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
-        } #Write1
-        if(seed == yr-2000) {write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)} #Write1
-      } # end if(export == T && bnk %in% c("GBa,GBb")) 
       
       # Now if you want to make the plots do all of this.
       if(plot == T)
@@ -517,7 +555,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           cap <- paste("Survey stations (n = ",length(tmp.sf$EID),")")
           if(bnk != "Ban") cap <- paste("Fixed stations (n = ",length(tmp.sf$EID),")",sep="")
           if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
-                                               nrow(extras),")",sep="",collapse =" ")
+                                            nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           if(bnk != "Ban") sub.title <- ''
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
@@ -556,7 +594,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # done so that we can re-create the sample stations for TPD (i.e. our survey technician).
       #ntows=ger.new,pool.size=3,mindist=1,repeated.tows=lastyearstows,seed=seed)  
       ger.tows <- sample(Ger.tow.lst$Tows$new.tows$EID,size=ger.new,replace=F)    
-    
+      
       Ger.tow.lst$Tows$new.tows <- Ger.tow.lst$Tows$new.tows[Ger.tow.lst$Tows$new.tows$EID %in% ger.tows,]
       Ger.tow.lst$Tows$new.tows$EID <- 1:nrow(Ger.tow.lst$Tows$new.tows)
       
@@ -695,13 +733,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           cap <- paste("New stations (n = ",nrow(tmp.sf.reg %>% dplyr::filter(`Tow type`=="new")),")"," \n Repeat stations (n = ",
                        nrow(tmp.sf.reg %>% dplyr::filter(`Tow type`=="repeated")),")",sep="",collapse =" ")
           if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
-                                               nrow(extras),")",sep="",collapse =" ")
+                                            nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                            subtitle = sub.title,
                            caption = cap) + coord_sf(expand=F)
           if(fig != 'dashboard') print(pf)
-         
+          
         } # # end if(!fig == "leaflet") 
         
         # Turn off the plot device if not plotting to screen
@@ -772,7 +810,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           cap <- paste("Repeated stations (n = ",nrow(tmp.sf.rpt %>% dplyr::filter(`Tow type`=="repeated")),")"," \n Repeat backup stations (n = ",
                        nrow(tmp.sf.rpt %>% dplyr::filter(`Tow type`=="repeated-backup")),")",sep="",collapse =" ")
           if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
-                                               nrow(extras),")",sep="",collapse =" ")
+                                            nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           pf2 <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                             subtitle = sub.title,

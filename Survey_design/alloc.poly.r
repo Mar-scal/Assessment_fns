@@ -61,9 +61,10 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
       file.remove(paste0(getwd(),"/",basename(fun)))
     } # end for(un in funs)
   } # end if(repo == 'github')
-  
+  print("running alloc.poly function")
   # This ignores all warnings
   options(warn=-1)
+  
   # create pool of random points, if we haven't specified the number of points the second element of the poly list needs to have an allocation table in
   # it so we can figure out the total number of tows.
   if(missing(ntows)) ntows<-sum(strata$allocation)
@@ -82,7 +83,7 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   # This retuns the tow ID, X & Y coordinates and the nearest neighbour distance.
   #source(paste(direct_fns,"Survey_design/genran.r",sep=""))
   sf_use_s2(FALSE)
-  pool.EventData <- genran(npool,st_union(strata),mindist=mindist,seed=seed)
+  pool.EventData <- genran(npoints = npool,bounding.poly = st_union(st_transform(strata, 32620)),mindist=mindist,seed=seed)
   
   # Define a variable
   strataTows.lst<-NULL
@@ -94,6 +95,14 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
     strata <- strata %>% 
       mutate(area=as.numeric(st_area(.)/10^6),
              allocation = round(as.numeric(st_area(.)/sum(st_area(.)))*ntows,0)) %>%
+      st_transform(4326)
+  }
+  
+  if("allocation" %in% names(strata))
+  {
+    sf_use_s2(FALSE) # do this for historical consistency
+    strata <- strata %>% 
+      mutate(area=as.numeric(st_area(.)/10^6)) %>%
       st_transform(4326)
   }
   

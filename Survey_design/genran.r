@@ -29,6 +29,7 @@
 
 genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 {
+  print("running genran function")
   # Load required packages
 	require(spatstat)|| stop("Install spatstat Package")
 	require(splancs)|| stop("Install splancs Package")
@@ -39,6 +40,9 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
   if(!is.null(seed)) set.seed(seed)
 	# create pool of points based on the bounding polygon
 	# bound.pts<-as.points(list(x=bounding.poly$X,y=bounding.poly$Y))
+	
+	# UTM for intersections and distance calcs
+	bounding.poly <- st_transform(bounding.poly, 32620)
 	
 	# If mindist is not specified we can simply generate some random points within the polygons.
 	if(is.null(mindist))
@@ -59,9 +63,6 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 	    st_intersection(., bounding.poly) %>%
 	    cbind(st_coordinates(.))
 		
-		#Make sure it's in UTM for distance calcs
-	  pool.EventData<-st_transform(pool.EventData,32620)
-
 		# Get the nearest neighbour distances
 		nearest<-st_nearest_feature(pool.EventData)
 		pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
@@ -94,8 +95,8 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 				  }# end if(!is.null(seed)) 
 				  
 				  # Get a new point
-				  st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T) %>% st_transform(st_crs(pool.EventData))
-				  pool.EventData[i, c("X","Y")] <- st_geometry(pool.EventData[i,]) %>% st_transform(4326) %>% st_coordinates()
+				  st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T)
+				  pool.EventData[i, c("X","Y")] <- st_geometry(pool.EventData[i,]) %>% st_coordinates()
 		 
 # old way
 				  # # Fix the projection to UTM
@@ -123,6 +124,10 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 			} # end if(pool.EventData$nndist[i]<mindist)
 		} # end for(i in 1:npoints)
 	} # end if(!is.null(mindist))
+	
+	#transform coordinates to WGS84 LL 4326
+	pool.EventData[,c("X","Y")] <- st_transform(pool.EventData, 4326) %>% st_coordinates()
+	
   # Return the results
 	pool.EventData
 		

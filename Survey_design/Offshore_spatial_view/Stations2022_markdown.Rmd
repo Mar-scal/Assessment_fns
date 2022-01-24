@@ -11,21 +11,22 @@ classoption: landscape
 ```{r, include=F, echo=F, message=F, warning=F}
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 direct_data <- "Y:/Offshore/Assessment/"
-bank <- "BBn"
+bank <- "GBb"
 year <- 2022 # this is for the folder save location
 survey_years <- 2021
 fishery_years <- 2021
 station_years <- 2022
-seed=14192
+seeds=14188:14192
 
 require(dplyr)
+require(patchwork)
 
 source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
 ```
 
 ```{r, echo=F, message=F, warning=F, include=F}
-# load the data
+#load the data
 offshore_data <- load_offshore_spatial(direct_data=direct_data,
                                        direct_fns = direct_fns,
                                        survey=T,
@@ -34,127 +35,105 @@ offshore_data <- load_offshore_spatial(direct_data=direct_data,
                                        fishery_years=fishery_years, 
                                        detailedsampling=T)
 
-
 # make the figs
-# survey
-png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", seed, "/survey1.png"), height=6, width=12, units="in", res=400)
-survey1 <- plot_offshore_spatial(direct_data=direct_data,
-                                 direct_fns = direct_fns,
-                                 offshore_data=offshore_data,
-                                 overlay_data="survey",
-                                 survey_years=survey_years,
-                                 fishery_years=fishery_years,
-                                 station_years=station_years,
-                                 size_class=NULL,
-                                 seed=seed,
-                                 bank=bank)
+plots <- function(seed){
+  
+  # survey
+  png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", seed, "/survey1.png"), height=6, width=12, units="in", res=400)
+  survey1 <- plot_offshore_spatial(direct_data=direct_data,
+                                   direct_fns = direct_fns,
+                                   offshore_data=offshore_data,
+                                   overlay_data="survey",
+                                   survey_years=survey_years,
+                                   fishery_years=fishery_years,
+                                   station_years=station_years,
+                                   size_class=NULL,
+                                   seed=seed,
+                                   bank=bank)
+  print(survey1)
+  dev.off()
+  
+  # png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", i, "/survey2.png"), height=6, width=12, units="in", res=400)
+  # survey2 <- plot_offshore_spatial(direct_data=direct_data,
+  #                                  direct_fns = direct_fns,
+  #                                  offshore_data=offshore_data,
+  #                                  overlay_data="survey",
+  #                                  survey_years=survey_years-1,
+  #                                  fishery_years=fishery_years-1,
+  #                                  station_years=station_years,
+  #                                  size_class=NULL,
+  #                                  seed=i,
+  #                                  bank=bank)
+  # survey2
+  # dev.off()
+  
+  png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", seed, "/survey3.png"), height=6, width=12, units="in", res=400)
+  survey3 <- plot_offshore_spatial(direct_data=direct_data,
+                                   direct_fns = direct_fns,
+                                   offshore_data=offshore_data,
+                                   overlay_data="survey",
+                                   survey_years=survey_years-2,
+                                   fishery_years=fishery_years-2,
+                                   station_years=station_years,
+                                   size_class=NULL,
+                                   seed=seed,
+                                   bank=bank)
+  print(survey3)
+  dev.off()
+  
+  
+  surveytot <- plot_offshore_spatial(direct_data=direct_data,
+                                   direct_fns = direct_fns,
+                                   offshore_data=offshore_data,
+                                   overlay_data="survey",
+                                   survey_years=survey_years,
+                                   fishery_years=fishery_years,
+                                   station_years=station_years,
+                                   size_class="tot",
+                                   seed=seed,
+                                   bank=bank)
+  
+  # fishery
+  png(paste0(direct_data,  "/", year, "/Survey_Design/", bank, "/", seed, "/fishery.png"), height=6, width=12, units="in", res=400)
+  fishery <- plot_offshore_spatial(direct_data=direct_data,
+                                   direct_fns = direct_fns,
+                                   offshore_data=offshore_data,
+                                   overlay_data="fishery",
+                                   survey_years=survey_years,
+                                   fishery_years=fishery_years,
+                                   station_years=2022,
+                                   size_class=NULL,
+                                   seed=seed,
+                                   bank=bank)
+  print(fishery)
+  dev.off()
 
+  
+  return(list(surveytot, fishery))
+}  
 
-survey1
-dev.off()
+#apply the plotting function (above) to all seeds
+output <- lapply(X = seeds, function(x) plots(x))
 
-png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", seed, "/survey2.png"), height=6, width=12, units="in", res=400)
-survey2 <- plot_offshore_spatial(direct_data=direct_data,
-                                 direct_fns = direct_fns,
-                                 offshore_data=offshore_data,
-                                 overlay_data="survey",
-                                 survey_years=survey_years-1,
-                                 fishery_years=fishery_years-1,
-                                 station_years=station_years,
-                                 size_class=NULL,
-                                 seed=seed,
-                                 bank=bank)
-
-
-survey2
-dev.off()
-
-png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/", seed, "/survey3.png"), height=6, width=12, units="in", res=400)
-survey3 <- plot_offshore_spatial(direct_data=direct_data,
-                                 direct_fns = direct_fns,
-                                 offshore_data=offshore_data,
-                                 overlay_data="survey",
-                                 survey_years=survey_years-2,
-                                 fishery_years=fishery_years-2,
-                                 station_years=station_years,
-                                 size_class=NULL,
-                                 seed=seed,
-                                 bank=bank)
-
-
-survey3
-dev.off()
-
-# png(paste0(direct_data, "/2020/Survey_Design/survey4.png"), height=8, width=18, units="in", res=400)
-# survey4 <- plot_offshore_spatial(direct_data=direct_data,
-#                       direct_fns = direct_fns,
-#                       offshore_data=offshore_data,
-#                       overlay_data="survey",
-#                       survey_years=survey_years[1:2],
-#                       fishery_years=NULL,
-#                       station_years=NULL,
-#                       size_class=NULL,
-#                       bank=banks)
-# 
-# survey4 <- survey4 + geom_point(data=dplyr::select(stations2020, lon, lat), aes(lon, lat), shape=21, colour="black", fill="white", size=2)
-# 
-# survey4 
-# dev.off()
-# 
-# 
-# png(paste0(direct_data, "/2020/Survey_Design/survey4b.png"), height=8, width=18, units="in", res=400)
-# survey4b <- plot_offshore_spatial(direct_data=direct_data,
-#                       direct_fns = direct_fns,
-#                       offshore_data=offshore_data,
-#                       overlay_data="survey",
-#                       survey_years=survey_years[3:4],
-#                       fishery_years=NULL,
-#                       station_years=NULL,
-#                       size_class=NULL,
-#                       bank=banks)
-# 
-# survey4b <- survey4b + geom_point(data=dplyr::select(stations2020, lon, lat), aes(lon, lat), shape=21, colour="black", fill="white", size=2)
-# 
-# survey4b 
-# dev.off()
-
-# fishery
-png(paste0(direct_data,  "/", year, "/Survey_Design/", bank, "/", seed, "/fishery.png"), height=6, width=12, units="in", res=400)
-fishery <- plot_offshore_spatial(direct_data=direct_data,
-                                 direct_fns = direct_fns,
-                                 offshore_data=offshore_data,
-                                 overlay_data="fishery",
-                                 survey_years=survey_years,
-                                 fishery_years=fishery_years,
-                                 station_years=2022,
-                                 size_class=NULL,
-                                 seed=seed,
-                                 bank=bank)
-
-fishery 
+# Last year's survey, all seeds
+png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/comparing_designs_w_survey.png"), height=8, width=16, units="in", res=400)
+(output[[1]][[1]] + ggtitle(paste0("survey - ", seeds[1]))) +
+(output[[2]][[1]] + ggtitle(paste0("survey - ", seeds[2]))) +
+(output[[3]][[1]] + ggtitle(paste0("survey - ", seeds[3]))) +
+(output[[4]][[1]] + ggtitle(paste0("survey - ", seeds[4]))) +
+(output[[5]][[1]] + ggtitle(paste0("survey - ", seeds[5]))) + 
+  plot_layout(guides = 'collect', nrow=2)
 dev.off()
 
 
+# Last year's fishery, all seeds
+png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/comparing_designs_w_fishery.png"), height=8, width=16, units="in", res=400)
+(output[[1]][[2]] + ggtitle(paste0("fishery - ", seeds[1]))) +
+(output[[2]][[2]] + ggtitle(paste0("fishery - ", seeds[2]))) +
+(output[[3]][[2]] + ggtitle(paste0("fishery - ", seeds[3]))) +
+(output[[4]][[2]] + ggtitle(paste0("fishery - ", seeds[4]))) +
+(output[[5]][[2]] + ggtitle(paste0("fishery - ", seeds[5]))) +
+  plot_layout(guides = 'collect', nrow= 2)
+dev.off()
+
 ```
-
-Seed = `r seed`
-
-# Plot survey data with stations
-```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey1.png"))
-```
-
-```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey2.png"))
-```
-
-```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/survey3.png"))
-```
-
-# Plot fishery data with stations
-```{r, echo=F, message=F, warning=F, out.width="95%"}
-knitr::include_graphics(paste0(direct_data, "/2020/Survey_Design/", bank, "/fishery.png"))
-```
-
-
