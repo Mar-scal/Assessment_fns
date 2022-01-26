@@ -1232,9 +1232,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   }
 
   pect_plot <- pect_plot +
-    coord_sf(expand=F) +
+    coord_sf() +
     theme(panel.background=element_rect(colour="black"), axis.ticks=element_line(colour="black"))
-  
+
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
 
   return(pect_plot = pect_plot)

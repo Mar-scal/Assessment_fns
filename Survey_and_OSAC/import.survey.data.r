@@ -72,6 +72,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
   # Here we bring in all the survey data loop runs through all the years chosen for the survey chosen (May vs. Aug) and the type chosen.
 	shf.lst<-list(NULL)
 	for(i in 1:length(years)){
+	  print(years[i])
 		shf.lst[[i]]<-import.hf.data(survey=survey,type=type,year=years[i],direct=direct)
 		print(unique(shf.lst[[i]]$bank))
 		print(years[i])	# just to check on your progress
@@ -110,6 +111,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 		# Between 1998 and 2003 all tows < 151 are assessment.
 		shf.dat$random[shf.dat$year>1997&shf.dat$year<2004&shf.dat$tow<151]<-T
 	}
+	
 	# If we just want assessment tows do this
 	if(explore==F)shf.dat<-subset(shf.dat,random==T)
 	
@@ -146,11 +148,14 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 	if(missing(bank)) 
 	  {
 		# The list of our banks
-	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce")
+	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce","SPB", "SPBIce")
 		# The data
-	  tbb<-read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""), stringsAsFactors = T)
+	  tbb <- read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""), stringsAsFactors = T)
 	  # Select the bank names that we have data for in a given year.
-	  bank<-banks[!is.na(tbb[tbb$Year==year,-c(1,6)])]
+	  tbb <- tbb[tbb$Year==year,]
+	  tbb <- tbb[,!names(tbb) =="Year"]
+	  tbb <- tbb[,!is.na(tbb)]
+	  bank <- banks[banks %in% names(tbb)]
 	} # end if(missing(bank)) {
 	
 	# This runs a loop to return the data for the banks that we are interested in (default is all banks)
@@ -170,7 +175,7 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 			
 			# if one of these banks & the data is post 2005 we combine the data in this fashion
 			if((bank[i] == "BB" || bank[i] == "BBn" || bank[i] == "BBs" || bank[i] == "Sab" || bank[i] == "Ger") && year > 2005){
-				# Bring in some new data, looks to be tow and strata information DK Note August 18, 2015 this is something to check if strata is correct
+			  # Bring in some new data, looks to be tow and strata information DK Note August 18, 2015 this is something to check if strata is correct
 			  sr <- read.table(paste(path, year, "/sr", bank[i], year, ".txt", sep = ""), header = T, stringsAsFactors = T)
 			  # Merge hf and dis by tow and keep everything that doesn't match as well
 				tmp <- merge(hf,dis, by = "tow",all=T)
@@ -190,18 +195,18 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 			
 			# if one of these banks & the data is between 1991 and 2005 
 			else if((bank[i] == "BB" || bank[i] == "BBn" || bank[i] == "BBs" || bank[i] == "Sab" || bank[i] == "Ger") && year < 2006 && year > 1990){
-				if(year>1993){
-					tmp <- merge(hf,dis, by = "tow",all=T)
-					
-					# create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
-					# is the shell height frequencies.
-					shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',tmp$dc2))
-					# We've decided that dc2 is the distance coefficient although there were 4 to chose from, why? due to the change in DC reporting frequency over time! Thanks Amy!
-					shf$dis<-tmp$dc2
-				} # end else if bank[i] == ...
-				else if(year<1994){ 
-					tmp <- merge(hf,dtp, by = "tow",all=T)
-					# create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
+			  if(year>1993){
+			    tmp <- merge(hf,dis, by = "tow",all=T)
+			    
+			    # create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
+			    # is the shell height frequencies.
+			    shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',tmp$dc2))
+			    # We've decided that dc2 is the distance coefficient although there were 4 to chose from, why? due to the change in DC reporting frequency over time! Thanks Amy!
+			    shf$dis<-tmp$dc2
+			  } # end else if bank[i] == ...
+			  else if(year<1994){ 
+			    tmp <- merge(hf,dtp, by = "tow",all=T)
+			    # create the shf object from the hf data, again picking column #'s never makes me comfortable... note the sweep of teh hf data which
 					# is the shell height frequencies.
 					shf <- cbind(hf[,1:6], sweep(hf[,7:46],1,FUN='*',tmp$dc)) 
 					# For some reason we've decided that dc is the distance coefficient in this case, inconsistent with above tho perhaps a reason?

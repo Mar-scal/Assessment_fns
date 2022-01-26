@@ -27,48 +27,45 @@
 #                 in producing a reproducable random number draw.
 ###############################################################################################################
 
-genran<-function(npoints,bounding.poly,projection="LL",mindist=NULL,seed = NULL)
+genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 {
-
+  print("running genran function")
   # Load required packages
 	require(spatstat)|| stop("Install spatstat Package")
 	require(splancs)|| stop("Install splancs Package")
 	require(PBSmapping)|| stop("Install PBSmapping Package")
+  require(sf)|| stop("Install sf Package")
 	
   # If seed is specified set the random number generator.
   if(!is.null(seed)) set.seed(seed)
 	# create pool of points based on the bounding polygon
-	bound.pts<-as.points(list(x=bounding.poly$X,y=bounding.poly$Y))
+	# bound.pts<-as.points(list(x=bounding.poly$X,y=bounding.poly$Y))
+	
+	# UTM for intersections and distance calcs
+	bounding.poly <- st_transform(bounding.poly, 32620)
 	
 	# If mindist is not specified we can simply generate some random points within the polygons.
 	if(is.null(mindist))
 	{
 	  # This generates the random points from within our boundary polygon
-		pool.EventData<-data.frame(1:npoints,csr(bound.pts,npoints))
-		# Turns this into a PBS mapping object and then rename the column names.
-		attr(pool.EventData,"projection")<-projection
-		names(pool.EventData)<-c("EID","X","Y")
+	  pool.EventData <- st_sample(bounding.poly,size=npoints, type="random", exact=T) %>%
+	    st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
+		  st_intersection(., bounding.poly) %>%
+	    cbind(st_coordinates(.))
 	} # end if(is.null(mindist))
 	
 	# If we have a minimum distance between points this gets a little more complex...
 	if(!is.null(mindist))
 	{
 	  # This generates the random points from within our boundary polygon
-		pool.EventData<-data.frame(1:npoints,csr(bound.pts,npoints))
-		# Turns this into a PBS mapping object and then rename the column names.
-		attr(pool.EventData,"projection")<-projection
-		names(pool.EventData)<-c("EID","X","Y")
+	  pool.EventData <- st_sample(bounding.poly,size=npoints, type="random", exact=T) %>%
+	    st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
+	    st_intersection(., bounding.poly) %>%
+	    cbind(st_coordinates(.))
 		
-		# If the projection is Lat/Lon we convert it to UTM
-		if(projection=="LL") pool.EventData<-convUL(pool.EventData)
-		# Make a window around our data
-		W<-owin(range(pool.EventData$X),range(pool.EventData$Y))
-		# convert the data to a spatstat friendly object and include the window information
-		pool.ppp<-as.ppp(subset(pool.EventData,select=c('X','Y')),W)
 		# Get the nearest neighbour distances
-		pool.EventData$nndist<-nndist(pool.ppp)
-		# Again if projection is Lat/Lon we convert to UTM (I can't see why this is here again, but keeping just in case I'm missing something)
-		if(projection=="LL") pool.EventData<-convUL(pool.EventData)
+		nearest<-st_nearest_feature(pool.EventData)
+		pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
 	
 		# Now run a loop for all of the points	
 		for(i in 1:npoints)
@@ -96,25 +93,41 @@ genran<-function(npoints,bounding.poly,projection="LL",mindist=NULL,seed = NULL)
 				    seed <- sample(seeds,size=1)
 				    set.seed(seed)
 				  }# end if(!is.null(seed)) 
-				    
-				  # Get the point
-					pool.EventData[i,c("X","Y")]<-csr(bound.pts,1)
-					# Fix the projection to UTM
-					if(projection=="LL") pool.EventData<-convUL(pool.EventData)
-					# Get the window for the whole bank
-					W<-owin(range(pool.EventData$X),range(pool.EventData$Y))
-					# Convert the data to spatstat happy
-					pool.ppp<-as.ppp(subset(pool.EventData,select=c('X','Y')),W)
-					# Get the nearest neighbour distance
-					pool.EventData$nndist<-nndist(pool.ppp)
-					# Again make sure the projection isn't LL
-					if(projection=="LL") pool.EventData<-convUL(pool.EventData)
+				  
+				  # Get a new point
+				  st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T)
+				  pool.EventData[i, c("X","Y")] <- st_geometry(pool.EventData[i,]) %>% st_coordinates()
+		 
+# old way
+				  # # Fix the projection to UTM
+				  # # Convert the data to spatstat happy
+				  # pool <- pool.EventData 
+				  # st_geometry(pool) <- NULL
+				  # attr(pool,"projection")<-"LL"
+				  # # Get the window for the whole bank
+				  # pool<- convUL(pool)
+				  # W<-owin(range(pool$X),range(pool$Y))
+				  # pool.ppp<-as.ppp(subset(pool,select=c('X','Y')),W)
+				  # # Get the nearest neighbour distance
+				  # pool$nndist<-nndist(pool.ppp)
+				  # # Again make sure the projection isn't LL
+				  # pool$nndist[i]
+				  
+				  # Get the nearest neighbour distance
+					nearest<-st_nearest_feature(pool.EventData)
+					pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
+					#pool.EventData$nndist[i]
+					
 					# Once the distance is >= mindist break out of the repeat command.
 					if(pool.EventData$nndist[i] >= mindist) break
 				} # end repeat
 			} # end if(pool.EventData$nndist[i]<mindist)
 		} # end for(i in 1:npoints)
 	} # end if(!is.null(mindist))
+	
+	#transform coordinates to WGS84 LL 4326
+	pool.EventData[,c("X","Y")] <- st_transform(pool.EventData, 4326) %>% st_coordinates()
+	
   # Return the results
 	pool.EventData
 		

@@ -31,16 +31,18 @@ require(RCurl)
 
 #D:/NAS/Offshore/Assessment/
 # Just grab the functions from github so you don't need to worry about directory structure...
- funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/alloc.poly.r",
-           "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Survey_design_sf.r")
-    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
+# funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/alloc.poly.r",
+#           "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Survey_design_sf.r")
+# # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+# for(fun in funs) 
+# {
+#   download.file(fun,destfile = basename(fun))
+#   source(paste0(getwd(),"/",basename(fun)))
+#   file.remove(paste0(getwd(),"/",basename(fun)))
+# } # end for(un in funs)
 #source("D:/Github/Offshore/Assessment_fns/DK/Survey_design/Survey_design_sf.r")
+repo <- "C:/Users/keyserf/Documents/GitHub/Assessment_fns/"
+source(paste0(repo,"Survey_design/Survey_design_sf.r"))
 # Convert a factor to a number
 factor.2.number <- function(x) {as.numeric(levels(x))[x]}
 ``` 
@@ -59,7 +61,7 @@ selectInput("style","Point Style",
               choices = c("both","stn_num","points"))
 checkboxInput("extra",label = "Add extra stations",value =F)
 textInput("direct",label = "Data Directory",value = "Y:/Offshore/Assessment/")
-textInput("repo",label = "Repo",value = 'github')
+textInput("repo",label = "Repo",value = 'C:/Users/keyserf/Documents/GitHub/Assessment_fns/')
 sliderInput("pt.txt.size","Adjust point/text size", value = 1,min=0.5,max=10,step=0.5)
 sliderInput("ger.new","German new stations", value = 80,min=0,max=200,step=5)
 sliderInput("ger.rep","German Repeat stations", value = 20,min=0,max=100,step=5)
