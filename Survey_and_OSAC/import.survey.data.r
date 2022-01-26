@@ -72,6 +72,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
   # Here we bring in all the survey data loop runs through all the years chosen for the survey chosen (May vs. Aug) and the type chosen.
 	shf.lst<-list(NULL)
 	for(i in 1:length(years)){
+	  print(years[i])
 		shf.lst[[i]]<-import.hf.data(survey=survey,type=type,year=years[i],direct=direct)
 		print(unique(shf.lst[[i]]$bank))
 		print(years[i])	# just to check on your progress
@@ -110,6 +111,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 		# Between 1998 and 2003 all tows < 151 are assessment.
 		shf.dat$random[shf.dat$year>1997&shf.dat$year<2004&shf.dat$tow<151]<-T
 	}
+	
 	# If we just want assessment tows do this
 	if(explore==F)shf.dat<-subset(shf.dat,random==T)
 	
@@ -146,16 +148,18 @@ import.hf.data <- function(survey = 'May', year = 2008,bank,type='surv',direct, 
 	if(missing(bank)) 
 	  {
 		# The list of our banks
-	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce")
+	  banks<-c("Ban","BB","BBn","BBs","GB","Ger","Mid","Sab","BanIce","SPB", "SPBIce")
 		# The data
-	  tbb<-read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""), stringsAsFactors = T)
+	  tbb <- read.csv(paste(direct,"Data/Survey_data/towbybank.csv",sep=""), stringsAsFactors = T)
 	  # Select the bank names that we have data for in a given year.
-	  bank<-banks[!is.na(tbb[tbb$Year==year,-c(1,6)])]
+	  tbb <- tbb[tbb$Year==year,]
+	  tbb <- tbb[,!names(tbb) =="Year"]
+	  tbb <- tbb[,!is.na(tbb)]
+	  bank <- banks[banks %in% names(tbb)]
 	} # end if(missing(bank)) {
 	
 	# This runs a loop to return the data for the banks that we are interested in (default is all banks)
 		for(i in 1:length(bank)){
-		  browser()
 		  # read hf file, this file has  with the data for a specific bank/year combination for shell height frequencies
 			hf <- parse.shf(paste(path, year, "/hf", bank[i], year, ".txt", sep = ""),survey=survey, yr = year)
 			# read dis file (1994- ) If later than 1994 we need to run the parse.dis function to align the data. Contains data for distance coefficients.
