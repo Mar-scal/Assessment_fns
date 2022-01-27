@@ -66,11 +66,12 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 		# Get the nearest neighbour distances
 		nearest<-st_nearest_feature(pool.EventData)
 		pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000
-	
+
 		# Now run a loop for all of the points	
 		for(i in 1:npoints)
 		{
-			# If a particular point is < mindist we repeatedly sample this point until it is no longer < mindist.
+			print(i)
+		  # If a particular point is < mindist we repeatedly sample this point until it is no longer < mindist.
 		  if(pool.EventData$nndist[i] < mindist)
 			{
 		    # To make a repeatable survey design we need to get a "set list" of random seeds to pull from, starting with the seed we specify
@@ -98,21 +99,6 @@ genran<-function(npoints,bounding.poly,mindist=NULL,seed = NULL)
 				  st_geometry(pool.EventData[i,]) <- st_sample(bounding.poly,1, type="random", exact=T)
 				  pool.EventData[i, c("X","Y")] <- st_geometry(pool.EventData[i,]) %>% st_coordinates()
 		 
-# old way
-				  # # Fix the projection to UTM
-				  # # Convert the data to spatstat happy
-				  # pool <- pool.EventData 
-				  # st_geometry(pool) <- NULL
-				  # attr(pool,"projection")<-"LL"
-				  # # Get the window for the whole bank
-				  # pool<- convUL(pool)
-				  # W<-owin(range(pool$X),range(pool$Y))
-				  # pool.ppp<-as.ppp(subset(pool,select=c('X','Y')),W)
-				  # # Get the nearest neighbour distance
-				  # pool$nndist<-nndist(pool.ppp)
-				  # # Again make sure the projection isn't LL
-				  # pool$nndist[i]
-				  
 				  # Get the nearest neighbour distance
 					nearest<-st_nearest_feature(pool.EventData)
 					pool.EventData$nndist <- as.numeric(st_distance(pool.EventData, pool.EventData[nearest,], by_element = TRUE))/1000

@@ -82,9 +82,9 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   # Now generate a large number of random points within this survey boundary polygon.
   # This retuns the tow ID, X & Y coordinates and the nearest neighbour distance.
   #source(paste(direct_fns,"Survey_design/genran.r",sep=""))
-  sf_use_s2(FALSE)
-  pool.EventData <- genran(npoints = npool,bounding.poly = st_union(st_transform(strata, 32620)),mindist=mindist,seed=seed)
-  
+  # sf_use_s2(FALSE)
+  # pool.EventData <- genran(npoints = npool,bounding.poly = st_union(st_transform(strata, 32620)),mindist=mindist,seed=seed)
+  # 
   # Define a variable
   strataTows.lst<-NULL
   
@@ -106,27 +106,49 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
       st_transform(4326)
   }
   
-  # For the strata with tows 
-  for(i in 1:nrow(strata))
-  {
-    # Get tows generated in the genran function that are found within the current strata, this creates more tows then are allocated to a strata 
-    # these are then subset to the appropriate number of tows in the next step
-    #LocSet<-findPolys(pool.EventData,subset(strataPolys.dat,PName==strata[i]))
-    tows <- pool.EventData %>%
-      st_transform(st_crs(strata)) %>%
-      st_intersection(strata[i,])
-    strataTows.lst[[i]] <- tows[1:strata[i,]$allocation,]
-  } # end for(i in 1:length(strata))
+  if(!is.null(seed)) set.seed(seed)
   
-  # Unwrap the strata tows list into a dataframe
-  Tows<-do.call("rbind",strataTows.lst)
-  #remove NAs
-  Tows <- Tows[!is.na(Tows$EID),]
-  # Give each tow an unique ID
-  Tows$EID<-1:sum(strata$allocation)
-  # Have the rownames match the EID and then make the Tows object a PBSmapping object
-  rownames(Tows)<-Tows$EID
+  Tows <- st_sample(st_transform(strata, 32620),size=strata$allocation, type="random", exact=T) %>%
+    st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
+    st_intersection(., st_transform(strata, 32620)) %>%
+    cbind(st_coordinates(.))
   
+  # Get the nearest neighbour distances
+  nearest<-st_nearest_feature(Tows)
+  Tows$nndist <- as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000
+  
+  if(any(Tows$nndist < mindist)){
+    tooclose <- which(Tows$nndist<mindist)
+    message(paste0("moving ", length(tooclose), " tows"))
+    for (i in tooclose){
+      repeat{
+        if(nrow(strata)>1) {
+          newpoint <- st_sample(st_transform(strata[strata$Strata_ID==Tows$Strata_ID[i],], 32620),
+                                size=1, type="random", exact=T) %>%
+            st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
+            st_intersection(., st_transform(strata[strata$Strata_ID==Tows$Strata_ID[i],], 32620)) %>%
+            cbind(st_coordinates(.))
+        }
+        if(nrow(strata)==1) {
+          newpoint <- st_sample(st_transform(strata, 32620),
+                                size=1, type="random", exact=T) %>%
+            st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
+            st_intersection(., st_transform(strata, 32620)) %>%
+            cbind(st_coordinates(.))
+        }
+        Tows[i,] <- newpoint
+        nearest<-st_nearest_feature(Tows)
+        Tows$nndist <- as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000
+        if(Tows$nndist[i] >= mindist) break
+      }
+    }
+  }
+  
+  nearest<-st_nearest_feature(Tows)
+  message("Distance summary")
+  print(summary(as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000))
+  
+  Tows$EID <- 1:nrow(Tows)
   if("Strata_ID" %in% names(Tows) & "PName" %in% names(Tows)){
     Tows <- dplyr::select(Tows, EID, X, Y, Strata_ID, PName, label) %>%
       dplyr::rename("Poly.ID" = Strata_ID,
@@ -136,7 +158,10 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
     Tows <- dplyr::select(Tows, EID, X, Y) %>%
       mutate(Poly.ID=1)
   }
-  # attr(Tows,"projection")<-"LL"
+  
+  if(!st_crs(Tows)==st_crs(strata)){
+    Tows <- st_transform(Tows,st_crs(strata))
+  }
   
   # If there are repeated tows this will randomly select stations from last years	survey (repeated.tows)
   if(!is.null(repeated.tows))

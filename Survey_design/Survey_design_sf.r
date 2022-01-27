@@ -252,11 +252,11 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
                                                  ntows=100,pool.size=3,mindist=1,seed=seed, repo=repo)
         if(bnk == "BBs") towlst[[i]]<-alloc.poly(strata=shp_strata,
-                                                 ntows=25,seed=seed, repo=repo)
+                                                 ntows=25,seed=seed, mindist=1, repo=repo)
         if(bnk == "Sab") towlst[[i]]<-alloc.poly(strata = shp_strata,
-                                                 ntows=100,pool.size=3,mindist=2,seed=seed, repo=repo)
+                                                 ntows=100,pool.size=3,mindist=2, seed=seed, repo=repo)
         if(bnk == "GBb") towlst[[i]]<-alloc.poly(strata=shp_strata,
-                                                 ntows=30,pool.size=5,seed=seed, repo=repo)
+                                                 ntows=30,pool.size=5,seed=seed, mindist=1, repo=repo)
         if(bnk == "GBa") towlst[[i]]<-alloc.poly(strata=shp_strata,
                                                  ntows=200,pool.size=5,mindist=1,seed=seed, repo=repo)
         
