@@ -89,21 +89,21 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   strataTows.lst<-NULL
   
   # if the allocation scheme hasn't been provided then you'll need to run this.
-  if(!"allocation" %in% names(strata))
-  {
-    sf_use_s2(FALSE) # do this for historical consistency
-    strata <- strata %>% 
-      mutate(area=as.numeric(st_area(.)/10^6),
-             allocation = round(as.numeric(st_area(.)/sum(st_area(.)))*ntows,0)) %>%
-      st_transform(4326)
-  }
-  
   if("allocation" %in% names(strata))
   {
     sf_use_s2(FALSE) # do this for historical consistency
     strata <- strata %>% 
       mutate(area=as.numeric(st_area(.)/10^6)) %>%
       st_transform(4326)
+  }
+  
+  if(!"allocation" %in% names(strata))
+  {
+    sf_use_s2(FALSE) # do this for historical consistency
+    strata <- strata %>% 
+      st_transform(4326) %>%
+      mutate(area=as.numeric(st_area(.)/10^6),
+             allocation = round(as.numeric(st_area(.)/sum(st_area(.)))*ntows,0)) 
   }
   
   if(!is.null(seed)) set.seed(seed)
