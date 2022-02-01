@@ -312,18 +312,19 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         #get the deg dec minutes coordinates too
         writetows <- towlst[[i]]$Tows
         writetows[,c("X", "Y")] <- st_coordinates(towlst[[i]]$Tows)
+        st_geometry(writetows) <- NULL
         if(add.extras==T) {
           extras$Poly.ID <- "extra"
-          writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID")])
+          writetows <- full_join(writetows, extras[,c("EID", "X", "Y", "Poly.ID")])
+          if(!nrow(writetows) == (nrow(towlst[[i]]$Tows) + nrow(extras))) stop("extras were not added properly")
         }
         writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
         writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
-        st_geometry(writetows) <- NULL
         writestrata <- dplyr::rename(towlst[[i]]$Strata, Poly.ID="PID")
         st_geometry(writestrata) <- NULL
         if(is.character(writetows$Poly.ID)) writestrata$Poly.ID <- as.character(writestrata$Poly.ID)
-        writetows <- left_join(writetows, writestrata[, c("Poly.ID", "Strata")], by="Poly.ID")
-        writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "Strata")]
+        #writetows <- left_join(writetows, writestrata[, c("Poly.ID")], by="Poly.ID")
+        writetows <- writetows[, c("EID", "Longitude (DDMM.mm)", "Latitude (DDMM.mm)", "X", "Y", "Poly.ID", "STRATA")]
         
         # if you want to save the tow lists you can export them to csv's.
         if(export == T && bnk %in% c("BBn","BBs","Sab")) 

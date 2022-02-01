@@ -144,15 +144,16 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   print(summary(as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000))
   
   Tows$EID <- 1:nrow(Tows)
+  if(!("Strata_ID" %in% names(Tows) & "PName" %in% names(Tows))){
+    Tows <- dplyr::select(Tows, EID, X, Y) %>%
+      mutate(Poly.ID=1)
+  }
   if("Strata_ID" %in% names(Tows) & "PName" %in% names(Tows)){
     Tows <- dplyr::select(Tows, EID, X, Y, Strata_ID, PName, label) %>%
       dplyr::rename("Poly.ID" = Strata_ID,
              "STRATA" = PName)
   }
-  if(!("Strata_ID" %in% names(Tows) & "PName" %in% names(Tows))){
-    Tows <- dplyr::select(Tows, EID, X, Y) %>%
-      mutate(Poly.ID=1)
-  }
+
   
   if(!st_crs(Tows)==st_crs(strata)){
     Tows <- st_transform(Tows,st_crs(strata))

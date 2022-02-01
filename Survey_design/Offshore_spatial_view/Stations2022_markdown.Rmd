@@ -11,7 +11,7 @@ classoption: landscape
 ```{r, include=F, echo=F, message=F, warning=F}
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 direct_data <- "Y:/Offshore/Assessment/"
-bank <- "GBb"
+bank <- "Ger"
 year <- 2022 # this is for the folder save location
 survey_years <- 2021
 fishery_years <- 2021
@@ -23,9 +23,7 @@ require(patchwork)
 
 source(paste0(direct_fns, "Maps/plot_offshore_spatial.R"))
 source(paste0(direct_fns, "Maps/pectinid_projector_sf.R"))
-```
 
-```{r, echo=F, message=F, warning=F, include=F}
 #load the data
 offshore_data <- load_offshore_spatial(direct_data=direct_data,
                                        direct_fns = direct_fns,
@@ -34,7 +32,9 @@ offshore_data <- load_offshore_spatial(direct_data=direct_data,
                                        survey_year=max(survey_years),
                                        fishery_years=fishery_years, 
                                        detailedsampling=T)
+```
 
+```{r, echo=F, message=F, warning=F, include=F}
 # make the figs
 plots <- function(seed){
   
