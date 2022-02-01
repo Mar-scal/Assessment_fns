@@ -92,6 +92,9 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
 {
   print(banks)
   print(seed)
+  rm(surv.polyset)
+  rm(shp_strata)
+  rm(surv.polydata)
   # Make sure data imported doesn't become a factor
   options(stringsAsFactors=F)
   # load required packages
@@ -109,7 +112,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   if(repo == 'github')
   {
     funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/alloc.poly.r",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",
+              #"https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/genran.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_design/Relief.plots.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R",
@@ -129,7 +132,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   {
     source(paste0(repo,"Survey_design/alloc.poly.r"))
     source(paste0(repo,"Survey_design/Relief.plots.r"))
-    source(paste0(repo,"Survey_design/genran.r"))
+    #source(paste0(repo,"Survey_design/genran.r"))
     source(paste0(repo,"Survey_and_OSAC/convert.dd.dddd.r"))
     source(paste0(repo,"Maps/Convert_PBSmapping_into_GIS_shapefiles.R"))
     source(paste0(repo,"Maps/pectinid_projector_sf.R"))
@@ -137,6 +140,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     source(paste0(repo,"Maps/combo_shp.R"))
   } # end if(repo !='github')
   
+  sf_use_s2(FALSE)
   
   # This needs fixed!!
   #sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",ssl.verifypeer = FALSE)
@@ -180,7 +184,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   #if(plot == T && !is.null(dev.list())) dev.off(dev.list())
   # Get the index for the loop.
   num.banks <- length(banks)
-  #browser()
+
   for(i in 1:num.banks)
   {
     # Grab the bank
@@ -218,7 +222,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     {
       # Get the correct survey polygons
       surv.poly[[i]] <- subset(surv.polyset,label==bnk)
-      sf_use_s2(FALSE) # do this for historical consistency
+      
       shp_strata <- subset(surv.poly[[i]], startyr == max(surv.poly[[i]]$startyr)) %>%
         dplyr::rename(startyear = 'startyr') %>%
         dplyr::rename(Strata_ID = 'Strt_ID') %>%
@@ -234,6 +238,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # This scheme is based on a vague comment in the 2013 GBa Assessment about preferentially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
       # had simply stratified by area based on disscusions with Ginette and a collective lack of knowledge about the details around the 2013 comment.
       if(bnk == "GBa") shp_strata$allocation <- c(51,37,32,26,35,11,8) 
+      #if(bnk == "BBn") shp_strata$allocation <- c(43,18,18,12,9) 
       
       #shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
       #shp_strata <- left_join(surv.poly[[i]],polydata[[i]]) # Get the polydata into this the strata shape file for fun later...
@@ -306,6 +311,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         
         #get the deg dec minutes coordinates too
         writetows <- towlst[[i]]$Tows
+        writetows[,c("X", "Y")] <- st_coordinates(towlst[[i]]$Tows)
         if(add.extras==T) {
           extras$Poly.ID <- "extra"
           writetows <- rbind(towlst[[i]]$Tows, extras[,c("EID", "X", "Y", "Poly.ID")])
@@ -355,7 +361,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         {
           if(!seed == yr-2000) seedlab <- seed
           if(!seed == yr-2000) {
-            load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "towlst.RData"))
+            load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
           } #Write1
           if(seed == yr-2000) {
             load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
@@ -437,7 +443,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
-          #browser()
+     
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
           if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
           #print(bp2)
@@ -471,6 +477,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         }}
     }#if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
     
+    
+    ######  Now do this for Middle and Georges Bank 
+    #####   Middle has fixed stations so we call in these 15 fixed stations from a flat file
+    #####   Georges Spring monitoring stations has 30 fixed stations also called from a flat file
+    #####   Banquereau stations 
+    
+    
     if(bnk %in% c("Mid","GB","Ban")) 
     {
       
@@ -483,6 +496,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         towlst[[i]] <- towlst[[i]][, c("EID", "X", "Y", "lon.deg.min", "lat.deg.min")]
         
         writetows <- towlst[[i]]
+        #writetows[,c("X", "Y")] <- st_coordinates(towlst[[i]])
         
         if(add.extras==T) writetows <- rbind(writetows, extras[,!names(extras) %in% "bank"])
         
@@ -497,7 +511,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       } # end (if(load_stations==F))
       
       if(load_stations==T){
-        load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "towlst.RData"))
+        load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
         towlst[[i]] <- savetowlst
       }
       
@@ -524,7 +538,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         
         if(!fig == "leaflet") 
         {
-          #browser()
           # Now to get the points and the colors all tidy here...
           tmp <- towlst[[i]]
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
@@ -580,6 +593,11 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       }# end if(plot==T)
     } # end if(bnk %in% c("Mid","GB", "Ban")) 
     
+    
+    
+    # Finally this will run German bank.
+    
+    
     if(bnk == "Ger")
     {
       if(load_stations==F){
@@ -590,14 +608,16 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         lastyearstows <- subset(survey.dat,state=='live'& year==(yr-1) & random==1,c('tow','slon','slat','stratum'))
         lastyearstows$stratum<-1
         #Read7 This contains the boundary polygon from the file "GerSurvPoly1.csv".
-        Ger.sf <- st_read(paste0(direct, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T) %>%
+        Ger.sf <- 
+          st_read(paste0(direct, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T) %>%
+          st_make_valid() %>%
           st_transform(4326)
         
         # This gets us the tows for German bank, note we have ger.new new tows and 20 repeats when we call it this way.
-        Ger.tow.lst<-alloc.poly(strata=list(Ger.sf, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
+        Ger.tow.lst<-alloc.poly(strata=Ger.sf,
                                 ntows=ger.new+20,
                                 pool.size=3,mindist=1,
-                                repeated.tows=lastyearstows,
+                                repeated.tows=list(lastyearstows, data.frame(PID=1,PName="Ger",border=NA,col=rgb(0,0,0,0.2),repeats=ger.rep)),
                                 seed=seed,
                                 repo=repo)
         # FK modified the last piece of alloc.poly and added in a the sample command afterwards, this was
@@ -614,15 +634,15 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         Ger.tow.lst$Tows$repeated.tows$EIDlastyear <- Ger.tow.lst$Tows$repeated.tows$EID - 1000
         # any repeated tows above 20 get flagged as repeated-backup
         # pull all OTHER repeats as backups and plot/list separately
-        names(lastyearstows) <- c("tow", "X", "Y", "stratum")
-        Ger.repeat.backups <- plyr::join(lastyearstows, as.data.frame(Ger.tow.lst$Tows$repeated.tows), type="full")
-        Ger.repeat.backups <- dplyr::select(Ger.repeat.backups[is.na(Ger.repeat.backups$EID),], c("tow", "X", "Y"))
+        names(lastyearstows) <- c("EIDlastyear", "X", "Y", "stratum")
+        Ger.repeat.backups <- plyr::join(lastyearstows, as.data.frame(Ger.tow.lst$Tows$repeated.tows), by="EIDlastyear", type="full")
+        Ger.repeat.backups <- dplyr::select(Ger.repeat.backups[is.na(Ger.repeat.backups$EID),], c("EIDlastyear", "X", "Y"))
         #if(length(Ger.tow.lst$Tows$repeated.tows$STRATA) > 20) Ger.tow.lst$Tows$repeated.tows$STRATA[21:ger.rep] <- "repeated-backup"
         Ger.tow.lst$Tows$new.tows$Poly.ID=1
         Ger.tow.lst$Tows$repeated.tows$Poly.ID=24
         Ger.repeat.backups$Poly.ID<-24
         Ger.repeat.backups$STRATA = "repeated-backup"
-        names(Ger.repeat.backups)[which(names(Ger.repeat.backups)=="tow")] <- "EID"
+        names(Ger.repeat.backups)[which(names(Ger.repeat.backups)=="EIDlastyear")] <- "EID"
         Ger.repeat.backups$EID <- Ger.repeat.backups$EID + 2000
         Ger.tow.lst$Tows$backup.repeats <- Ger.repeat.backups
         Ger.tow.lst$Tows$backup.repeats <- st_as_sf(Ger.tow.lst$Tows$backup.repeats, coords=c("X", "Y"), remove=F, crs=4326)
@@ -645,6 +665,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         Ger.tow.dat.rep <- Ger.tow.dat.rep[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA", "EIDlastyear")]
         
         writetows <- Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),]
+        writetows[,c("X", "Y")] <- st_coordinates(Ger.tow.dat[Ger.tow.dat$STRATA %in% c("new", "repeated"),])
         st_geometry(writetows) <- NULL
         writerepeats <- Ger.tow.dat.rep[Ger.tow.dat.rep$STRATA %in% c("repeated", "repeated-backup"),]
         st_geometry(writerepeats) <- NULL
@@ -665,13 +686,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
             save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
           }
         } # end if export==T
-      
-    }# if load_stations==F
+        
+      }# if load_stations==F
       
       if(load_stations==T){
         if(!seed == yr-2000) seedlab <- seed
         if(!seed == yr-2000) {
-          load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "towlst.RData"))
+          load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
         } #Write1
         if(seed == yr-2000) {
           load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
@@ -732,7 +753,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         
         if(!fig == "leaflet") 
         {
-          
           # Now to get the points and the colors all tidy here...
           tmp <- Ger.tow.dat
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
@@ -779,7 +799,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                            subtitle = sub.title,
-                           caption = cap) + coord_sf(expand=F)
+                           caption = cap) + coord_sf(expand=F)+
+            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
           
           if(fig != 'dashboard') print(pf)
           
@@ -817,7 +838,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         } 
         
         if(!fig == "leaflet") {
-          #browser()
           # Now to get the points and the colors all tidy here...
           tmp.sf.rpt <- tmp.sf %>% dplyr::filter(STRATA %in% c("repeated","repeated-backup"))
           tmp.sf.rpt$`Tow type` <- tmp.sf.rpt$STRATA
@@ -846,7 +866,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
             cables.sf <- st_transform(st_as_sf(cables),crs=4326)
             bp2 <- bp2 + geom_sf(data=cables.sf)
           }
-          #browser()
+          
           # And if there are any seedboxes
           if(nrow(sb) > 0) bp2 <- bp2 + geom_sf(data=sb,fill=NA)     
           
@@ -857,7 +877,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           pf2 <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                             subtitle = sub.title,
-                            caption = cap) + coord_sf(expand=F)
+                            caption = cap) + coord_sf(expand=F) +
+            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
           if(fig != 'dashboard') print(pf2)
           
         }
@@ -873,5 +894,9 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     
   } # end for(i in 1:num.banks)
   if(fig == 'dashboard') plotly::ggplotly(pf)
+  rm(shp_strata)
+  rm(strata)
+  rm(surv.polyset)
+  rm(towlst)
   return(pf =pf) # Return the last object and the last primary figure 
 } # end function
