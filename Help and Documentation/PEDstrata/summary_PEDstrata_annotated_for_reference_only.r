@@ -142,4 +142,4 @@ function (object, alpha.t = 0.05, effic = FALSE, nopt = FALSE, ...)
   options(digits = max(options()$digits - 5, 5))
   c(res, list(descrip = "Stratified Analysis"))
 }
-<environment: namespace:PEDstrata>
+#<environment: namespace:PEDstrata>

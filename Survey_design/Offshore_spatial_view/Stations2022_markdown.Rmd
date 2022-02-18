@@ -11,12 +11,12 @@ classoption: landscape
 ```{r, include=F, echo=F, message=F, warning=F}
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 direct_data <- "Y:/Offshore/Assessment/"
-bank <- "Ger"
+bank <- "BBn"
 year <- 2022 # this is for the folder save location
 survey_years <- 2021
 fishery_years <- 2021
 station_years <- 2022
-seeds=14188:14192
+seeds=14188:14195
 
 require(dplyr)
 require(patchwork)
@@ -118,10 +118,13 @@ output <- lapply(X = seeds, function(x) plots(x))
 # Last year's survey, all seeds
 png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/comparing_designs_w_survey.png"), height=8, width=16, units="in", res=400)
 (output[[1]][[1]] + ggtitle(paste0("survey - ", seeds[1]))) +
-(output[[2]][[1]] + ggtitle(paste0("survey - ", seeds[2]))) +
-(output[[3]][[1]] + ggtitle(paste0("survey - ", seeds[3]))) +
-(output[[4]][[1]] + ggtitle(paste0("survey - ", seeds[4]))) +
-(output[[5]][[1]] + ggtitle(paste0("survey - ", seeds[5]))) + 
+  (output[[2]][[1]] + ggtitle(paste0("survey - ", seeds[2]))) +
+  (output[[3]][[1]] + ggtitle(paste0("survey - ", seeds[3]))) +
+  (output[[4]][[1]] + ggtitle(paste0("survey - ", seeds[4]))) +
+  (output[[5]][[1]] + ggtitle(paste0("survey - ", seeds[5]))) + 
+  (output[[6]][[1]] + ggtitle(paste0("survey - ", seeds[6]))) + 
+  (output[[7]][[1]] + ggtitle(paste0("survey - ", seeds[7]))) +
+  (output[[8]][[1]] + ggtitle(paste0("survey - ", seeds[8]))) +
   plot_layout(guides = 'collect', nrow=2)
 dev.off()
 
@@ -129,10 +132,13 @@ dev.off()
 # Last year's fishery, all seeds
 png(paste0(direct_data, "/", year, "/Survey_Design/", bank, "/comparing_designs_w_fishery.png"), height=8, width=16, units="in", res=400)
 (output[[1]][[2]] + ggtitle(paste0("fishery - ", seeds[1]))) +
-(output[[2]][[2]] + ggtitle(paste0("fishery - ", seeds[2]))) +
-(output[[3]][[2]] + ggtitle(paste0("fishery - ", seeds[3]))) +
-(output[[4]][[2]] + ggtitle(paste0("fishery - ", seeds[4]))) +
-(output[[5]][[2]] + ggtitle(paste0("fishery - ", seeds[5]))) +
+  (output[[2]][[2]] + ggtitle(paste0("fishery - ", seeds[2]))) +
+  (output[[3]][[2]] + ggtitle(paste0("fishery - ", seeds[3]))) +
+  (output[[4]][[2]] + ggtitle(paste0("fishery - ", seeds[4]))) +
+  (output[[5]][[2]] + ggtitle(paste0("fishery - ", seeds[5]))) +
+  (output[[6]][[2]] + ggtitle(paste0("fishery - ", seeds[6]))) +
+  (output[[7]][[2]] + ggtitle(paste0("fishery - ", seeds[7]))) +
+  (output[[8]][[2]] + ggtitle(paste0("fishery - ", seeds[8]))) +
   plot_layout(guides = 'collect', nrow= 2)
 dev.off()
 

@@ -84,13 +84,15 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       if(dir.exists(paste0(direct,(yr+1),"/Updates")) ==F) dir.create(paste0(direct,(yr+1),"/Updates"))
       if(dir.exists(paste0(direct,(yr+1),"/Updates/",bnk)) ==F) dir.create(paste0(direct,(yr+1),"/Updates/",bnk))
       #dir.create(paste0(direct,(yr+1),"/Updates/Figures_and_tables/"))
-      dir.create(paste0(direct,(yr+1),"/Updates/",bnk,"/Figures_and_tables/"))
+      if(dir.exists(paste0(direct,(yr+1),"/Updates/",bnk, "/Figures_and_tables")) ==F) dir.create(paste0(direct,(yr+1),"/Updates/",bnk,"/Figures_and_tables/"))
+      if(!plotsGo==paste0(direct,(yr+1),"/Updates/",bnk, "/Figures_and_tables")) dir.create(plotsGo)
       # Similarly I need to make sure we have the data directories
       if(dir.exists(paste0(direct,"Data")) ==F) dir.create(paste0(direct,"Data"))
       if(dir.exists(paste0(direct,"Data/Model")) ==F) dir.create(paste0(direct,"Data/Model"))
       if(dir.exists(paste0(direct,"Data/Model/",(yr+1))) ==F) dir.create(paste0(direct,"Data/Model/",(yr+1)))
       if(dir.exists(paste0(direct,"Data/Model/",(yr+1),"/",bnk)) ==F) dir.create(paste0(direct,"Data/Model/",(yr+1),"/",bnk))
-      dir.create(paste0(direct,"Data/Model/",(yr+1),"/",bnk,"/Results"))
+      if(dir.exists(paste0(direct,"Data/Model/",(yr+1),"/",bnk, "/Results")) ==F) dir.create(paste0(direct,"Data/Model/",(yr+1),"/",bnk,"/Results"))
+      if(!is.null(nickname) & dir.exists(paste0(direct,"Data/Model/",(yr+1),"/",bnk, "/Results/", nickname))==F) dir.create(paste0(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/", nickname))
     } # end if(dir.exists(plot.dir)==F)
     
     
@@ -285,6 +287,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       ### Note that from the 2015 SSR we have these definitely set at...
       #Georges Bank 'a' reference points are based on 30% and 80% of the mean biomass from 1986 to 2009. 
       #The Lower Reference Point (LRP) is 7,137 t and the Upper Stock Reference (USR) is 13,284 t.
+      
       if (bnk == "GBa") 
       {
         D.tab[[bnk]]<-decision(DD.out[[bnk]],bnk, mu=0.15,refs=c(URP[[bnk]],LRP[[bnk]]),post.survey.C=proj.catch[[bnk]], yr=yr)

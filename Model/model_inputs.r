@@ -149,12 +149,30 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
       }
-      if(impute=="midpoint") {
+      if(impute=="midpoint" | impute=="mixed") {
         year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year %in% 2019:2021,], MARGIN = 2, mean))
         year2020$year <- 2020
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
       }
+      
+      if(impute=="min") {
+        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, min)))
+        year2020$year <- 2020
+        names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+        survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        survey.obj[[bank[i]]][[1]]$RS <- 85
+        survey.obj[[bank[i]]][[1]]$CS <- 95
+      }
+      if(impute=="max") {
+        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, max)))
+        year2020$year <- 2020
+        names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+        survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        survey.obj[[bank[i]]][[1]]$RS <- 85
+        survey.obj[[bank[i]]][[1]]$CS <- 95
+      }
+      
     }
     
     # First off we subset the data to the area of interest using the survey boundary polygon, only do this for the sub-areas though
@@ -173,7 +191,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
     
     # If we're just running the regular old GBa/BBn banks, then no need to do the above, but we need to create fish.dat
     if(bank[i] %in% c("GBa", "BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
-    
+    browser()
     # Bring in the vonB parameters..
     vonB.par <-vonB[vonB$Bank == master.bank,]
     # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
@@ -227,7 +245,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
     # Thus why such a small difference in model results when using these different time series
     # frst.five <- sum(tst$catch[1:5],na.rm=T) - sum(proj.dat$BBn$catch[1:5],na.rm=T)
     ## End the little snippet
-    
+
     # Back to real code
     # So first up, this condition is the weighted mean condition, this uses the GAM predicted scallop condition factor for each tow
     # and the biomass from each tow to come up with an overall bank average condition factor.
@@ -261,6 +279,31 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
     waa.t2 <- mod.dat[[bank[i]]]$CF*(laa.t/100)^3
     mod.dat[[bank[i]]]$gR <- waa.t/waa.tm1
     mod.dat[[bank[i]]]$gR2 <- waa.t2/waa.tm1# setwd("C:/Assessment/2014/r")
+    browser()
+    
+    ### overwrite imputation for growth here using whichever method
+    if(yr>2020 & impute=="mixed") {
+      # in 2020, the covid-19 pandemic prevented the DFO survey from occurring. An industry-lead survey of limited scope occurred, but is not suitable for inclusion in the 
+      # assessment models. As such, we need to fill-in the blank row for 2020 with some data. We'll try out different options for doing that here. 
+      # We imputed the values in the survey data earlier, but for the "mixed" imputation method, we'll handle growth separately.
+      # Maybe it makes more sense to use the LTM for growth but midpoint for other values. 
+      
+      # change 2019 and 2020 values to NA
+      mod.dat[[bank[i]]]$g[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- NA
+      mod.dat[[bank[i]]]$g2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- NA
+      
+      mod.dat[[bank[i]]]$gR[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- NA
+      mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- NA
+      
+      # replace the NAs with long term medians
+      mod.dat[[bank[i]]]$g[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$g, na.rm=T)
+      mod.dat[[bank[i]]]$g2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$g2, na.rm=T)
+      
+      mod.dat[[bank[i]]]$gR[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$gR, na.rm=T)
+      mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$gR2, na.rm=T)
+      
+    }
+
     
   } # end for(i in 1:length(bank))
   

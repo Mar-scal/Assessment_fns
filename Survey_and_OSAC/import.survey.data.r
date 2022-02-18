@@ -117,7 +117,7 @@ import.survey.data<-function(years=1981:2009, survey='Aug', type='surv',explore=
 	
 	# Export data to a csv, these are now largely useless, but for completeness let's place these here...
 	if(export==T)write.table(shf.dat,file = paste("Survey_data/Old_summer/",survey,type,"SHF.csv",sep=""),sep=",", row.names = F, col.names = T)
-	
+	browser()
 	# return the opject
 	shf.dat
 	

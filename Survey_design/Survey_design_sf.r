@@ -88,7 +88,7 @@
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          pt.txt.sz = 1,repo = 'github', load_stations=F)
+                          pt.txt.sz = 4,repo = 'github', load_stations=F, tow_buffer=F)
 {
   print(banks)
   print(seed)
@@ -405,14 +405,40 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         if(fig == "leaflet"){
           
           require(leaflet)
-          print(leaflet() %>%
-                  #setView(-62, 45, 5)%>%
-                  addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
-                  addPolygons(data=towlst[[i]]$Strata, color="black", weight=0.1, fillColor = towlst[[i]]$Strata$col, fillOpacity=0.5) %>% # doesn't work :(
-                  addCircles(lng = towlst[[i]]$Tows$X, 
-                             lat = towlst[[i]]$Tows$Y, 
-                             label= paste0(towlst[[i]]$Tows$EID, "_", towlst[[i]]$Tows$Poly.ID), 
-                             popup =  paste0(round(towlst[[i]]$Tows$X, 4), ",", round(towlst[[i]]$Tows$Y, 4))))
+          
+          if(tow_buffer==F){
+            print(leaflet() %>%
+                    #setView(-62, 45, 5)%>%
+                    addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+                    addPolygons(data=towlst[[i]]$Strata, color="black", weight=0.1, 
+                                fillColor = towlst[[i]]$Strata$col, fillOpacity=0.5) %>% # doesn't work :(
+                    addCircles(lng = towlst[[i]]$Tows$X, 
+                               lat = towlst[[i]]$Tows$Y, 
+                               label= paste0(towlst[[i]]$Tows$EID, "_", towlst[[i]]$Tows$Poly.ID), 
+                               popup =  paste0(round(towlst[[i]]$Tows$X, 4), ",", 
+                                               round(towlst[[i]]$Tows$Y, 4))))
+          }
+          
+          if(tow_buffer==T) {
+            buffer <- towlst[[i]]$Tows %>%
+              st_transform(32620) %>%
+              st_buffer(800) %>%
+              st_transform(4326)
+            
+            print(leaflet() %>%
+                    #setView(-62, 45, 5)%>%
+                    addProviderTiles(provider = providers$Esri.OceanBasemap) %>%
+                    addPolygons(data=towlst[[i]]$Strata, color="black", weight=0.1, 
+                                fillColor = towlst[[i]]$Strata$col, fillOpacity=0.5) %>% # doesn't work :(
+                    addCircles(lng = towlst[[i]]$Tows$X, 
+                               lat = towlst[[i]]$Tows$Y, 
+                               label= paste0(towlst[[i]]$Tows$EID, "_", towlst[[i]]$Tows$Poly.ID), 
+                               popup =  paste0(round(towlst[[i]]$Tows$X, 4), ",", 
+                                               round(towlst[[i]]$Tows$Y, 4))) %>%
+                    addPolygons(data=buffer, weight=0.1, 
+                                fillOpacity=0.5))
+          }
+           
           
         }
         
@@ -440,31 +466,58 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz) + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz)  #
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz/2)  #
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
      
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
-          if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
+     if(point.style == "both" ) {
+       bp2 <- bp + 
+         geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
+         geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz/2) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
+     }
           #print(bp2)
           if(nrow(extras) > 0)
           {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange",size=pt.txt.sz )
-            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
-                geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange",size=pt.txt.sz/2 )
+            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz/2) + 
+                geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
           }
           if(cables==T)
           {
             cables <- st_read("Z:/Maps/Undersea_cables/AllKnownCables2015.shp") %>%
-              st_transform(4326) %>%
+              st_transform(st_crs(shp_strata)) %>%
               filter(Name_EN == st_intersection(.,shp_strata)$Name_EN)
-            bp2 <- bp2 + geom_sf(data=cables, colour="red") +
+            
+            #0.5 mile = 850m
+            # cable_half <- cables %>%
+            #   st_transform(32620)%>%
+            #   st_buffer(850) %>%
+            #   st_transform(st_crs(shp_strata))
+            
+            # 30metre buffer
+            cables <- cables %>%
+              st_transform(32620)%>%
+              st_buffer(30) %>%
+              st_transform(st_crs(shp_strata))
+            
+            bp2 <- bp2 + geom_sf(data=cables, colour="red") + 
+              #geom_sf(data=cable_half, colour="red", lty="dashed", fill=NA)+
               xlim(ggplot_build(bp)$layout$panel_scales_x[[1]]$range$range) +
               ylim(ggplot_build(bp)$layout$panel_scales_y[[1]]$range$range)
           }
           # # And if there are any seedboxes
           if(nrow(sb) > 0) bp2 <- bp2 + geom_sf(data=sb,fill=NA)
+
+          if(tow_buffer==T) {
+            buffer <- towlst[[i]]$Tows %>%
+              st_transform(32620) %>%
+              st_buffer(1500) %>%
+              st_transform(4326)
+            
+            bp2 <- bp2 + geom_sf(data=buffer, fill="lightgrey", alpha=0.5)
+          }
           
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                            subtitle = paste("Note: The random seed was set to ",seed,sep=""),
@@ -550,17 +603,20 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz) 
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz/2) 
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
           
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
-          if(point.style == "both" ) bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz)
+          if(point.style == "both" ) {
+            bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
+              geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz/2)
+          }
           if(nrow(extras) > 0) 
           {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz)
-            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
+            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
           }
           
           if(cables==T)
@@ -714,6 +770,11 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         Ger.tow.dat.rep$lon.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$X, format = "deg.min"), 4)
         Ger.tow.dat.rep$lat.deg.min <- round(convert.dd.dddd(x = Ger.tow.dat.rep$Y, format = "deg.min"), 4)
         Ger.tow.dat.rep <- Ger.tow.dat.rep[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Poly.ID", "STRATA", "EIDlastyear")]
+        
+        Ger.sf <- 
+          st_read(paste0(direct, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T) %>%
+          st_make_valid() %>%
+          st_transform(4326)
       }
       
       # Plot this bad boy up if you want to do such things
@@ -759,28 +820,30 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
           tmp.sf.reg <- tmp.sf %>% dplyr::filter(STRATA %in% c("new","repeated"))
           tmp.sf.reg$`Tow type` <- tmp.sf.reg$STRATA
+          Ger.sf <- st_transform(Ger.sf, 4326)
           # Make the base plot...
           bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore',survey=c('offshore','outline')),plot=F, quiet=T)# + 
-          
+          sf_use_s2(FALSE)
           bp <- bp + geom_sf(data=Ger.sf, fill="lightgrey", colour="NA", alpha=0.75)
           
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz) + scale_shape_manual(values = c(1,0))
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values = c(1,0))
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
           # Add points, station numbers, or both.
+          
           if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
-            geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz) + scale_shape_manual(values = c(1,0))
+            geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values = c(1,0))
           
           if(nrow(extras) > 0) 
           {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
             if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
             if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) +
-                geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz)
+                geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
           }
           
           if(cables==T)
@@ -798,9 +861,12 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
                                             nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
+          
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                            subtitle = sub.title,
                            caption = cap) + coord_sf(expand=F)+
+            ylim(42.95, 43.7) +
+            xlim(-66.8, -65.6) +
             theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
           
           if(fig != 'dashboard') print(pf)
@@ -846,19 +912,20 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`)) + scale_shape_manual(values = c(0,3))
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`), size=pt.txt.sz/2) + scale_shape_manual(values = c(0,3))
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
           # Add points, station numbers, or both.
+          
           if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.rpt,aes(label = EID),size=pt.txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
-            geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`)) + scale_shape_manual(values = c(0,3))
+            geom_sf(data=tmp.sf.rpt,aes(shape=`Tow type`), size=pt.txt.sz/2) + scale_shape_manual(values = c(0,3))
           
           if(nrow(extras) > 0) 
           {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" )
+            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" , size=pt.txt.sz/2)
             if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras, shape =24,fill = "darkorange" )
+            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras, shape =24,fill = "darkorange" , size=pt.txt.sz/2)
           }
           
           if(cables==T)
@@ -879,13 +946,15 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           pf2 <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                             subtitle = sub.title,
                             caption = cap) + coord_sf(expand=F) +
+            ylim(42.95, 43.7) +
+            xlim(-66.8, -65.6) +
             theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
           if(fig != 'dashboard') print(pf2)
           
         }
         if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
       } # end if(plot==T)
-      
+      browser()
       # Now if you want to make these new fangled relief plots... source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
       if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
       
