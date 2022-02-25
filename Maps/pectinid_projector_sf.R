@@ -933,14 +933,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(any(layers == 'scale.bar') && !is.null(add_layer$scale.bar))
   {
     scal.loc <- add_layer$scale.bar[1]
+    scale.width = 0.25
+    xpad <- 0
+    ypad <- 0
     # If we wanted to set the scale bar width ourselves
-    if(length(add_layer$scale.bar) ==2) {scale.width <- as.numeric(add_layer$scale.bar[2])} else {scale.width = 0.25}
-    # And if we wanted to play with the postion....
+    if(length(add_layer$scale.bar) ==2) scale.width <- as.numeric(add_layer$scale.bar[2])
+    # And if we wanted to play with the position....
     if(length(add_layer$scale.bar) ==4) 
     {
+      scale.width <- as.numeric(add_layer$scale.bar[2])
       xpad <- as.numeric(add_layer$scale.bar[3])
       ypad <- as.numeric(add_layer$scale.bar[4])
-    } else {xpad = 0;ypad = 0}
+    } 
   }
   
   # If we have a field to plot, i.e. an INLA object and mesh, in here we convert it from a raster to an spatial DF in SF and then we plots it.
