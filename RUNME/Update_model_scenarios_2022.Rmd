@@ -10,6 +10,7 @@ output:
 require(patchwork)
 require(ggplot2)
 require(tidyverse)
+require(forecast)
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 direct_out <- "C:/Users/keyserf/Documents/"
@@ -106,23 +107,26 @@ for(b in banks){
     
   }
   
-  fitB <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B*q, colour=impute)) + ylab("Fully recruited biomass") +
+  fitB <- ggplot() +
+    geom_point(data=unique(res[res$bank==b,c("year", "I")]), aes(x=year, y=I))+
+    geom_segment(data=unique(res[res$bank==b,c("year", "I", "I.cv")]), aes(x=year, xend=year, y=I-I.cv*I, yend=I+I.cv*I)) +
+    geom_line(data=res[res$bank==b,], aes(x=year, y=B*q, colour=impute)) + ylab("Fully recruited biomass") +
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*q, colour=impute), linetype="dashed") +
-    geom_point(data=res[res$bank==b,], aes(x=year, y=I, colour=impute, shape=impute))+
-    geom_segment(data=res[res$bank==b,], aes(x=year, xend=year, y=I-I.cv*I, yend=I+I.cv*I, colour=impute, shape=impute)) +
     #ylim(0,8000) +
     theme_bw() 
   
-  fitR <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=R*q, colour=impute)) + ylab("Recruit biomass") +
+  fitR <- ggplot() + 
+    geom_point(data=unique(res[res$bank==b,c("year", "IR")]), aes(x=year, y=IR))+
+    geom_segment(data=unique(res[res$bank==b,c("year", "IR", "IR.cv")]), aes(x=year, xend=year, y=IR-IR.cv*IR, yend=IR+IR.cv*IR)) +
+    geom_line(data=res[res$bank==b,], aes(x=year, y=R*q, colour=impute)) + ylab("Recruit biomass") +
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, R*q, colour=impute), linetype="dashed") +
-    geom_point(data=res[res$bank==b,], aes(x=year, y=IR, colour=impute, shape=impute))+
-    geom_segment(data=res[res$bank==b,], aes(x=year, xend=year, y=IR-IR.cv*IR, yend=IR+IR.cv*IR, colour=impute, shape=impute)) +
     #ylim(0,2100)+
     theme_bw()
   
-  fitU <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B*qU, colour=impute)) + ylab("CPUE") +
+  fitU <- ggplot() +
+    geom_point(data=unique(res[res$bank==b,c("year", "U")]), aes(x=year, y=U))+
+    geom_line(data=res[res$bank==b,], aes(x=year, y=B*qU, colour=impute)) + ylab("CPUE") +
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*qU, colour=impute), linetype="dashed") +
-    geom_point(data=res[res$bank==b,], aes(x=year, y=U, colour=impute, shape=impute))+
     #geom_segment(data=res, aes(x=year, xend=year, y=U-U.cv*U, yend=U+U.cv*U), colour="red") +
     #ylim(0,75)+
     theme_bw()
@@ -131,7 +135,7 @@ for(b in banks){
   
   
   biomass[[b]] <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B, colour=impute)) + geom_point(data=res[res$bank==b,], aes(x=year, y=B, colour=impute, shape=impute)) + 
-    geom_boxplot(data=proj.box[proj.box$bank==b,], aes(x=year, ymin=y0, lower=y10, middle=y50, upper=y90, ymax=y100, colour=impute), stat="identity") +
+    geom_boxplot(data=proj.box[proj.box$bank==b,], aes(x=year, ymin=y0, lower=y10, middle=y50, upper=y90, ymax=y100, colour=impute), width=1.5, stat="identity") +
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B, colour=impute), linetype="dashed") +
     theme_bw() #+
   # ylim(0,25000)
@@ -146,26 +150,19 @@ for(b in banks){
   
   ### model inputs
   survey <- pivot_longer(old.model[[b]], cols = c("I", "IR", "clappers", "clappersR", "CF", "l.bar")) 
-
-  acfs <- apply(old.model[[b]][,c("I", "IR", "clappers", "clappersR", "CF", "l.bar")], MARGIN = 2, function(x) data.frame(acf=acf(x)$acf))
-  acf_df <- do.call(cbind.data.frame, acfs)
-  names(acf_df) <- names(acfs)
-  acf_df <- pivot_longer(acf_df, cols=c("I", "IR", "clappers", "clappersR", "CF", "l.bar")) %>%
-    group_by(name)%>%
-    mutate(lag=1:n()) %>%
-    arrange(name)
-  
   survey$name <- factor(survey$name, levels=c("I", "IR", "clappers", "clappersR", "CF", "l.bar"))
-  acf_df$name <- factor(acf_df$name, levels=c("I", "IR", "clappers", "clappersR", "CF", "l.bar"))
   
   TS[[b]] <- ggplot() + geom_line(data=survey, aes(year, value)) +
     facet_wrap(~name, scales="free_y", nrow=3) +
     theme_bw()
   
-  ACF[[b]] <- ggplot() + geom_bar(data=acf_df, aes(x=lag, y=value), stat="identity") + 
-    facet_wrap(~name, ncol=2) +
-    theme_bw() +
-    ylab("ACF")
+  ACF[[b]] <- ggAcf(old.model[[b]]$I) + theme_bw() + ggtitle("I") +
+    ggAcf(old.model[[b]]$IR) + theme_bw() + ggtitle("IR") +
+    ggAcf(old.model[[b]]$clappers) + theme_bw() + ggtitle("clappers") +
+    ggAcf(old.model[[b]]$clappersR) + theme_bw() + ggtitle("clappersR") +
+    ggAcf(old.model[[b]]$CF) + theme_bw() + ggtitle("CF") +
+    ggAcf(old.model[[b]]$l.bar) + theme_bw() + ggtitle("l.bar") +
+    plot_layout(ncol=2)
 }
 
 ```
@@ -189,7 +186,7 @@ Sidebar {.sidebar}
 * qU = fishery catchability CPUE
 
 
-GBa Parameters
+GBa Data Inputs
 ====================================================================
 
 Column {data-width=500}
@@ -213,7 +210,7 @@ ACF$GBa
 
 
 
-GBa Model
+GBa Model Results
 ====================================================================
 
 Column {data-width=400}
@@ -243,7 +240,7 @@ perc.diff$GBa
 ```
 
 
-BBn Parameters
+BBn Data Inputs
 ====================================================================
 
 Column {data-width=500}
@@ -267,7 +264,7 @@ ACF$BBn
 
 
 
-BBn Model
+BBn Model Results
 =========================================================================
 
 Column {data-width=400}

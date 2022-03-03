@@ -191,7 +191,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
     
     # If we're just running the regular old GBa/BBn banks, then no need to do the above, but we need to create fish.dat
     if(bank[i] %in% c("GBa", "BBn")) fish.dat <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
-    browser()
+    
     # Bring in the vonB parameters..
     vonB.par <-vonB[vonB$Bank == master.bank,]
     # Calculate the fishery data, note that this is on survey year and will differ from the OSAC fishery data...
@@ -279,7 +279,6 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
     waa.t2 <- mod.dat[[bank[i]]]$CF*(laa.t/100)^3
     mod.dat[[bank[i]]]$gR <- waa.t/waa.tm1
     mod.dat[[bank[i]]]$gR2 <- waa.t2/waa.tm1# setwd("C:/Assessment/2014/r")
-    browser()
     
     ### overwrite imputation for growth here using whichever method
     if(yr>2020 & impute=="mixed") {
