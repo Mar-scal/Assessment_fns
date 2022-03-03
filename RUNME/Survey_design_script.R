@@ -26,10 +26,6 @@ source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
 # use fig="leaflet" if you want an interactive figure. No strata yet though
 # set a seed, and then the loop will create 5 sets of stations for each bank. 
-# Warning: as of 2022, BBn station allocation is unreliable. In some circumstances, it will allocate
-# 44/17/18/12/9 (incorrect) stations instead of 43/18/18/12/9 (correct). This is due to an unidentified 
-# issue with the strata polygon geometry and associated area calculation. DO NOT RUN BBn in the loop below. 
-# Run it manually/directly on it's own. 
 seed1 <- floor(runif(n = 1, min = 10000, max=99999)) 
 # 2022 seed1 = 14188
 # t1 <- Sys.time()
