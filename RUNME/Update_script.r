@@ -86,20 +86,22 @@ source(paste0(direct_fns, "/Model/run_model.r"))
 source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
 source(paste(direct_fns,"Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
 
-imputetype<-c(#"LTM", "previous_year", 
-  "midpoint")
+imputetype<-c("mixed"#, "min", "max"#, "LTM", "previous_year", "midpoint"
+              )
 banks <- c("GBa", "BBn")
 yr <- 2021
 
 for(b in banks){
   for(it in imputetype){
    # if(b=="BBn" & it=="midpoint"){ #2h per run
-      model_inputs(bank=b,
-                   yr=2021, # the survey year, not the current year if running in January-April
-                   impute=it,
-                   nickname=it,
-                   direct,
-                   direct_fns)
+    print(b)
+    print(it)
+      # model_inputs(bank=b,
+      #              yr=2021, # the survey year, not the current year if running in January-April
+      #              impute=it,
+      #              nickname=it,
+      #              direct,
+      #              direct_fns)
       
       run_model(banks=b,
                 yr=2021,
@@ -107,11 +109,11 @@ for(b in banks){
                 direct,
                 direct_fns,
                 direct_out = "C:/Users/keyserf/Documents/",
-                run.model = T,
-                model.dat = paste0(direct, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+                run.model = F,
+                model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
                 parallel=T,
                 final.run=F,
-                nchains = 8,niter = 175000/2, nburn = 100000/2, nthin = 20,
+                nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
                 export.tables=T,
                 make.diag.figs = T,
                 make.update.figs = T,
@@ -119,13 +121,15 @@ for(b in banks){
                 fig="png")
       
       load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
-      
+
+      if(!dir.exists(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))) dir.create(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
+
       #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
       pred.eval(input = DD.lst[[b]], priors = DD.out[[b]]$priors, pe.years= yr:(yr-6), growth="both",
                 model = paste0("/Assessment_fns/Model/DDwSE3_jags.bug"),  bank=b,
                 parameters = DD.out[[b]]$parameters, niter = 175000, nburn = 100000, nthin = 20, nchains=8,
                 direct=direct, save.res=paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
-      
+
       # modelled:
       # Up to 2016
       load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
@@ -138,10 +142,10 @@ for(b in banks){
       #2020
       out.tmp[["2020"]] <- NULL
       #2021
-      load(paste(direct,"Data/Model/",2022,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
+      load(paste(direct_out,"Data/Model/",2022,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
       out.tmp[["2021"]] <- out[["2021"]]
       out.modelled <- out.tmp[order(names(out.tmp))]
-      
+
       # realized:
       # Up to 2016
       load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_g2_growth.RData",sep=''))
@@ -157,9 +161,9 @@ for(b in banks){
       load(paste(direct_out,"Data/Model/",2022,"/",b,"/Results/", it, "/Projection_evaluation_realized_growth.RData",sep=''))
       out.tmp[["2021"]] <- out[["2021"]]
       out.realized <- out.tmp[order(names(out.tmp))]
-      
+
       # Now we make the figures and save them...
-      pe.fig(input=list(modelled=out.modelled, realized=out.realized), years=yr, growth="both", graphic = "png", direct= direct, bank = b, plot="box", 
+      pe.fig(input=list(modelled=out.modelled, realized=out.realized), years=yr, growth="both", graphic = "png", direct= direct, bank = b, plot="box",
              path=paste0(direct, yr+1, "/Updates/", b, "/Figures_and_tables/", it,"/"))
       #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
     #}

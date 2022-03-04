@@ -25,8 +25,8 @@ shp_to_tiff() <- function(direct=direct, direct_fns=direct_fns, folder=folder, f
   shp <- as(shp, "SpatialPolygons")
   
   ## create a raster frame
-  if(res="low") r <- raster(ncols=100, nrows=100)
-  if(res="high") r <- raster(ncols=10000, nrows=10000)
+  if(res=="low") r <- raster(ncols=100, nrows=100)
+  if(res=="high") r <- raster(ncols=10000, nrows=10000)
   extent(r) <- extentshp
   rastershp <- rasterize(shp, r, fun="first")
 

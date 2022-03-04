@@ -339,7 +339,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
         slip.dat <- slip
         
         # Make sure all the longitude data are negative as they should be, there at one point were a couple entered incorrectly.
-        new.log.dat$lon[new.log.dat$lon > 0] <- new.log.dat$lon[new.log.dat$lon > 0]*-1
+        new.log.dat$lon[new.log.dat$lon > 0 & !is.na(new.log.dat$lon)] <- new.log.dat$lon[new.log.dat$lon > 0 & !is.na(new.log.dat$lon)]*-1
         
         # Now to do fishery calculations we need information on the type of boat we are dealing with.
         # These are the offshore vessel numbers, ft = freezer trawler, wet is a wet boat (no freezer)

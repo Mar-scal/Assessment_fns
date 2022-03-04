@@ -95,7 +95,7 @@ str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
             yr=2021, 
             banks = c(
-                   "BBn"#,
+                   "BBn",
                     "Ger",
 "Mid",
                  "Sab",

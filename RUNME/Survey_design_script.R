@@ -24,40 +24,33 @@ source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
 # USE SF IN 2022!!!
 
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
-Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,fig="screen",seed=62294, repo=direct_fns,
-              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "BBn",direct = direct,export=F,relief.plots = F,fig="screen",seed=(yr-2000), repo=direct_fns,
-              point.style = "points", x.adj=0.025, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20, cables=T)
-Survey.design(yr = yr,banks = "Mid",direct = direct,export=T,relief.plots = F,fig="screen",seed=(yr-20), repo=direct_fns,
-              point.style = "points", x.adj=0.04, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "GB",direct = direct,export=T,relief.plots = F,fig="screen",seed=20, repo=direct_fns,
-              point.style = "points", x.adj=0.04, y.adj=0.005, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "Sab",direct = direct, export=T,relief.plots = F,fig="screen",seed=(yr-2000), repo=direct_fns,
-              point.style = "points", x.adj=0.03, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,relief.plots = F,fig="screen",seed=(yr-2000), repo=direct_fns,
-              point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-
 # use fig="leaflet" if you want an interactive figure. No strata yet though
+# set a seed, and then the loop will create 5 sets of stations for each bank. 
 seed1 <- floor(runif(n = 1, min = 10000, max=99999)) 
 # 2022 seed1 = 14188
-for(i in seed1:(seed1+4)){
-  # Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #                point.style = "points", x.adj=0.015, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-  Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-                 point.style = "both", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, cables=T)
-  # Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-  # Survey.design(yr = yr,banks = "Mid",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "points", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-  # Survey.design(yr = yr,banks = "GB",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "points", x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
-  # Survey.design(yr = yr,banks = "Sab",direct = direct, export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "points", x.adj=0.015, y.adj=0.001, ger.new = 80,add.extras=T, ger.rep=20)
-  # Survey.design(yr = yr,banks = "GBb",direct = direct, export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "both", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
-  # Survey.design(yr = yr,banks = "GBa",direct = direct, export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
-  #               point.style = "both", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
-}
+# t1 <- Sys.time()
+# for(i in seed1:(seed1+4)){
+  Survey.design(yr = yr,banks = "Ger",direct = direct,export=F,relief.plots = T,fig="png",seed=14191, repo=direct_fns,
+                point.style = "points", pt.txt.sz=3, x.adj=0.03, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=T)
+  Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,relief.plots = F,fig="png",seed=14195, repo=direct_fns,
+                 point.style = "both", pt.txt.sz=3, x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, cables=T, load_stations=F, tow_buffer=F)
+  # # Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,relief.plots = F,fig="png",seed=i, repo=direct_fns,
+  # #               point.style = "points", x.adj=0.04, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20)
+  Survey.design(yr = yr,banks = "Sab",direct = direct, export=F,relief.plots = F,fig="png",seed=14189, repo=direct_fns,
+                 point.style = "points", x.adj=0.035, y.adj=0.001, ger.new = 80,add.extras=T, ger.rep=20, load_stations=T, tow_buffer=F)
+  Survey.design(yr = yr,banks = "GBb",direct = direct, export=T,relief.plots = F,fig="screen",seed=i, repo=direct_fns,
+                point.style = "both", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
+  Survey.design(yr = yr,banks = "GBa",direct = direct, export=T,relief.plots = F,fig="screen",seed=i, repo=direct_fns,
+                point.style = "points", x.adj=0.01, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
+# }
+Survey.design(yr = yr,banks = "Mid",direct = direct,export=F,relief.plots = F,fig="png",seed=NULL, repo=direct_fns,
+              point.style = "points", pt.txt.sz =4, x.adj=0.02, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
+Survey.design(yr = yr,banks = "GB",direct = direct,export=T,relief.plots = F,fig="png",seed=NULL, repo=direct_fns,
+              point.style = "points", pt.txt.sz=3, x.adj=0.045, y.adj=0.001, ger.new = 80,add.extras=F, ger.rep=20, load_stations=F)
+t2 <- Sys.time()
+t2-t1 # ~10 minutes to run all banks for 1 seed. (so about an hour-1.5 hours for all banks, 5 seeds)
+beepr::beep(2)
+
 # for(i in c(19174:1984)){
 i <- 19173
 Survey.design(yr = yr,banks = "GBb",direct = direct, export=T,relief.plots = F,fig="png",seed=i,
