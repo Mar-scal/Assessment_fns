@@ -144,7 +144,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
       }
       if(impute=="LTM") {
-        year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, median))
+        year2020 <- as.data.frame(lapply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year<2020,], MARGIN = 2, median))
         year2020$year <- 2020
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
@@ -157,7 +157,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
       }
       
       if(impute=="min") {
-        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, min)))
+        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year<2020,], MARGIN = 2, min)))
         year2020$year <- 2020
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
@@ -165,7 +165,7 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
         survey.obj[[bank[i]]][[1]]$CS <- 95
       }
       if(impute=="max") {
-        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]], MARGIN = 2, max)))
+        year2020 <- as.data.frame(t(apply(X = survey.obj[[bank[i]]][[1]][survey.obj[[bank[i]]][[1]]$year<2020,], MARGIN = 2, max)))
         year2020$year <- 2020
         names(year2020) <- names(survey.obj[[bank[i]]][[1]])
         survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
@@ -295,11 +295,11 @@ model_inputs <- function(bank, yr, impute, nickname, direct, direct_fns){
       mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- NA
       
       # replace the NAs with long term medians
-      mod.dat[[bank[i]]]$g[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$g, na.rm=T)
-      mod.dat[[bank[i]]]$g2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$g2, na.rm=T)
+      mod.dat[[bank[i]]]$g[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$g[mod.dat[[bank[i]]]$year<2020], na.rm=T)
+      mod.dat[[bank[i]]]$g2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$g2[mod.dat[[bank[i]]]$year<2020], na.rm=T)
       
-      mod.dat[[bank[i]]]$gR[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$gR, na.rm=T)
-      mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$gR2, na.rm=T)
+      mod.dat[[bank[i]]]$gR[which(mod.dat[[bank[i]]]$year %in% 2019:2020)] <- median(mod.dat[[bank[i]]]$gR[mod.dat[[bank[i]]]$year<2020], na.rm=T)
+      mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$gR2[mod.dat[[bank[i]]]$year<2020], na.rm=T)
       
     }
 
