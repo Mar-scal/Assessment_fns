@@ -32,7 +32,8 @@
 ###               If you set to repo = 'Y:/Offshore/Assessment/Assesment_fns' it will grab the functions from the version on the ESS
 #8: legend    If you added a custom or INLA layer you can print the legend if you like.  Default = F which doesn't plot legend.
 #9: txt.size  If you want to change the size of the text in the figure (legend and axis).  Default txt.size = 18.
-
+#9a:axes      If you want to show the axis labels as either Degree Minutes or Degree Minutes Seconds instead of default (NULL). NULL = decimal degress or UTM, axes = "DM" will show Degree minutes, 
+#                  axes = "DMS" will show Degree minute seconds.  
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
 #10: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
@@ -165,7 +166,7 @@
 
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
-                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, quiet=F,
+                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, axes = NULL, quiet=F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
                      
@@ -1103,10 +1104,63 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(length(brk) <= 6) hgt <- unit(0.5,'cm')
       if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
       if(length(brk) > 12) hgt <- unit(1,'cm')
+      
       pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
         theme(legend.key.height =hgt,text = element_text(size=txt.size))
     }
-    
+
+  # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.
+    if(!is.null(axes))
+    {
+      ylim <- layer_scales(pect_plot)$y$range$range
+      xlim <- layer_scales(pect_plot)$x$range$range
+      
+      locs <- st_as_sf(data.frame(X = xlim,Y = ylim),coords = c("X","Y"),crs = c_sys,remove =F)
+      locs <- st_transform(locs,crs=4326)
+      
+      tmp <- locs %>%  mutate(lon = unlist(map(locs$geometry,1)),
+                              lat = unlist(map(locs$geometry,2)))
+      
+      # Pretty doesn't work because we want these to be the same length
+      lat.loc <- pretty(tmp$lat,n=5)
+      n.lat <- length(lat.loc)
+      lon.loc <- pretty(tmp$lon,n=5)
+      n.lon <- length(lon.loc)
+      
+      if(n.lat != n.lon)
+      {
+        if(n.lat < n.lon) lat.loc <- c(lat.loc,rep(max(lat.loc),(n.lon-n.lat)))
+        if(n.lat > n.lon) lon.loc <- c(lon.loc,rep(min(lon.loc),(n.lat-n.lon)))
+      }
+      # To do the conversion to Dec Deg I'll need to combine these and do a conversion...
+      
+      #n.ticks <- nrow(tmp)
+      lat.loc <- lat.loc[2:(n.lat-1)]
+      lat.tmp <- convert.dd.dddd(lat.loc,'deg.min.sec')
+      lon.loc <- lon.loc[2:(n.lon-1)]
+      lon.tmp <- convert.dd.dddd(lon.loc,'deg.min.sec')
+      
+      
+      # Determine where you want to put your axis tick marks.  Make sure they all are within the plotting domain of tst or you'll get an unequal length vector error when you make next plot
+      #lon.loc <- c(66.167,66,65.833333,65.6667,65.5)
+      # Convert to deg-min-sec
+      # Repeat
+      #lat.loc <- c(43.416667,43.5,43.583333,43.6667,43.75)
+      # Now make some labels based on the above, if you can figure out how to get a minute symbol in here you are better than me!
+      if(axes == "DMS")
+      {
+        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*"), substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*W"))
+        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*"), substr(lat.tmp$Degree_Min_Sec$Degree_Minute_Seconds,7,8),expression("*{second}*N"))
+      }
+      if(axes == "DM")
+      {
+        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*W"))
+        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*N"))
+      }
+      # And then replot the figure
+      pect_plot <- pect_plot + scale_x_continuous(breaks =lon.loc,labels=parse(text = lon.disp)) +
+        scale_y_continuous(breaks = lat.loc,labels=parse(text = lat.disp)) 
+    } # end if(!is.null(axes))
   } # end if(plot_as != 'plotly')
 
   # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
@@ -1240,6 +1294,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     theme(panel.background=element_rect(colour="black"), axis.ticks=element_line(colour="black"))
 
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
-
+  #browser()
   return(pect_plot = pect_plot)
 } # end function
