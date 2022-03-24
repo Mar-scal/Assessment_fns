@@ -70,8 +70,8 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   # If Bymax isn't specified than set the maxium using the Biomass data for the Upper credible limit.
   if(missing(Bymax)==T | is.null(Bymax))
   {
-    if(!is.null(TAC)) Bymax <- max(c(apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2),quantile(out.data$sims.list$B.p[,TACI],1-alpha[2]/2)))
-    if(is.null(TAC)) Bymax <- max(apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2))
+    if(!is.null(TAC)) Bymax <- max(c(apply(out.data$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, 1-alpha[1]/2),quantile(out.data$sims.list$B.p[,TACI],1-alpha[2]/2)))
+    if(is.null(TAC)) Bymax <- max(apply(out.data$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, 1-alpha[1]/2))
   } # if(missing(Bymax)==T )
   
   # Make the plot
@@ -92,8 +92,9 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
     if(kt==F & language=="fr") mtext("Biomasse pleinement recrut\u{E9}e (t)", 2, 3, cex=1.2)
   } # end if(missing(out.data2)==T)
   # Add the alpha credible intervals.
-  lines(years, apply(out.data$sims.list$B, 2, quantile, alpha[1]/2), lty = 2)
-  lines(years, apply(out.data$sims.list$B, 2, quantile, 1-alpha[1]/2), lty = 2)
+  
+  lines(years[-which(is.na(out.data$median$B))], apply(out.data$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, alpha[1]/2), lty = 2)
+  lines(years[-which(is.na(out.data$median$B))], apply(out.data$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, 1-alpha[1]/2), lty = 2)
   
   # If reference points are not specified and we want to add a median to the plot this is how we role.
   # Note the current year isn't included in that median.
@@ -185,7 +186,7 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   	
   	# Now we use the second set of data to do what we did above...
   	TACI<-which(out.data2$data$C.p==TAC)
-  	if(missing(Bymax)==T)Bymax <- max(c(apply(out.data2$sims.list$B, 2, quantile, 1-alpha[1]/2),quantile(out.data2$sims.list$B.p,1-alpha[2]/2)))
+  	if(missing(Bymax)==T)Bymax <- max(c(apply(out.data2$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, 1-alpha[1]/2),quantile(out.data2$sims.list$B.p,1-alpha[2]/2)))
   	# Make the plot
   	plot(years, out.data2$median$B, type = 'b', pch = 16, ylim = c(0, Bymax), ylab = "", las = 1, 
   	     mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', xlim=c(min(years)-1,max(years)+max(pred)),yaxt='n' )
@@ -193,8 +194,8 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   	if(kt==T)axis(2, pretty(c(0, Bymax)),lab =  pretty(c(0, Bymax))/1000,las=1)
   	else axis(2)
   	text(min(years), Bymax*0.95, "b", cex=1.25)
-  	lines(years, apply(out.data2$sims.list$B, 2, quantile, alpha[1]/2), lty = 2)
-  	lines(years, apply(out.data2$sims.list$B, 2, quantile, 1-alpha[1]/2), lty = 2)
+  	lines(years[-which(is.na(out.data$median$B))], apply(out.data2$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, alpha[1]/2), lty = 2)
+  	lines(years[-which(is.na(out.data$median$B))], apply(out.data2$sims.list$B[,-which(is.na(out.data$median$B))], 2, quantile, 1-alpha[1]/2), lty = 2)
   	# If reference points are not specified and we want to add a median to the plot this is how we role.
   	# Note the current year isn't included in that median.
   	if(is.null(refs)==T && is.null(avg.line)==F)
@@ -263,7 +264,7 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   if(missing(out.data2)==T)
   {
     # If the maximum for the Recruit time series y axis isn't specified than we find it using the alpha value.
-  	if(missing(Rymax)==T) Rymax <- max(apply(out.data$sims.list$R, 2, quantile, 1-alpha[1]/2))
+  	if(missing(Rymax)==T) Rymax <- max(apply(out.data$sims.list$R[,-which(is.na(out.data$median$R))], 2, quantile, 1-alpha[1]/2))
   	# Make the plot
   	plot(years, out.data$median$R, type = 'b', pch = 16, ylim = c(0, Rymax), ylab = "", las = 1, mgp = c(0.5, 0.5, 0), 
   	     xlab = "", tcl = -0.3, asp = 'xy', xlim=c(min(years)-1,max(years)+1),yaxt='n')
@@ -284,8 +285,8 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   	  if(language=="fr") mtext("Biomasse des recrues (t)", 2, 3, cex=1.2)
   	} #end if(kt==F)
   	
-  	lines(years, apply(out.data$sims.list$R, 2, quantile, alpha[1]/2), lty = 2)
-  	lines(years, apply(out.data$sims.list$R, 2, quantile, 1-alpha[1]/2), lty = 2)
+  	lines(years[-which(is.na(out.data$median$R))], apply(out.data$sims.list$R[,-which(is.na(out.data$median$R))], 2, quantile, alpha[1]/2), lty = 2)
+  	lines(years[-which(is.na(out.data$median$R))], apply(out.data$sims.list$R[,-which(is.na(out.data$median$R))], 2, quantile, 1-alpha[1]/2), lty = 2)
   	
   	if(!is.null(avg.line))abline(h=avg.line(out.data$median$R[-length(out.data$median$R)]),lty=2,col='blue',lwd=2)
   }# end if(missing(out.data2)==T)

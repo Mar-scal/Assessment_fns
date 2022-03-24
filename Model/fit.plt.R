@@ -47,7 +47,7 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # Fit plots
   
   # Plot options, either a pdf or to the screen
-  if(graphic=='pdf')pdf(paste(path,"fit", name, ".pdf", sep=""),width = wd, height = ht)
+  if(graphic=='pdf') pdf(paste(path,"fit", name, ".pdf", sep=""),width = wd, height = ht)
   if(graphic=='png') png(paste0(path,"fit",name,".png"), width = wd, height = ht,res=920,units="in")
   
   if(graphic=="screen")windows(width = wd, height = ht)
@@ -63,14 +63,23 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
     # The ymax will vary depending on whether we are plotting the confidence intervals, this takes care of that...
     # Note the pmax function which grabs the maximum for each year then we grab the maximum of that
     # The apply statment is getting us the 1-aplha/2 BCI (default of 0.05 gives the upper 95% CI)
-    ymaxB<-ifelse(CI==T,max(pmax(apply(sweep(data.out$sims.list$B,2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), 
-            data.out$data$I/Iadj)),max(c((as.numeric(data.out$median$B[1:length(years)])*data.out$median$q)/Iadj,data.out$data$I/Iadj)))
+    ymaxB<-ifelse(CI==T,max(pmax(apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), 
+            data.out$data$I/Iadj), na.rm=T),max(c((as.numeric(data.out$median$B[1:length(years)])*data.out$median$q)/Iadj,data.out$data$I/Iadj), na.rm=T))
                                                             
   } # end if(missing(ymaxB)==T)
   # Now plot the data
+  
   plot(years, (as.numeric(data.out$median$B[1:length(years)])*data.out$median$q)/Iadj, 
        type = 'l', lwd = 2, ylim = c(0, ymaxB), ylab = "", las = 1, xlim = c(min(years)-1, max(years)+1),
        mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
+  if(any(is.na(data.out$median$B))){
+    nanum <- which(is.na(data.out$median$B)) 
+    if(length(nanum)==1){
+      dotted <- data.frame(years=years[c(nanum-1, nanum+1)], 
+                           B =  (as.numeric(data.out$median$B[c(nanum-1, nanum+1)])*data.out$median$q/Iadj))
+      lines(dotted$years, dotted$B, lty="dotted", lwd = 2, las = 1)
+    }
+  }
   # Add tick marks to the yaxis on right side
   axis(4, lab = F, tcl = -0.3)
   
@@ -82,8 +91,8 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # If plotting credible intervals these are them.  Note they are 1-alpha/2 CI's, defaults to 95%.
   if(CI==T)
   {
-  	lines(years, apply(sweep(data.out$sims.list$B,2,FUN='*',data.out$median$q/Iadj), 2, quantile, alpha/2), lty = 2)
-  	lines(years, apply(sweep(data.out$sims.list$B,2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), lty = 2)
+  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, alpha/2), lty = 2)
+  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), lty = 2)
   } # end if(CI==T)
   # Add the actual datapoints to the figure.
   points(years, data.out$data$I/Iadj, col = 'red', pch = 16,cex=1.2)
@@ -101,14 +110,22 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # If maximum for recruits isn't specified use the data to calculate it.
   if(missing(ymaxR)==T)
   {  
-    ymaxR<-ifelse(CI==T,max(pmax(apply(sweep(data.out$sims.list$R,2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), 
-                data.out$data$IR/Iadj)),max(c((as.numeric(data.out$median$R[1:length(years)])*data.out$median$q*rl)/Iadj,data.out$data$IR/Iadj)))
+    ymaxR<-ifelse(CI==T,max(pmax(apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), 
+                data.out$data$IR/Iadj), na.rm=T),max(c((as.numeric(data.out$median$R[1:length(years)])*data.out$median$q*rl)/Iadj,data.out$data$IR/Iadj), na.rm=T))
   } # if(missing(ymaxR)==T)
 
   # Plot the recruit data
   plot(years, (as.numeric(data.out$median$R[1:length(years)])*data.out$median$q*rl)/Iadj, type = 'l', lwd=2, ylim = c(0,ymaxR), 
        ylab = "", las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   axis(4, lab = F, tcl = -0.3)
+  if(any(is.na(data.out$median$R))){
+    nanum <- which(is.na(data.out$median$R)) 
+    if(length(nanum)==1){
+      dotted <- data.frame(years=years[c(nanum-1, nanum+1)], 
+                           R =  (as.numeric(data.out$median$R[c(nanum-1, nanum+1)])*data.out$median$q*rl/Iadj))
+      lines(dotted$years, dotted$R, lty="dotted", lwd = 2, las = 1)
+    }
+  }
   # Add the appropriate y axis label
   if(Iadj!=1 & language=="en")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
   if(Iadj==1 & language=="en")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
@@ -117,8 +134,8 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # If we asked for credbile limits plot them.
   if(CI==T)
   {
-  	  lines(years, apply(sweep(data.out$sims.list$R,2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, alpha/2), lty = 2)
-  	  lines(years, apply(sweep(data.out$sims.list$R,2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), lty = 2)
+  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, alpha/2), lty = 2)
+  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), lty = 2)
   }# if(CI==T)
   # Add the recruit time series points.
   points(years, data.out$data$IR/Iadj, col = 'red',pch=16,cex=1.2)
@@ -138,12 +155,19 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   	#                      data.out$data$U)),max(c((data.out$median$B[1:length(years)]*data.out$median$qU)/Uadj,data.out$data$U)))
     
     # For now we will just calculate ymax as just the maximum of the time series
-    ymax<- max(c((as.numeric(data.out$median$B[1:length(years)])*data.out$median$qU)/Uadj,data.out$data$U))
+    ymax<- max(c((as.numeric(data.out$median$B[1:length(years)])*data.out$median$qU)/Uadj,data.out$data$U), na.rm=T)
     # Make the plot
   	plot(years, (as.numeric(data.out$median$B[1:length(years)])*data.out$median$qU)/Uadj, type = 'l', lwd=2, ylim = c(0, ymax), ylab = "", 
   	     las = 1, xlim = c(min(years)-1, max(years)+1), mgp = c(0.5, 0.5, 0), xlab = "", tcl = -0.3, asp = 'xy', cex.axis=1.2)
   	axis(4, lab = F, tcl = -0.3)
-  	
+  	if(any(is.na(data.out$median$R))){
+  	  nanum <- which(is.na(data.out$median$R)) 
+  	  if(length(nanum)==1){
+  	    dotted <- data.frame(years=years[c(nanum-1, nanum+1)], 
+  	                         C =  (as.numeric(data.out$median$B[c(nanum-1, nanum+1)])*data.out$median$qU)/Uadj)
+  	    lines(dotted$years, dotted$C, lty="dotted", lwd = 2, las = 1)
+  	  }
+  	}
   	if(language=="en") mtext("Commercial CPUE \n (kg/hm)", 2, 2.5, cex = 1.25)
   	if(language=="fr") mtext("Prises commerciales par\n unit\u00E9 d'effort (kg/hm) ", 2, 2.5, cex = 1.25)
   	#DK Note: I have removed the confidence intervals around the CPUE data as they are not correct.  It's something we need to

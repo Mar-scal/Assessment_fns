@@ -20,9 +20,9 @@
 
 # Load your directory and the survey year
 #direct <- "d:/r/"
-direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-yr <- 2020
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+yr <- 2021
 
 # Load the function...
 source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
@@ -30,9 +30,9 @@ source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 # This will take more than 10 minutes when using GBa as it takes a while to do the jackknife for the CPUE on GBa.
 # Note that this will lead to an error if there was no fishing on a bank in a given year so make sure you remove any
 # banks that don't have fishery data for the current year!
-OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2020,
+OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2021,
              bank ="all",
-             save.fig = F,save.res=T,export=T, calc.mc = F, rdata.logs=F)
+             save.fig = T,save.res=T,export=T, calc.mc = F, rdata.logs=F)
 
 OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),
@@ -60,12 +60,15 @@ high.catch
 cpue.ts
 meat.count
 
+#mean SH FR is in survey summary script and OSAC_word.RMD
+#survey.obj$GBa$model.dat$l.bar[survey.obj$GBa$model.dat$year==year]
+
 length(which(OSAC_res$fish.cells$catch >=1))
 
 # inspect this for weirdness. open the word doc for any weird rows, and make sure it's clean. then re-run until mctable$meatcounts is flawless.
-summary(OSAC_res$meat.count$meatcounts) # there should be no NA's here anywhere.
-OSAC_res$meat.count$meatcounts$month <- month(ymd(OSAC_res$meat.count$meatcounts$land))
-max(ymd(OSAC_res$meat.count$meatcounts$land), na.rm=T) # includes everything up to end of July
+summary(meat.count$meatcounts) # there should be no NA's here anywhere.
+meat.count$meatcounts$month <- month(ymd(meat.count$meatcounts$land))
+max(ymd(meat.count$meatcounts$land), na.rm=T) # includes everything up to end of July
 
 # if above is clean, then put the following into the ppt. But please pay attention to any really odd values.
-OSAC_res$meat.count$summarytable
+meat.count$summarytable

@@ -124,6 +124,9 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   if(marfis==T) dat.slip <- marfis.slip
   if(marfis==F) dat.slip <- slip.dat
   
+  # also read in log CSV in marfis format
+  if(marfis==F) log.csv <- read.csv(paste0(direct, "/Data/Fishery_data/Logs/Preliminary/", max(yrs), "log.csv"))
+  
   # If you want to look by trip Number, this would also pull any logs with the trip number missing from that year
   miss.dat <- NULL
   if(!is.null(trips)) 
@@ -211,6 +214,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   num.rakes.mismatch <- NULL
   watches.outside.sa <- NULL
   watches.outside.nafo <- NULL
+  weight.too.big <- NULL
   # If makeing spatial plots crack open the pdf
   if(spatial ==T & plot == "pdf") {pdf(file = paste0(f.name,".pdf"),width=11,height = 11, onefile=T)}
   trip.log.all <- list()
@@ -292,6 +296,12 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
         weight.mismatch.slips[[as.character(trip.ids[i])]] <- trip.slip
       } # end if(sum.slip != trip.slip) 
     } # end if(trip.tol == 'round')
+    
+    if(marfis==F){
+      if(any(log.csv[log.csv$TRIP_ID==trip.ids[i],]$WEIGHT > 8000)) weight.too.big[[as.character(trip.ids[i])]] <- log.csv[log.csv$TRIP_ID==trip.ids[i] & log.csv$WEIGHT>8000,]
+    }
+    
+    if(marfis==T) weight.too.big <- NULL
     
     # check for extra rows that are full of NA's, and remove them if they exist:
     if(dim(trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),])[1] >0 & length(which(any(!is.na(trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),])))) == 0) {
@@ -432,7 +442,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       
       bbox <- st_bbox(trip.log)
       
-      if(as.numeric(st_area(st_as_sfc(bbox)))==0) {
+      if(bbox$xmin == bbox$xmax | bbox$ymin==bbox$ymax) {
         bbox <- st_transform(st_as_sfc(bbox), 32620)
         bbox <- st_buffer(bbox, 1)
         bbox <- st_transform(bbox, st_crs(trip.log)$epsg)
@@ -553,11 +563,11 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   # A list we need for exporting...
   
   if(spatial == F) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
-                                      gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
+                                      gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,weight.too.big=weight.too.big,
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on)
   
   if(spatial == T) dat.export <- list(log.checks = log.checks,missing.dat = missing.dat,num.rake.wrong = num.rake.wrong,
-                                      gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,
+                                      gear.size.wrong = gear.size.wrong,weight.log.wrong = weight.log.wrong,weight.slip.wrong = weight.slip.wrong,weight.too.big=weight.too.big,
                                       tow.time.outliers = tow.time.outliers,roe.on = roe.on,watches.outside.survey.bounds = watches.outside.survey.bounds,
                                       watches.outside.nafo.bounds = watches.outside.nafo.bounds)
   
@@ -572,6 +582,8 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     print(dat.export)
     assign('dat.export',dat.export,pos=1)
   } # end if(!is.null(export))
+  
+  if(is.null(export)) return(dat.export)
   
   if(plot== "shiny" && is.null(reg.2.plot)) {
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_ggplot = pect_ggplot.all)

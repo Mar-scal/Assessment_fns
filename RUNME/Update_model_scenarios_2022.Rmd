@@ -1,0 +1,293 @@
+---
+title: "Update model scenarios 2022"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: bootstrap
+    orientation: columns
+---
+
+```{r, include=F}
+require(patchwork)
+require(ggplot2)
+require(tidyverse)
+require(forecast)
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_out <- "C:/Users/keyserf/Documents/"
+yr <- 2021 # survey year
+banks <- c("GBa", "BBn")
+imputetype <- c("mixed", "min", "max", "LTM", "previous_year", "midpoint")
+proj.box<-NULL
+fit <- NULL
+biomass <- NULL
+res <- NULL
+perc.diff.pre2020 <- NULL
+perc.diff <- NULL
+old.model <- NULL
+TS<- NULL
+ACF <- NULL
+for(b in banks){
+  
+  # for comparing past pre-2020 model output to new post-2020 model output
+  old <- (load(paste0(direct_out, "Data/Model/",2020,"/",b,"/Results/Final_model_results.RData",sep="")))
+  
+  DD.plt.19 <- DD.out[[b]]
+  
+  DD.gg.19 <- data.frame(year=yrs[[b]], bank=b, impute="pre2020", 
+                         B=DD.plt.19$median$B, q=DD.plt.19$median$q, R=DD.plt.19$median$R,
+                         qU=DD.plt.19$median$qU, I=DD.plt.19$data$I, IR = DD.plt.19$data$IR, 
+                         U=DD.plt.19$data$U, I.cv=DD.plt.19$data$I.cv,
+                         IR.cv=DD.plt.19$data$IR.cv, U.cv=DD.plt.19$data$U.cv,
+                         g=DD.plt.19$data$g,
+                         gR=DD.plt.19$data$gR,
+                         clappers=DD.plt.19$data$clappers,
+                         clappersR=DD.plt.19$data$clappersR,
+                         m=DD.plt.19$median$m,
+                         mR=DD.plt.19$median$mR,
+                         CF=DD.dat$CF, 
+                         l.bar=DD.dat$l.bar)
+ 
+  old.model[[b]] <- DD.gg.19
+  
+  #remove objects read in from 2020 model
+  rm(list=ls()[which(ls() %in% old)])
+  
+  for(it in imputetype){
+    # this loads the 2022 model data and get the file names. The parentheses are correct!!
+    yr <- 2021 # survey year
+    objs <- (load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep="")))
+    
+    # set 2020 values to NA. Should I do this for model output or no?
+    DD.plt <- DD.out[[b]]
+    DD.plt$median$B[which(yrs[[b]]==2020)] <- NA
+    DD.plt$sims.list$B[,which(yrs[[b]]==2020)] <- NA
+    DD.plt$median$R[which(yrs[[b]]==2020)] <- NA
+    DD.plt$sims.list$R[,which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$I[which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$IR[which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$clappers[which(yrs[[b]]==2020)] <- NA
+    DD.plt$data$clappersR[which(yrs[[b]]==2020)] <- NA
+    
+    DD.gg <- data.frame(year=yrs[[b]], bank=b, impute=it, 
+                        B=DD.plt$median$B, q=DD.plt$median$q,
+                        R=DD.plt$median$R, qU=DD.plt$median$qU, 
+                        I=DD.plt$data$I, IR = DD.plt$data$IR, 
+                        U=DD.plt$data$U,
+                        I.cv=DD.plt$data$I.cv,
+                        IR.cv=DD.plt$data$IR.cv, 
+                        U.cv=DD.plt$data$U.cv,
+                        g=DD.plt$data$g,
+                        gR=DD.plt$data$gR,
+                        m=DD.plt$median$m,
+                        mR=DD.plt$median$mR,
+                        clappers=DD.plt$data$clappers,
+                        clappersR=DD.plt$data$clappersR,
+                        CF=DD.dat$CF,
+                        l.bar=DD.dat$l.bar) 
+    
+    # for biomass projection
+    TACI<-which(DD.out[[b]]$data$C.p==TACi[[b]]+proj.catch[[b]])
+    proj <- data.frame(year=2022, B.p=DD.out[[b]]$sims.list$B.p[,TACI], tac=TACi[[b]]+proj.catch[[b]])
+    proj.q <- proj$B.p[proj$B.p>quantile(proj$B.p,0.1)&proj$B.p<quantile(proj$B.p,1-0.1)]
+    proj.q <- data.frame(year=2022, vals = boxplot(proj.q)$stats, labs=c("y0", "y10", "y50", "y90", "y100"))
+    proj.q <- pivot_wider(proj.q, values_from = vals, names_from=labs)
+    proj.q <- data.frame(proj.q, bank=b, impute=it)
+    
+    # to compare post-2020 to pre-2020 results. Need to figure out which variables are actually relevant and make sure I'm using the right ones
+    diff.per <- (DD.gg[DD.gg$year<2020, c("B", "q", "R", "qU", "g", "gR", "m", "mR")] -
+                   DD.gg.19[, c("B", "q", "R", "qU", "g", "gR", "m", "mR")])/
+      DD.gg.19[, c("B", "q", "R", "qU","g", "gR", "m", "mR")]
+    
+    diff.per <- cbind(DD.gg[DD.gg$year<2020, c("year", "bank", "impute")], 
+                      diff.per)
+    
+    res <- rbind(res, DD.gg)
+    proj.box <- rbind(proj.box, proj.q)
+    perc.diff.pre2020 <- rbind(perc.diff.pre2020, diff.per)
+    
+  }
+  
+  fitB <- ggplot() +
+    geom_point(data=unique(res[res$bank==b,c("year", "I")]), aes(x=year, y=I))+
+    geom_segment(data=unique(res[res$bank==b,c("year", "I", "I.cv")]), aes(x=year, xend=year, y=I-I.cv*I, yend=I+I.cv*I)) +
+    geom_line(data=res[res$bank==b,], aes(x=year, y=B*q, colour=impute)) + ylab("Fully recruited biomass") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*q, colour=impute), linetype="dashed") +
+    #ylim(0,8000) +
+    theme_bw() 
+  
+  fitR <- ggplot() + 
+    geom_point(data=unique(res[res$bank==b,c("year", "IR")]), aes(x=year, y=IR))+
+    geom_segment(data=unique(res[res$bank==b,c("year", "IR", "IR.cv")]), aes(x=year, xend=year, y=IR-IR.cv*IR, yend=IR+IR.cv*IR)) +
+    geom_line(data=res[res$bank==b,], aes(x=year, y=R*q, colour=impute)) + ylab("Recruit biomass") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, R*q, colour=impute), linetype="dashed") +
+    #ylim(0,2100)+
+    theme_bw()
+  
+  fitU <- ggplot() +
+    geom_point(data=unique(res[res$bank==b,c("year", "U")]), aes(x=year, y=U))+
+    geom_line(data=res[res$bank==b,], aes(x=year, y=B*qU, colour=impute)) + ylab("CPUE") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B*qU, colour=impute), linetype="dashed") +
+    #geom_segment(data=res, aes(x=year, xend=year, y=U-U.cv*U, yend=U+U.cv*U), colour="red") +
+    #ylim(0,75)+
+    theme_bw()
+  
+  fit[[b]] <- fitB / fitR / fitU
+  
+  
+  biomass[[b]] <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B, colour=impute)) + geom_point(data=res[res$bank==b,], aes(x=year, y=B, colour=impute, shape=impute)) + 
+    geom_boxplot(data=proj.box[proj.box$bank==b,], aes(x=year, ymin=y0, lower=y10, middle=y50, upper=y90, ymax=y100, colour=impute), width=1.5, stat="identity") +
+    geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B, colour=impute), linetype="dashed") +
+    theme_bw() #+
+  # ylim(0,25000)
+  
+  longer <- pivot_longer(perc.diff.pre2020[perc.diff.pre2020$bank==b,], cols = c("B", "q", "R", "qU", "m", "mR"))
+  longer$name <- factor(longer$name, levels=c("B", "R", "q", "qU", "m", "mR"))
+  perc.diff[[b]] <- ggplot() + geom_line(data=longer, aes(year, value, colour=impute)) +
+    facet_wrap(~name, scales="free_y", nrow=3) +
+    theme_bw() +
+    ylab("proportional difference")
+  
+  
+  ### model inputs
+  survey <- pivot_longer(old.model[[b]], cols = c("I", "IR", "clappers", "clappersR", "CF", "l.bar")) 
+  survey$name <- factor(survey$name, levels=c("I", "IR", "clappers", "clappersR", "CF", "l.bar"))
+  
+  TS[[b]] <- ggplot() + geom_line(data=survey, aes(year, value)) +
+    facet_wrap(~name, scales="free_y", nrow=3) +
+    theme_bw()
+  
+  ACF[[b]] <- ggAcf(old.model[[b]]$I) + theme_bw() + ggtitle("I") +
+    ggAcf(old.model[[b]]$IR) + theme_bw() + ggtitle("IR") +
+    ggAcf(old.model[[b]]$clappers) + theme_bw() + ggtitle("clappers") +
+    ggAcf(old.model[[b]]$clappersR) + theme_bw() + ggtitle("clappersR") +
+    ggAcf(old.model[[b]]$CF) + theme_bw() + ggtitle("CF") +
+    ggAcf(old.model[[b]]$l.bar) + theme_bw() + ggtitle("l.bar") +
+    plot_layout(ncol=2)
+}
+
+```
+
+
+Sidebar {.sidebar}
+=================================================================
+
+* I & IR = survey index  
+
+* B & R = biomass from model  
+
+* U = CPUE  
+
+* g & gR = growth  
+
+* m & mR = mortality  
+
+* q = survey catchability  
+
+* qU = fishery catchability CPUE
+
+
+GBa Data Inputs
+====================================================================
+
+Column {data-width=500}
+------------------------------------------------
+
+### Time series 
+
+```{r}
+TS$GBa
+```
+
+
+Column {data-width=500}
+-------------------------------------------------
+
+### ACF
+
+```{r}
+ACF$GBa
+```
+
+
+
+GBa Model Results
+====================================================================
+
+Column {data-width=400}
+------------------------------------------------
+
+### Fit 
+
+```{r, fig.width=6, fig.asp=1.5}
+fit$GBa
+```
+
+
+Column {data-width=600}
+-------------------------------------------------
+
+### Biomass projection
+
+```{r, fig.width=7, fig.asp=0.5}
+biomass$GBa
+```
+
+
+### Difference from 2020 model
+
+```{r, fig.width=7, fig.asp=0.5}
+perc.diff$GBa
+```
+
+
+BBn Data Inputs
+====================================================================
+
+Column {data-width=500}
+------------------------------------------------
+
+### Time series 
+
+```{r}
+TS$BBn
+```
+
+
+Column {data-width=500}
+-------------------------------------------------
+
+### ACF
+
+```{r}
+ACF$BBn
+```
+
+
+
+BBn Model Results
+=========================================================================
+
+Column {data-width=400}
+------------------------------------------------
+
+### Fit
+
+```{r, fig.width=6, fig.asp=1.5}
+fit$BBn
+```
+
+
+Column {data-width=600}
+-------------------------------------------------
+
+### Biomass projection
+
+```{r, fig.width=7, fig.asp=0.5}
+biomass$BBn
+```
+
+### Difference from 2020 model
+
+```{r, fig.width=7, fig.asp=0.5}
+perc.diff$BBn
+```

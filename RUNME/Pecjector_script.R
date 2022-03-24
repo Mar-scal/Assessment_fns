@@ -16,7 +16,7 @@ for(fun in funs)
 } # end for(un in funs)
 
 # Alternatively go find your local version....
-source("D:/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
+source("C:/Users/keyserf/Documents/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
 
 # Simple blank map of the region
 # You can see the scallopy options inside the function 'convert_coords.R'

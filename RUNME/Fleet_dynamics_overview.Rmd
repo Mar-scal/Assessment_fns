@@ -1,6 +1,8 @@
 ---
 title: "Fleet dynamics overview"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r setup, include=FALSE}
@@ -8,10 +10,10 @@ knitr::opts_chunk$set(echo = TRUE)
 require(patchwork)
 
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Documents/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 year <- 2021
-months <- 1:6
-banks <- c("GBa", "GBb")
+months <- 1:12
+banks <- c("GBa")
 
 source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
 logs_and_fish(loc="offshore",year = 2004:year, direct="Y:/Offshore/Assessment/")
@@ -43,7 +45,7 @@ annual_combined <- new.log.dat %>%
 
 annual_combined$cpue <- annual_combined$landings/annual_combined$effort
 
-annual <- join(annual, annual_combined, type="full")
+annual <- full_join(annual, annual_combined)
 
 
 a <- ggplot() + geom_point(data=annual, aes(year, effort, colour=fleet)) + 

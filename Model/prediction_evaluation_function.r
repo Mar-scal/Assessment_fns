@@ -56,10 +56,10 @@
 
 
 pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessment_fns/Model/DDwSE3_jags.bug",  growth = "both",
-                      niter = NULL, nburn = NULL, nthin = NULL,nchains=NULL, 
+                      niter = NULL, nburn = NULL, nthin = NULL,nchains=NULL,
                       direct,direct_fns,j.seed=123,parallel=T,bank=NULL,save.res = "default")
 {
-
+  
 # The functions to load
   if(missing(direct_fns))
   {
@@ -141,8 +141,6 @@ for(k in 1:length(growth))
 	} # end for(i in 1:length(pe))
 	
   # Now save the output so we don't have to run this every time.
-  
-  
   if(growth[k] == "modelled") 
   {
     if(save.res == "default")  save(out,file= paste(direct,"Data/Model/",(max(pe.years)+1),"/",bank,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))

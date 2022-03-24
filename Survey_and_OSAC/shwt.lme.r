@@ -32,8 +32,7 @@
 
 shwt.lme<-function(wt.dat,random.effect="year",verbose=T, GBmodel=F, b.par='estimate')
 {
-	
-  # I think the idea here is to grab any header with "wmw" or "sh" in it and rename it 'wmw' or 'sh'.
+	# I think the idea here is to grab any header with "wmw" or "sh" in it and rename it 'wmw' or 'sh'.
   # But the command given if these statements is true only works if the name is already correct...
 	if("wmw" %in% names(wt.dat)) wt.dat$wmw <- wt.dat$wmw
 	if("sh" %in% names(wt.dat)) wt.dat$sh <- wt.dat$sh

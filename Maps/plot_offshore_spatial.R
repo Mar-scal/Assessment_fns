@@ -51,7 +51,8 @@ plot_offshore_spatial<- function(direct_data,
                                  fishery_years,
                                  size_class,
                                  banks, 
-                                 plotly=F) {
+                                 plotly=F,
+                                 seed) {
   
   # You need the following packages:
   require(leaflet)
@@ -83,11 +84,11 @@ plot_offshore_spatial<- function(direct_data,
     if(!is.null(station_years)){
       if(banks[i] %in% c("GBa", "GBb")) season <- "Summer" else season <- "Spring"
       stations <- rbind(stations, read.csv(paste0(direct_data, "Data/Survey_data/", max(as.numeric(station_years)), 
-                                  "/", season, "/", banks[i],"/Preliminary_Survey_design_Tow_locations_", banks[i], ".csv")))
+                                  "/", season, "/", banks[i],"/", seed, "/Preliminary_Survey_design_Tow_locations_", banks[i], ".csv")))
     }
     
     print("data prep done")
-    
+  
     # now get the strata (if they exist)
     # the true strata are in the GIS_layers, but Ger "strata" (really bathymetry) are in a different location
     strata_banks <- c("GBa", "GBb", "BBn", "BBs", "Sab")

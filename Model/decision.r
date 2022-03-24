@@ -87,7 +87,6 @@ decision<-function(model.out,bank,mu=0.15,pr=seq(0.1,0.6,0.1),vers=1,post.survey
 	PrCrit.current<-sum(RatioLRP.current>1)/length(RatioLRP.current)
 	print(paste("Probability Biomass in",yr,"is in healthy zone = ",PrHealth.current)) # Print the probability of being healthy to screen.
 	print(paste("Probability Biomass in", yr, "is above critical zone = ",PrCrit.current)) # Print probabilty of being below the LRP to  screen.
-browser()
 	# Make the decision table.  There are 2 versions of the decision table. This version includes the expected Biomass 2 years out
 	# at a exploitation rate of mu (default = 0.15). ## FK 2021 thought... pretty sure this is showing expected CATCH 2 years out, not biomass. 
 	if(vers==1) tab1<-cbind(data.frame(Catch=model.out$data$C.p-post.survey.C,
