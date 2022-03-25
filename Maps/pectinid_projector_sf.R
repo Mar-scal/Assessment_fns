@@ -1285,7 +1285,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(plot_as == "plotly")
   
   # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
-  browser()
   pect_plot <- pect_plot + coord_sf(expand=F)
   
   
