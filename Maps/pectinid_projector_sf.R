@@ -177,6 +177,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      ...) 
 { 
   
+  
   require(marmap) || stop("You need the marmap function to get the bathymetry")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
   require(ggplot2) || stop("Install ggplot2 or else.")
@@ -244,7 +245,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
   options(scipen=999)# Avoid scientific notation
-  
+  loc <- area # Need to change the name as something in the environment is getting confused when using area which is also an internal function in the 'terra' package.
   # Don't do this if the field and mesh lengths differ.
   #if(!is.null(add_inla$field)) stopifnot(length(add_inla$field) == add_inla$mesh$n) 
   
@@ -255,18 +256,19 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system  
-  if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-  if(any(class(area)=="data.frame")) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+
+  if(any(class(loc) == 'list')) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(any(class(loc)=="data.frame")) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
-  if(any(class(area) == 'character')) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
-  if(any(class(area) %in% c("sp"))) area <- st_as_sf(area) # Convert to sf cause I already have that ready to roll below
+  if(any(class(loc) == 'character')) coords <- convert.coords(plot.extent = loc,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(any(class(loc) %in% c("sp"))) loc <- st_as_sf(loc) # Convert to sf cause I already have that ready to roll below
   # and finally if the object is an sf or sp object we just pull the bounding box from that object to use that.
-  if(any(class(area) %in% c("sf",'sfc','sfg')))
+  if(any(class(loc) %in% c("sf",'sfc','sfg')))
   {
-    sf.box <- st_bbox(area)
-    coords <- convert.coords(plot.extent = list(y=c(sf.box$ymin,sf.box$ymax),x=c(sf.box$xmin,sf.box$xmax)),in.csys = st_crs(area),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+    sf.box <- st_bbox(loc)
+    coords <- convert.coords(plot.extent = list(y=c(sf.box$ymin,sf.box$ymax),x=c(sf.box$xmin,sf.box$xmax)),in.csys = st_crs(loc),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   }
-  
+  #browser()
   # All I need from the coords call above is the bounding box.
   b.box <- st_make_valid(coords$b.box)
   # Get the limits of the bounding box
@@ -1053,12 +1055,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     #If not set up a base plot.
     if(is.null(gg.obj))
     {
-      pect_plot <- ggplot() + 
-       # geom_sf(data=b.box, fill=NA) +
-        theme_minimal() + xlab("") + ylab("") +
-        coord_sf(expand=F) 
-        #scale_x_continuous(expand = 0) + # These cause problems with new sf() package for some reason...
-        #scale_y_continuous(expand = 0)
+      #browser()
+      pect_plot <- ggplot(data=b.box) + 
+        geom_sf(fill=NA) + coord_sf(expand=F)
+      #pect_plot
+        #theme_minimal() + xlab("") + ylab("") #+
+
     } # end if(!is.null(gg.obj))
     
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
@@ -1282,16 +1284,17 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
   } # end if(plot_as == "plotly")
   
+  # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
+  pect_plot <- pect_plot + coord_sf(expand=F)
+  
+  
   if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
     if(legend == F) pect_plot <- ggplotly(pect_plot) %>% hide_legend()
     if(legend == T) pect_plot <- ggplotly(pect_plot) 
   }
-
-  pect_plot <- pect_plot +
-    coord_sf() +
-    theme(panel.background=element_rect(colour="black"), axis.ticks=element_line(colour="black"))
+  
 
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
   #browser()
