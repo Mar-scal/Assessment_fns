@@ -142,7 +142,7 @@ convert.dd.dddd<-function(x,format='dec.deg')
       ## One is a simple output of the deg-min-sec, the other is
       ## an expression that includes the degree symbol for Mapping nice coordinates.
       # First the simple return
-   
+      
       sec[sec==0] <- '00'
       min[min==0] <- '00'
       dm<-paste(deg,min,sep=":")

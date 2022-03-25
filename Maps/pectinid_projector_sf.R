@@ -200,7 +200,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(RCurl) || stop ("Please install RCurl so yo you can pull functions from github")
   require(readr) || stop ("Please install RCurl so yo you can pull csv from github")
   require(s2) || stop ("Please install s2 so you can tidy up any crappy geography. Note, you may also need to update sf")
-  
+  require(purrr) || stop ("Please install purrr so you can make cool axes tick marks")
+  require(tidyverse) ||stop ("Please install some tidyverse packaage that has mutate so you can make cool axes tick marks")
   if(length(add_inla) > 0) require(INLA) || stop ("If you want to run INLA model output, might help to install the INLA packages!!")
   if(plot_as != 'ggplot') require(ggthemes) ||stop ("Please install ggspatial which is needed for the map theme for plotly")
   if(plot_as != 'ggplot') require(plotly) || stop ("Please install plotly if you want an interactive plot")
@@ -226,13 +227,15 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     source(paste(repo,"/Maps/convert_coords.R",sep="")) 
     source(paste(repo,"/Maps/add_alpha_function.R",sep="")) 
     source(paste(repo,"/Maps/combo_shp.R",sep="")) 
+    source(paste(repo,"/Survey_and_OSAC/convert.dd.dddd.R",sep="")) 
   }
   
   if(repo == 'github')
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/convert_coords.R",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/combo_shp.R",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R")
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -1114,6 +1117,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.
     if(!is.null(axes))
     {
+      # Need to shrink it here so I get the boundaries right
+      pect_plot <- pect_plot + coord_sf(expand=F)
+      
       ylim <- layer_scales(pect_plot)$y$range$range
       xlim <- layer_scales(pect_plot)$x$range$range
       
@@ -1132,7 +1138,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(n.lat != n.lon)
       {
         if(n.lat < n.lon) lat.loc <- c(lat.loc,rep(max(lat.loc),(n.lon-n.lat)))
-        if(n.lat > n.lon) lon.loc <- c(lon.loc,rep(min(lon.loc),(n.lat-n.lon)))
+        if(n.lat > n.lon) lon.loc <- c(lon.loc,rep(max(lon.loc),(n.lat-n.lon)))
       }
       # To do the conversion to Dec Deg I'll need to combine these and do a conversion...
       
@@ -1141,8 +1147,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       lat.tmp <- convert.dd.dddd(lat.loc,'deg.min.sec')
       lon.loc <- lon.loc[2:(n.lon-1)]
       lon.tmp <- convert.dd.dddd(lon.loc,'deg.min.sec')
-      
-      
       # Determine where you want to put your axis tick marks.  Make sure they all are within the plotting domain of tst or you'll get an unequal length vector error when you make next plot
       #lon.loc <- c(66.167,66,65.833333,65.6667,65.5)
       # Convert to deg-min-sec
@@ -1285,6 +1289,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(plot_as == "plotly")
   
   # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
+  #browser()
   pect_plot <- pect_plot + coord_sf(expand=F)
   
   

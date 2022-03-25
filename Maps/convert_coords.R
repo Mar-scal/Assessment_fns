@@ -26,13 +26,13 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
   {
     #offshore
     # This includes southern Newfoundland, this is a nice map of everywhere 
-    if(plot.extent %in% c('NL','nl',"Newfoundland","NEWFOUNDLAND","newfoundland",'nf',"NF","NFLD")){y=c(40.10,48.10);x=c(-68.00,-54.00)} 
+    if(plot.extent %in% c('NL','nl',"Newfoundland","NEWFOUNDLAND","newfoundland",'nf',"NF","NFLD")){y=c(40.05,49.00);x=c(-68.00,-53.00)} 
     # This is the Martime offshore, includes most of the inshore too just due to nature of area
     if(plot.extent%in% c('offshore',"OFFSHORE","Offshore"))                                        {y=c(40.05,47.00);x=c(-68.00,-54.00)}
     if(plot.extent%in% c('SS','ss','Scotian Shelf','scotian shelf',"SCOTIAN SHELF"))		           {y=c(40.50,47.00);x=c(-68.00,-57.00)}
-    #if(plot.extent%in% c('WOB','wob',"WOb",'Western Offshore Banks'))		                           {y=c(40.50,44.00);x=c(-68.00,-64.00)} 
+    if(plot.extent%in% c('WOB','wob',"WOb",'Western Offshore Banks'))		                           {y=c(40.55,44.05);x=c(-68.05,-63.95)} 
     if(plot.extent%in% c('ESS','ess','Ess',"Eastern SS","EASTERN SS",'eastern ss'))                {y=c(43.00,45.40);x=c(-62.50,-57.40)}
-    #if(plot.extent%in% c('WSS','wss','Wss',"Western SS","WESTERN SS",'western ss'))		             {y=c(41.00,44.00);x=c(-67.00,-64.00)}
+    if(plot.extent%in% c('WSS','wss','Wss',"Western SS","WESTERN SS",'western ss'))		             {y=c(41.05,43.95);x=c(-67.05,-63.95)}
     if(plot.extent%in% c('BBn','bbn','BBN','Browns N','browns n','BROWNS N',
                          'Browns n','26A',"SFA26A","26N","SFA26N"))                                {y=c(42.40,43.00);x=c(-66.60,-65.60)}
     if(plot.extent%in% c('BBs','bbs','BBS','Browns S','browns s','BROWNS S',
@@ -43,7 +43,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     if(plot.extent%in% c('GBa',"GBa","gba","Georges A","georges a",
                          "GEORGES A","Georges a","27A","SFA27A"))                                  {y=c(41.20,42.30);x=c(-67.15,-65.85)}
     if(plot.extent%in% c('GBb',"GBB","gbb","Georges B","georges b","GEORGES B","Georges b"))		   {y=c(41.60,42.30);x=c(-66.70,-65.60)}
-    if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german","SFA26C","26C"))             {y=c(42.80,43.80);x=c(-67.00,-65.20)}
+    if(plot.extent%in% c('Ger',"GER","ger","German","GERMAN","german","SFA26C","26C"))             {y=c(42.80,43.80);x=c(-67.00,-65.00)}
     if(plot.extent%in% c('Sab',"SABLE","sab","sable","SAB","Sable"))		                           {y=c(43.00,44.20);x=c(-62.00,-60.30)}
     if(plot.extent%in% c('SPB','spb','Spb',"St Pierre", "Saint Pierre"))		                       {y=c(44.50,47.50);x=c(-58.00,-55.00)}
     if(plot.extent%in% c('SPB-banks', 'spb-banks',"SPB-BANKS","SPB BANKS", "spb banks",
@@ -60,14 +60,14 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     
     
     #inshore
-    if(plot.extent %in% c("SFA29",'sfa29','29W','29w','SFA29W','sfa29w','29'))	                   {y=c(43.10,43.80);x=c(-66.50,-65.45)}
+    if(plot.extent %in% c("SFA29",'sfa29','29W','29w','SFA29W','sfa29w','29'))	                   {y=c(43.10,43.82);x=c(-66.50,-65.45)}
     if(plot.extent %in% c('gm',"GM","Grand Mannan"))		                                           {y=c(44.40,45.20);x=c(-67.20,-66.30)}
     if(plot.extent %in% c('inshore',"Inshore","INSHORE"))	                                         {y=c(43.10,45.80);x=c(-67.50,-64.30)}
     if(plot.extent%in% c('bof','BOF',"BoF","Bay","Bay of FUndy"))		                               {y=c(44.25,45.80);x=c(-66.50,-64.30)}
     if(plot.extent%in% c('upper',"UPPER","UB","Upper","Upper Bay","upper bay"))	                   {y=c(45.00,46.00);x=c(-65.20,-64.30)}
     # Need to be slightly careful here since we have middle bank 
     if(plot.extent%in% c('Mid Bay',"MB","mb",'mid bay'))		                                       {y=c(44.30,45.50);x=c(-66.60,-64.70)} 
-    if(plot.extent%in% c('spa3',"SPA3","3"))	                                                     {y=c(43.62,44.60);x=c(-66.82,-65.80)}
+    if(plot.extent%in% c('spa3',"SPA3","3"))	                                                     {y=c(43.57,44.60);x=c(-66.82,-65.80)}
     if(plot.extent%in% c('spa4',"SPA4","4"))	                                                     {y=c(44.43,44.96);x=c(-66.20,-65.51)}
     if(plot.extent%in% c('spa1',"SPA1","1"))	                                                     {y=c(44.50,45.80);x=c(-66.40,-64.30)}
     if(plot.extent%in% c('spa6',"SPA6","6"))	                                                     {y=c(44.30,45.25);x=c(-67.40,-65.90)}
