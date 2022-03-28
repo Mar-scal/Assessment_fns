@@ -32,7 +32,8 @@
 ###               If you set to repo = 'Y:/Offshore/Assessment/Assesment_fns' it will grab the functions from the version on the ESS
 #8: legend    If you added a custom or INLA layer you can print the legend if you like.  Default = F which doesn't plot legend.
 #9: txt.size  If you want to change the size of the text in the figure (legend and axis).  Default txt.size = 18.
-
+#9a:axes      If you want to show the axis labels as either Degree Minutes or Degree Minutes Seconds instead of default (NULL). NULL = decimal degress or UTM, axes = "DM" will show Degree minutes, 
+#                  axes = "DMS" will show Degree minute seconds.  
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
 #10: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
@@ -165,7 +166,7 @@
 
 
 pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
-                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, quiet=F,
+                     gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, axes = NULL, quiet=F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
                      
@@ -175,6 +176,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                      #                                                scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
                      ...) 
 { 
+  
   
   require(marmap) || stop("You need the marmap function to get the bathymetry")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
@@ -198,7 +200,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(RCurl) || stop ("Please install RCurl so yo you can pull functions from github")
   require(readr) || stop ("Please install RCurl so yo you can pull csv from github")
   require(s2) || stop ("Please install s2 so you can tidy up any crappy geography. Note, you may also need to update sf")
-  
+  require(purrr) || stop ("Please install purrr so you can make cool axes tick marks")
+  require(tidyverse) ||stop ("Please install some tidyverse packaage that has mutate so you can make cool axes tick marks")
   if(length(add_inla) > 0) require(INLA) || stop ("If you want to run INLA model output, might help to install the INLA packages!!")
   if(plot_as != 'ggplot') require(ggthemes) ||stop ("Please install ggspatial which is needed for the map theme for plotly")
   if(plot_as != 'ggplot') require(plotly) || stop ("Please install plotly if you want an interactive plot")
@@ -224,13 +227,15 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     source(paste(repo,"/Maps/convert_coords.R",sep="")) 
     source(paste(repo,"/Maps/add_alpha_function.R",sep="")) 
     source(paste(repo,"/Maps/combo_shp.R",sep="")) 
+    source(paste(repo,"/Survey_and_OSAC/convert.dd.dddd.R",sep="")) 
   }
   
   if(repo == 'github')
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/convert_coords.R",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/combo_shp.R",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R")
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/add_alpha_function.R",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -243,7 +248,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
   options(scipen=999)# Avoid scientific notation
-  
+  loc <- area # Need to change the name as something in the environment is getting confused when using area which is also an internal function in the 'terra' package.
   # Don't do this if the field and mesh lengths differ.
   #if(!is.null(add_inla$field)) stopifnot(length(add_inla$field) == add_inla$mesh$n) 
   
@@ -254,18 +259,19 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system  
-  if(any(class(area) == 'list')) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-  if(any(class(area)=="data.frame")) coords <- convert.coords(plot.extent = list(y=area$y,x=area$x),in.csys = area$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+
+  if(any(class(loc) == 'list')) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(any(class(loc)=="data.frame")) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
-  if(any(class(area) == 'character')) coords <- convert.coords(plot.extent = area,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
-  if(any(class(area) %in% c("sp"))) area <- st_as_sf(area) # Convert to sf cause I already have that ready to roll below
+  if(any(class(loc) == 'character')) coords <- convert.coords(plot.extent = loc,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
+  if(any(class(loc) %in% c("sp"))) loc <- st_as_sf(loc) # Convert to sf cause I already have that ready to roll below
   # and finally if the object is an sf or sp object we just pull the bounding box from that object to use that.
-  if(any(class(area) %in% c("sf",'sfc','sfg')))
+  if(any(class(loc) %in% c("sf",'sfc','sfg')))
   {
-    sf.box <- st_bbox(area)
-    coords <- convert.coords(plot.extent = list(y=c(sf.box$ymin,sf.box$ymax),x=c(sf.box$xmin,sf.box$xmax)),in.csys = st_crs(area),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+    sf.box <- st_bbox(loc)
+    coords <- convert.coords(plot.extent = list(y=c(sf.box$ymin,sf.box$ymax),x=c(sf.box$xmin,sf.box$xmax)),in.csys = st_crs(loc),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   }
-  
+  #browser()
   # All I need from the coords call above is the bounding box.
   b.box <- st_make_valid(coords$b.box)
   # Get the limits of the bounding box
@@ -933,14 +939,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   if(any(layers == 'scale.bar') && !is.null(add_layer$scale.bar))
   {
     scal.loc <- add_layer$scale.bar[1]
+    scale.width = 0.25
+    xpad <- 0
+    ypad <- 0
     # If we wanted to set the scale bar width ourselves
-    if(length(add_layer$scale.bar) ==2) {scale.width <- as.numeric(add_layer$scale.bar[2])} else {scale.width = 0.25}
-    # And if we wanted to play with the postion....
+    if(length(add_layer$scale.bar) ==2) scale.width <- as.numeric(add_layer$scale.bar[2])
+    # And if we wanted to play with the position....
     if(length(add_layer$scale.bar) ==4) 
     {
+      scale.width <- as.numeric(add_layer$scale.bar[2])
       xpad <- as.numeric(add_layer$scale.bar[3])
       ypad <- as.numeric(add_layer$scale.bar[4])
-    } else {xpad = 0;ypad = 0}
+    } 
   }
   
   # If we have a field to plot, i.e. an INLA object and mesh, in here we convert it from a raster to an spatial DF in SF and then we plots it.
@@ -1048,12 +1058,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     #If not set up a base plot.
     if(is.null(gg.obj))
     {
-      pect_plot <- ggplot() + 
-       # geom_sf(data=b.box, fill=NA) +
-        theme_minimal() + xlab("") + ylab("") +
-        coord_sf(expand=F) 
-        #scale_x_continuous(expand = 0) + # These cause problems with new sf() package for some reason...
-        #scale_y_continuous(expand = 0)
+      #browser()
+      pect_plot <- ggplot(data=b.box) + 
+        geom_sf(fill=NA) + coord_sf(expand=F)
+      #pect_plot
+        #theme_minimal() + xlab("") + ylab("") #+
+
     } # end if(!is.null(gg.obj))
     
     if(exists("bathy.smooth")) pect_plot <- pect_plot + geom_stars(data=bathy.smooth) + scale_fill_gradientn(colours = rev(brewer.blues(100)),guide = FALSE)  
@@ -1099,10 +1109,64 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(length(brk) <= 6) hgt <- unit(0.5,'cm')
       if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
       if(length(brk) > 12) hgt <- unit(1,'cm')
+      
       pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
         theme(legend.key.height =hgt,text = element_text(size=txt.size))
     }
-    
+
+  # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.
+    if(!is.null(axes))
+    {
+      # Need to shrink it here so I get the boundaries right
+      pect_plot <- pect_plot + coord_sf(expand=F)
+      
+      ylim <- layer_scales(pect_plot)$y$range$range
+      xlim <- layer_scales(pect_plot)$x$range$range
+      
+      locs <- st_as_sf(data.frame(X = xlim,Y = ylim),coords = c("X","Y"),crs = c_sys,remove =F)
+      locs <- st_transform(locs,crs=4326)
+      
+      tmp <- locs %>%  mutate(lon = unlist(map(locs$geometry,1)),
+                              lat = unlist(map(locs$geometry,2)))
+      
+      # Pretty doesn't work because we want these to be the same length
+      lat.loc <- pretty(tmp$lat,n=5)
+      n.lat <- length(lat.loc)
+      lon.loc <- pretty(tmp$lon,n=5)
+      n.lon <- length(lon.loc)
+      
+      if(n.lat != n.lon)
+      {
+        if(n.lat < n.lon) lat.loc <- c(lat.loc,rep(max(lat.loc),(n.lon-n.lat)))
+        if(n.lat > n.lon) lon.loc <- c(lon.loc,rep(max(lon.loc),(n.lat-n.lon)))
+      }
+      # To do the conversion to Dec Deg I'll need to combine these and do a conversion...
+      
+      #n.ticks <- nrow(tmp)
+      lat.loc <- lat.loc[2:(n.lat-1)]
+      lat.tmp <- convert.dd.dddd(lat.loc,'deg.min.sec')
+      lon.loc <- lon.loc[2:(n.lon-1)]
+      lon.tmp <- convert.dd.dddd(lon.loc,'deg.min.sec')
+      # Determine where you want to put your axis tick marks.  Make sure they all are within the plotting domain of tst or you'll get an unequal length vector error when you make next plot
+      #lon.loc <- c(66.167,66,65.833333,65.6667,65.5)
+      # Convert to deg-min-sec
+      # Repeat
+      #lat.loc <- c(43.416667,43.5,43.583333,43.6667,43.75)
+      # Now make some labels based on the above, if you can figure out how to get a minute symbol in here you are better than me!
+      if(axes == "DMS")
+      {
+        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*"), substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*W"))
+        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*"), substr(lat.tmp$Degree_Min_Sec$Degree_Minute_Seconds,7,8),expression("*{second}*N"))
+      }
+      if(axes == "DM")
+      {
+        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*W"))
+        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*N"))
+      }
+      # And then replot the figure
+      pect_plot <- pect_plot + scale_x_continuous(breaks =lon.loc,labels=parse(text = lon.disp)) +
+        scale_y_continuous(breaks = lat.loc,labels=parse(text = lat.disp)) 
+    } # end if(!is.null(axes))
   } # end if(plot_as != 'plotly')
 
   # Not implemented, strangely it seems native plotly is unable to handle the variaty of inputs we have here.
@@ -1224,18 +1288,20 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     
   } # end if(plot_as == "plotly")
   
+  # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
+  #browser()
+  pect_plot <- pect_plot + coord_sf(expand=F)
+  
+  
   if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
     if(legend == F) pect_plot <- ggplotly(pect_plot) %>% hide_legend()
     if(legend == T) pect_plot <- ggplotly(pect_plot) 
   }
-
-  pect_plot <- pect_plot +
-    coord_sf() +
-    theme(panel.background=element_rect(colour="black"), axis.ticks=element_line(colour="black"))
+  
 
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
-
+  #browser()
   return(pect_plot = pect_plot)
 } # end function

@@ -130,18 +130,21 @@ convert.dd.dddd<-function(x,format='dec.deg')
       if (any(sec == 60)) 
         {
           min[sec==60] <- min[sec==60] + 1
-          sec[sec==60] <- 0
+          sec[sec==60] <- "0"
         }
       if (any(min == 60))
         {
          deg[min==60] <- deg[min==60] + 1
-         min[min==60] <- 0
+         min[min==60] <- "00"
         } # end if (min == 60)
-      if(neg == T) deg <- -deg
+        if(neg == T) deg <- -deg
       ## Now I want to output a couple of different objects from this
       ## One is a simple output of the deg-min-sec, the other is
       ## an expression that includes the degree symbol for Mapping nice coordinates.
       # First the simple return
+      
+      sec[sec==0] <- '00'
+      min[min==0] <- '00'
       dm<-paste(deg,min,sep=":")
       dms<-data.frame(paste(dm,sec,sep=":"))
       colnames(dms) <- "Degree_Minute_Seconds"
