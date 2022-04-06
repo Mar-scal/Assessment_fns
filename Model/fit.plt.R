@@ -91,8 +91,8 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # If plotting credible intervals these are them.  Note they are 1-alpha/2 CI's, defaults to 95%.
   if(CI==T)
   {
-  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, alpha/2), lty = 2)
-  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), lty = 2)
+  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, alpha/2), lty = 2, col="grey50")
+  	lines(years[-which(is.na(data.out$median$B))], apply(sweep(data.out$sims.list$B[,-which(is.na(data.out$median$B))],2,FUN='*',data.out$median$q/Iadj), 2, quantile, 1-alpha/2), lty = 2, col="grey50")
   } # end if(CI==T)
   # Add the actual datapoints to the figure.
   points(years, data.out$data$I/Iadj, col = 'red', pch = 16,cex=1.2)
@@ -134,8 +134,8 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   # If we asked for credbile limits plot them.
   if(CI==T)
   {
-  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, alpha/2), lty = 2)
-  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), lty = 2)
+  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, alpha/2), lty = 2, col="grey50")
+  	  lines(years[-which(is.na(data.out$median$R))], apply(sweep(data.out$sims.list$R[,-which(is.na(data.out$median$R))],2,FUN='*',data.out$median$q*rl/Iadj), 2, quantile, 1-alpha/2), lty = 2, col = "grey50")
   }# if(CI==T)
   # Add the recruit time series points.
   points(years, data.out$data$IR/Iadj, col = 'red',pch=16,cex=1.2)
