@@ -1,5 +1,5 @@
 # Run the Offshore scallop JAGS model
-# can run multiple banks at once
+# can run multiple banks at once, but this is not recommended. 
 
 run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, nickname, run.model = T, model.dat = NULL,
                       strt.mod.yr=1986, nchains = 8,niter = 175000, nburn = 100000, nthin = 20,final.run = F,parallel = T,
@@ -694,7 +694,8 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
         
         p <-  pecjector(area = "NL", add_layer = list(land = 'grey',
                                                       eez = 'eez',
-                                                      sfa='offshore'),c_sys = 4326, quiet=T)
+                                                      sfa='offshore',
+                                                      bathy=c(100, 'c', 200)),c_sys = 4326, quiet=T)
 
         if(fig== "screen") windows(11,8.5)
         if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=13,height=11)

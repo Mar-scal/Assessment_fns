@@ -38,46 +38,46 @@ direct <- "Y:/Offshore/Assessment/"
 source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
 #source(paste(direct,"Assessment_fns/Model/diag.plt.R",sep=""))
 
-# Just because of how I have set this up to save objects, if running a bunch of sub-areas it is quicker to run
-# them one at a time, otherwise you end up with a gigantic object to save, assuming you are running the full
-# chain length.
-bank = c("GBa", "BBn")
-#bank <- c("BBn")
-yr <- 2021 # the survey year, not the current year if running in January-April
-num.banks <- length(bank)
-imputetype <- c("previous_year", "LTM", "midpoint")
-for(it in imputetype){
-  print(it)
-  for(k in 1:num.banks){
-    print(k)
-    update_JAGS(preprocessed=F, # Do you want to load the preprocessed data, you should only need this set to F the first time you run this after logs are complete
-                run.mod=F, # Do you want to re-run the model or use previously saved version
-                use.final=F, # Did you do a final model run and is that the one you want to load
-                final.run= F, # Is this your final run that will get results used in the model
-                parallel=F, # Run in parallel, not sure why you wouldn't as it is quicker...
-                make.diag.figs = F, # Do you want to make the diagnostic figures, these are not used for updates
-                make.update.figs=F, # Do you want to make the figures for the update
-                run.pred.eval.model = F, # Do you want to run the prediction evaluation model
-                export.tables = F,  # Do you want to save the decision table
-                bank=bank[k], # What bank and or sub-area do you want to run, possible choice shown below., I suggest you run this one by one
-                # These are all the possible banks currently available.
-                #bank = c("BBn","GBa","GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core" ),
-                yr=yr,
-                fig="png",pred.eval.fig.type="box",
-                niter = 2000,nburn = 1000,nchains=2, # use the defaults for the real deal
-                pe.years = yr,
-                direct=direct,direct_fns=direct_fns, direct_out = "C:/Users/keyserf/Documents/",
-                un=un.ID,pw=pwd.ID,db.con="ptran", 
-                language="en",
-                impute=it,
-                nickname=it) #Running both banks fully takes about 40 minutes.
-  }
-}
-# Run the model and see how long it takes.)
+# # Just because of how I have set this up to save objects, if running a bunch of sub-areas it is quicker to run
+# # them one at a time, otherwise you end up with a gigantic object to save, assuming you are running the full
+# # chain length.
+# bank = c("GBa", "BBn")
+# #bank <- c("BBn")
+# yr <- 2021 # the survey year, not the current year if running in January-April
+# num.banks <- length(bank)
+# imputetype <- c("previous_year", "LTM", "midpoint")
+# for(it in imputetype){
+#   print(it)
+#   for(k in 1:num.banks){
+#     print(k)
+#     update_JAGS(preprocessed=F, # Do you want to load the preprocessed data, you should only need this set to F the first time you run this after logs are complete
+#                 run.mod=F, # Do you want to re-run the model or use previously saved version
+#                 use.final=F, # Did you do a final model run and is that the one you want to load
+#                 final.run= F, # Is this your final run that will get results used in the model
+#                 parallel=F, # Run in parallel, not sure why you wouldn't as it is quicker...
+#                 make.diag.figs = F, # Do you want to make the diagnostic figures, these are not used for updates
+#                 make.update.figs=F, # Do you want to make the figures for the update
+#                 run.pred.eval.model = F, # Do you want to run the prediction evaluation model
+#                 export.tables = F,  # Do you want to save the decision table
+#                 bank=bank[k], # What bank and or sub-area do you want to run, possible choice shown below., I suggest you run this one by one
+#                 # These are all the possible banks currently available.
+#                 #bank = c("BBn","GBa","GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core" ),
+#                 yr=yr,
+#                 fig="png",pred.eval.fig.type="box",
+#                 niter = 2000,nburn = 1000,nchains=2, # use the defaults for the real deal
+#                 pe.years = yr,
+#                 direct=direct,direct_fns=direct_fns, direct_out = "C:/Users/keyserf/Documents/",
+#                 un=un.ID,pw=pwd.ID,db.con="ptran", 
+#                 language="en",
+#                 impute=it,
+#                 nickname=it) #Running both banks fully takes about 40 minutes.
+#   }
+# }
+# # Run the model and see how long it takes.)
 
 
 
-
+### 2022: FK broke up the Update_function_JAGS.r code into 2 separate scripts, and the projections are run below!
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 direct_out <- "C:/Users/keyserf/Documents/"
@@ -86,7 +86,7 @@ source(paste0(direct_fns, "/Model/run_model.r"))
 source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
 source(paste(direct_fns,"Model/prediction_evaluation_figure.r",sep="")) # The function to make the plots
 
-imputetype<-c("mixed")#, 
+imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation from here on.
   #"min", 
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
@@ -97,33 +97,36 @@ yr <- 2021
 
 for(b in banks){
   for(it in imputetype){
-   # if(b=="BBn" & it=="midpoint"){ #2h per run
     print(b)
     print(it)
-      # model_inputs(bank=b,
-      #              yr=2021, # the survey year, not the current year if running in January-April
-      #              impute=it,
-      #              nickname=it,
-      #              direct,
-      #              direct_fns)
-
-      run_model(banks=b,
-                yr=2021,
-                nickname=it,
-                direct,
-                direct_fns,
-                direct_out = "C:/Users/keyserf/Documents/",
-                run.model = T,
-                model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
-                parallel=T,
-                final.run=F,
-                nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
-                export.tables=F,
-                make.diag.figs = F,
-                make.update.figs = T,
-                language="en",
-                fig="png")
-      
+    # uncomment this the first time!
+    # model_inputs(bank=b,
+    #              yr=2021, # the survey year, not the current year if running in January-April
+    #              impute=it,
+    #              nickname=it,
+    #              direct,
+    #              direct_fns)
+    
+    # runs the model IF run.model=T, and creates all figures
+    run_model(banks=b,
+              yr=2021,
+              nickname=it,
+              direct,
+              direct_fns,
+              direct_out = "C:/Users/keyserf/Documents/",
+              run.model = F,
+              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+              parallel=T,
+              final.run=T,
+              nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
+              export.tables=F,
+              make.diag.figs = F,
+              make.update.figs = T,
+              language="en",
+              fig="png")
+    
+    # prediction evaluation
+    
     #   load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
     # 
     #   if(!dir.exists(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))) dir.create(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
@@ -187,7 +190,7 @@ for(b in banks){
 
 # Here are a quick summary of the interesting model results which we report in the model update for BBn and GBa.
 load(paste(direct,"Data/Model/2022/GBa/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
-load(paste(direct,"Data/Model/2022/BBn/Results/Model_testing_results_mixed.RData",sep=""))
+load(paste(direct,"Data/Model/2022/GBa/Results/Model_testing_results_mixed.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/GBa/Results/Model_results_and_diagnostics.RData",sep=""))
 load(paste(direct,"/Data/Model/2022/BBn/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/BBn/Results/Model_results_and_diagnostics.RData",sep=""))
