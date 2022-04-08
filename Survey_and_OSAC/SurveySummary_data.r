@@ -115,7 +115,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   ############################# GENERAL DATA ########################################################
   # Enter here standard data which is used throughout this script.
   # Note that if you specifed surveys == "all" that runs these banks.
-  if(length(surveys)==1 & any(surveys == "all")) surveys = c("BanSeaspring", "BanIcespring", "BBnspring" ,"BBsspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer")
+  if(length(surveys)==1 & any(surveys == "all")) surveys = c("Banspring", "BanIcespring", "BBnspring" ,"BBsspring" ,"Gerspring", "Midspring", "Sabspring", "GBspring" ,"GBbsummer", "GBasummer")
   # The length of the loop to run
   num.surveys <- length(surveys)
   atow<-800*2.4384/10^6 # area of standard tow in km2

@@ -73,6 +73,7 @@ meat.count.table <- function(filenames, path)
                                 fleet="all"),
                           type="full"),
                      bank, fleet)
+  
   # Return the pieces of interest
   return(list(meatcounts=txtfiles,
               summarytable=mctable))
