@@ -441,6 +441,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
         if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
         {
+          bathy.org <- marmap::as.bathy(bathy)
           bathy.s <- bathy.org
           bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
           bathy.s[which(bathy.s > 0)] <- 0
