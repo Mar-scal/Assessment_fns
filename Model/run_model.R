@@ -107,7 +107,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
     # If you need to run the model giver.
     # There is a possiblitly that some of the sub-area values will be 0's, for those cases I'm going to use the value from the 
     # following year as the value and spit out a warning
-    if(any(mod.dat[[bnk]] == 0))
+    if(any(mod.dat[[bnk]] == 0 & !is.na(mod.dat[[bnk]])))
     {
       # Here are the columns that have 0's in them, there must be a better way to do this, but we also want to
       # go from most recent to oldest just in case we have back to back years with 0's...
@@ -336,6 +336,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
     }
     
     if(run.model==F) {
+      if(final.run==T & grepl(pattern="Final", x = model.dat)==F) stop("You are trying to use the final run but the model.dat file name is not a final run. Check arguments in run.model")
       load(model.dat)
     }
         
@@ -686,16 +687,19 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
         joined$fr <- gsub(x=joined$fr, pattern="Georges 'a'", replacement ="Georges \u00ABa\u00BB")
         joined$fr <- gsub(x=joined$fr, pattern="Georges 'b'", replacement ="Georges \u00ABb\u00BB")
         joined$fr <- gsub(x=joined$fr, pattern="Eastern Scotian Shelf", replacement ="Est du plateau n\u00E9o-\u00E9cossais")
+        joined$fr <- gsub(x=joined$fr, pattern="SFA", replacement ="ZPP")
+        
         
         
         nonGB <- joined[!joined$SFA %in% c("SFA27A", "SFA27B"),]
         GBalab <- joined[joined$SFA %in% c("SFA27A"),]
         GBblab <- joined[joined$SFA %in% c("SFA27B"),]
-        
+   
         p <-  pecjector(area = "NL", add_layer = list(land = 'grey',
                                                       eez = 'eez',
                                                       sfa='offshore',
-                                                      bathy=c(100, 'c', 200)),c_sys = 4326, quiet=T)
+                                                      bathy=c(100, 'c', 200)),
+                        c_sys = 4326, quiet=T)
 
         if(fig== "screen") windows(11,8.5)
         if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=13,height=11)

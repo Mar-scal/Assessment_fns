@@ -600,9 +600,11 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
               # The query to grab log data
               qu.slip <- paste("select * from marfissci.P_OFFSHORE_SCALLOP_SLIP_2008 where DATE_SAILED like '%-",yr[i]-2000,"'",sep="")
               qu.log <- paste("select * from marfissci.P_OFFSHORE_SCALLOP_LOG_2008 where DATE_FISHED like '%-",yr[i]-2000,"'",sep="")
-              # Run the query and add data to the log.lst object            
+              
+              # Run the query and add data to the log.lst object
               log.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.log)
               slip.lst[[i]] <- ScallopQuery(package=db.lib, un=un, pw=pw, db.con=db.con, SQLtext= qu.slip)
+              
               #odbcCloseAll()  # close the database connection.
               
               # Send each year to a flat file in the Raw_MARFIS folder

@@ -2,7 +2,7 @@
 #### FK 2021
 # conclusion of 2022 process was to use "mixed" approach for imputation. midpoints for everything except growth, which uses LTM, so I have made that the default param.
 model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns){
-  
+  browser()
   if(missing(direct_fns))
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
@@ -173,6 +173,15 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns)
         survey.obj[[bank[i]]][[1]]$RS <- 85
         survey.obj[[bank[i]]][[1]]$CS <- 95
       }
+      if(impute=="no") {
+        # browser()
+        # year2020 <- as.data.frame(t(data.frame(vals = rep(NA, length(names(survey.obj[[bank[i]]][[1]]))))))
+        # names(year2020) <- names(survey.obj[[bank[i]]][[1]])
+        # year2020$year <- 2020
+        # survey.obj[[bank[i]]][[1]] <- merge(survey.obj[[bank[i]]][[1]], year2020, all=T)
+        # survey.obj[[bank[i]]][[1]]$RS <- 85
+        # survey.obj[[bank[i]]][[1]]$CS <- 95
+      }
       
     }
     
@@ -206,6 +215,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns)
     #for all other years we need to do this for Browns Bank North
     # It really makes very little difference which way this is done as the catch in June-August
     # has averaged around just 40 tonnes since about 1996.
+    
     if(yr != 2015 &&  master.bank== "BBn") 
     {
       if(!missing(direct_fns)) cpue.dat[[bank[i]]] <- fishery.dat(fish.dat,bk=master.bank,yr=(min(years)-1):max(years),surv='May',

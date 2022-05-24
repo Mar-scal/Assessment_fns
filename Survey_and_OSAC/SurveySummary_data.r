@@ -288,11 +288,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     print("get.offshore.survey done")
     
     ### Do any preprocessing to the BanIce data here
-    if("BanIcespring" %in% surveys) {
-     BanIceSurvey2012 <- read.csv(paste0(direct, "Data/Survey_data/2012/Spring/BanIceSurvey2012.csv"))
-     BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
-     message("Note: the pre/rec/com estimates and HF data for tow 936 in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data)\nare WRONG and are based on incorrect bins. We will recalculate these later in this function.\nAlso note that BanIce tow 936 HF data was corrected in 2019.\nThe accurate raw HF data are in .../Data/2012/Spring/TE13BanIcehf.csv. NOT IN THE Y:/Alan/... FOLDER\nNOR IN Y:/Offshore scallop/Assessment/2012/r/data FOLDER.")
-    }
+    # if("BanIcespring" %in% surveys) {
+    #  BanIceSurvey2012 <- read.csv(paste0(direct, "Data/Survey_data/2012/Spring/BanIceSurvey2012.csv"))
+    #  BanIceSurvey2012 <- BanIceSurvey2012[,which(names(BanIceSurvey2012)=="year"):which(names(BanIceSurvey2012)=="random")]
+    #  message("Note: the pre/rec/com estimates and HF data for tow 936 in .../2012/r/data/Ban/BanIceSurvey2012.csv (2006 and 2012 flat data)\nare WRONG and are based on incorrect bins. We will recalculate these later in this function.\nAlso note that BanIce tow 936 HF data was corrected in 2019.\nThe accurate raw HF data are in .../Data/2012/Spring/TE13BanIcehf.csv. NOT IN THE Y:/Alan/... FOLDER\nNOR IN Y:/Offshore scallop/Assessment/2012/r/data FOLDER.")
+    # }
     
     ### This grabs the data directly from the database and makes it it's own object, works for now
     ### since we don't use the data for anything but a plot on GB.
@@ -319,7 +319,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # Replace the strata ID with a unique identifier.
     SurvDB$MWs$ID<-with(SurvDB$MWs,paste(cruise,tow,sep='.'))
     # Combine the Survey data.  This first one has all of the SHF data there is.
-    all.surv.dat <- rbind(survMay.dat,survAug.dat,SurvDB$SHF) # Springsurv2011$SHF,
+    all.surv.dat <- rbind(#survMay.dat,survAug.dat,
+      SurvDB$SHF) # Springsurv2011$SHF,
     # Extract the month so we can determine spring (< 7) vs. summer (> 6) surveys.  Really only necessary for GBa/GBb to be honest.
     all.surv.dat$survey[all.surv.dat$month < 7] <- "spring"
     all.surv.dat$survey[all.surv.dat$month > 6] <- "summer"
@@ -340,12 +341,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     MW.dat.new$bank[MW.dat.new$bank=="Ban" & MW.dat.new$species=="icelandic"] <- "BanIce"
     #Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
+    # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files. 
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
     # if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
     
     # remove "commercial" survey tows that were done in the past
-    if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
+    # if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
+    if(commercialsampling == T) MW.dat <- MW.dat[MW.dat$tow==0,]
     
     print("import.hyd.data done")
     
@@ -448,15 +451,19 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   ################################### SECTION 2 SECTION 2 SECTION 2 ############################################
   ###############################################################################################################
-  
+  browser()
   # Create a new column that ID's the Bank-Survey combo...
-  # Make all the GB spring data just GB as we don't differentiate it here.
+  # Make all the GB spring data just GB as we don't differentiate it here. 
   all.surv.dat$bank[all.surv.dat$bank %in% c("GBa","GBb","GB") & all.surv.dat$survey == "spring"] <- "GB"
   # Incorporated BanIcespring and Banspring in January/July 2019 to prep for potential 2019 survey.
   all.surv.dat$bank[all.surv.dat$bank %in% "Ban" & all.surv.dat$species=="icelandic"] <- "BanIce"
   all.surv.dat$surv.bank <- paste0(all.surv.dat$bank,all.surv.dat$survey)
   # Remove GBsummer data are ambiguous as to whether they are from GBa or GBb so remove them too...
   all.surv.dat <- subset(all.surv.dat,surv.bank != "GBsummer")
+
+  # Remove GB grid survey data (added to SCALOFF during 2021-2022 historical loading work)
+  # tow type 3, and 300 series tow numbering, not in spring, from 1984-2009
+  all.surv.dat <- all.surv.dat[!(all.surv.dat$bank %in% c("GBa", "GBb") & all.surv.dat$random==3 & all.surv.dat$tow %in% 300:399 & all.surv.dat$year<2020),]
   
   if(is.null(survey.year)) survey.year <- yr
   
@@ -804,8 +811,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       # Add 200 to the tow numbers on BBn for the years 1991:2000 to get the numbering to match. 
       # 2015 entered into the db as 1-100 as well. And beware of extras!
-      if(bnk == "BBn")  bank.dat[[bnk]]$tow[bank.dat[[bnk]]$year %in% c(1991:2000, 2015) & bank.dat[[bnk]]$tow < 200] <- 
-        bank.dat[[bnk]]$tow[bank.dat[[bnk]]$year %in% c(1991:2000, 2015) & bank.dat[[bnk]]$tow < 200] + 200
+      # if(bnk == "BBn")  bank.dat[[bnk]]$tow[bank.dat[[bnk]]$year %in% c(1991:2000, 2015) & bank.dat[[bnk]]$tow < 200] <- 
+      #   bank.dat[[bnk]]$tow[bank.dat[[bnk]]$year %in% c(1991:2000, 2015) & bank.dat[[bnk]]$tow < 200] + 200
       
       # Assign the strat based on location, the "new_strata" column is used for processing later on in the function so I've retained it.
       # We used to write to the screen what percentage of strata were reassigned. But the strata are now entered as NULL so it'll always be 100%
@@ -876,32 +883,28 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
       
-      # just in case there are still remnant Commercial sampling station 0 tows that we need to get rid of (e.g. if you have pre-processed = T and are using an RData created before Jan2019 edits):
-      if(commercialsampling==F) MW.dat <- MW.dat[!MW.dat$tow==0,]
-      
-      # here we are putting the MW hydration sampling from 2010 and earlier together with the data since 2010 and 
+      # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
-        # MEAT WEIGHT DATA - hydration sampling, This will vary for certain banks, 
-        # Create and export a MW-SH object
-        if(bank.4.spatial == "Mid") {
-          mw.dat.all[[bnk]] <- merge(
-            subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
-                   c("tow","year","lon","lat","depth","sh","wmw")),
-            subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
-          if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+        if(commercialsampling==T){# MEAT WEIGHT DATA - hydration sampling, This will vary for certain banks, 
+          # Create and export a MW-SH object
+          if(bank.4.spatial == "Mid") {
+            mw.dat.all[[bnk]] <- merge(
+              subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
+                     c("tow","year","lon","lat","depth","sh","wmw")),
+              subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+          }
+          if(bank.4.spatial %in% c("Ban", "BanIce")) {
+            mw.dat.all[[bnk]] <- merge(
+              subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
+                     c("tow","year","lon","lat","depth","sh","wmw")),
+              subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+          }
         }
-        if(bank.4.spatial %in% c("Ban", "BanIce")) {
-          mw.dat.all[[bnk]] <- merge(
-            subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
-                   c("tow","year","lon","lat","depth","sh","wmw")),
-            subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
-          if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
-        }
+        if(commercialsampling==F) mw.dat.all[[bnk]] <- select(mw[[bnk]], tow, year, lon, lat, depth, sh, wmw)
         
         mw.dat.all[[bnk]]$ID<-paste(mw.dat.all[[bnk]]$year,mw.dat.all[[bnk]]$tow,sep='.')
-        
         # write this now for these banks
         write.csv(mw.dat.all[[bnk]],paste(direct,"Data/Survey_data/",yr,"/Spring/",bank.4.spatial,"/mw_Data.csv",sep=""),row.names=F) # Write1
         ## MODEL - This is the model used to esimate condition factor across Middle Bank
@@ -924,32 +927,33 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce"))
       {
-        if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
-        if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
-        mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
-        # Grab the relavent Meat-Weight Shell height data and make a flat file from it
-        if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
-        {
-          mw.dat.all[[bnk]] <- merge(
-            subset(mw.tmp, 
-                   month %in% 5:6 & year %in% years,
-                   c("ID","year","lon","lat","depth","sh","wmw","tow")),
-            subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
-            all=T)
-          if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
+        if(commercialsampling==T){
+          if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
+          if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
+          mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
+          # Grab the relavent Meat-Weight Shell height data and make a flat file from it
+          if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
+          {
+            mw.dat.all[[bnk]] <- merge(
+              subset(mw.tmp, 
+                     month %in% 5:6 & year %in% years,
+                     c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              all=T)
+          }
+          
+          # Grab the relavent Meat-Weight Shell height data for the summer 
+          if(bank.4.spatial %in% c("GBa","GBb")) 
+          {
+            mw.dat.all[[bnk]] <- merge(
+              subset(mw.tmp, 
+                     month > 7 & year %in% years,
+                     c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              all=T)
+          }
         }
-        
-        # Grab the relavent Meat-Weight Shell height data for the summer 
-        if(bank.4.spatial %in% c("GBa","GBb")) 
-        {
-          mw.dat.all[[bnk]] <- merge(
-            subset(mw.tmp, 
-                   month > 7 & year %in% years,
-                   c("ID","year","lon","lat","depth","sh","wmw","tow")),
-            subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
-            all=T)
-          if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], tow>0)
-        }
+        if(commercialsampling==F) mw.dat.all[[bnk]] <- subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow"))
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
@@ -1023,6 +1027,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       print("surv.by.tow done")
       
+    
       # On Georges spring we need to tidy up some of the randoms..
       if(bank.4.spatial == "GB")
       {
@@ -1143,7 +1148,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         for(b in 1:length(ger.years))
         {
           # Get the tows for the current year.
-          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b] & random != 2,c("tow","slon","slat","lat","lon","elon","elat","random","year"))
+          new.ger.tows <- subset(surv.Live[[bnk]], year == ger.years[b] & random %in% c(1,3),c("tow","slon","slat","lat","lon","elon","elat","random","year"))
           # Get the EID's into the correct format...
           new.ger.tows$EID <- 1:nrow(new.ger.tows)
           # Now get the tows for the previous year, in 2009 we select only the lined tows from the 2008 survey (this is what was done in the past).
