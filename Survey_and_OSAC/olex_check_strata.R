@@ -1,6 +1,15 @@
+# For comparing Olex tows to planned tow coordinates and strata, with interactive plotly option
+# FK 2022
+
+# example
+output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv",
+                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt",
+                            bank="Sab", interactive=T)
+# if interactive=T, HTML widget "olex_check_strata.html" is saved in your working directory (getwd()) 
 
 
-olex_check_strata <- function(filename, bank){
+olex_check_strata <- function(towplan, towfile, bank, interactive=F){
+  sf_use_s2(FALSE)
   #Import olex data:
   # converting offshore survey strata into Olex format
   # Figure out where your tempfiles are stored
@@ -32,22 +41,54 @@ olex_check_strata <- function(filename, bank){
   track <- olex_import(filename) %>%
     st_transform(4326)
   
+  sf_use_s2(FALSE)
+  
   inter <- st_intersection(track, dplyr::select(offshore.strata[offshore.strata$label==bank,], Strt_ID, col, PName))
   
+  
+  #### get the station list (tow plan)
+  planned <- read.csv(towplan)
+  planned <- planned %>%
+    st_as_sf(coords=c("Long.dd", "Lat.dd"), crs=4326)
+  names(planned)[1] <- "plan_ID"
+  
+  planned_buff <- st_transform(planned, 32620) %>%
+    st_buffer(800) %>%
+    st_transform(4326)
+  
+  plancheck <- st_intersection(inter, dplyr::select(planned_buff, plan_ID, Strata_ID, STRATA))
+  
+  if(any(!plancheck$Strt_ID == plancheck$Strata_ID)) {
+    message("The following planned tows ended up in a different strata:")
+    print(plancheck[which(!plancheck$Strt_ID == plancheck$Strata_ID,)])
+  }
+  if(any(!inter$ID %in% plancheck$ID)) {
+    message("The following completed tows did not intersect with a planned tow (with 800m buffer):")
+    print(inter[which(!inter$ID %in% plancheck$ID,)])
+  }
   
   baseplot <- pecjector(area=bank, add_layer = list(survey=c("offshore", "detailed")))
   
   print(baseplot + 
-          geom_sf(data=inter) +
+          geom_sf(data=inter, colour="blue") +
+          geom_sf(data=planned, colour="red")+
           theme_bw() +
           coord_sf(expand=F))
   
-  return(inter)
+  sf_use_s2(FALSE)
+  
+  if(interactive==T) {
+    require(plotly)
+    htmlwidgets::saveWidget(
+      ggplotly(baseplot + 
+                 geom_sf(data=inter, colour="blue", aes(label=ID))+
+                 geom_sf(data=planned, colour="red", aes(label=plan_ID))+
+                 theme_bw() +
+                 coord_sf(expand=F)),
+      paste0(getwd(), "/olex_check_strata.html"))
+  }
+  
+  return(plancheck)
 }
-
-
-output <- olex_check_strata(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", 
-                  bank="Sab")
-output[output$ID==38,]
 
 

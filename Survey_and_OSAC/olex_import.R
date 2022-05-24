@@ -2,11 +2,11 @@
 # Code by TPD April 2022, inspired by https://github.com/Mar-scal/Inshore/blob/main/Survey/OLEX-latlong_conversion.R
 
 #example:
-# olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt")
+# olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=115)
 # will also work for .gz files!
 
 
-olex_import <- function(filename){
+olex_import <- function(filename, ntows){
   #Import olex data:
   library(data.table)
   library(splitstackshape)
@@ -36,7 +36,7 @@ olex_import <- function(filename){
   
   zz <- read.csv(filename)
   
-  str(zz)
+  #str(zz)
   zz$Ferdig.forenklet <- as.character(zz$Ferdig.forenklet)
   
   #Split characters separated by spaces into columns.
@@ -53,10 +53,9 @@ olex_import <- function(filename){
     dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
     mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
     mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
-  
+  browser()
   # this must return TRUE!
-  length(zz[zz$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(zz[zz$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)
-  
+  if(!length(zz[zz$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(zz[zz$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)) stop("Error in olex file")
   #View(zz)
   
   #Select the row where the track data starts (i.e. the first "Garnstart"). Check for "Grønnramme".
@@ -82,6 +81,8 @@ olex_import <- function(filename){
   
   zz.end$End_lat <- trunc(zz.end$End_lat*10^3)/10^3
   zz.end$End_long <- trunc(zz.end$End_long*10^3)/10^3
+  
+  if(!length(zz.start$Start_lat)==ntows) message(paste0("Number of tows tracked (", length(zz.start$Start_lat), ") does not equal expected number of tows, beware!"))
   
   coords <- cbind(zz.start, zz.end) %>% 
     mutate(ID = seq(1,nrow(zz.start),1))  #NOTE - ID IS NOT TOW NUMBER (although it could lineup). it is only used to compare records when matching strata #s and SPAs.
