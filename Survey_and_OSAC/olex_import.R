@@ -3,6 +3,7 @@
 
 #example:
 # olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt")
+# will also work for .gz files!
 
 
 olex_import <- function(filename){
@@ -56,7 +57,7 @@ olex_import <- function(filename){
   # this must return TRUE!
   length(zz[zz$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(zz[zz$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)
   
-  View(zz)
+  #View(zz)
   
   #Select the row where the track data starts (i.e. the first "Garnstart"). Check for "Grønnramme".
   zz <- zz[min(which(zz$Ferdig.forenklet_4 == "Garnstart")):nrow(zz),] #[Row# where "Garnstart" first occurs: to end of data]  #Most likely its however many stations there are, but could be more if observations were added.
