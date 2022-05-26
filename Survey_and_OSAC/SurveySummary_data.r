@@ -451,7 +451,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   ################################### SECTION 2 SECTION 2 SECTION 2 ############################################
   ###############################################################################################################
-  browser()
+  
   # Create a new column that ID's the Bank-Survey combo...
   # Make all the GB spring data just GB as we don't differentiate it here. 
   all.surv.dat$bank[all.surv.dat$bank %in% c("GBa","GBb","GB") & all.surv.dat$survey == "spring"] <- "GB"
@@ -839,7 +839,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       print("assign.strata done. Note, this is based on tow start location.")
       
-      # MEAT WEIGHT DATA from 2011-current Get the mw data from 2011 to this year, this is if we aren't doing any spatial subsetting
+      # MEAT WEIGHT DATA from SCALOFF database, all years - if we aren't doing any spatial subsetting
       if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
       {
         if(bnk != "GB" && bnk != "GBa" && bnk != "GBb") mw[[bnk]] <- subset(MW.dat.new,bank==bnk)
@@ -893,13 +893,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6,select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
           if(bank.4.spatial %in% c("Ban", "BanIce")) {
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]],select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6, select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
         }
         if(commercialsampling==F) mw.dat.all[[bnk]] <- select(mw[[bnk]], tow, year, lon, lat, depth, sh, wmw)
@@ -938,7 +938,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]], month %in% 5:6,select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
           
@@ -949,7 +949,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
               subset(mw.tmp, 
                      month > 7 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]],select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]], month > 7,select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
         }
@@ -1040,10 +1040,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # For GB spring the survey of interest are the comparative tows...
       surv.Clap[[bnk]]<-subset(surv.dat[[bnk]],state=='dead')
       surv.Live[[bnk]]<-subset(surv.dat[[bnk]],state=='live')
-      if(bank.4.spatial != "GB") surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random==1)		
-      if(bank.4.spatial != "GB") surv.Clap.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='dead'& random==1)
+      if(!bank.4.spatial %in% c("GB", "Mid")) {
+        surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random==1)
+        surv.Clap.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='dead'& random==1)
+      }
       if(bank.4.spatial == "GB") surv.Clap.Rand[[bnk]] <- subset(surv.dat[[bnk]],state=='dead'& random==3)
-      if(bank.4.spatial == "GB") surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random==3)	
+      if(bank.4.spatial == "GB") surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random==3)
+      if(bank.4.spatial == "Mid") surv.Clap.Rand[[bnk]] <- subset(surv.dat[[bnk]],state=='dead'& random %in% c(1,3))
+      if(bank.4.spatial == "Mid") surv.Rand[[bnk]]<-subset(surv.dat[[bnk]],state=='live' & random %in% c(1,3))
       #########  Now calculate the clappers...
       
       # Clappers the banks for each size class
@@ -1106,15 +1110,20 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
-      if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
-      {
+      if(bank.4.spatial %in% c("Ban", "BanIce")) {
         survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],years=years,user.bins=bin)
         survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
                                             function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random==1,],year == years[x]),
                                                              weighted.mean(CF,com.bm,na.rm=T))})
-        if(bank.4.spatial == "Mid") clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
-        if(bank.4.spatial %in% c("Ban", "BanIce")) message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
-      } #end 	if(bnk == "Mid")  
+        message("Using surv.Clap instead of surv.Clap.Rand for Ban"); clap.survey.obj[[bnk]]<-simple.surv(surv.Clap[[bnk]][surv.Clap.Rand[[bnk]]$random==1,],years=years)
+      }
+      if(bank.4.spatial =="Mid") {
+        survey.obj[[bnk]] <- simple.surv(surv.Live[[bnk]][surv.Live[[bnk]]$random %in% c(1, 3),],years=years,user.bins=bin)
+        survey.obj[[bnk]][[1]]$CF <- sapply(1:length(years),
+                                            function(x){with(subset(surv.Live[[bnk]][surv.Live[[bnk]]$random %in% c(1,3),],year == years[x]),
+                                                             weighted.mean(CF,com.bm,na.rm=T))})
+        clap.survey.obj[[bnk]]<-simple.surv(surv.Clap.Rand[[bnk]][surv.Clap.Rand[[bnk]]$random %in% c(1,3),],years=years)
+      }
       # And here is Georges Bank spring survey results
       if(bank.4.spatial == "GB")  
       {
@@ -1278,7 +1287,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         
-        ## in 2021, we identified an issue with the strata areas used for BBn. They are for a broader survey domain than the shapefiles used currently. 
+        ## BBn strata: in 2021, we identified an issue with the strata areas used for BBn. They are for a broader survey domain than the shapefiles used currently. 
         ## This has been an issue since 2014. In August 2021, we replaced the values in survey_information.csv with the areas that correspond to the strata 
         ## that have been used since 2014. During this investigation, it was noted that a domain estimator was not applied during the restratification
         ## in 2013. This should be corrected during the next BBn Framework. See Github issues #86 and #87 
