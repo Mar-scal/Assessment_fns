@@ -465,6 +465,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # tow type 3, and 300 series tow numbering, not in spring, from 1984-2009
   all.surv.dat <- all.surv.dat[!(all.surv.dat$bank %in% c("GBa", "GBb") & all.surv.dat$random==3 & all.surv.dat$tow %in% 300:399 & all.surv.dat$year<2020),]
   
+  # Remove comparative surveys conducted in 2004
+  all.surv.dat <- all.surv.dat[!all.surv.dat$cruise %in% c("CK03", "P454"),]
+  MW.dat.new <- MW.dat.new[!MW.dat.new$cruise %in% c("CK03", "P454"),]
+  
   if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
