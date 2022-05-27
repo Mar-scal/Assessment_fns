@@ -255,6 +255,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # take out years 2001-2006
     survMay.dat <- survMay.dat[survMay.dat$year<2001,]
     # take out 2000 for all banks except browns, GB
+    
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
     
     print("check years in import.survey.data to update for any additional historical data that has been loaded since last time.")
@@ -465,10 +466,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # tow type 3, and 300 series tow numbering, not in spring, from 1984-2009
   all.surv.dat <- all.surv.dat[!(all.surv.dat$bank %in% c("GBa", "GBb") & all.surv.dat$random==3 & all.surv.dat$tow %in% 300:399 & all.surv.dat$year<2020),]
   
-  # Remove comparative surveys conducted in 2004
+  # Remove comparative surveys conducted in 2004. Keep the MWSH data from these surveys though, because they are collected at the right time of year (treat them like commercial samples)
   all.surv.dat <- all.surv.dat[!all.surv.dat$cruise %in% c("CK03", "P454"),]
-  MW.dat.new <- MW.dat.new[!MW.dat.new$cruise %in% c("CK03", "P454"),]
-  
+
   if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
@@ -936,13 +936,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
           mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
           # Grab the relavent Meat-Weight Shell height data and make a flat file from it
+          # special handling for 2000 German survey (August) and 2015 BBn/Ger survey (July-September)
           if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
           {
             mw.dat.all[[bnk]] <- merge(
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]], month %in% 5:6,select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]], (month %in% 5:6 & !year %in% 2015) | year==2015 | year==2000, select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
           

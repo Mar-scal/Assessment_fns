@@ -53,7 +53,7 @@ olex_import <- function(filename, ntows){
     dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
     mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
     mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
-  browser()
+  
   # this must return TRUE!
   if(!length(zz[zz$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(zz[zz$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)) stop("Error in olex file")
   #View(zz)

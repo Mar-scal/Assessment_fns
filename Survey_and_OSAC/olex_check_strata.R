@@ -2,9 +2,9 @@
 # FK 2022
 
 # example
-output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv",
-                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt",
-                            bank="Sab", interactive=T)
+# output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv",
+#                             towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt",
+#                             bank="Sab", interactive=T)
 # if interactive=T, HTML widget "olex_check_strata.html" is saved in your working directory (getwd()) 
 
 
@@ -38,7 +38,7 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F){
     st_transform(4326)
   
   ##### Now get the tow tracks 
-  track <- olex_import(filename) %>%
+  track <- olex_import(towfile) %>%
     st_transform(4326)
   
   sf_use_s2(FALSE)
