@@ -5,7 +5,7 @@
 ### ARGUMENTS
 # filename: gz or txt file with olex data
 # ntows: the number of tows you are expecting to extract from file (just as a check). Can be left NULL
-# type: "load" gives you the information needed to load into SCALOFF, track" gives the full tow track in sf format, "startend" gives only the start and end points in sf format 
+# type: "load" gives you the information needed to load into SCALOFF, "track" gives the full tow track in sf format, "startend" gives only the start and end points in sf format 
 
 #example:
 # olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=115)
@@ -112,13 +112,14 @@ olex_import <- function(filename, ntows=NULL, type){
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
+  # export the start and end points if that's all you want!
   if(type=="startend") {
     print(ggplot() + geom_sf(data=coords.track, lwd=1) + coord_sf() + theme_bw())
     return(coords.track)
   }
   
   
-  
+  # continue on to look at actual tracks (instead of just start and end points)
   track <- data.frame(start=which(zz$Ferdig.forenklet_4=="Garnstart"), end=which(zz$Ferdig.forenklet_4=="Garnstopp"))
   if(any(!track$start<track$end)) stop("check tow file, seems like there is a Garnstopp before a Garnstart")
   track$tow <- 1:nrow(track)
@@ -148,17 +149,21 @@ olex_import <- function(filename, ntows=NULL, type){
   
   print(ggplot() + geom_sf(data=trackpts, lwd=1) + coord_sf() + theme_bw())
   
-  trackpts$length <- trackpts %>% 
-    st_transform(32620) %>%
-    group_by(tow) %>% st_length()
-  
-  trackpts$dis_coef <- 800/trackpts$length
-  
+  # if all you want are tracks in sf format, here you go!
   if(type=="track"){
     return(trackpts)  
   }
   
+  # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load"){
+    # calculate distance coef
+    trackpts$length <- trackpts %>% 
+      st_transform(32620) %>%
+      group_by(tow) %>% st_length()
+    
+    trackpts$dis_coef <- 800/trackpts$length
+    
+    # calculate bearing and extract start and end points
     trackpts$bearing <- NA
     trackpts$start_lon <- NA
     trackpts$start_lat <- NA
@@ -180,10 +185,4 @@ olex_import <- function(filename, ntows=NULL, type){
   }
   
 }
-
-
-
-
-
-
 
