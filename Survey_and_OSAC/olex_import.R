@@ -6,7 +6,7 @@
 # will also work for .gz files!
 
 
-olex_import <- function(filename, ntows){
+olex_import <- function(filename, ntows=NULL){
   #Import olex data:
   library(data.table)
   library(splitstackshape)
@@ -82,8 +82,10 @@ olex_import <- function(filename, ntows){
   zz.end$End_lat <- trunc(zz.end$End_lat*10^3)/10^3
   zz.end$End_long <- trunc(zz.end$End_long*10^3)/10^3
   
-  if(!length(zz.start$Start_lat)==ntows) message(paste0("Number of tows tracked (", length(zz.start$Start_lat), ") does not equal expected number of tows, beware!"))
-  
+  if(!is.null(ntows)){
+    if(!length(zz.start$Start_lat)==ntows) message(paste0("Number of tows tracked (", length(zz.start$Start_lat), ") does not equal expected number of tows, beware!"))
+  }
+    
   coords <- cbind(zz.start, zz.end) %>% 
     mutate(ID = seq(1,nrow(zz.start),1))  #NOTE - ID IS NOT TOW NUMBER (although it could lineup). it is only used to compare records when matching strata #s and SPAs.
   
