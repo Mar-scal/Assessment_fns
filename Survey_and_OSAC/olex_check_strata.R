@@ -38,7 +38,7 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F){
     st_transform(4326)
   
   ##### Now get the tow tracks 
-  track <- olex_import(towfile) %>%
+  track <- olex_import(towfile, type="startend") %>%
     st_transform(4326)
   
   sf_use_s2(FALSE)
