@@ -16,7 +16,6 @@
 olex_import <- function(filename, ntows=NULL, type){
   #Import olex data:
   library(data.table)
-  library(splitstackshape)
   library(tidyverse)
   library(sf)
   library(rmapshaper)

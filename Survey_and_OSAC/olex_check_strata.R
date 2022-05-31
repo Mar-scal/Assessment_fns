@@ -9,6 +9,7 @@
 
 
 olex_check_strata <- function(towplan, towfile, bank, interactive=F){
+  require(sf)
   sf_use_s2(FALSE)
   #Import olex data:
   # converting offshore survey strata into Olex format
