@@ -18,8 +18,6 @@ olex_import <- function(filename, ntows=NULL, type){
   library(data.table)
   library(tidyverse)
   library(sf)
-  library(rmapshaper)
-  library(mapview)
   library(ggplot2)
   library(dplyr)
   
