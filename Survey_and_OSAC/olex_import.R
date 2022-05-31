@@ -20,6 +20,8 @@ olex_import <- function(filename, ntows=NULL, type){
   library(sf)
   library(ggplot2)
   library(dplyr)
+  require(splitstackshape)
+  require(rmapshaper)
   
   #Norwegian translation according to Google:
   #Grønnramme - basic framework
