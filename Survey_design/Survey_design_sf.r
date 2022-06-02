@@ -88,7 +88,7 @@
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          pt.txt.sz = 4,repo = 'github', load_stations=F, tow_buffer=F)
+                          pt.txt.sz = 2,repo = 'github', load_stations=F, tow_buffer=F)
 {
   print(banks)
   print(seed)
@@ -140,14 +140,14 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     source(paste0(repo,"Maps/combo_shp.R"))
   } # end if(repo !='github')
   
-  sf_use_s2(FALSE)
-  
   # This needs fixed!!
   #sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",ssl.verifypeer = FALSE)
   #eval(parse(text = sc))  
   
   if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
   
+  # need s2 to be true to read in the shapefiles. 
+  sf_use_s2(TRUE)
   # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
   if(repo =='github')
   {
@@ -174,6 +174,9 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   # the extra stations for all the banks are also stored in the same location (Extra_stations.csv), my hope is this is the file in which
   # all of the new extra stations are stored so that we have the details regarding the extra station locations for all banks in all years
   # in one location.
+  
+  # now we can turn off s2
+  sf_use_s2(FALSE)
   
   # Define some variables
   surv.poly <- NULL
@@ -253,7 +256,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # DK revised Sable to be a minimum distance of 2 km given that the Haddock box has removed a percentage of the bank...
       
       #table(towlst[[i]]$Strata_ID)
-      
       if(load_stations==F){
         
         if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
@@ -528,6 +530,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           if(fig != 'dashboard') print(pf)
           # Turn the device off if necessary.  
           if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
+          browser()
           
           if(bnk=="GBa" & zoom==T & fig!= "dashboard") {
             if(seed == yr-2000) folder <- paste0(direct,yr,"/Survey_Design/",bnk,"/")
@@ -557,7 +560,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
             print(pf + coord_sf(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85)))
             dev.off()
           }
-        }}
+        }
+      }
     }#if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
     
     

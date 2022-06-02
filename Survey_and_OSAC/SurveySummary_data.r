@@ -245,9 +245,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # Import 2006 for BanIce data, then we'll remove back to 2000 in a few lines.
     survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,direct=direct, direct_fns=direct_fns)
     survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,direct=direct, direct_fns=direct_fns)
-    
+
     print("import.survey.data done")
-    
+
     # keep BanIce separate
     survBanIce.dat <- survMay.dat[survMay.dat$bank =="BanIce",]
     # take out BanIce
@@ -255,11 +255,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # take out years 2001-2006
     survMay.dat <- survMay.dat[survMay.dat$year<2001,]
     # take out 2000 for all banks except browns, GB
-    
+
     survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
-    
+
     print("check years in import.survey.data to update for any additional historical data that has been loaded since last time.")
-    
+
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
     survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
     survAug.dat<-survAug.dat[which(!names(survAug.dat)%in%c("dis","brg",'totwt','baskets'))]
@@ -342,14 +342,16 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     MW.dat.new$bank[MW.dat.new$bank=="Ban" & MW.dat.new$species=="icelandic"] <- "BanIce"
     #Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
-    # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files. 
+    # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
     # if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
+    # only keep samples from CSVs that are NOT in the database pull (MW.dat.new)
+    MW.dat$ID <- paste(MW.dat$cruise,MW.dat$tow,sep='.')
+    MW.dat <- MW.dat[which(!MW.dat$ID %in% MW.dat.new$ID),]
     
-    # remove "commercial" survey tows that were done in the past
-    # if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
-    if(commercialsampling == T) MW.dat <- MW.dat[MW.dat$tow==0,]
+    # remove "commercial" survey tows that were done in the past. Traditionally we have kept these in!
+    if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
     
     print("import.hyd.data done")
     
@@ -369,7 +371,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # If they don't exist you'll get a warning but who cares...
     rm("un.ID","pwd.ID")
     
-    # Also need to save some of the function arguements so they don't get overwritten  when loading the preprocessed data...
+    # Also need to save some of the function arguments so they don't get overwritten  when loading the preprocessed data...
     tmp <- surveys		
     dirc <- direct
     dircfns <- direct_fns
@@ -469,6 +471,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # Remove comparative surveys conducted in 2004. Keep the MWSH data from these surveys though, because they are collected at the right time of year (treat them like commercial samples)
   all.surv.dat <- all.surv.dat[!all.surv.dat$cruise %in% c("CK03", "P454"),]
 
+  # For consistency with previous survey summary runs (pre-2022 database update), remove some early years of data. These should be added back in during framework.
+  all.surv.dat <- all.surv.dat %>%
+    filter((year>1983 & !bank %in% c("GBa", "GBb", "GB")) | (year>1980 & bank %in% c("GBa", "GBb", "GB")))
+  
   if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
@@ -701,7 +707,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Since we are missing 2015 we need to do this for GB spring survey...
       if(bnk == "GB") bank.dat[[bnk]] <- subset(all.surv.dat,surv.bank == surveys[i] & year != 2015)
       
-      # Get the appropriate sizes for recrutis and commercial size
+      # Get the appropriate sizes for recruits and commercial size
       RS <- size.cats$RS[size.cats$Bank == bank.dat[[bnk]]$bank[1]]
       CS <- size.cats$CS[size.cats$Bank == bank.dat[[bnk]]$bank[1]]
       if(bnk=="BanIce") RS <- size.cats$RS[size.cats$Bank == "Ban"]
@@ -711,7 +717,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       years <- yr.start:yr
       # Because of change in RS and CS on GB we need to have this more nuanced for GB (I originally only had this for GBa, but it's gotta be for all GB...)
       # The CS and RS specified here actually 5 higher than the actual shell heights
-      # CS = Shell height for knife-edge recriutment:  
+      # CS = Shell height for knife-edge recruitment:  
       # Correctly specifying the years here really matters since the RS and CS are changing with time,
       # begs for a better method!!
       # 1981-1985 CS = 75, RS = 60
