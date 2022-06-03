@@ -2,7 +2,7 @@
 #### FK 2021
 # conclusion of 2022 process was to use "mixed" approach for imputation. midpoints for everything except growth, which uses LTM, so I have made that the default param.
 model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns){
-  browser()
+  
   if(missing(direct_fns))
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
