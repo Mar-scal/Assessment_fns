@@ -65,6 +65,7 @@ if(c_sys == "UTM20") c_sys <- "+init=epsg:32620"
 # now in case the data has repeated PID's in it we need to do this slightly clumsily...
 tmp <- NULL
 dat.sdf <- NULL
+if(env.object == T) dat.sdf.list <- NULL
 for(i in 1:length(layer.name))
 {
   subs <- which(dat[,names(dat) == layer.names] == layer.name[i])
@@ -98,17 +99,18 @@ for(i in 1:length(layer.name))
     if(type == "lines") dat.sdf <- SpatialLinesDataFrame(dat.sp, dat.sp.df)
     if(type == "polygon") dat.sdf <- SpatialPolygonsDataFrame(dat.sp, dat.sp.df)
     
+    if(env.object == T) dat.sdf.list[[i]] <- dat.sdf
   }
-  
+  # I think I need to add this 
+  #names(dat.sdf) <- layer.name[i]
   # Now you can save this wonderful Spatial data frame into something that any old GIS program can read.
-  
   if(env.object==F) writeOGR(dat.sdf,save.loc,driver = "ESRI Shapefile",layer =layer.name[i])
-  if(make.sf == T && env.object==T) dat.sdf <- st_as_sf(dat.sdf)
-  if(env.object==T) return(dat.sdf)
+  if(make.sf == T) dat.sdf <- st_as_sf(dat.sdf)
+  if(env.object==T) dat.sdf.list[[layer.name[i]]] <- dat.sdf
   
 } # end for(i in 1:length(layer.name))
 
-
+if(env.object==T)  return(dat.sdf.list)
 
 }
 

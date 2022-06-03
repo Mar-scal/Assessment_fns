@@ -428,9 +428,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       }
       
       if(!add_layer$bathy[1] == "ScallopMap"){
-        bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
-        
-        bathy <- marmap::as.raster(bathy.org)
+        #bathy.org <- getNOAA.bathy(lon1 = bath.box$xmin ,bath.box$xmax,lat1 = bath.box$ymin,lat2=bath.box$ymax,resolution =1)
+        # bathy <- marmap::as.raster(bathy.org)
+        # Read in our version of the bathymetry from the GIS layers repo.
+        githubURL <- ("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/bathymetry/NW_Atl_bathy_raster_from_NOAA_marmap.Rds")
+        download.file(githubURL,"NW_Atl_bathy_raster_from_NOAA_marmap.Rds", method="curl")
+        bathy <- readRDS("NW_Atl_bathy_raster_from_NOAA_marmap.Rds")
         
         # Now clip this to the bounding area, note that the bathy is basically a EPSG:4326 so we need to crop it accordingly and transform our b.box to this...
         bathy <- crop(bathy,as_Spatial(st_transform(b.box,crs = 4326)))
@@ -438,6 +441,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # For the continuous colours everything deeper than specificed (default = 500m) will be the same colour, just tidies up the plots.
         if(add_layer$bathy[2] == 'both' || add_layer$bathy[2] == 's' )
         {
+          bathy.org <- marmap::as.bathy(bathy)
           bathy.s <- bathy.org
           bathy.s[which(bathy.s < -abs(as.numeric(add_layer$bathy[3])))] <- -abs(as.numeric(add_layer$bathy[3]))
           bathy.s[which(bathy.s > 0)] <- 0
