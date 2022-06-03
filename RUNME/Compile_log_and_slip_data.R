@@ -3,10 +3,18 @@
 # set your directory
 direct <- "Y:/Offshore/Assessment/"
 
-source(paste0(direct, "Assessment_fns/Fishery/logs_and_fishery_data.r"))
+# read the function from github
+funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r")
+# Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+for(fun in funs) 
+{
+  download.file(fun,destfile = basename(fun))
+  source(paste0(getwd(),"/",basename(fun)))
+  file.remove(paste0(getwd(),"/",basename(fun)))
+}
 
 # to export csv (adjust years to whatever you want):
-logs_and_fish(loc="offshore", year=2009:2019, get.marfis = F, export = T, direct = direct, direct_fns="Y:/Offshore/Assessment/Assessment_fns/")
+logs_and_fish(loc="offshore", year=2009:2019, get.marfis = F, export = T, direct = direct)
 
 # CSV will be stored here: 
 paste0(direct,"Data/Fishery_data/Logs/Compiled/")

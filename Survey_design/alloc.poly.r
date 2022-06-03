@@ -46,24 +46,7 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   require(PBSmapping) || stop("You'll need to install PBSmapping if you wanna do this thang")
   require(sf) || stop("Install sf, it's the best")
   require(dplyr) || stop("Install dplyr, it's the best")
-  if(repo != 'github')
-  {
-    #source(paste(repo,"Survey_design/genran.r",sep=""))
-    source(paste(repo,"Maps/ScallopMap.r",sep=""))
-  } # end if(repo != 'github')
   
-  if(repo == 'github')
-  {
-    funs <- c(#"https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_design/genran.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/ScallopMap.r")
-    # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
-  } # end if(repo == 'github')
   print("running alloc.poly function")
   # This ignores all warnings
   options(warn=-1)
@@ -103,11 +86,17 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   
   if(!is.null(seed)) set.seed(seed)
   
-  Tows <- st_sample(st_transform(strata, 32620),size=strata$allocation, type="random", exact=T) %>%
-    st_sf('EID' = seq(length(.)), 'geometry' = .) %>%
-    st_intersection(., st_transform(strata, 32620)) %>%
-    cbind(st_coordinates(.))
+  # make sure s2 is off!
+  sf_use_s2(FALSE)
   
+  Tows <- strata %>%
+    st_transform(32620) %>% 
+    st_sample(size=strata$allocation, type="random", exact=T) %>%
+    st_sf('EID' = seq(length(.)), 'geometry' = .)
+  
+  Tows <- st_intersection(Tows, st_transform(strata, 32620)) %>%
+    cbind(st_coordinates(.))
+ 
   # Get the nearest neighbour distances
   nearest<-st_nearest_feature(Tows)
   Tows$nndist <- as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000

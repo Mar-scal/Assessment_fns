@@ -175,6 +175,11 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Industry report
   if(industry.report == T)
   {
+    require(plyr) || stop("Package plyr cannot be found")
+    require(reshape2) || stop("Package reshape2 cannot be found")
+    if(is.null(cruise)) stop("Please specify cruise in order to run industry report; yr is also required.")
+    if(is.null(yr)) stop("Please specify yr in order to run industry report; cruise is also required.")
+    
     ### read in OSSURVEYS, OSTOWS and OSHFREQ_SAMPLES
     chan <-dbConnect(dbDriver("Oracle"),username=un, password=pw,db.con)
     
