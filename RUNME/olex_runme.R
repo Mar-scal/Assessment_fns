@@ -29,7 +29,6 @@ for(fun in funcs)
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing
 olex <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=121, type="load")
 
-
 ##### Optional: 
 ### Check to see if they stayed in the right strata.
 output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv", # from final station list

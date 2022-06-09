@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type){
+olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(1:10,9:1)){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -23,6 +23,8 @@ olex_import <- function(filename, ntows=NULL, type){
   require(splitstackshape)
   require(rmapshaper)
   
+  sf_use_s2(FALSE)
+  
   #Norwegian translation according to Google:
   #Grønnramme - basic framework
   #Navn - name
@@ -30,7 +32,8 @@ olex_import <- function(filename, ntows=NULL, type){
   #Garnstart - start
   #Garnstopp - stop
   #Brunsirkel - brown circle (points along trackline?)
-  funcs <- "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r"
+  funcs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r")
   dir <- getwd()
   for(fun in funcs) 
   {
@@ -60,6 +63,25 @@ olex_import <- function(filename, ntows=NULL, type){
     dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
     mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
     mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
+  
+  if(nrow(startend)==0) {
+    message("Start and end points not recorded, using NAs to define tows")
+    
+    zz$tow <- NA
+    for(i in 2:nrow(zz)){
+      if(is.na(zz$Ferdig.forenklet_4[i-1]) & !is.na(zz$Ferdig.forenklet_4[i])){
+        if(zz$Ferdig.forenklet_4[i]=="Brunsirkel") zz$Ferdig.forenklet_4[i] <- "Garnstart"
+      }
+      if(is.na(zz$Ferdig.forenklet_4[i+1]) & !is.na(zz$Ferdig.forenklet_4[i])){
+        if(zz$Ferdig.forenklet_4[i]=="Brunsirkel") zz$Ferdig.forenklet_4[i] <- "Garnstopp"
+      }
+    }
+    
+    startend <- zz %>% filter(Ferdig.forenklet_4 %in% c("Garnstart", "Garnstopp", "Grønnramme")) %>% 
+      dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
+      mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
+      mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
+  }
   
   # this must return TRUE!
   if(!length(startend[startend$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(startend[startend$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)) stop("Error in olex file")
@@ -118,7 +140,7 @@ olex_import <- function(filename, ntows=NULL, type){
   }
   
   
-  # continue on to look at actual tracks (instead of just start and end points)
+  # continue on to look at actual tracks (instead of just start and end points). Need to go back to raw data for this (zz)
   track <- data.frame(start=which(zz$Ferdig.forenklet_4=="Garnstart"), end=which(zz$Ferdig.forenklet_4=="Garnstopp"))
   if(any(!track$start<track$end)) stop("check tow file, seems like there is a Garnstopp before a Garnstart")
   track$tow <- 1:nrow(track)
@@ -134,6 +156,9 @@ olex_import <- function(filename, ntows=NULL, type){
     trackpts <- rbind(trackpts, trackpts1)
   }
   
+  # hold onto this for later
+  unsmoothed <- trackpts
+  
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
     st_transform(32620) %>%
@@ -141,10 +166,6 @@ olex_import <- function(filename, ntows=NULL, type){
     summarize() %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
-  
-  if(!is.null(ntows)){
-    if(!length(trackpts$tow)==ntows) message(paste0("Number of tows tracked (", length(zz.start$Start_lat), ") does not equal expected number of tows, beware!"))
-  }
   
   print(ggplot() + geom_sf(data=trackpts, lwd=1) + coord_sf() + theme_bw())
   
@@ -154,12 +175,80 @@ olex_import <- function(filename, ntows=NULL, type){
   }
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
-  if(type=="load"){
-    # calculate distance coef
-    trackpts$length <- trackpts %>% 
-      st_transform(32620) %>%
-      group_by(tow) %>% st_length()
+  if(type=="load") {
+   
+    smoothed <- NULL
+    # mave is a function that Brad and Bob Mohn wrote. It is saved in getdis.R
+    for(i in unique(unsmoothed$tow)){
+      # take every second row, assuming that GPS polling freq is 4 seconds (this means we use the location every 8 seconds)
+      if(nrow(unsmoothed[unsmoothed$tow==i,]) <10) warning(paste0("Tow ", i, " is very short. Beware!"))
+      smoothed1 <- unsmoothed[unsmoothed$tow==i,]
+      smoothed1$mave_lon <- mave(smoothed1$Longitude,w=w)
+      smoothed1$mave_lat <- mave(smoothed1$Latitude,w=w)
+      # smoothed1$mave_lon[1] <- unsmoothed[unsmoothed$tow==i,]$Longitude[1]
+      # smoothed1$mave_lat[1] <- unsmoothed[unsmoothed$tow==i,]$Latitude[1]
+      # smoothed1$mave_lon[nrow(smoothed1)] <- unsmoothed[unsmoothed$tow==i,]$Longitude[nrow(unsmoothed[unsmoothed$tow==i,])]
+      # smoothed1$mave_lat[nrow(smoothed1)] <- unsmoothed[unsmoothed$tow==i,]$Latitude[nrow(unsmoothed[unsmoothed$tow==i,])]
+      if(nrow(smoothed1[smoothed1$tow==i,])>every_n) smoothed1 <- smoothed1[seq(1, nrow(smoothed1), every_n),]
+      smoothed <- rbind(smoothed, smoothed1)
+    }
     
+    smoothed <- smoothed %>%
+      st_as_sf(coords=c("mave_lon", "mave_lat"), crs=4326) %>%
+      st_transform(32620) %>%
+      group_by(tow) %>%
+      summarize() %>%
+      st_cast("LINESTRING") %>%
+      st_transform(4326)
+    
+    # # Test/compare
+    # # require(smoothr)
+    # # st_length(smoothed[2,])
+    # # 
+    # # test <- smoothed[2,]
+    # # test <- as.data.frame(st_coordinates(test))
+    # # attr(test,"projection")<-"LL"
+    # # test$PID <- 1
+    # # test$POS <- 1:nrow(test)
+    # # calcLength(test)
+    # # 
+    # # st_length(smooth(trackpts[2,], method = "ksmooth", smoothness=100))
+    # # st_length(smoothed[2,])
+    # # st_length(trackpts[2,])
+    # # st_length(coords.track[2,])
+    # # 
+    # # ggplotly(ggplot() + geom_sf(data=coords.track[2,], colour="red") +
+    # #            geom_sf(data=trackpts[2,], colour="black") +
+    # #            geom_sf(data=smooth(trackpts[2,], method = "ksmooth", smoothness=100), colour="blue")+
+    # #            geom_sf(data=smoothed[2,], colour="green"))
+    # 
+    
+    # calculate distance coef
+    if(length=="sf"){
+      trackpts <- arrange(trackpts, tow)
+      
+      trackpts$length <- smoothed %>%
+        arrange(tow) %>%
+        st_transform(32620) %>%
+        group_by(tow) %>% 
+        st_length()
+    }
+    # 
+    # if(length=="PBSmapping"){
+    #   pbs <- as.data.frame(st_coordinates(trackpts))
+    #   names(pbs)[which(names(pbs)=="L1")] <- "PID"
+    #   pbs <- pbs %>%
+    #     group_by(PID) %>%
+    #     mutate(POS=1:length(PID)) %>%
+    #     ungroup() 
+    #   pbs <- as.data.frame(pbs)
+    #   attr(pbs,"projection")<-"LL"
+    #   trackpts$length <- NA
+    #   for (i in unique(pbs$PID)){
+    #     trackpts$length[trackpts$tow==i] <- calcLength(pbs[pbs$PID==i,])$length * 1000
+    #   }
+    # }
+    # 
     trackpts$dis_coef <- 800/trackpts$length
     
     # calculate bearing and extract start and end points
@@ -176,9 +265,10 @@ olex_import <- function(filename, ntows=NULL, type){
       trackpts$end_lon[i] <- -coords$End_long[i]
       trackpts$end_lat[i] <- coords$End_lat[i]
     }
-    st_geometry(trackpts) <- NULL
+    
     trackpts <- dplyr::select(trackpts, tow, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
+    st_geometry(trackpts) <- NULL
     
     return(trackpts)
   }

@@ -63,6 +63,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
   # Initialize objects to use in for loop.
 	towtracks<-list(NULL)
 	SE<-list(NULL)
+	
 	# Loop to call in each tow and process the data accordingly.
 	for(i in 1:length(tows))
 	{
