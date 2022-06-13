@@ -46,7 +46,6 @@
 #   1:  import.survey.data.r
 #   2:  get.offshore.survey.r
 #   3:  import.hyd.data.r
-#   4:  getdis.r
 #   5:  shwt.lme.r
 #   6:  condFac.r
 #   7:  surv.by.tow.r
@@ -133,7 +132,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.survey.data.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/import.hyd.data.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.lme.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/condFac.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/assign_strata.r",
@@ -159,7 +157,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     source(paste(direct_fns,"Survey_and_OSAC/import.hyd.data.r",sep="")) 
     
     # These are the functions used to within the heart of the code to make stuff happen
-    source(paste(direct_fns,"Survey_and_OSAC/getdis.r",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/shwt.lme.r",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/condFac.r",sep="")) 
     
@@ -945,11 +942,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           # special handling for 2000 German survey (August) and 2015 BBn/Ger survey (July-September)
           if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
           {
+            browser()
             mw.dat.all[[bnk]] <- merge(
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]], (month %in% 5:6 & !year %in% 2015) | year==2015 | year==2000, select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]], (month %in% 5:6 & !year %in% 2015) | year==2015 | year==2000, 
+                     select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
           

@@ -129,7 +129,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
   coords.track <- rbind(coords.sf, coords.sf.end) %>%
     st_transform(32620) %>%
     group_by(ID) %>%
-    summarize() %>%
+    summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
@@ -163,7 +163,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
     st_transform(32620) %>%
     group_by(tow) %>%
-    summarize() %>%
+    summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
@@ -176,7 +176,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load") {
-   
+   browser()
     smoothed <- NULL
     # mave is a function that Brad and Bob Mohn wrote. It is saved in getdis.R
     for(i in unique(unsmoothed$tow)){
@@ -185,21 +185,37 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
       smoothed1 <- unsmoothed[unsmoothed$tow==i,]
       smoothed1$mave_lon <- mave(smoothed1$Longitude,w=w)
       smoothed1$mave_lat <- mave(smoothed1$Latitude,w=w)
-      # smoothed1$mave_lon[1] <- unsmoothed[unsmoothed$tow==i,]$Longitude[1]
-      # smoothed1$mave_lat[1] <- unsmoothed[unsmoothed$tow==i,]$Latitude[1]
-      # smoothed1$mave_lon[nrow(smoothed1)] <- unsmoothed[unsmoothed$tow==i,]$Longitude[nrow(unsmoothed[unsmoothed$tow==i,])]
-      # smoothed1$mave_lat[nrow(smoothed1)] <- unsmoothed[unsmoothed$tow==i,]$Latitude[nrow(unsmoothed[unsmoothed$tow==i,])]
       if(nrow(smoothed1[smoothed1$tow==i,])>every_n) smoothed1 <- smoothed1[seq(1, nrow(smoothed1), every_n),]
       smoothed <- rbind(smoothed, smoothed1)
     }
     
+    min(smoothed$mave_lat) - min(unsmoothed$Latitude)
+    min(smoothed$mave_lon) - min(unsmoothed$Longitude)
+    
     smoothed <- smoothed %>%
-      st_as_sf(coords=c("mave_lon", "mave_lat"), crs=4326) %>%
+      st_as_sf(coords=c("mave_lon", "mave_lat"), crs=4326, remove=F) %>%
       st_transform(32620) %>%
       group_by(tow) %>%
-      summarize() %>%
+      summarize(do_union=FALSE) %>%
       st_cast("LINESTRING") %>%
       st_transform(4326)
+    
+    usp102 <- unsmoothed[unsmoothed$tow==2,] %>%
+      st_as_sf(coords=c("Longitude", "Latitude"), crs=4326, remove=F) %>%
+      mutate(ord = 1:nrow(.))
+    
+    us102 <- unsmoothed[unsmoothed$tow==2,] %>%
+      st_as_sf(coords=c("Longitude", "Latitude"), crs=4326, remove=F) %>%
+      st_transform(32620) %>%
+      group_by(tow) %>%
+      summarize(do_union=FALSE) %>%
+      st_cast("LINESTRING") %>%
+      st_transform(4326)
+    
+    plotly::ggplotly(ggplot() + geom_sf(data=us102) +
+      geom_sf(data=smoothed, colour="red") + 
+      geom_sf_text(data=usp102, aes(label=ord)))
+    
     
     # # Test/compare
     # # require(smoothr)
