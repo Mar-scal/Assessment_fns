@@ -91,7 +91,7 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
               
-banks <- c("GBa")#, 
+banks <- c("BBn")#, 
   #"BBn")
 yr <- 2021
 
@@ -100,12 +100,12 @@ for(b in banks){
     print(b)
     print(it)
     # uncomment this the first time!
-    # model_inputs(bank=b,
-    #              yr=2021, # the survey year, not the current year if running in January-April
-    #              impute=it,
-    #              nickname=it,
-    #              direct,
-    #              direct_fns)
+    model_inputs(bank=b,
+                 yr=2021, # the survey year, not the current year if running in January-April
+                 impute=it,
+                 nickname=it,
+                 direct,
+                 direct_fns)
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
@@ -115,14 +115,16 @@ for(b in banks){
               direct_fns,
               direct_out = "C:/Users/keyserf/Documents/",
               run.model = F,
-              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
               parallel=T,
-              final.run=T,
+              # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
+              # final.run=T,
+              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+              final.run=F,
               nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
               export.tables=F,
               make.diag.figs = F,
               make.update.figs = T,
-              language="en",
+              language="fr",
               fig="png")
     
     # prediction evaluation

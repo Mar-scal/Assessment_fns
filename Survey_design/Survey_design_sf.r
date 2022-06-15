@@ -88,7 +88,7 @@
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          pt.txt.sz = 4,repo = 'github', load_stations=F, tow_buffer=F)
+                          pt.txt.sz = 2,repo = 'github', load_stations=F, tow_buffer=F)
 {
   print(banks)
   print(seed)
@@ -140,14 +140,14 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     source(paste0(repo,"Maps/combo_shp.R"))
   } # end if(repo !='github')
   
-  sf_use_s2(FALSE)
-  
   # This needs fixed!!
   #sc <- getURL("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",ssl.verifypeer = FALSE)
   #eval(parse(text = sc))  
   
   if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
   
+  # need s2 to be true to read in the shapefiles. 
+  sf_use_s2(TRUE)
   # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
   if(repo =='github')
   {
@@ -174,6 +174,9 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   # the extra stations for all the banks are also stored in the same location (Extra_stations.csv), my hope is this is the file in which
   # all of the new extra stations are stored so that we have the details regarding the extra station locations for all banks in all years
   # in one location.
+  
+  # now we can turn off s2
+  sf_use_s2(FALSE)
   
   # Define some variables
   surv.poly <- NULL
@@ -253,7 +256,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # DK revised Sable to be a minimum distance of 2 km given that the Haddock box has removed a percentage of the bank...
       
       #table(towlst[[i]]$Strata_ID)
-      
       if(load_stations==F){
         
         if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
@@ -453,9 +455,9 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           shp_strata$area2 <- paste0(round(shp_strata$area,0), expression(km^2))
           
           # Make the base plot...
-          bp<- pecjector(area = bnk,c_sys = 4326, add_layer = list(sfa='offshore',eez='eez',bathy = c(50,'c')),plot=F, quiet=T)# + 
+          bp <- pecjector(area = bnk,c_sys = 4326, add_layer = list(sfa='offshore',eez='eez',bathy = c(50,'c')),plot=F, quiet=T)# + 
           
-          bp <- bp + geom_sf(data=shp_strata, aes(fill=Strata), colour=NA, alpha=0.75) + 
+          bp <- bp + geom_sf(data=shp_strata, aes(fill=Strata), colour=NA) + 
             scale_fill_manual(values = shp_strata$col, 
                               labels=paste0(shp_strata$Strata, "\n", 
                                             shp_strata$allocation, " tows"))
@@ -472,11 +474,11 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
      
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
-     if(point.style == "both" ) {
-       bp2 <- bp + 
-         geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
-         geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz/2) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
-     }
+          if(point.style == "both" ) {
+            bp2 <- bp + 
+              geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
+              geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz/2) #+ geom_sf(data=tmp.sf, shape=21,size=pt.txt.sz)
+          }
           #print(bp2)
           if(nrow(extras) > 0)
           {
@@ -524,11 +526,42 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
                            caption = paste("Survey stations (n = ",length(towlst[[i]]$Tows$Y),")"," \n Extra stations (n = ",
                                            nrow(extras),")",sep="",collapse =" ")) +
             theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) +
-            coord_sf(expand=F)
+            coord_sf(expand=F) + theme_bw()
           if(fig != 'dashboard') print(pf)
           # Turn the device off if necessary.  
           if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
-        }}
+          browser()
+          
+          if(bnk=="GBa" & zoom==T & fig!= "dashboard") {
+            if(seed == yr-2000) folder <- paste0(direct,yr,"/Survey_Design/",bnk,"/")
+            if(!seed == yr-2000) folder <- paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab)
+              
+            if(fig=="screen") windows(11,8.5)
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNortheast_",point.style,".png"),width = 11, units="in", res=420,
+                                  height = 8.5,bg = "transparent")
+            if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaNortheast_",point.style,".pdf"),width = 11, 
+                                  height = 8.5,bg = "transparent")
+            print(pf + coord_sf(ylim=c(41.833,42.2),xlim=c(-66.6,-66), expand=F)) 
+            dev.off()
+            
+            if(fig=="screen") windows(11,8.5)
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNorthwest_",point.style,".png"),width = 11, units="in", res=420,
+                                  height = 8.5,bg = "transparent")
+            if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaNorthwest_",point.style,".pdf"),width = 11, 
+                                  height = 8.5,bg = "transparent")
+            print(pf + coord_sf(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6)))
+            dev.off()
+            
+            if(fig=="screen") windows(11,8.5)
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaSouth_",point.style,".png"),width = 11, units="in", res=420,
+                                  height = 8.5,bg = "transparent")
+            if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaSouth_",point.style,".pdf"),width = 11, 
+                                  height = 8.5,bg = "transparent")
+            print(pf + coord_sf(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85)))
+            dev.off()
+          }
+        }
+      }
     }#if(bnk %in% c("BBs","BBn","GBa","GBb","Sab"))
     
     
@@ -647,6 +680,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           
         }
         if(!fig %in% c("screen", "leaflet","dashboard")) dev.off()
+        
       }# end if(plot==T)
     } # end if(bnk %in% c("Mid","GB", "Ban")) 
     
@@ -954,7 +988,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         }
         if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
       } # end if(plot==T)
-      browser()
+      
       # Now if you want to make these new fangled relief plots... source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
       if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
       

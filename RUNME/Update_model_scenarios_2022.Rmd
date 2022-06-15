@@ -132,13 +132,18 @@ for(b in banks){
     theme_bw()
   
   fit[[b]] <- fitB / fitR / fitU
-  
+  png(paste0("Y:/Offshore/Assessment/2022/Updates/", b, "/Figures_and_tables/fit_comp.png"), units="in", height=8, width=7, res=400)
+  print(fit[[b]])
+  dev.off()
   
   biomass[[b]] <- ggplot() + geom_line(data=res[res$bank==b,], aes(x=year, y=B, colour=impute)) + geom_point(data=res[res$bank==b,], aes(x=year, y=B, colour=impute, shape=impute)) + 
     geom_boxplot(data=proj.box[proj.box$bank==b,], aes(x=year, ymin=y0, lower=y10, middle=y50, upper=y90, ymax=y100, colour=impute), width=1.5, stat="identity") +
     geom_line(data=res[res$year%in%c(2019, 2021) & res$bank==b,], aes(year, B, colour=impute), linetype="dashed") +
     theme_bw() #+
   # ylim(0,25000)
+  png(paste0("Y:/Offshore/Assessment/2022/Updates/", b, "/Figures_and_tables/biomass_comp.png"), units = "in", height=6, width=9, res=400)
+  print(biomass[[b]])
+  dev.off()
   
   longer <- pivot_longer(perc.diff.pre2020[perc.diff.pre2020$bank==b,], cols = c("B", "q", "R", "qU", "m", "mR"))
   longer$name <- factor(longer$name, levels=c("B", "R", "q", "qU", "m", "mR"))
@@ -147,6 +152,9 @@ for(b in banks){
     theme_bw() +
     ylab("proportional difference")
   
+  png(paste0("Y:/Offshore/Assessment/2022/Updates/", b, "/Figures_and_tables/perc_diff.png"), units="in", height=8, width=7, res=400)
+  print(perc.diff[[b]])
+  dev.off()
   
   ### model inputs
   survey <- pivot_longer(old.model[[b]], cols = c("I", "IR", "clappers", "clappersR", "CF", "l.bar")) 
@@ -156,6 +164,10 @@ for(b in banks){
     facet_wrap(~name, scales="free_y", nrow=3) +
     theme_bw()
   
+  png(paste0("Y:/Offshore/Assessment/2022/Updates/", b, "/Figures_and_tables/TS.png"), units="in", height=8, width=7, res=400)
+  print(TS[[b]])
+  dev.off()
+  
   ACF[[b]] <- ggAcf(old.model[[b]]$I) + theme_bw() + ggtitle("I") +
     ggAcf(old.model[[b]]$IR) + theme_bw() + ggtitle("IR") +
     ggAcf(old.model[[b]]$clappers) + theme_bw() + ggtitle("clappers") +
@@ -163,6 +175,12 @@ for(b in banks){
     ggAcf(old.model[[b]]$CF) + theme_bw() + ggtitle("CF") +
     ggAcf(old.model[[b]]$l.bar) + theme_bw() + ggtitle("l.bar") +
     plot_layout(ncol=2)
+  
+  png(paste0("Y:/Offshore/Assessment/2022/Updates/", b, "/Figures_and_tables/ACF.png"), units="in", height=8, width=7, res=400)
+  print(ACF[[b]])
+  dev.off()
+  
+  
 }
 
 ```
