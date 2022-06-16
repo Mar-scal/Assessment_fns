@@ -19,7 +19,7 @@
 #3: plot       Do you want to display the plot.  Default = T.  if plot= F you will just get a ggplot object useful if just making it a base layer.
 
 #4: gis.repo       The repository from which you will pull the GIS related data.  The default is "github" (which has all the main data) 
-###               option is to specify the directory you want to pull data from, likely you want to use "Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers"
+###               option is to specify the directory you want to pull data from, likely you want to use "Y:/GISData/Github_Repo/GIS_layers/"
 
 #5: c_sys      What coordinate system are you using, options are "ll" which is lat/lon and WGS84 (uses EPSG 4326) or "utm_zone" which is utm, you put in the zone yourself
 ###               for utm_19  use "32619", this is best for GB, SPA3 and 6, if you  are using something else go nuts!
@@ -244,6 +244,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       file.remove(paste0(getwd(),"/",basename(fun)))
     } # end for(un in funs)
   } # end if(repo == 'github')
+  
+  # Because it was causing all sorts of funny little issues we decided to globally turn off the s2 functionality
+  sf_use_s2(FALSE)
   
   # This is needed to spin the field projection to be oriented how GIS wants them, unclear why it is weird like this!
   rotate <- function(x) t(apply(x, 2, rev)) 
@@ -627,7 +630,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       if(add_layer$sfa != "offshore")
       {
-        loc <- paste0(gis.repo,"inshore")
+        loc <- paste0(gis.repo,"/inshore_boundaries")
         
         inshore.spa <- combo.shp(loc,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
@@ -643,7 +646,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$sfa != "inshore" )
       {
-        loc <- paste0(gis.repo,"offshore")
+        loc <- paste0(gis.repo,"/offshore")
         # This pulls in all the layers from the above location
         offshore.spa <- combo.shp(loc,make.sf=T, quiet=quiet)
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
@@ -663,7 +666,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now we do the same thing for the strata
   if(any(layers == 'survey')) 
   {
-    #st_use_s2(FALSE)
+    #
     if(gis.repo == 'github')
     {
       if(add_layer$survey[1] != "offshore")
@@ -715,7 +718,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         unzip(zipfile=temp, exdir=temp2)
 
         # We need to tidy up the GBa strata as it causes problems with spherical geometry, the hack for the moment is just to turn that off for the detailed strata.
-        sf::sf_use_s2(FALSE)
+        #sf::sf_use_s2(FALSE)
 
         # This pulls in all the layers from the above location
         offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
@@ -737,7 +740,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         offshore.strata <- st_intersection(offshore.strata, b.box)
         offshore.strata <- st_cast(offshore.strata,to = "MULTIPOLYGON")
         if(nrow(offshore.strata) == 0) rm(offshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
-        sf::sf_use_s2(TRUE)
+        #sf::sf_use_s2(TRUE)
       } # end if(add_strata != "offshore")  
       
     }# end if(gis.repo = 'github')
@@ -747,12 +750,13 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     {
       if(add_layer$survey[1]  != "offshore")
       {
-        loc <- paste0(gis.repo,"inshore_survey_strata")
+        #browser()
+        loc <- paste0(gis.repo,"/inshore_boundaries/inshore_survey_strata")
         # This pulls in all the layers from the above location, and puts some metadata in there matching offshore structure
         inshore.strata <- combo.shp(loc,make.sf=T,make.polys=F, quiet=quiet)
-        inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$ID)+899))
+        inshore.strata$Strt_ID <- as.character(900:(length(inshore.strata$STRATA_ID)+899))
         inshore.strata$col <- cividis(nrow(inshore.strata))
-        inshore.strata$ID <- inshore.strata$ET_ID
+        inshore.strata$ID <- inshore.strata$STRATA_ID
         inshore.strata <- inshore.strata %>% dplyr::select(Strt_ID,ID,col)
         inshore.strata <- st_buffer(inshore.strata,dist=0)
         inshore.strata <- st_intersection(inshore.strata, b.box)
@@ -763,11 +767,11 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       } # end if(detailed != "offshore")
       if(add_layer$survey[1]  != "inshore")
       {
-        if(add_layer$survey[2] == 'detailed') loc <- paste0(gis.repo,"offshore_survey_strata")
-        if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"survey_boundaries")
-        
+        if(add_layer$survey[2] == 'detailed') loc <- paste0(gis.repo,"/offshore_survey_strata")
+        if(add_layer$survey[2] == 'outline') loc <- paste0(gis.repo,"/survey_boundaries")
+ 
         # This pulls in all the layers from the above location
-        sf::sf_use_s2(FALSE)
+        #sf::sf_use_s2(FALSE)
         offshore.strata <- combo.shp(loc,make.sf=T,make.polys=F, quiet=quiet)
         offshore.strata <- st_make_valid(offshore.strata)
         # Need to add a couple of layers if we are just pulling in the survey_boundaries polygons
@@ -784,7 +788,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         offshore.strata <- st_intersection(offshore.strata, b.box)
         offshore.strata <- st_cast(offshore.strata,to = "MULTIPOLYGON")
         if(nrow(offshore.strata) == 0) rm(offshore.strata) # Get rid of the offshore.spa object as it causes greif for plotly if it remains but is empty...
-        sf::sf_use_s2(TRUE)
+        #sf::sf_use_s2(TRUE)
       } # end if(detailed != "offshore")
     } # end if(gis.repo == 'local')
     if(exists("offshore.strata")) final.strata <- offshore.strata
@@ -909,17 +913,17 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
       s.labels <- st_intersection(s.labels, b.box)
       #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
-      if(any(grepl("angle",s.labels$region)))
-      {
-        s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
-        s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
-      }
+      # if(any(grepl("angle",s.labels$region)))
+      # {
+      #   s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
+      #   s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
+      # }
     }
     
     # If not going through Github it's easy!
     if(gis.repo != 'github')
     {
-      loc <- paste0(gis.repo,"other_boundaries/labels")
+      loc <- paste0(gis.repo,"/other_boundaries/labels")
       s.labels <-   st_read(loc, quiet=quiet)
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
       if(add_layer$s.labels == "inshore") s.labels <- s.labels %>% dplyr::filter(region == 'inshore')
@@ -927,14 +931,16 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
       if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
+      #if(add_layer$s.labels == "offshore_detailed_angle") s.labels <- s.labels[grepl('offshore_detailed_angle',s.labels$region),]
+      
       s.labels <- st_intersection(s.labels, b.box)
 
       #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
-      if(any(grepl("angle",s.labels$region)))
-      {
-        s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
-        s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
-      }
+      # if(any(grepl("angle",s.labels$region)))
+      # {
+      #   s.labels.angle <- s.labels %>% dplyr::filter(region == "offshore_detailed_angle")
+      #   s.labels <- s.labels %>% dplyr::filter(region != "offshore_detailed_angle")
+      # }
     }
   }
   
@@ -1097,9 +1103,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
-      if(any(grepl('offshore',s.labels$region)) || s.labels$region == 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),size=3)   
-      if(exists("s.labels.angle")) pect_plot <- pect_plot + geom_sf_text(data = s.labels.angle, aes(label = lab_short),size = 3,angle =-45)
-      if(any(grepl('inshore',s.labels$region)) && s.labels$region != 'all') pect_plot <- pect_plot + geom_sf_text(data=s.labels, aes(label = lab_short),angle=35,size=3) # rotate it@!
+      if(any(s.labels$region == 'offshore')) pect_plot <- pect_plot + geom_sf_text(data=s.labels[grepl('offshore',s.labels$region),], aes(label = lab_short),size=3)   
+      if(any(s.labels$region =='offshore_detailed')) pect_plot <- pect_plot + geom_sf_text(data=s.labels[s.labels$region=='offshore_detailed',], aes(label = lab_short),size=3)   
+      if(any(s.labels$region =='offshore_detailed_angle')) pect_plot <- pect_plot + geom_sf_text(data = s.labels[s.labels$region=='offshore_detailed_angle',], aes(label = lab_short),size = 3,angle =-45)
+      if(any(grepl('inshore',s.labels$region))) pect_plot <- pect_plot + geom_sf_text(data=s.labels[grepl('inshore',s.labels$region),], aes(label = lab_short),angle=35,size=3) # rotate it@!
       
     } # end if(exists("s.labels")) 
     if(exists('scal.loc')) pect_plot <- pect_plot + annotation_scale(location = scal.loc, width_hint = scale.width,pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad + 1.5, "cm")) + 
@@ -1294,7 +1301,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
   #browser()
-  pect_plot <- pect_plot + coord_sf(expand=F)
+  pect_plot <- pect_plot + coord_sf(expand=F) + xlab("") + ylab("")
   
   
   if(plot_as == 'ggplotly') 

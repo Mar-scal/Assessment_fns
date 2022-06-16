@@ -23,8 +23,9 @@ require(sp)
 require(plyr)
 
 ##### Read in and clean up survey data
-direct <- "Y:/Offshore scallop/Assessment/"
-load(paste0(direct, "Data/Survey_data/2018/Survey_summary_output/Survey_all_results.Rdata"))
+direct <- "Y:/Offshore scallop/Assessment"
+gis.repo <- "Y:/GISData/Github_Repo/GIS_layers"
+load(paste0(direct, "/Data/Survey_data/2018/Survey_summary_output/Survey_all_results.Rdata"))
 
 surveydata <- rbind(
   surv.Live["BBn"][[1]][, c("year", "tow", "bank", "lon", "lat", "tot.bm")],
@@ -43,9 +44,10 @@ fundian <- spTransform(x = fundian, CRSobj = CRS("+proj=longlat +datum=WGS84 +no
 fundian <- SpatialPolygons2PolySet(fundian)
 
 # Browns bank polygons
-BBnshp <- readOGR(paste0(direct, "Data/Maps/approved/GIS_layers/offshore/BBn.shp"), layer="BBn")
+
+BBnshp <- readOGR(paste0(gis.repo, "/offshore/BBn.shp"), layer="BBn")
 BBnshp.4.map <- SpatialPolygons2PolySet(BBnshp)
-BBsshp <- readOGR(paste0(direct, "Data/Maps/approved/GIS_layers/offshore/BBs.shp"), layer="BBs")
+BBsshp <- readOGR(paste0(gis.repo, "/offshore/BBs.shp"), layer="BBs")
 BBsshp.4.map <- SpatialPolygons2PolySet(BBsshp)
 
 BBnset <- SpatialPolygons2PolySet(BBnshp)
