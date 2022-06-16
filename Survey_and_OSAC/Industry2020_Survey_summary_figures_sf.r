@@ -126,20 +126,23 @@
 
 #11: direct_fns The working that the functions are located in.  Default is missing (DK 2021)
 
-#12: save.gg    Do you want to save the ggplots you made for later in life....
+#12:gis.repo   The working directory to pull in the GIS layers, just needed in two spots so being lazy for now and not linking to github
+#              Default is the location of the Repo on the ESS which isn't tied to Github directly and depends on it be manually updated.
 
-#13: season    For the spring survey we need to identify that we don't have all the results in yet.  When running the scripts with only spring  
+#13: save.gg    Do you want to save the ggplots you made for later in life....
+
+#14: season    For the spring survey we need to identify that we don't have all the results in yet.  When running the scripts with only spring  
 ###              survey data set to "spring".  If just running GBa and GBb you can set this to "summer" if you've already created the Rdata file.
 ###              When summer survey is complete you can also set this to the default of "both".  I've also added the option during preliminary
 ###              runs or when altering the function to use a "testing" option so it loads the proper data.  You'll need to have created the 
 ###              testing R data when running the SurveySummary_data.r.  Additionally when set to "testing" the figures (if being saved) will be
 ###              saved in the folder... direct,yr,"/Presentations/Survey_summary/test_figures/",banks[i].
 
-#14: nickname  This is used if you have a specific output from Survey_summary_data call.  You want this to be the same as what you used there, e.g. "GB_special_run"
+#15: nickname  This is used if you have a specific output from Survey_summary_data call.  You want this to be the same as what you used there, e.g. "GB_special_run"
 
-#15: sub.area  Do you want to make plots of the user specfied sub areas, currently only relevant for GBa.  T/F, default = F
+#16: sub.area  Do you want to make plots of the user specfied sub areas, currently only relevant for GBa.  T/F, default = F
 
-#16: full.GB    Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
+#17: full.GB    Set to true (T) if you want to plot all of GB on one INLA spatial map (instead of GBa and GBb separately). Default is F
 
 
 #############################################################################################################################################
@@ -148,7 +151,7 @@
 
 Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
                                 fig=fig, scale.bar = NULL, bathy = 50, add.title = T, INLA = "run" , s.res = "low",
-                                direct = direct, direct_fns ,
+                                direct = direct, direct_fns ,gis.repo = "Y:/GISdata/Github_Repo/GIS_layers",
                                 save.gg = F, season="both",nickname=NULL, sub.area=F, full.GB=F,
                                 se=F)
 { 
@@ -865,14 +868,14 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
           
           extent <- data.frame(x=c(-67.15,-65.85), y=c(41.6, 42.30), crs=4326)
           
-          p <- pecjector(area = extent, plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+          p <- pecjector(area = extent, plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo='github',
                          crs = st_crs(mesh$crs), quiet=T,
                          add_layer = list(eez="eez", bathy="ScallopMap"))
         }
         
         #  GBb and BBn are the entire banks though
         if(!banks[i] == "GBa") {
-          p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+          p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, repo=direct_fns, gis.repo='github',
                        crs = st_crs(mesh$crs), quiet=T,
                        add_layer = list(eez="eez", bathy="ScallopMap"))
         }
@@ -1167,7 +1170,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       bound.survey.sf <- github_spatial_import("survey_boundaries", "survey_boundaries.zip", direct_fns = direct_fns) %>%
         filter(ID==banks[i])
       
-      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, quiet=T, repo=direct_fns, gis.repo=paste0(direct, "Data/Maps/approved"),
+      p <- pecjector(area = banks[i],plot = F,direct_fns = direct_fns, quiet=T, repo=direct_fns, gis.repo='github',
                      add_layer = list(eez = 'eez', bathy = "ScallopMap", scale.bar = scale.bar)) 
       p <- p + 
         geom_sf(data=bound.survey.sf, colour="black", fill=NA, size=1.5)
@@ -1180,7 +1183,7 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
       # For the banks with detailed strata...
       #shpf <- st_read(paste0(direct,"Data/Maps/approved/GIS_layers/offshore_survey_strata/",banks[i],".shp"))
       # For the ones we just have a cut of of the survey boundaries
-      shpf <- st_read(paste0(direct,"Data/Maps/approved/GIS_layers/survey_boundaries/",banks[i],".shp"))
+      shpf <- st_read(paste0(gis.repo,"/survey_boundaries/",banks[i],".shp"))
       # Use the cut out I make for the INLA models, it looks o.k.
       shpf <- st_transform(shpf,crs = st_crs(loc.sf))
       

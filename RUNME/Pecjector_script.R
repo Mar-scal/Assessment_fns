@@ -17,7 +17,8 @@ for(fun in funs)
 
 # Alternatively go find your local version....
 source("C:/Users/keyserf/Documents/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
-
+source("D:/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
+  
 # Simple blank map of the region
 # You can see the scallopy options inside the function 'convert_coords.R'
 bp <- pecjector(area = "NL")
@@ -49,11 +50,11 @@ bp.p8 <- pecjector(gg.obj = bp.p4, area = "NL", add_layer = list(bathy = 50))
 # Also note that the order these are put in the list doesn't matter a lick. Notice I've added in the nafo areas as well
 bp.p9 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'main'))
 # We can now start to add in interesting scallop features and also notice I've changed the nafo to plot the smaller subareas that we are often interested in
-bp.p10 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'all'))
+bp.p10 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',sfa = 'all'))
 # Even more fancy is we can add in the survey strata for all areas (or just some of them....)
-bp.p11 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','outline')))
+bp.p11 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',sfa = 'all',survey = c('all','outline')))
 # And we can put some 'nice' labels on the areas too
-bp.p12 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','outline'),s.labels = 'all'))
+bp.p12 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',s.labels = 'all'),gis.repo = 'D:/Github/GIS_layers')
 # You can see this doesn't look great for the whole area as it is too busy, so lets zoom in on the WSS but keeping everythign we did above
 # You notice how much quicker that was as all the layers were already loaded to the basemap 
 bp.p13 <- pecjector(gg.obj = bp.p12, area = "WSS")
@@ -62,10 +63,12 @@ bp.p14 <- pecjector(gg.obj = bp.p12, area = "WSS", add_layer = list(survey = c("
 # Lets just zoom in on BBn, see how the strata remain kinda shit though...
 bp.p15 <- pecjector(gg.obj = bp.p14, area = "BBn")
 bp.p15
+
+source("D:/Github/Assessment_fns/Maps/convert_coords.R")
 # So instead we'd probably really want to do this
-bp.p16 <- pecjector( area = "BBn",add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'offshore',survey = c('offshore','detailed')))
+bp.p16 <- pecjector(area = "BBn",add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',sfa = 'offshore',survey = c('offshore','detailed')))
 # Moving to inshore we can do this too
-bp.p17 <- pecjector(area = "Inshore",add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'inshore'))
+bp.p17 <- pecjector(area = "Inshore",add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',sfa = 'inshore'))
 # And quickly add in the survey strata and lets toss in a scale bar in bottom left across 50% of the plot
 bp.p18 <- pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)))
 bp.p18
@@ -75,23 +78,38 @@ bp.off <- pecjector(area = "NL",add_layer = list(sfa = 'offshore', s.labels = 'o
 windows(15,10); bp.off #Maximize image on your screen and the text should look good.
 # Now in behind all this is we have some defaults you don't really need to worry about, this is the same thing
 pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
-
-          repo = 'github', gis.repo = 'github',plot = T,buffer =0, c_sys = 4326)
+          repo = 'D:/Github/Assessment_fns', gis.repo = 'github',plot = T,buffer =0, c_sys = 4326)
 
 # If you have the github repos locally this would work...
-pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','detailed'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
-          repo = 'D:/Github/Assessment_fns/', gis.repo = 'D:/Github/GIS_layers/',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
+pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore','outline'),s.labels = 'inshore',scale.bar = c('bl',0.5)),
+          repo = 'D:/Github/Assessment_fns', gis.repo = 'D:/Github/GIS_layers',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
 
 # Now I can also blow your mind...
 bp.int1 <- pecjector(area = "NL", add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','detailed'),s.labels = 'all'),
                      plot_as = 'ggplotly')
-# Roughtly the same, though subtly different is...
+# Roughly the same, though subtly different is...
 bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',s.labels = 'all'),
                      plot_as = 'plotly')
+
+# OK, so s.labels = 'all' needs fixed
+
+
+source("D:/Github/Assessment_fns/Maps/pectinid_projector_sf.R")
+
+bp <- pecjector(area = "NL",add_layer = list(nafo = 'main'),gis.repo = "D:/Github/GIS_layers")
+
+
+
+bp <- pecjector(area = "SPA4",add_layer = list(survey=c('inshore','outline')))
+
+
+# The survey appears to be an inshore issue only so something down in there...
+bp <- pecjector(area = "GBa",add_layer = list(bathy = 50,eez = 'eez',nafo = 'subs',sfa = 'all',
+                survey = c('all','detailed'),s.labels = 'offshore_detailed',scale.bar = c('bl',0.5)),
+                gis.repo = "D:/Github/GIS_layers")
 
 
 
 pecjector(area = "inshore",add_layer = list(bathy= c(50,'c'),survey = c('all','detailed')),
-
           repo = 'D:/Github/Offshore/Assessment_fns/DK/',c_sys = 32620,plot_as='plotly')
 

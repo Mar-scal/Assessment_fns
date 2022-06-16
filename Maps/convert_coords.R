@@ -34,7 +34,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     if(plot.extent%in% c('ESS','ess','Ess',"Eastern SS","EASTERN SS",'eastern ss'))                {y=c(43.00,45.40);x=c(-62.50,-57.40)}
     if(plot.extent%in% c('WSS','wss','Wss',"Western SS","WESTERN SS",'western ss'))		             {y=c(41.05,43.95);x=c(-67.05,-63.95)}
     if(plot.extent%in% c('BBn','bbn','BBN','Browns N','browns n','BROWNS N',
-                         'Browns n','26A',"SFA26A","26N","SFA26N"))                                {y=c(42.40,43.00);x=c(-66.60,-65.60)}
+                         'Browns n','26A',"SFA26A","26N","SFA26N"))                                {y=c(42.405,43.00);x=c(-66.60,-65.60)}
     if(plot.extent%in% c('BBs','bbs','BBS','Browns S','browns s','BROWNS S',
                          'Browns s','26B',"SFA26B","26S","SFA26S"))                                {y=c(42.25,42.75);x=c(-66.00,-65.25)}
     if(plot.extent%in% c('BB','bb','Bb',"Browns","browns",'BROWNS'))                               {y=c(42.25,43.00);x=c(-66.50,-65.25)}
@@ -62,7 +62,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     #inshore
     if(plot.extent %in% c("SFA29",'sfa29','29W','29w','SFA29W','sfa29w','29'))	                   {y=c(43.10,43.82);x=c(-66.50,-65.45)}
     if(plot.extent %in% c('gm',"GM","Grand Mannan"))		                                           {y=c(44.40,45.20);x=c(-67.20,-66.30)}
-    if(plot.extent %in% c('inshore',"Inshore","INSHORE"))	                                         {y=c(43.10,45.80);x=c(-67.50,-64.30)}
+    if(plot.extent %in% c('inshore',"Inshore","INSHORE"))	                                         {y=c(43.10,45.80);x=c(-67.50,-64.05)}
     if(plot.extent%in% c('bof','BOF',"BoF","Bay","Bay of FUndy"))		                               {y=c(44.25,45.80);x=c(-66.50,-64.30)}
     if(plot.extent%in% c('upper',"UPPER","UB","Upper","Upper Bay","upper bay"))	                   {y=c(45.00,46.00);x=c(-65.20,-64.30)}
     # Need to be slightly careful here since we have middle bank 

@@ -8,8 +8,8 @@
 #3:   make.polys  Do you want the object to be returned as a polygon.  This is handy if you have a shapefile that is lines but you want polygons returned
 combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F, quiet=F)
 {
-  require(sf)  || stop("You need to have the package 'sf' or this won't work pal")
-  require(rgdal)  || stop("You need to have the package 'sf' or this won't work pal")
+  require(sf)  || stop("You need to have the package 'sf'")
+  require(rgdal)  || stop("You need to have the package 'rgdal' or this won't work pal")
   # This gets the list of all the layers
   lyr <- ogrListLayers(loc)
   

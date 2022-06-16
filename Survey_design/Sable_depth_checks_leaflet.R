@@ -95,7 +95,7 @@ ggplot() + geom_point(data=bbs_dat[bbs_dat$year > 2015,], aes(lon, lat, size=val
 
 bbs_stns <- read.csv("Y:/Offshore/Assessment/Data/Survey_data/2020/Spring/BBs/Preliminary_Survey_design_Tow_locations_BBs.csv")
 
-bbs_strata <- st_read("Y:/Offshore/Assessment/Data/Maps/approved/GIS_layers/offshore_survey_strata/BBs.shp")
+bbs_strata <- st_read("Y:/GISData/Github_Repo/GIS_layers/offshore_survey_strata/BBs.shp")
 
 bbs_strata <- st_cast(bbs_strata, to = "MULTIPOLYGON")
 
