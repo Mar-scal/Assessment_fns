@@ -85,10 +85,10 @@ pecjector(gg.obj = bp.p17,area = "Inshore",add_layer = list(survey = c('inshore'
           repo = 'D:/Github/Assessment_fns', gis.repo = 'D:/Github/GIS_layers',plot = T,buffer =0, c_sys = 4326,plot_as = "ggplot")
 
 # Now I can also blow your mind...
-bp.int1 <- pecjector(area = "NL", add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',survey = c('all','detailed'),s.labels = 'all'),
+bp.int1 <- pecjector(area = "NL", add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'sub',sfa = 'all',survey = c('all','detailed'),s.labels = 'all'),
                      plot_as = 'ggplotly')
 # Roughly the same, though subtly different is...
-bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'subs',sfa = 'all',s.labels = 'all'),
+bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',nafo = 'sub',sfa = 'all',s.labels = 'all'),
                      plot_as = 'plotly')
 
 # OK, so s.labels = 'all' needs fixed
