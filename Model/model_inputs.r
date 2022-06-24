@@ -1,7 +1,7 @@
 #### Data processing for model inputs
 #### FK 2021
 # conclusion of 2022 process was to use "mixed" approach for imputation. midpoints for everything except growth, which uses LTM, so I have made that the default param.
-model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns){
+model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns, survey.obj=NULL){
   
   if(missing(direct_fns))
   {
@@ -41,56 +41,62 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns)
   
   direct.real <- direct 
   nickname1 <- nickname
+  browser()
   
-  # Bring in the survey results for the current year, this also includes the fishery data..
-  # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
-  if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
-  {
-    # If we have all survey results we preprocess both banks...
-    load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-  } # end if(file.exists(paste(direct,"Data/... == T
-  
-  direct <- direct.real
-  nickname <- nickname1
-  
-  # If we haven't created this file then there are a couple of places to look for the data... Note that we need to do
-  # this up here to avoid overwriting the logs/fishery data...
-  if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==F)
-  {
-    # If looking at BBn the data should be housed in this file
-    if(bank == "BBn")
-    { 
-      # If we have this file of spring data load it...
-      #if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData"))==T)
-      #{
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData",sep="")) 
-      # If we don't load this....
-      
-    } # if(bank[i] == "BBn")
-    
-    # If looking at GBa the data should be housed in this file
-    if(bank == "GBa")
-    { 
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep="")) 
-    } # if(bank[i] == "GBa")
-    
-    # If we want to run both banks I want to trip out an error message here saying you need to create the Survey_all_results.Rdata file
-    # if you want to run the both banks at once.  I could rig something up to work but it gets very complicated so seems easier
-    # to be lazy and make them make this file....
-    if(length(bank) > 1) 
-    {
-      stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
-    } # if(length(bank) > 1) 
-  }  # end if(file.exists(paste(direct,"Data/... == F
-  
-  direct <- direct.real
-  nickname <- nickname1
-  
-  if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
-    # read in data
-    load(paste(direct,"Data/Survey_data/" ,yr, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+  if(!is.null(survey.obj)) {
+    load(survey.obj)
   }
   
+  if(is.null(survey.obj)){
+    # Bring in the survey results for the current year, this also includes the fishery data..
+    # If we have run the whole survey we can pull in from this file, if not we will have to pull them in below (in the loop)
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==T)
+    {
+      # If we have all survey results we preprocess both banks...
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+    } # end if(file.exists(paste(direct,"Data/... == T
+    
+    direct <- direct.real
+    nickname <- nickname1
+    
+    # If we haven't created this file then there are a couple of places to look for the data... Note that we need to do
+    # this up here to avoid overwriting the logs/fishery data...
+    if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))==F)
+    {
+      # If looking at BBn the data should be housed in this file
+      if(bank == "BBn")
+      { 
+        # If we have this file of spring data load it...
+        #if(file.exists(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData"))==T)
+        #{
+        load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.RData",sep="")) 
+        # If we don't load this....
+        
+      } # if(bank[i] == "BBn")
+      
+      # If looking at GBa the data should be housed in this file
+      if(bank == "GBa")
+      { 
+        load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep="")) 
+      } # if(bank[i] == "GBa")
+      
+      # If we want to run both banks I want to trip out an error message here saying you need to create the Survey_all_results.Rdata file
+      # if you want to run the both banks at once.  I could rig something up to work but it gets very complicated so seems easier
+      # to be lazy and make them make this file....
+      if(length(bank) > 1) 
+      {
+        stop("Please re-run Survey_Summary_script and set it so that the file 'Survey_all_results.Rdata' gets created, Thanks eh!!")
+      } # if(length(bank) > 1) 
+    }  # end if(file.exists(paste(direct,"Data/... == F
+    
+    direct <- direct.real
+    nickname <- nickname1
+    
+    if(mwsh.test == T && !is.null(nickname) &&  use.final==F && final.run== F) {
+      # read in data
+      load(paste(direct,"Data/Survey_data/" ,yr, "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+    }
+  }
   direct <- direct.real
   nickname <- nickname1
   
@@ -256,7 +262,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns)
     # Thus why such a small difference in model results when using these different time series
     # frst.five <- sum(tst$catch[1:5],na.rm=T) - sum(proj.dat$BBn$catch[1:5],na.rm=T)
     ## End the little snippet
-
+    
     # Back to real code
     # So first up, this condition is the weighted mean condition, this uses the GAM predicted scallop condition factor for each tow
     # and the biomass from each tow to come up with an overall bank average condition factor.
@@ -313,7 +319,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns)
       mod.dat[[bank[i]]]$gR2[which(mod.dat[[bank[i]]]$year %in% 2020)] <- median(mod.dat[[bank[i]]]$gR2[mod.dat[[bank[i]]]$year<2020], na.rm=T)
       
     }
-
+    
     
   } # end for(i in 1:length(bank))
   

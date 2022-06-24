@@ -81,7 +81,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
 	  # Give towtrack some good anmes
 	  names(towtrack)<-c("X","Y","Time","Date","Speed","HDG")
 	  # Give it a PID, needed for PBSmapping function.
-	  towtrack$PID<-as.numeric(tows[i])
+	  towtrack$PID<-i
 	  # This is essentially counting the row numbers and giving a name... rownames(towtrack) would accomplish much the same result
 	  towtrack$POS<-1:nrow(towtrack)
 	  # rename towtrack
