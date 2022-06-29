@@ -149,15 +149,31 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
   for(i in 1:length(track$tow)){
     trackpts1 <- zz[track$start[i]:track$end[i],] %>%
       as.data.frame() %>%
-      dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
+      #dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
       mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
-      mutate(tow=i)
+      mutate(tow=i,
+             datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
+      select(-Ferdig.forenklet_3)
+    
     trackpts <- rbind(trackpts, trackpts1)
   }
   
+  # olex is in UTC-4
+  trackpts$datetime <- trackpts$datetime + hours(4)
+  
   # hold onto this for later
   unsmoothed <- trackpts
+  
+  starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
+  starttime$start <- starttime$datetime
+  starttime <- select(starttime, -datetime)
+  
+  endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
+  endtime$end <- endtime$datetime
+  endtime <- select(endtime, -datetime)
+  
+  time <- left_join(starttime, endtime)
   
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
@@ -165,7 +181,8 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
     group_by(tow) %>%
     summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
-    st_transform(4326)
+    st_transform(4326) %>%
+    left_join(time)
   
   print(ggplot() + geom_sf(data=trackpts, lwd=1) + coord_sf() + theme_bw())
   
@@ -176,7 +193,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load") {
-   browser()
     smoothed <- NULL
     # mave is a function that Brad and Bob Mohn wrote. It is saved in getdis.R
     for(i in unique(unsmoothed$tow)){

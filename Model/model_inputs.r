@@ -3,6 +3,9 @@
 # conclusion of 2022 process was to use "mixed" approach for imputation. midpoints for everything except growth, which uses LTM, so I have made that the default param.
 model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns, survey.obj=NULL){
   
+  require(PBSmapping)
+  require(maptools)
+  
   if(missing(direct_fns))
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
@@ -39,9 +42,9 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns,
     source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
   }
   
+  direct_fns1 <- direct_fns
   direct.real <- direct 
   nickname1 <- nickname
-  browser()
   
   if(!is.null(survey.obj)) {
     load(survey.obj)
@@ -111,6 +114,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns,
   
   direct <- direct.real
   nickname <- nickname1
+  direct_fns <- direct_fns1
   
   # Now bring in the latest fishery data
   if(!missing(direct_fns)) logs_and_fish(loc="offshore",year = 1981:yr,direct=direct, direct_fns=direct_fns)
@@ -196,7 +200,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns,
     {
       bound.surv.sp <- PolySet2SpatialPolygons(bound.surv.poly[[bank[i]]])
       # Get to get rid of all the crap spatial data in here.
-      fish.tmp <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 ,]
+      fish.tmp <- dat.fish[dat.fish$bank == master.bank  & !is.na(dat.fish$bank) & dat.fish$lon < 0 & dat.fish$lat > 0 & !is.na(dat.fish$lon) & !is.na(dat.fish$lat),]
       coordinates(fish.tmp) <- ~ lon + lat
       proj4string(fish.tmp) <- proj4string(bound.surv.sp)
       fish.pts <- over(fish.tmp,bound.surv.sp)
