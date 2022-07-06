@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(1:10,9:1)){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -193,78 +193,16 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load") {
-    smoothed <- NULL
-    # mave is a function that Brad and Bob Mohn wrote. It is saved in getdis.R
-    for(i in unique(unsmoothed$tow)){
-      # take every second row, assuming that GPS polling freq is 4 seconds (this means we use the location every 8 seconds)
-      if(nrow(unsmoothed[unsmoothed$tow==i,]) <10) warning(paste0("Tow ", i, " is very short. Beware!"))
-      smoothed1 <- unsmoothed[unsmoothed$tow==i,]
-      smoothed1$mave_lon <- mave(smoothed1$Longitude,w=w)
-      smoothed1$mave_lat <- mave(smoothed1$Latitude,w=w)
-      if(nrow(smoothed1[smoothed1$tow==i,])>every_n) smoothed1 <- smoothed1[seq(1, nrow(smoothed1), every_n),]
-      smoothed <- rbind(smoothed, smoothed1)
-    }
     
-    min(smoothed$mave_lat) - min(unsmoothed$Latitude)
-    min(smoothed$mave_lon) - min(unsmoothed$Longitude)
-    
-    smoothed <- smoothed %>%
-      st_as_sf(coords=c("mave_lon", "mave_lat"), crs=4326, remove=F) %>%
-      st_transform(32620) %>%
-      group_by(tow) %>%
-      summarize(do_union=FALSE) %>%
-      st_cast("LINESTRING") %>%
-      st_transform(4326)
-    
-    usp102 <- unsmoothed[unsmoothed$tow==2,] %>%
-      st_as_sf(coords=c("Longitude", "Latitude"), crs=4326, remove=F) %>%
-      mutate(ord = 1:nrow(.))
-    
-    us102 <- unsmoothed[unsmoothed$tow==2,] %>%
-      st_as_sf(coords=c("Longitude", "Latitude"), crs=4326, remove=F) %>%
-      st_transform(32620) %>%
-      group_by(tow) %>%
-      summarize(do_union=FALSE) %>%
-      st_cast("LINESTRING") %>%
-      st_transform(4326)
-    
-    plotly::ggplotly(ggplot() + geom_sf(data=us102) +
-      geom_sf(data=smoothed, colour="red") + 
-      geom_sf_text(data=usp102, aes(label=ord)))
-    
-    
-    # # Test/compare
-    # # require(smoothr)
-    # # st_length(smoothed[2,])
-    # # 
-    # # test <- smoothed[2,]
-    # # test <- as.data.frame(st_coordinates(test))
-    # # attr(test,"projection")<-"LL"
-    # # test$PID <- 1
-    # # test$POS <- 1:nrow(test)
-    # # calcLength(test)
-    # # 
-    # # st_length(smooth(trackpts[2,], method = "ksmooth", smoothness=100))
-    # # st_length(smoothed[2,])
-    # # st_length(trackpts[2,])
-    # # st_length(coords.track[2,])
-    # # 
-    # # ggplotly(ggplot() + geom_sf(data=coords.track[2,], colour="red") +
-    # #            geom_sf(data=trackpts[2,], colour="black") +
-    # #            geom_sf(data=smooth(trackpts[2,], method = "ksmooth", smoothness=100), colour="blue")+
-    # #            geom_sf(data=smoothed[2,], colour="green"))
-    # 
-    
-    # calculate distance coef
-    if(length=="sf"){
-      trackpts <- arrange(trackpts, tow)
+    trackpts <- arrange(trackpts, tow)
       
-      trackpts$length <- smoothed %>%
-        arrange(tow) %>%
-        st_transform(32620) %>%
-        group_by(tow) %>% 
-        st_length()
-    }
+    trackpts$length <- trackpts %>%
+      arrange(tow) %>%
+      st_transform(32620) %>%
+      group_by(tow) %>% 
+      st_length()
+    
+    trackpts$length_corr <- trackpts$length/correction_factor
     # 
     # if(length=="PBSmapping"){
     #   pbs <- as.data.frame(st_coordinates(trackpts))
@@ -281,7 +219,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", every_n=2, w=c(
     #   }
     # }
     # 
-    trackpts$dis_coef <- 800/trackpts$length
+    trackpts$dis_coef <- 800/trackpts$length_corr
     
     # calculate bearing and extract start and end points
     trackpts$bearing <- NA

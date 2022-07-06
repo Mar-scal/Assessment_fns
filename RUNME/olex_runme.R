@@ -25,24 +25,22 @@ for(fun in funcs)
   file.remove(paste0(dir,"/",basename(fun)))
 }
 
+### OPTIONAL: Extract the start and endpoints in sf format
+olex_se <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", ntows=212, type="startend")
 
-##### Import olex data from gz or txt file, and calculate distance coefficient and bearing
-olex <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=121, type="load")
+### OPTIONAL: Extract the tow tracks in sf format
+olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", 
+                           ntows=212, type="tracks")
+
+##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
+##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", 
+                         ntows=212, type="load", every_n = 2, w=c(1:14, 13:1))
 
 ##### Optional: 
 ### Check to see if they stayed in the right strata.
 output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv", # from final station list
                             towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt",
                             bank="Sab", interactive=F)
-
-### Extract the start and endpoints in sf format
-olex <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=121, type="startend")
-
-### Extract the tow tracks in sf format
-olex <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt", ntows=121, type="track")
-
-
-
-
 
 
