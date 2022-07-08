@@ -22,6 +22,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   library(dplyr)
   require(splitstackshape)
   require(rmapshaper)
+  require(lubridate)
   
   sf_use_s2(FALSE)
   
@@ -33,7 +34,8 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   #Garnstopp - stop
   #Brunsirkel - brown circle (points along trackline?)
   funcs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
-             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r")
+             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
+             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/github_spatial_import.R")
   dir <- getwd()
   for(fun in funcs) 
   {
@@ -186,6 +188,12 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   print(ggplot() + geom_sf(data=trackpts, lwd=1) + coord_sf() + theme_bw())
   
+  offshore_sf <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip", quiet = T)
+  
+  trackpts <- trackpts %>%
+    st_join(offshore_sf) %>%
+    rename(bank=ID)
+  
   # if all you want are tracks in sf format, here you go!
   if(type=="track"){
     return(trackpts)  
@@ -236,7 +244,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       trackpts$end_lat[i] <- coords$End_lat[i]
     }
     
-    trackpts <- dplyr::select(trackpts, tow, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
+    trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
     st_geometry(trackpts) <- NULL
     
