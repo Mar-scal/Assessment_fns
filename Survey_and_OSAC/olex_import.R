@@ -196,8 +196,19 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     dplyr::rename(bank=ID)
   
   # if all you want are tracks in sf format, here you go!
-  if(type=="track"){
+  if(type=="sf"){
     return(trackpts)  
+  }
+  
+  if(type=="tracks"){
+    tracks <- unsmoothed[, c("tow", "Longitude", "Latitude", "datetime")]
+    tracks <- left_join(tracks, trackpts[, c("tow", "bank")])
+    tracks <- dplyr::select(tracks, -geometry) %>%
+      dplyr::rename(Bank=bank,
+                    Tow=tow,
+                    Date_time = datetime) %>%
+      dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
+    return(tracks)
   }
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 

@@ -29,8 +29,12 @@ for(fun in funcs)
 olex_se <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", ntows=212, type="startend")
 
 ### OPTIONAL: Extract the tow tracks in sf format
+olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", 
+                           ntows=212, type="sf")
+
+### OPTIONAL: Extract the tow tracks for sharing in txt file
 olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz", 
-                           ntows=212, type="tracks")
+                       ntows=212, type="tracks")
 
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
@@ -45,4 +49,10 @@ output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv", #
                             towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz",
                             bank="Sab", interactive=F)
 
+# to check tow lengths
+olex_sf$length <- st_length(olex_sf)
 
+olex_sf <- left_join(olex_sf, olex_load)
+
+olex_sf[olex_sf$bank=="Sab" & as.numeric(olex_sf$dis_coef) > 0.9 & as.numeric(olex_sf$dis_coef) <10, c("tow", "bank", "length", "dis_coef")]
+olex_sf[as.numeric(olex_sf$length)<800,]
