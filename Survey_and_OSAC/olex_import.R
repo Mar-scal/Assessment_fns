@@ -193,7 +193,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   trackpts <- trackpts %>%
     st_join(offshore_sf) %>%
-    rename(bank=ID)
+    dplyr::rename(bank=ID)
   
   # if all you want are tracks in sf format, here you go!
   if(type=="track"){
