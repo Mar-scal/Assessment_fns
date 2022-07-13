@@ -42,7 +42,7 @@ olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2022/
 ##### Optional: 
 ### Check to see if they stayed in the right strata.
 output <- olex_check_strata(towplan = "C:/Users/keyserf/Desktop/sab_plan.csv", # from final station list
-                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/MidSabLE15tracks.txt",
+                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2022/Database loading/LE15/GBBBNGERLE15.gz",
                             bank="Sab", interactive=F)
 
 

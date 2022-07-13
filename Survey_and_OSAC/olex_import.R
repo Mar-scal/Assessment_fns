@@ -23,6 +23,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   require(splitstackshape)
   require(rmapshaper)
   require(lubridate)
+  require(dplyr)
   
   sf_use_s2(FALSE)
   
@@ -131,7 +132,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   coords.track <- rbind(coords.sf, coords.sf.end) %>%
     st_transform(32620) %>%
     group_by(ID) %>%
-    summarize(do_union=FALSE) %>%
+    dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
@@ -181,7 +182,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
     st_transform(32620) %>%
     group_by(tow) %>%
-    summarize(do_union=FALSE) %>%
+    dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326) %>%
     left_join(time)

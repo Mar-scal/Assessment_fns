@@ -1,6 +1,6 @@
 #### Run the industry report in R to compare against the SQL developer view
 direct <- "Y:/Offshore/Assessment/" 
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/" 
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/" 
 source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep=""))
 
 
@@ -10,7 +10,7 @@ require(dplyr)
 require(ggplot2)
 
 # scaloff username and pwd needed (keyserf doesn't have the right access)
-indreport <- get.offshore.survey(direct=direct, cruise="LE14", yr=2021, industry.report = T, un = "scaloff", pw=pwd.id, direct_fns=direct_fns)
+indreport <- get.offshore.survey(direct=direct, cruise="LE15", yr=2022, industry.report = T, un = "scaloff", pw=pwd.id, direct_fns=direct_fns)
 
 
 industryreport <- indreport$industryreport
@@ -50,7 +50,7 @@ df[[2]]
 
 industryreport$lon <- convert.dd.dddd(industryreport$START_LON)
 industryreport$lat <- convert.dd.dddd(industryreport$START_LAT)
-ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBa",], aes(lon,lat, label=TOW_NO)) + coord_map()
+ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="BBn",], aes(lon,lat, label=TOW_NO)) + coord_map()
 
 # checking out the german rake stuff. No obvious signs of bias. 
 # png(paste0(direct, "2019/Presentations/Survey_summary/test_figures/Ger/numberspertow_rake.png"), height=4, width=8, units="in", res=200)
