@@ -24,7 +24,7 @@
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2021
+yr <- 2022
 
 
 
@@ -53,7 +53,7 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Sou
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
                    surveys = c(#"Banspring", 
                     #"BanIcespring", 
                       "BBnspring",

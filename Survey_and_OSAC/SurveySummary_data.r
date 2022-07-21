@@ -109,6 +109,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   require(BIOSurvey2)
   require(sp)
   require(maptools)
+  require(readxl)
+  require(tidyverse)
   
   ############################# GENERAL DATA ########################################################
   ############################# GENERAL DATA ########################################################
@@ -194,7 +196,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     ################# LOAD GENERAL FLAT FILES ###################################################################
     
     #Read1 This is a huge flat file with decades of condition factor, shell weight, and meat height data in it up to 2012.
-    ps.dat<-read.csv(paste(direct,"data/Condition/PSGB.csv",sep=""))
+    #ps.dat<-read.csv(paste(direct,"data/Condition/PSGB.csv",sep=""))
     
     #Read2 Polygons for all the offshore banks
     newAreaPolys<-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep="")
@@ -240,34 +242,34 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # NOTE:  This function will go away once we have Offshore data loaded, should be spring 2016
     # Currently the data in the database is loaded back to 2000.
     # Import 2006 for BanIce data, then we'll remove back to 2000 in a few lines.
-    survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,direct=direct, direct_fns=direct_fns)
-    survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,direct=direct, direct_fns=direct_fns)
+    # survMay.dat<-import.survey.data(1984:2006,survey='May',explore=T,export=F,direct=direct, direct_fns=direct_fns)
+    # survAug.dat<-import.survey.data(1981:1999,survey='Aug',explore=T,export=F,direct=direct, direct_fns=direct_fns)
 
     print("import.survey.data done")
 
-    # keep BanIce separate
-    survBanIce.dat <- survMay.dat[survMay.dat$bank =="BanIce",]
-    # take out BanIce
-    survMay.dat <- survMay.dat[!survMay.dat$bank == "BanIce",]
-    # take out years 2001-2006
-    survMay.dat <- survMay.dat[survMay.dat$year<2001,]
-    # take out 2000 for all banks except browns, GB
-
-    survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
+    # # keep BanIce separate
+    # survBanIce.dat <- survMay.dat[survMay.dat$bank =="BanIce",]
+    # # take out BanIce
+    # survMay.dat <- survMay.dat[!survMay.dat$bank == "BanIce",]
+    # # take out years 2001-2006
+    # survMay.dat <- survMay.dat[survMay.dat$year<2001,]
+    # # take out 2000 for all banks except browns, GB
+    # 
+    # survMay.dat <- survMay.dat[!(survMay.dat$bank %in% c("Ger", "Sab", "Mid", "Ban", "BBs") & survMay.dat$year==2000),]
 
     print("check years in import.survey.data to update for any additional historical data that has been loaded since last time.")
 
     # Here we are subseting these data and getting rid of totwt and baskets bearing and distance coefficient
-    survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
-    survAug.dat<-survAug.dat[which(!names(survAug.dat)%in%c("dis","brg",'totwt','baskets'))]
-    # Using month as an indicator of whether data is spring or summer, so these might be off by a month but will do the trick.
-    survMay.dat$month <-  5
-    survAug.dat$month <-  8
-    # Make the dates Date format so we don't lose them at the merge.
-    survAug.dat$date <- as.Date(survAug.dat$date,format = "%Y-%m-%d")
-    survMay.dat$date <- as.Date(survMay.dat$date,format = "%Y-%m-%d")
-    survMay.dat$species <- "seascallop"
-    survAug.dat$species <- "seascallop"
+    # survMay.dat<-survMay.dat[which(!names(survMay.dat)%in%c("dis","brg",'totwt','baskets'))]
+    # survAug.dat<-survAug.dat[which(!names(survAug.dat)%in%c("dis","brg",'totwt','baskets'))]
+    # # Using month as an indicator of whether data is spring or summer, so these might be off by a month but will do the trick.
+    # survMay.dat$month <-  5
+    # survAug.dat$month <-  8
+    # # Make the dates Date format so we don't lose them at the merge.
+    # survAug.dat$date <- as.Date(survAug.dat$date,format = "%Y-%m-%d")
+    # survMay.dat$date <- as.Date(survMay.dat$date,format = "%Y-%m-%d")
+    # survMay.dat$species <- "seascallop"
+    # survAug.dat$species <- "seascallop"
     
     # From Whatever year we have the data loaded into SQL database we are getting the data directly from the SQL server.
     # As of Winter 2016 this was an ongoing process.
@@ -344,8 +346,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
     # if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
     # only keep samples from CSVs that are NOT in the database pull (MW.dat.new)
+    MW.dat$cruise[MW.dat$cruise=="CKO2"] <- "CK02"
+    MW.dat$cruise[MW.dat$cruise=="Ck09"] <- "CK09"
     MW.dat$ID <- paste(MW.dat$cruise,MW.dat$tow,sep='.')
     MW.dat <- MW.dat[which(!MW.dat$ID %in% MW.dat.new$ID),]
+    
     
     # remove "commercial" survey tows that were done in the past. Traditionally we have kept these in!
     if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
@@ -581,8 +586,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(is.null(survey.year)) survey.year <- yr
       
       # first things first, we need to grab the data for the tows that are repeats for the tows in the 2020 survey
-      require(readxl)
-      require(tidyverse)
       
       if(bnk=="BBn") {
         repeat.list.full <- read_excel(paste0(direct, "Data/Survey_data/2020/LE12BBn2020towlist.xlsx"))
@@ -889,7 +892,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
-      
+      browser()
       # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -947,7 +950,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]], (month %in% 5:6 & !year %in% 2015) | year==2015 | year==2000, 
+              subset(mw[[bnk]], (month %in% 5:6 & !year %in% c(2015,2000)) | year==2015 | year==2000, 
                      select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
