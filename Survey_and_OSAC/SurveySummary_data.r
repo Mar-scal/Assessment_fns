@@ -343,14 +343,15 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
     # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
+    
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
     # if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
     # only keep samples from CSVs that are NOT in the database pull (MW.dat.new)
     MW.dat$cruise[MW.dat$cruise=="CKO2"] <- "CK02"
     MW.dat$cruise[MW.dat$cruise=="Ck09"] <- "CK09"
     MW.dat$ID <- paste(MW.dat$cruise,MW.dat$tow,sep='.')
-    MW.dat <- MW.dat[which(!MW.dat$ID %in% MW.dat.new$ID),]
-    
+    # select by CRUISE only. Tow numbers changed in 2022 during data review. In the future, pull from CHISHOLMA.COMM_SAMPLES_SCALOFF
+    MW.dat <- MW.dat[which(!MW.dat$cruise %in% MW.dat.new$cruise),]
     
     # remove "commercial" survey tows that were done in the past. Traditionally we have kept these in!
     if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
@@ -879,7 +880,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       
       # For the most recent data
-      mw.dm <- na.omit(subset(mw[[bnk]],year==yr))
+      if(!max(mw[[bnk]]$year)==yr) {
+        message(paste0("no MW data available for specified yr, using ", max(mw[[bnk]]$year), " for mw.dm instead."))
+        mw.dm <- na.omit(subset(mw[[bnk]], year==max(mw[[bnk]]$year)))
+      }
+      if(max(mw[[bnk]]$year)==yr) {
+        mw.dm <- na.omit(subset(mw[[bnk]],year==yr))
+      }
       mw.dm$sh<-mw.dm$sh/100
       # MODEL - This is the meat weight Shell height realationship.  
       #MEAT WEIGHT SHELL HEIGHT RELATIONSHIP in current year 
@@ -892,7 +899,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
-      browser()
+      
       # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -941,16 +948,16 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           if(bank.4.spatial != "GB") mw.tmp <- subset(MW.dat,bank == bank.4.spatial)
           if(bank.4.spatial == "GB") mw.tmp <- subset(MW.dat,bank %in% c("GB","GBa","GBb"))
           mw.tmp$ID <- paste(mw.tmp$year,mw.tmp$tow,sep='.')
-          # Grab the relavent Meat-Weight Shell height data and make a flat file from it
+          # Grab the relevant Meat-Weight Shell height data and make a flat file from it
           # special handling for 2000 German survey (August) and 2015 BBn/Ger survey (July-September)
           if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
           {
-            browser()
+            #browser()
             mw.dat.all[[bnk]] <- merge(
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]], (month %in% 5:6 & !year %in% c(2015,2000)) | year==2015 | year==2000, 
+              subset(mw[[bnk]], year %in% years & (month %in% 5:6 & !year %in% c(2015,2000)) | year==2015 | year==2000, 
                      select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
@@ -962,7 +969,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
               subset(mw.tmp, 
                      month > 7 & year %in% years,
                      c("ID","year","lon","lat","depth","sh","wmw","tow")),
-              subset(mw[[bnk]], month > 7,select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
+              subset(mw[[bnk]], year %in% years & month > 7,select=c("ID","year","lon","lat","depth","sh","wmw","tow")),
               all=T)
           }
         }
