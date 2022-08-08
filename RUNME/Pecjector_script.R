@@ -57,6 +57,7 @@ bp.p11 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 
 bp.p12 <- pecjector(area = "NL", add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',s.labels = 'all'),gis.repo = 'D:/Github/GIS_layers')
 # You can see this doesn't look great for the whole area as it is too busy, so lets zoom in on the WSS but keeping everythign we did above
 # You notice how much quicker that was as all the layers were already loaded to the basemap 
+# Looks like 13-15 aren't working as they used to, not zooming in on the subarea, if you want this functionality contact DK/FK...
 bp.p13 <- pecjector(gg.obj = bp.p12, area = "WSS")
 # we can also change things up to include more detailed survey strata information.  See how the legend is a bit busted here tho...
 bp.p14 <- pecjector(gg.obj = bp.p12, area = "WSS", add_layer = list(survey = c("all","detailed")))
@@ -64,7 +65,6 @@ bp.p14 <- pecjector(gg.obj = bp.p12, area = "WSS", add_layer = list(survey = c("
 bp.p15 <- pecjector(gg.obj = bp.p14, area = "BBn")
 bp.p15
 
-source("D:/Github/Assessment_fns/Maps/convert_coords.R")
 # So instead we'd probably really want to do this
 bp.p16 <- pecjector(area = "BBn",add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',sfa = 'offshore',survey = c('offshore','detailed')))
 # Moving to inshore we can do this too
@@ -93,4 +93,6 @@ bp.int2 <- pecjector(area = "NL",add_layer = list(bathy = c(50,'c'),eez = 'eez',
 
 # OK, so s.labels = 'all' needs fixed
 
+bp.hmm <- pecjector(area = list(y = c(35,55),x = c(-82,-36),crs = 4326),c_sys = 4326,
+                   add_layer = list(bathy = 50,eez = 'eez',nafo = 'sub',s.labels = 'all'))
 

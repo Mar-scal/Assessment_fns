@@ -1301,15 +1301,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   
   # At the end we want to 'unexpand' the figure so we don't have an annoying buffer!
   #browser()
-  pect_plot <- pect_plot + coord_sf(expand=F) + xlab("") + ylab("")
-  
+  if(plot_as != "plotly")
+  {
+    pect_plot <- pect_plot + coord_sf(expand=F) + xlab("") + ylab("") + 
+                             theme(panel.grid=element_blank(),panel.background = element_rect(fill = 'white'))
+  } # end if(plot_as != "plotly")
   
   if(plot_as == 'ggplotly') 
   {
     pect_plot <- pect_plot + theme_map() 
     if(legend == F) pect_plot <- ggplotly(pect_plot) %>% hide_legend()
     if(legend == T) pect_plot <- ggplotly(pect_plot) 
-  }
+  } # end if(plot_as == 'ggplotly') 
   
 
   if(plot == T) print(pect_plot) # If you want to immediately display the plot
