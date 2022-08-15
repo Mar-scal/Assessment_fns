@@ -44,6 +44,7 @@ load_offshore_spatial <- function(direct_data,
 
 plot_offshore_spatial<- function(direct_data,
                                  direct_fns,
+                                 gis.repo = "Y:/GISdata/Github_Repo/GIS_layers",
                                  offshore_data,
                                  overlay_data,
                                  station_years,
@@ -94,7 +95,7 @@ plot_offshore_spatial<- function(direct_data,
     strata_banks <- c("GBa", "GBb", "BBn", "BBs", "Sab")
     if(any(strata_banks %in% banks[i])){
       strata_banks <- strata_banks[which(strata_banks %in% banks[i])]
-      strata <- rbind(strata, st_read(paste0(direct_data, "Data/Maps/approved/GIS_layers/offshore_survey_strata/", strata_banks, ".shp"), quiet=T))
+      strata <- rbind(strata, st_read(paste0(gis.repo, "/offshore_survey_strata/", strata_banks, ".shp"), quiet=T))
     }
     if("Ger" %in% banks[i]){
       strata <- rbind(strata, st_read(paste0(direct_data, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T))

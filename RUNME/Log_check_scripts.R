@@ -71,5 +71,5 @@ tow.time.check$tow.time.outliers # The logs in which the average tow time is out
 # 
  source(paste(direct,"Assessment_fns/Maps/Convert_PBSmapping_into_GIS_shapefiles.R",sep="")) 
 # 
- pbs.2.gis(dat = "D:/R/Data/Maps/approved/Other_Borders/nafo.csv", save.loc = "D:/R/Data/Maps/approved/GIS_layers/nafo/subareas",
+ pbs.2.gis(dat = "D:/R/Data/Maps/approved/Other_Borders/nafo.csv", save.loc = "D:/SOMEWHERE",
            type="polygon",layer.names = "label")

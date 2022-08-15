@@ -82,13 +82,17 @@
 # pt.txt.sz:     Control the size of the points or the point text. To keep it simple you adjust one you adjust the other.  Default = 1
 #
 # repo:          Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
+# gis.repo       The repository from which you will pull the GIS related data likely you want to use the default "Y:/GISData/Github_Repo/GIS_layers"
+# load_stations: Does something
+# tow_buffer  :  Does something else
 #####                 Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
 ##### SURVEY DESIGN
 
 Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, export = F,seed = NULL, point.style = "points",
                           plot=T,fig="screen",legend=T, zoom = T,banks = c("BBs","BBn","GBa","GBb","Sab","Mid","GB","Ger"),
                           add.extras = F,relief.plots = F,digits=4,ger.new = 60, x.adj=0.002, y.adj=0.002,ger.rep=20, cables=F,
-                          pt.txt.sz = 2,repo = 'github', load_stations=F, tow_buffer=F)
+                          pt.txt.sz = 2,repo = 'github', gis.repo = "Y:/GISData/Github_Repo/GIS_layers",
+                          load_stations=F, tow_buffer=F)
 {
   print(banks)
   print(seed)
@@ -158,8 +162,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   }
   if(!repo =='github')
   {
-    surv.polyset <- combo.shp(paste0(direct, "Data/Maps/approved/GIS_layers/offshore_survey_strata"),make.sf=T,make.polys=F, quiet=T)
-    areas <- combo.shp(paste0(direct, "Data/Maps/approved/GIS_layers/offshore"),make.sf=T,make.polys=F, quiet=T)
+    surv.polyset <- combo.shp(paste0(gis.repo, "/offshore_survey_strata"),make.sf=T,make.polys=F, quiet=T)
+    areas <- combo.shp(paste0(gis.repo, "/offshore"),make.sf=T,make.polys=F, quiet=T)
   }
   # these have to come in as CSV
   surv.polydata <- read.csv(paste(direct,"Data/Survey_data/survey_information.csv",sep=""),stringsAsFactors = F)#Read2
