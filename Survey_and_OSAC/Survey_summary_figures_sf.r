@@ -1348,7 +1348,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
      
             if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial","Clap-spatial"))
             {
-              surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('lon','lat'),crs = 4326,remove=F) %>% 
+              surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
@@ -1368,7 +1368,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
-              surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
+              surv <- st_as_sf(CF.current[[banks[i]]],coords = c('slon','slat'),crs = 4326)
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F) +
