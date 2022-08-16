@@ -25,6 +25,8 @@ direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 yr <- 2022
+un.ID <- "ENTER UN HERE"
+pwd.ID <- "ENTER PW HERE"
 
 
 
@@ -55,18 +57,18 @@ res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
                    surveys = c(#"Banspring", 
-                    #"BanIcespring", 
+                    # #"BanIcespring", 
                       "BBnspring",
-                      "BBsspring",
+                      #"BBsspring",
                       "Gerspring",
                       "Midspring",
                       "Sabspring",
-                      "GBspring",
-                      "GBbsummer",
-                      "GBasummer"
+                       "GBspring"#,
+                       # "GBbsummer",
+                      #  "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="historical_db")
+                   commercialsampling=T, nickname="spring2022")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -93,17 +95,17 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
-            yr=2021, 
+            yr=2022, 
             banks = c(
-                   "BBn",
-                    "Ger",
-"Mid",
-                 "Sab",
-            # #"GBa"#,
-            # # "GBb"#,
-                   "GB",
-           "BBs"#,
-             #"Ban",
+              "BBn",
+              "Ger",
+              "Mid",
+              "Sab",
+              # #"GBa"#,
+              # # "GBb"#,
+              "GB"#,
+              #"BBs"#,
+              #"Ban",
               # "BanIce"
             ),
             s.res="high",
@@ -113,23 +115,23 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
              #    "FR-spatial",
              #    "CF-spatial",
              #    "MC-spatial",
-                 "Clap-spatial"#,
-           #  "Survey"#,
+             #    "Clap-spatial",
+            "Survey",
 #             "user.SH.bins",
 #               "seedboxes",
-               #"MW-SH"#,
- #"abund-ts",
-  #             "biomass-ts",
-     #         "SHF",
-    #           "clapper-abund-ts",
-     #        "clapper-per-ts"#,
-        #   "SH-MW-CF-ts",
-          # "breakdown"#,
+              "MW-SH",
+ "abund-ts",
+               "biomass-ts",
+              "SHF",
+               "clapper-abund-ts",
+             "clapper-per-ts",
+           "SH-MW-CF-ts",
+           "breakdown"#,
           #    "MW-spatial", "SH-spatial", "MW.GP-spatial",
            #    "SH.GP-spatial",
             #  "SHF-large"
             ), bathy=c(10,'c'), 
-            sub.area=F, INLA="run", season="testing", nickname="LE13")#, layout="landscape")
+            sub.area=F, INLA="run", season="testing", nickname="spring2022")#, layout="landscape")
 
 Sys.time() -str
 

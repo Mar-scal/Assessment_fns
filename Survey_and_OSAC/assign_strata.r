@@ -48,7 +48,7 @@ assign.strata<-function(surv.dat,polys,State='live')
 	# reorder the data by year and tow number
 	surv.dat<-surv.dat[order(surv.dat$year,surv.dat$tow),]
 	# Remove the old stratum column
-	surv.dat <- surv.dat[,-which(names(surv.dat) == "stratum")]
+	if(any(names(surv.dat)=="stratum")) surv.dat <- surv.dat[,-which(names(surv.dat) == "stratum")]
 	# Return object
 	surv.dat
 } #end function

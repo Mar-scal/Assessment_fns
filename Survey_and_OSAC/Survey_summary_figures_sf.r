@@ -696,7 +696,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
-        
+
         if(!banks[i] %in% c("GBa", "GBb")) {
           if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
             out <- loc.sf %>% mutate(
@@ -707,7 +707,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                     These are likely due to extras. Please make sure you're ok with this!")
               
               pts_to_add <- out[is.na(out$intersection),]
-              poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 1000)
+              poly_to_add <- st_buffer(st_as_sfc(st_bbox(pts_to_add)), 2000)
               # plot(bound.poly.surv.sf)
               # plot(loc.sf, add=T)
               # plot(pts_to_add, add=T)
@@ -957,7 +957,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                 
                 fitted[[spatial.maps[k]]] <- data.frame(fitted = mod$summary.fitted.values$mean[1:length(tmp.gp$gp.sh)],
                                                         dat= tmp.gp$gp.sh)
-              } # end if(spatial.maps[k] == "PR-spatial")  
+              } # end if(spatial.maps[k] == "SH.GP-spatial")  
               
               
               if(spatial.maps[k] %in% c("FR-spatial","PR-spatial","Rec-spatial","SH-spatial","SH.GP-spatial",
@@ -1304,6 +1304,18 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             if(fig == "png") png(paste(plot.dir,maps.to.make[m],".png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
             if(fig == "pdf") pdf(paste(plot.dir,maps.to.make[m],".pdf",sep=""),width = 11,height = 8.5,bg = "transparent")
             if(fig == "screen") windows(11,8.5)
+
+            if(exists("poly_to_add")){
+              if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial")){
+                bound.poly.surv.sf <- st_difference(bound.poly.surv.sf, poly_to_add)
+              }
+              
+              if(!maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial")){
+                if(!st_geometry(bound.poly.surv.sf) == st_geometry(st_union(bound.poly.surv.sf, poly_to_add))){
+                  bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
+                }
+              }
+            }
             
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
             p2 <- pecjector(gg.obj = p, 
@@ -1323,7 +1335,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                                         alpha=0.75))) +
               geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) + coord_sf(expand=F)
            
-           plot(mesh)
+           #plot(mesh)
            
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
@@ -1336,7 +1348,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
      
             if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial","Clap-spatial"))
             {
-              surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
+              surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('lon','lat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
@@ -1350,16 +1362,17 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               if(banks[i] == "Ger" & length(shp) == 2) shp <- c(21,15)
               
               # Make the plot
-              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F)
+              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F) +
+                theme(legend.key = element_rect(fill=NA))
             }
-            
             
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
-              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F)
+              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F) +
+                theme(legend.key = element_rect(fill=NA))
             }
             
             ## NEXT UP FIGURE OUT THE SEEDBOXES!
@@ -1489,21 +1502,20 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         cols <- unique(shpf$col)
         
         p2 <- p  + #geom_sf(data=shpf,aes(fill= Details))    +  scale_fill_manual(values = cols) + 
-          geom_sf(data=shpf,aes(linetype = `Number of Tows`))  + 
-          geom_sf(data=shpf,aes(colour = `Area (km^2)`))  +
-          new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA)    +  
+          geom_sf(data=shpf,aes(linetype = `Number of Tows`), alpha=0)  + 
+          geom_sf(data=shpf,aes(colour = `Area (km^2)`), alpha=0)  +
+          new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA, alpha=0.7)    +  
           geom_sf(data=surv, aes(shape=`Tow type`)) + 
           scale_shape_manual(values = shp) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
           scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)))  +
-          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)), name=expression(paste("Area (", km^{2}, ")")))  +
-          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols)), 
+          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), name=expression(paste("Area (", km^{2}, ")")))  +
+          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
-                legend.justification = 'left',legend.key.size = unit(.5,"line")) + coord_sf(expand=F)
+                legend.justification = 'left',legend.key.size = unit(.5,"line"),
+                legend.key = element_rect(fill = NA)) + coord_sf(expand=F)
       
-        p2$layers <- c(p2$layers, p2$layers[[2]])
-        
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
       # Finally add seedboxes as appropriate
       if(length(sb[,1]) > 0) 
@@ -1534,7 +1546,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     ####################################  MWSH and CF Time series plot #################################### 
     if(any(plots == "MW-SH"))
     {
-      
+      browser()
       MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                                list(year=as.character(yr),bank=banks[i]))
       CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),

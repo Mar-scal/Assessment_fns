@@ -316,6 +316,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     SurvDB$SHF$month <- as.numeric(format(SurvDB$SHF$date, "%m"))
     SurvDB$pos$month <- as.numeric(format(SurvDB$pos$TOW_DATE, "%m"))
     SurvDB$MWs$month <- as.numeric(format(SurvDB$MWs$month, "%m"))
+    
+    
     # Replace the strata ID with a unique identifier.
     SurvDB$MWs$ID<-with(SurvDB$MWs,paste(cruise,tow,sep='.'))
     # Combine the Survey data.  This first one has all of the SHF data there is.
@@ -342,6 +344,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     #Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
     # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
+    
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
@@ -845,6 +848,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         bank.dat[[bnk]] <- cbind(newscheme, data.frame(Strata_ID_old=oldscheme[,dim(oldscheme)[2]]))
       } # end if(bnk == "Sab") 
       
+      # database update in 2022 lead to a minor correction in coordinates for tow 41 in 1992, which moved it into stratum 101. 
+      # But the tow actually SHOULD be in stratum 101 (based on looking at the tow track), but for all of recent history, it has been in 102.
+      # this commented-out code will force the tow to be assigned to stratum 102, even though it really should be in stratum 101. 
+      # if(bnk == "GBb") {
+      #   bank.dat$GBb[bank.dat$GBb$year==1992 & bank.dat$GBb$tow==41,]$slon <- -66.15305556
+      #   bank.dat$GBb[bank.dat$GBb$year==1992 & bank.dat$GBb$tow==41,]$slat <- 42.00722222 
+      # }
+      
       if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab" && bnk!= "Ban" && bnk!="BanIce") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
       # above assigns strata to each tow. 
       
@@ -982,7 +993,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
         # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
-        if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.301",]
+        if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.601",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
         if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)

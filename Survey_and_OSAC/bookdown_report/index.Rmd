@@ -1,6 +1,6 @@
 --- 
 title: "Offshore Scallop Survey Summary"
-subtitle: "Spring 2021"
+subtitle: "Spring 2022"
 author: "Scallop and Benthic Habitat Unit"
 output: 
   bookdown::pdf_document2:
@@ -20,7 +20,7 @@ require(lubridate)
 load("summary.Rdata")
 
 dates <- summary_data$dates[summary_data$dates$bank %in% c("Mid", "Sab", "Ger",
-          "BBn", "BBs", "GB"),]
+          "BBn", "GB"),]
 ```
 
  
