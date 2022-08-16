@@ -70,5 +70,5 @@ markdown/
 *.exe
 
 *.RData
-Survey_and_OSAC/bookdown_report/summary.Rdata
+**Survey_and_OSAC/bookdown_report/summary.Rdata**
 *.Rdata
