@@ -276,7 +276,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     #Source6 source("fn/get.offshore.survey.r") Get the data directly from SQL
     SurvDB<-get.offshore.survey(db.con = db.con, un=un.ID , pw = pwd.ID,direct=direct, direct_fns=direct_fns)
     # subset by yr to cut off data past specified yr
-    
     SurvDB$SHF <- SurvDB$SHF[SurvDB$SHF$YEAR < (yr+1),]
     SurvDB$MWs <- SurvDB$MWs[SurvDB$MWs$YEAR < (yr+1),]
     SurvDB$pos <- SurvDB$pos[SurvDB$pos$year < (yr+1),]
@@ -353,8 +352,21 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     MW.dat$cruise[MW.dat$cruise=="CKO2"] <- "CK02"
     MW.dat$cruise[MW.dat$cruise=="Ck09"] <- "CK09"
     MW.dat$ID <- paste(MW.dat$cruise,MW.dat$tow,sep='.')
+    
+    # Keep Sab 1984 MWSH samples that are missing tow files (according to Summer 2022 database checks)
+    #sort(unique(all.surv.dat[all.surv.dat$bank=="Sab" & all.surv.dat$year==1984,]$tow))
+    Sab_add <- MW.dat[MW.dat$bank=="Sab" & MW.dat$year==1984 & MW.dat$tow %in% c("142", "146", "148", "149"),]
+    
+    # Keep GB 1989 MWSh samples that are missing tow files (according to Summer 2022 database checks)
+    #unique(all.surv.dat[all.surv.dat$bank %in% c("GBa", "GBb") & all.surv.dat$year==1989 & all.surv.dat$tow %in% 301:312,c("date", "tow")])
+    GB_add <- MW.dat[MW.dat$bank %in% c("GBa", "GBb") & MW.dat$year==1989 & MW.dat$month<7 & MW.dat$tow %in% 301:312,]
+    
     # select by CRUISE only. Tow numbers changed in 2022 during data review. In the future, pull from CHISHOLMA.COMM_SAMPLES_SCALOFF
     MW.dat <- MW.dat[which(!MW.dat$cruise %in% MW.dat.new$cruise),]
+    
+    # add the missing ones back in (according to Summer 2022 database checks)
+    MW.dat <- rbind(MW.dat, Sab_add)
+    MW.dat <- rbind(MW.dat, GB_add)
     
     # remove "commercial" survey tows that were done in the past. Traditionally we have kept these in!
     if(commercialsampling == F) MW.dat <- MW.dat[!MW.dat$tow==0,]
@@ -906,7 +918,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
+      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3,)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -1064,7 +1076,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       {
         surv.dat[[bnk]]$random[surv.dat[[bnk]]$year < 2013] <-4
         surv.dat[[bnk]]$random[surv.dat[[bnk]]$tow %in% c(1:24,301:324)] <-3
-        surv.dat[[bnk]]$random[surv.dat[[bnk]]$tow > 12 & surv.dat[[bnk]]$year == 1988] <- 4
+        surv.dat[[bnk]]$random[surv.dat[[bnk]]$tow > 312 & surv.dat[[bnk]]$year == 1988] <- 4
       } # end if(bnk == "GB")
       
       # Subset the data into the clappers (dead) and live scallops.  Use only random survey tows for Clappers...

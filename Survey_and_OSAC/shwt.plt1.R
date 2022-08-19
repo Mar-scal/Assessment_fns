@@ -37,7 +37,7 @@
 
 shwt.plt1 <- function(htwt.fit,graphic='R',ht=8,wd=11.5,cx=1.2,lw=2,xl,yl,titl="",cex.mn = 1.2,axis.cx=1, ...)
 {
-browser()
+
 	# Open appropriate plot device
 	if(graphic=='pdf')pdf("plots/shwt.pdf", width = wd, height = ht, pointsize = 14)
 	#if(graphic=='R')windows(wd,ht)

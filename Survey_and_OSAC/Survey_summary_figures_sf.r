@@ -1368,7 +1368,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
-              surv <- st_as_sf(CF.current[[banks[i]]],coords = c('slon','slat'),crs = 4326)
+              surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
               surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F) +
@@ -1503,14 +1503,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
         p2 <- p  + #geom_sf(data=shpf,aes(fill= Details))    +  scale_fill_manual(values = cols) + 
           geom_sf(data=shpf,aes(linetype = `Number of Tows`), alpha=0)  + 
-          geom_sf(data=shpf,aes(colour = `Area (km^2)`), alpha=0)  +
+          geom_sf(data=shpf,aes(colour = `Area (km^2)`), alpha=0, linetype="blank")  +
           new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA, alpha=0.7)    +  
           geom_sf(data=surv, aes(shape=`Tow type`)) + 
           scale_shape_manual(values = shp) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
           scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)))  +
           scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), name=expression(paste("Area (", km^{2}, ")")))  +
-          scale_linetype_manual(values = rep("solid", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), 
+          scale_linetype_manual(values = rep("blank", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line"),
@@ -1546,7 +1546,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     ####################################  MWSH and CF Time series plot #################################### 
     if(any(plots == "MW-SH"))
     {
-      browser()
       MWSH.title <- substitute(bold(paste("MW-SH Relationship (",bank,"-",year,")",sep="")),
                                list(year=as.character(yr),bank=banks[i]))
       CF.ts.title <- substitute(bold(paste("Condition factor time series (",bank,")",sep="")),
