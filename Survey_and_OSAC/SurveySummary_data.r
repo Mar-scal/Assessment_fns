@@ -488,7 +488,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   # Remove comparative surveys conducted in 2004. Keep the MWSH data from these surveys though, because they are collected at the right time of year (treat them like commercial samples)
   all.surv.dat <- all.surv.dat[!all.surv.dat$cruise %in% c("CK03", "P454"),]
-
+  
+  # Remove comparative surveys conducted in 2005, also remove MWSH data because they were collected at the wrong time of year.
+  # I think they would get excluded later anyway (in the mw merge step), but just in case!
+  all.surv.dat <- all.surv.dat[!all.surv.dat$cruise == "CK29",]
+  MW.dat <- MW.dat[!MW.dat$cruise == "CK29",]
+  MW.dat.new <- MW.dat.new[!MW.dat.new$cruise == "CK29",]
+  
   # For consistency with previous survey summary runs (pre-2022 database update), remove some early years of data. These should be added back in during framework.
   all.surv.dat <- all.surv.dat %>%
     filter((year>1983 & !bank %in% c("GBa", "GBb", "GB")) | (year>1980 & bank %in% c("GBa", "GBb", "GB")))

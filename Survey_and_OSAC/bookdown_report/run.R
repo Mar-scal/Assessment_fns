@@ -16,7 +16,7 @@ direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
 Survey_Summary_Word(year=reportyear, reportseason="spring",
-                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_spring2022.Rdata"),
+                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_spring2022_2.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 

@@ -1,5 +1,6 @@
 # simple PBS mapping to sf MULTIPOLYGON (e.g. for converting offshore strata)
 pbs_2_sf <- function(pbs, lon, lat) {
+  require(tidyverse) || stop("install tidyverse")
   require(sf) || stop("install sf package")
   require(nngeo) || stop("install nngeo package")
 
@@ -59,15 +60,16 @@ pbs_2_sf <- function(pbs, lon, lat) {
   return(pids)
 }
 
-out <- pbs_2_sf(survey.detail.polys[survey.detail.polys$label=="GBa",], lon="X", lat="Y")
-out <- pbs_2_sf(survey.detail.polys[survey.detail.polys$label=="GBb",], lon="X", lat="Y")
-out <- pbs_2_sf(survey.detail.polys[survey.detail.polys$label=="BBn",], lon="X", lat="Y")
-
-
-st_area(out)
-out$PID <- 1:nrow(out)
-ggplot() + geom_sf(data=out, aes(fill=PID)) + facet_wrap(~PID)
-
-ggplot() + geom_sf(data=offshore[offshore$label=="GBa",], aes(fill=PID)) + facet_wrap(~PID)
-st_area(offshore[offshore$label=="BBn",])
+# gba <- pbs_2_sf(area[area$label=="GBa",], lon="X", lat="Y")
+# gbb <- pbs_2_sf(area[area$label=="GBb",], lon="X", lat="Y")
+# out <- pbs_2_sf(survey.detail.polys[survey.detail.polys$label=="GBb",], lon="X", lat="Y")
+# out <- pbs_2_sf(survey.detail.polys[survey.detail.polys$label=="BBn",], lon="X", lat="Y")
+# 
+# 
+# st_area(out)
+# out$PID <- 1:nrow(out)
+# ggplot() + geom_sf(data=out, aes(fill=PID)) + facet_wrap(~PID)
+# 
+# ggplot() + geom_sf(data=offshore[offshore$label=="GBa",], aes(fill=PID)) + facet_wrap(~PID)
+# st_area(offshore[offshore$label=="BBn",])
 

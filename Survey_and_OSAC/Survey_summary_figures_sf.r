@@ -1475,12 +1475,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       {
         # Need to get the factor levels correct, always annoying...
         #Tows per strata is easy...
-        if(banks[i] != "Sab" && banks[i] != "BBs") shpf$tow_num <- as.character(table(surv$Strata_ID))
-        if(banks[i] == "Sab") shpf$tow_num <- as.character(table(surv$Strata_ID_new))
+        if(banks[i] != "Sab" && banks[i] != "BBs") shpf$tow_num <- as.character(table(surv$Strata_ID[surv$random %in% c(1,3)]))
+        if(banks[i] == "Sab") shpf$tow_num <- as.character(table(surv$Strata_ID_new[surv$random %in% c(1,3)]))
         # Because we never tow in that one tiny strata...
         if(banks[i] == "BBs") 
         {
-          tmp <- as.character(table(surv$Strata_ID))
+          tmp <- as.character(table(surv$Strata_ID[surv$random %in% c(1,3)]))
           if(length(tmp) == 3) tmp <- c(tmp[1],0,tmp[2:3])
           shpf$tow_num <- tmp
         } # eend if(banks[i] == "BBs") 

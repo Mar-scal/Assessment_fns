@@ -34,7 +34,7 @@ pwd.ID <- "ENTER PW HERE"
 # This function only needs to be run once to compile all of the data
 source(paste(direct_fns,"Survey_and_OSAC/SurveySummary_data.r",sep="")) #Source1
 # This function is used to pull out the figures of interest.
-source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Source1
+source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #Source1
 
 #source(paste(direct,"Assessment_fns/Survey_and_OSAC/archive/Survey_summary_figures.r",sep="")) #Source1
 # Here's the pre-INLA version of this if interested, should work, I hope...
@@ -55,7 +55,7 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures.r",sep="")) #Sou
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
                    surveys = c(#"Banspring", 
                     # #"BanIcespring", 
                       "BBnspring",
@@ -68,7 +68,7 @@ res <- survey.data(direct = direct,
                       #  "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="spring2022")
+                   commercialsampling=T, nickname="spring2022_2")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -94,12 +94,12 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 # Did this work... NO :-/  It is related to the loading of the MW-SH data from the previsou year for the MW-SH plot... annoyingly!!
 
 str <- Sys.time()
-survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
+survey.figs(direct = direct, direct_fns=direct_fns, fig="screen",
             yr=2022, 
             banks = c(
-              "BBn",
-              "Ger",
-              "Mid",
+               "BBn",
+               "Ger",
+               "Mid",
               "Sab",
               # #"GBa"#,
               # # "GBb"#,
@@ -109,29 +109,30 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
               # "BanIce"
             ),
             s.res="high",
-             plots = c(
-              #   "PR-spatial",
-             #     "Rec-spatial",
-             #    "FR-spatial",
-             #    "CF-spatial",
-             #    "MC-spatial",
-             #    "Clap-spatial",
-            "Survey",
-#             "user.SH.bins",
-#               "seedboxes",
+            plots = c(
+              # "Survey",
+              "abund-ts",
+              "biomass-ts",
+               "SHF",
+               "user.SH.bins",
               "MW-SH",
- "abund-ts",
-               "biomass-ts",
-              "SHF",
                "clapper-abund-ts",
-             "clapper-per-ts",
-           "SH-MW-CF-ts",
-           "breakdown"#,
-          #    "MW-spatial", "SH-spatial", "MW.GP-spatial",
-           #    "SH.GP-spatial",
-            #  "SHF-large"
-            ), bathy=c(10,'c'), 
-            sub.area=F, INLA="run", season="testing", nickname="spring2022")#, layout="landscape")
+               "clapper-per-ts",
+               "SH-MW-CF-ts",
+              "breakdown",
+              #     "PR-spatial",
+              #    "Rec-spatial",
+              #    "FR-spatial",
+              #  "CF-spatial",
+              #   "MC-spatial",
+              #   "Clap-spatial",
+              #    "MW-spatial", "SH-spatial",
+              # "MW.GP-spatial",
+              #    "SH.GP-spatial"#,
+              #  "SHF-large",
+              "seedboxes"), 
+            bathy=c(10,'c'), 
+            sub.area=F, INLA="load", season="testing", nickname="spring2022_2")#, layout="landscape")
 
 Sys.time() -str
 
