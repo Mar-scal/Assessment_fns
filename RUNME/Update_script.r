@@ -91,7 +91,7 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
               
-banks <- c("BBn")#, 
+banks <- c("GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core")#, 
   #"BBn")
 yr <- 2021
 
@@ -105,7 +105,8 @@ for(b in banks){
                  impute=it,
                  nickname=it,
                  direct,
-                 direct_fns)
+                 direct_fns,
+                 survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_spatial.RData")
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
@@ -114,17 +115,17 @@ for(b in banks){
               direct,
               direct_fns,
               direct_out = "C:/Users/keyserf/Documents/",
-              run.model = F,
+              run.model = T,
               parallel=T,
               # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
               # final.run=T,
               model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
               final.run=F,
               nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
-              export.tables=F,
-              make.diag.figs = F,
+              export.tables=T,
+              make.diag.figs = T,
               make.update.figs = T,
-              language="fr",
+              language="en",
               fig="png")
     
     # prediction evaluation

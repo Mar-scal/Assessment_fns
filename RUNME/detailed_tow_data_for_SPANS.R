@@ -1,11 +1,11 @@
 # For Detailed Tow Data (for SPANS, usually right after Industry report)
-year<- 2021
-DR <- "DR2021_06"
+year<- 2022
+DR <- "DR2022_07"
 direct <- "Y:/Offshore/Assessment/"
 #load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
 
 #banks <- names(survey.obj)
-banks <- c("GB", "BBn", "BBs", "Sab", "Mid", "Ger")
+banks <- c("GB", "BBn", "Sab", "Mid", "Ger")
 banks <- c("GBa", "GBb")
 
 cruises <- c("GB", "BB", "SAB", "MID", "GER")
@@ -13,7 +13,7 @@ cruises <- c("GBa", "GBb")
 #cruises <- c("GBa", "GBb", "BB")
 
 # read in this function
-detailed.tow.data <- function(year=2021, DR="DR2021_04", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID){
+detailed.tow.data <- function(year=2021, DR="DR2021_04", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID, db.con="ptran"){
 
   require(ROracle)
   
@@ -132,30 +132,30 @@ detailed.tow.data <- function(year=2021, DR="DR2021_04", banks=banks, cruises=cr
 }
 
 ## RUN THIS:
-detailed.tow.data(year=2021, DR="DR2021_06", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID)
+detailed.tow.data(year=year, DR=DR, banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID)
 
 # compare to live and dead views in SQL
 
-GBAshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_06/GBA.2021.std.hf.csv"))
-GBBshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_06/GBB.2021.std.hf.csv"))
-GBAmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_06/GBA.2021.mwsh.csv"))
-GBBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_06/GBB.2021.mwsh.csv"))
-GBshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/GBspring.2021.std.hf.csv"))
-GBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/GBspring.2021.mwsh.csv"))
-BBNshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/BBN.2021.std.hf.csv"))
-BBNmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/BBN.2021.mwsh.csv"))
-BBSshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/BBS.2021.std.hf.csv"))
-BBSmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/BBS.2021.mwsh.csv"))
-SABshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/SAB.2021.std.hf.csv"))
-SABmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/SAB.2021.mwsh.csv"))
-MIDshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/MID.2021.std.hf.csv"))
-MIDmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/MID.2021.mwsh.csv"))
-GERshf <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/GER.2021.std.hf.csv"))
-GERmwsh <- read.csv(paste0("Y:/Offshore/Data requests/2021/DR2021_04/GER.2021.mwsh.csv"))
+# GBAshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBA.", year, ".std.hf.csv"))
+# GBBshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBB.", year, ".std.hf.csv"))
+# GBAmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBA.", year, ".mwsh.csv"))
+# GBBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBB.", year, ".mwsh.csv"))
+GBshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBspring.", year, ".std.hf.csv"))
+GBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBspring.", year, ".mwsh.csv"))
+BBNshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBN.", year, ".std.hf.csv"))
+BBNmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBN.", year, ".mwsh.csv"))
+# BBSshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".std.hf.csv"))
+# BBSmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".mwsh.csv"))
+SABshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/SAB.", year, ".std.hf.csv"))
+SABmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/SAB.", year, ".mwsh.csv"))
+MIDshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/MID.", year, ".std.hf.csv"))
+MIDmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/MID.", year, ".mwsh.csv"))
+GERshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GER.", year, ".std.hf.csv"))
+GERmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GER.", year, ".mwsh.csv"))
 
 
 require(tidyverse)
-source(paste0("C:/Documents/Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
+source(paste0("C:/Users/keyserf/Documents/Github/Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
 
 plot <- function(melted) {
   melted$lat <- convert.dd.dddd(melted$START_LAT)
@@ -178,6 +178,18 @@ melted <- pivot_longer(GBBshf[GBBshf$STATE=="live",], cols=starts_with("BIN_"), 
 plot(melted)
 
 melted <- pivot_longer(GBBshf[GBBshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(GBshf[GBshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(GBshf[GBshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(BBNshf[BBNshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+plot(melted)
+
+melted <- pivot_longer(BBNshf[BBNshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
 plot(melted)
 
 melted <- pivot_longer(BBSshf[BBSshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")

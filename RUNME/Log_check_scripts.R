@@ -11,13 +11,11 @@ direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 
 source(paste(direct_fns,"Fishery/log_error_checking.r",sep="")) #log_checks is function call
-log_checks(direct = direct, direct_fns = direct_fns, yrs = 2021, marfis=F, repo = "local",
-
+log_checks(direct = direct, direct_fns = direct_fns, yrs = 2022, marfis=F, repo = "local",
            #un="",pw="",db.con="ptran",db.lib = "RODBC",   #### Don't need this since marfis=F and repo="local"
-
            export = NULL,
-           bank = NULL, trips = 559001, dates = NULL, vrnum = NULL, tow.time = c(3,80), trip.tol = 1, 
-           spatial = F, plot="pdf")
+           bank = NULL, trips = NULL, dates = NULL, vrnum = NULL, tow.time = c(3,80), trip.tol = 1, 
+           spatial = T, plot="shiny")
 
 
 # Important notes:

@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -22,6 +22,10 @@ olex_import <- function(filename, ntows=NULL, type){
   library(dplyr)
   require(splitstackshape)
   require(rmapshaper)
+  require(lubridate)
+  require(dplyr)
+  
+  sf_use_s2(FALSE)
   
   #Norwegian translation according to Google:
   #Grønnramme - basic framework
@@ -30,7 +34,9 @@ olex_import <- function(filename, ntows=NULL, type){
   #Garnstart - start
   #Garnstopp - stop
   #Brunsirkel - brown circle (points along trackline?)
-  funcs <- "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r"
+  funcs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
+             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
+             "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/github_spatial_import.R")
   dir <- getwd()
   for(fun in funcs) 
   {
@@ -60,6 +66,25 @@ olex_import <- function(filename, ntows=NULL, type){
     dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
     mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
     mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
+  
+  if(nrow(startend)==0) {
+    message("Start and end points not recorded, using NAs to define tows")
+    
+    zz$tow <- NA
+    for(i in 2:nrow(zz)){
+      if(is.na(zz$Ferdig.forenklet_4[i-1]) & !is.na(zz$Ferdig.forenklet_4[i])){
+        if(zz$Ferdig.forenklet_4[i]=="Brunsirkel") zz$Ferdig.forenklet_4[i] <- "Garnstart"
+      }
+      if(is.na(zz$Ferdig.forenklet_4[i+1]) & !is.na(zz$Ferdig.forenklet_4[i])){
+        if(zz$Ferdig.forenklet_4[i]=="Brunsirkel") zz$Ferdig.forenklet_4[i] <- "Garnstopp"
+      }
+    }
+    
+    startend <- zz %>% filter(Ferdig.forenklet_4 %in% c("Garnstart", "Garnstopp", "Grønnramme")) %>% 
+      dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
+      mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
+      mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60)
+  }
   
   # this must return TRUE!
   if(!length(startend[startend$Ferdig.forenklet_4 == "Garnstart",]$Latitude) == length(startend[startend$Ferdig.forenklet_4 == "Garnstopp",]$Latitude)) stop("Error in olex file")
@@ -107,7 +132,7 @@ olex_import <- function(filename, ntows=NULL, type){
   coords.track <- rbind(coords.sf, coords.sf.end) %>%
     st_transform(32620) %>%
     group_by(ID) %>%
-    summarize() %>%
+    dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
@@ -118,7 +143,7 @@ olex_import <- function(filename, ntows=NULL, type){
   }
   
   
-  # continue on to look at actual tracks (instead of just start and end points)
+  # continue on to look at actual tracks (instead of just start and end points). Need to go back to raw data for this (zz)
   track <- data.frame(start=which(zz$Ferdig.forenklet_4=="Garnstart"), end=which(zz$Ferdig.forenklet_4=="Garnstopp"))
   if(any(!track$start<track$end)) stop("check tow file, seems like there is a Garnstopp before a Garnstart")
   track$tow <- 1:nrow(track)
@@ -127,40 +152,94 @@ olex_import <- function(filename, ntows=NULL, type){
   for(i in 1:length(track$tow)){
     trackpts1 <- zz[track$start[i]:track$end[i],] %>%
       as.data.frame() %>%
-      dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
+      #dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
       mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
-      mutate(tow=i)
+      mutate(tow=i,
+             datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
+      select(-Ferdig.forenklet_3)
+    
     trackpts <- rbind(trackpts, trackpts1)
   }
+  
+  # olex is in UTC-4
+  trackpts$datetime <- trackpts$datetime + hours(4)
+  
+  # hold onto this for later
+  unsmoothed <- trackpts
+  
+  starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
+  starttime$start <- starttime$datetime
+  starttime <- select(starttime, -datetime)
+  
+  endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
+  endtime$end <- endtime$datetime
+  endtime <- select(endtime, -datetime)
+  
+  time <- left_join(starttime, endtime)
   
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
     st_transform(32620) %>%
     group_by(tow) %>%
-    summarize() %>%
+    dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
-    st_transform(4326)
-  
-  if(!is.null(ntows)){
-    if(!length(trackpts$tow)==ntows) message(paste0("Number of tows tracked (", length(zz.start$Start_lat), ") does not equal expected number of tows, beware!"))
-  }
+    st_transform(4326) %>%
+    left_join(time)
   
   print(ggplot() + geom_sf(data=trackpts, lwd=1) + coord_sf() + theme_bw())
   
+  offshore_sf <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip", quiet = T)
+  
+  trackpts <- trackpts %>%
+    st_join(offshore_sf) %>%
+    dplyr::rename(bank=ID)
+  
   # if all you want are tracks in sf format, here you go!
-  if(type=="track"){
+  if(type=="sf"){
     return(trackpts)  
   }
   
+  if(type=="tracks"){
+    tracks <- unsmoothed[, c("tow", "Longitude", "Latitude", "datetime")]
+    tracks <- left_join(tracks, trackpts[, c("tow", "bank")])
+    tracks <- dplyr::select(tracks, -geometry) %>%
+      dplyr::rename(Bank=bank,
+                    Tow=tow,
+                    Date_time = datetime) %>%
+      dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
+    return(tracks)
+  }
+  
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
-  if(type=="load"){
-    # calculate distance coef
-    trackpts$length <- trackpts %>% 
-      st_transform(32620) %>%
-      group_by(tow) %>% st_length()
+  if(type=="load") {
     
-    trackpts$dis_coef <- 800/trackpts$length
+    trackpts <- arrange(trackpts, tow)
+      
+    trackpts$length <- trackpts %>%
+      arrange(tow) %>%
+      st_transform(32620) %>%
+      group_by(tow) %>% 
+      st_length()
+    
+    trackpts$length_corr <- trackpts$length/correction_factor
+    # 
+    # if(length=="PBSmapping"){
+    #   pbs <- as.data.frame(st_coordinates(trackpts))
+    #   names(pbs)[which(names(pbs)=="L1")] <- "PID"
+    #   pbs <- pbs %>%
+    #     group_by(PID) %>%
+    #     mutate(POS=1:length(PID)) %>%
+    #     ungroup() 
+    #   pbs <- as.data.frame(pbs)
+    #   attr(pbs,"projection")<-"LL"
+    #   trackpts$length <- NA
+    #   for (i in unique(pbs$PID)){
+    #     trackpts$length[trackpts$tow==i] <- calcLength(pbs[pbs$PID==i,])$length * 1000
+    #   }
+    # }
+    # 
+    trackpts$dis_coef <- 800/trackpts$length_corr
     
     # calculate bearing and extract start and end points
     trackpts$bearing <- NA
@@ -176,9 +255,10 @@ olex_import <- function(filename, ntows=NULL, type){
       trackpts$end_lon[i] <- -coords$End_long[i]
       trackpts$end_lat[i] <- coords$End_lat[i]
     }
-    st_geometry(trackpts) <- NULL
-    trackpts <- dplyr::select(trackpts, tow, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
+    
+    trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
+    st_geometry(trackpts) <- NULL
     
     return(trackpts)
   }

@@ -23,17 +23,17 @@ require(RColorBrewer)
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_removeBtow.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c(#"BBn",
-         #"Ger","Sab","Mid",
-  #"GB", "BBs",#, "Ban", "BanIce"
-         "GBa"#, 
+bnk <- c("BBn",
+         "Ger","Sab","Mid",
+  "GB"#, "BBs",#, "Ban", "BanIce"
+        # "GBa"#, 
   #"GBb"
   )
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
@@ -683,6 +683,7 @@ axis(1)
 abline(h=mean(bank.live$CF,na.rm=T),lwd=2,lty=2,col="blue")
 
 dev.off()
+baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 # ##############
 # 
 # print("8")
@@ -929,7 +930,6 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 } # end if(is.null(bank.survey.info) ==F)
 dev.off()
 
-browser()
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MCspatial_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
 if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
