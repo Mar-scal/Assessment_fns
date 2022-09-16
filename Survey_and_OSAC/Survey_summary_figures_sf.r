@@ -1118,8 +1118,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # Make the maps...
           for(m in 1:n.maps)
           {
-            #browser()
-            
             # This is what we want for the spatial count maps
             if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
             {

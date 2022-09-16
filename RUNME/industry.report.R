@@ -3,7 +3,8 @@ direct <- "Y:/Offshore/Assessment/"
 # direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/" 
 # source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep=""))
 
-funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r")
+funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r",
+          "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
 # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
 for(fun in funs) 
 {
@@ -20,7 +21,7 @@ require(dplyr)
 require(ggplot2)
 
 # scaloff username and pwd needed (keyserf doesn't have the right access)
-indreport <- get.offshore.survey(direct=direct, cruise="LE16", yr=2022, industry.report = T, un = "scaloff", pw=pwd.id, direct_fns=direct_fns)
+indreport <- get.offshore.survey(direct=direct, cruise="LE16", yr=2022, industry.report = T, un = "scaloff", pw=pwd.id)
 
 
 industryreport <- indreport$industryreport

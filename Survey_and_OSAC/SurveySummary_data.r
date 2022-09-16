@@ -939,13 +939,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]], month %in% 5:6,select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6 & year > 1983,select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
           if(bank.4.spatial %in% c("Ban", "BanIce")) {
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]], month %in% 5:6, select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6 & year > 1983, select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
         }
         if(commercialsampling==F) mw.dat.all[[bnk]] <- select(mw[[bnk]], tow, year, lon, lat, depth, sh, wmw)

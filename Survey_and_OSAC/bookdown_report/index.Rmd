@@ -39,10 +39,13 @@ Some of the figures and analyses presented in this report refer to the different
 
 We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. 
 
-Trials of Olex navigational software continued during this 2021 survey. All tows on all banks were tracked using Olex software, and tows on German, Browns (North and South), and Georges Banks were also tracked using OceanVision software. A conversion factor was developed to ensure Olex tow tracks were comparable with OceanVision tow tracks. For Middle and Sable Banks, Olex tow tracks were used to calculate the distance coefficients needed to standardize tow lengths. 
 
-In 2022, before the Spring Survey occurred, all historical survey data were loaded to the DFO SCALOFF database following the completion of a comprehensive data review. During the review, data or code related to tow numbering, tow locations, tow types, and dates were corrected as needed. For the majority of banks and years, these corrections had no impact on survey indices. The following corrections had minor impacts on survey summary results for the figures noted: 
+## Special considerations  
 
--  Middle Bank: 12 tows in 1985, 1987, and 1989 were moved to Banquereau (Figures 2, 3, 5 and 11)    
--  Sable Bank: 6 tows of survey data in 1999 were recovered and included in analyses; 1 tow from 1992 was excluded (Figures 14, 15, 17 and 23)    
+During the 2022 survey, both Olex and Ocean Vision navigational software programs were used. Tows on all banks, with the exception of Middle and Sable Banks, were tracked using both programs. Tows on Middle and Sable Banks were tracked using Olex only. A conversion factor was developed to ensure that Olex tow tracks were comparable with those from Ocean Vision. Tow tracks are used to calculate the distance coefficients needed to standardize tow lengths. 
+
+In 2022, before the Spring Survey occurred, all historical survey data were loaded to the DFO SCALOFF database following the completion of a comprehensive data review. For the majority of banks and years, this review had no impact on survey summary results. The following corrections had minor impacts on survey summary results for the figures noted: 
+
+-  Middle Bank: 2 tows of sampling data (50 samples) from 1983 were recovered and included in analyses; 12 tows in 1985, 1987, and 1989 were moved to Banquereau (Figures 2, 3, 5 and 11)    
+-  Sable Bank: 6 tows of survey data in 1999 were recovered and included in analyses; 1 tow from 1992 was excluded (Figures 14, 15, 17 and 23)   
 -  Georges Bank monitoring stations: Depth information was recovered for one sampled tow in 1988, which enabled condition factor to be calculated for that year (Figures 51 and 53)     
