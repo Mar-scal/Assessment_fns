@@ -1432,8 +1432,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
+      if(banks[i] == 'GB') surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
-      if(length(unique(surv$`Tow type`)) ==1) shp <- 16
+      if(length(unique(surv$`Tow type`)) ==1) shp <- 16; ptcol <- c("black")
       if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("darkorange", "black")
       if(banks[i] == "Ger" & length(unique(surv$`Tow type`))==2) shp <- c(16,22); ptcol <- c("black", "yellow")
       if(length(unique(surv$`Tow type`)) ==3) shp <- c(24,16,22); ptcol <- c("darkorange", "black", "yellow")
