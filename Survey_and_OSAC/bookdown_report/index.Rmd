@@ -46,6 +46,6 @@ During the 2022 survey, both Olex and Ocean Vision navigational software program
 
 In 2022, before the Spring Survey occurred, all historical survey data were loaded to the DFO SCALOFF database following the completion of a comprehensive data review. For the majority of banks and years, this review had no impact on survey summary results. The following corrections had minor impacts on survey summary results for the figures noted: 
 
--  Middle Bank: 12 tows in 1985, 1987, and 1989 were moved to Banquereau (Figures 2, 3, 5 and 11)    
--  Sable Bank: 6 tows of survey data in 1999 were recovered and included in analyses; 1 tow from 1992 was excluded (Figures 14, 15, 17 and 23)   
--  Georges Bank monitoring stations: Depth information was recovered for one sampled tow in 1988, which enabled condition factor to be calculated for that year (Figures 51 and 53)     
+-  Middle Bank: 12 tows were re-assigned to Banquereau; 2 tows in 1985, 5 in 1987, and 5 in 1989 (Figures 2, 3, 5 and 11)    
+-  Sable Bank: 6 tows of survey data in 1999 were recovered and included in analyses, 1 tow from 1992 was excluded (Figures 14, 15, 17 and 23)   
+-  Georges Bank monitoring stations: Depth information was recovered for 1 sampled tow in 1988, which enabled condition factor to be calculated for that year (Figures 51 and 53)     

@@ -213,9 +213,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      if(!yr==2021) load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-      if(yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-      if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 191 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(!tmp.yr==2021) load(paste(direct,"Data/Survey_data/",(tmp.yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(tmp.yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 216 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
       yr <- tmp.yr
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -269,8 +269,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""), )  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 259 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(!tmp.yr==2021) load(paste(direct,"Data/Survey_data/",(tmp.yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(tmp.yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 273 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 
@@ -318,6 +319,16 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   direct_fns <- dir.fn.temp
   season <- tmp.season 
   yr <- tmp.yr
+  
+  if(exists("survey.obj.last")) {
+    if(max(survey.obj.last$GBa$model.dat$year)>2020 & !2020 %in% survey.obj.last$GBa$model.dat$year) {
+      y2020 <- survey.obj.last$GBa$model.dat[survey.obj.last$GBa$model.dat$year==2021,]
+      y2020$year <- 2020
+      y2020[,2:ncol(y2020)] <- NA
+      survey.obj.last$GBa$model.dat <- arrange(full_join(survey.obj.last$GBa$model.dat, y2020), year)
+    }
+  }
+  
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
@@ -375,7 +386,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   } # end if(!missing(direct_fns))
   
-  source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")
@@ -1637,6 +1647,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
       } # end if(banks[i] == "GBa")
       # Here I'm adding in the cf for August into the spring survey data.
+      
       if(banks[i] == "GB")
       {
         stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=22,ylab=cf.lab,col="red",lty=2,
