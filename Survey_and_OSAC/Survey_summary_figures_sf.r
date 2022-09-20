@@ -1665,7 +1665,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           {  
             survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
           } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
-          points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
+          points(survey.obj.last[["GBa"]][[1]]$year+0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
           lines(y=rep(median(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GBa"]][[1]]$year)-1), 
                 x = survey.obj.last[["GBa"]][[1]]$year[-length(survey.obj.last[["GBa"]][[1]]$year)],col="blue",lty=3)
         } # end  if(season=="spring")
