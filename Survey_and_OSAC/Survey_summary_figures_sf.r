@@ -224,7 +224,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022_2.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -1099,24 +1099,50 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           } # end if(any(plots %in% "user.SH.bins") ==F) 
           
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
-          
-          p <- pecjector(area = banks[i],
+          # encountering some issues with pecjector, so using tryCatch to determine if it's going to work, and if not, I add a 0.001 buffer.
+          x <- tryCatch(print(eval(parse(text = 'pecjector(area = banks[i],
                          plot = F,
                          repo = direct_fns, 
                          c_sys = st_crs(mesh$crs)$epsg, 
-                         quiet=T,
-                         add_layer = list(eez = 'eez', 
-                                          sfa = 'offshore', 
-                                          bathy = bathy, 
-                                          scale.bar= scale.bar)) +
-            theme(panel.grid=element_blank(), 
-                  axis.ticks=element_line(),
-                  legend.position = 'right',
-                  legend.direction = 'vertical',
-                  legend.justification = 'left',
-                  legend.key.size = unit(.5,"line")) #+
+                         quiet=T)'))), 
+                        error = function(e) e)
+          
+          if("error" %in% class(x)) {
+            p <- pecjector(area = banks[i], buffer=0.0001,
+                           plot = F,
+                           repo = direct_fns, 
+                           c_sys = st_crs(mesh$crs)$epsg, 
+                           quiet=T,
+                           add_layer = list(eez = 'eez', 
+                                            sfa = 'offshore', 
+                                            bathy = bathy, 
+                                            scale.bar= scale.bar)) +
+              theme(panel.grid=element_blank(), 
+                    axis.ticks=element_line(),
+                    legend.position = 'right',
+                    legend.direction = 'vertical',
+                    legend.justification = 'left',
+                    legend.key.size = unit(.5,"line")) #+
             #coord_sf(expand=F)
-          # 
+          } 
+          if(!"error" %in% class(x)) {
+            p <- pecjector(area = banks[i], 
+                           plot = F,
+                           repo = direct_fns, 
+                           c_sys = st_crs(mesh$crs)$epsg, 
+                           quiet=T,
+                           add_layer = list(eez = 'eez', 
+                                            sfa = 'offshore', 
+                                            bathy = bathy, 
+                                            scale.bar= scale.bar)) +
+              theme(panel.grid=element_blank(), 
+                    axis.ticks=element_line(),
+                    legend.position = 'right',
+                    legend.direction = 'vertical',
+                    legend.justification = 'left',
+                    legend.key.size = unit(.5,"line")) #+
+            #coord_sf(expand=F)
+          } 
           # # manually adjust the bathy lines
           # p$layers[[2]]$aes_params$colour <- "blue"
           # p$layers[[2]]$aes_params$alpha <- 0.25

@@ -181,7 +181,7 @@ if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot <- paste0("Note th
 
 ```
 
-Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively (Figures `r paste0(fignum[2], " & ", fignum[3])`). Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Tables `r paste0(tabnum[1], " & ", tabnum[2])` provide the values for the current and previous surveys, and long term medians, by size class.
+Abundance and biomass throughout the survey time series are presented using numbers and kilograms of scallop per standardized tow, respectively (Figures `r paste0(fignum[2], " & ", fignum[3])`). Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot` Tables `r paste0(tabnum[1], " & ", tabnum[2])` provide the values for the current and previous surveys, and long term medians, by size class.
 
 
 ```{r, echo=F}
