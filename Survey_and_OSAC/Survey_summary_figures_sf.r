@@ -1446,13 +1446,29 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
-      p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
+      if(banks[i] %in% spat.name) {
+        bbox <- st_bbox(st_as_sf(bound.poly.surv.GBsub[[banks[i]]], coords=c(X="X", Y="Y"), crs=4326))
+        p <- pecjector(area = list(y = c(bbox$ymin[[1]],bbox$ymax[[1]]),x = c(bbox$xmin[[1]],bbox$xmax[[1]]),crs = 4326),
+                       plot = F,repo = direct_fns,
+                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar)) +
+          coord_sf(expand=F)
+        
+      }
+      
+      if(!banks[i] %in% spat.name) {
+        p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
                      add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar)) +
         coord_sf(expand=F)
+      }
       #print(p)
       
       # For the banks with detailed strata...
       if(banks[i] %in% c("BBn" ,"BBs" ,"Sab", "GBb", "GBa")) shpf <- st_read(paste0(gis.repo,"/offshore_survey_strata/",banks[i],".shp"))
+      if(banks[i] == "Sab" & yr>2017) {
+        shpf$are_km2[shpf$Strt_ID==501] <- surv.info$area_km2[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]
+        shpf$towbl_r[shpf$Strt_ID==501] <- surv.info$towable_area[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]
+      }
+      if(banks[i] %in% spat.name) shpf <- st_read(paste0(gis.repo,"/offshore_survey_strata/GBa.shp"))
       # For the ones we just have a cut of of the survey boundaries
       if(banks[i] %in% c("Ban","SPB")) shpf <- st_read(paste0(gis.repo,"/survey_boundaries/",banks[i],".shp"))
 
