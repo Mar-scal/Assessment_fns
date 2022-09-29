@@ -23,7 +23,7 @@ options(tinytex.verbose = TRUE)
 
 year <- 2022
 
-load("summary.Rdata")
+load("summary2.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows

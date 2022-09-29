@@ -14,7 +14,6 @@ x <- c(4.02233, 52.04, 0.256, 4530.44, -0.401, -1.74, -1203.55)
 # [1] "4.02"  "52.0"  "0.26"  "4530"  "-0.40" "-1.74" "-1204"
 
 ScallopRound <- function(x, digits=3, option="presentation"){
-  
   if(option=="presentation"){
     f <- function(x, digits){
       lvls <- 10^(1:(digits-1))
@@ -24,7 +23,8 @@ ScallopRound <- function(x, digits=3, option="presentation"){
         digs <- digits-nchar(lvls[i])
         if(i < length(lvls) &
            (abs(x) < lvls[i] | abs(x) >=lvls[i] & abs(x) < lvls[i+1]) & !is.na(x) & !x == 0) {
-          return(formatC(x, digits=digs, format="f"))
+          if(formatC(x, digits=digs, format="f")<lvls[i]) return(formatC(x, digits=digs, format="f"))
+          if(formatC(x, digits=digs, format="f")>=lvls[i]) return(formatC(x, digits=digs-1, format="f"))
         }
         if(i < length(lvls) & (abs(x) == 0 & !is.na(x))) {
           return(formatC(x, digits=0, format="f"))
