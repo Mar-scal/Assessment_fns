@@ -23,8 +23,8 @@ ScallopRound <- function(x, digits=3, option="presentation"){
         digs <- digits-nchar(lvls[i])
         if(i < length(lvls) &
            (abs(x) < lvls[i] | abs(x) >=lvls[i] & abs(x) < lvls[i+1]) & !is.na(x) & !x == 0) {
-          if(formatC(x, digits=digs, format="f")<lvls[i]) return(formatC(x, digits=digs, format="f"))
-          if(formatC(x, digits=digs, format="f")>=lvls[i]) return(formatC(x, digits=digs-1, format="f"))
+          if(as.numeric(formatC(x, digits=digs, format="f")) == lvls[i+1]) return(formatC(x, digits=digs-1, format="f"))
+          if(!as.numeric(formatC(x, digits=digs, format="f")) == lvls[i]) return(formatC(x, digits=digs, format="f"))
         }
         if(i < length(lvls) & (abs(x) == 0 & !is.na(x))) {
           return(formatC(x, digits=0, format="f"))
