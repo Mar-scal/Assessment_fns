@@ -10,8 +10,16 @@
 #                         db.con = yourdbconhere)
 # This will open and close your connection the the database automatically in one line, and output your results. 
 
-ScallopQuery <- function(package="RODBC", un=un.ID, pw=pwd.ID, db.con=db.con, SQLtext="SQLtext") {
-
+ScallopQuery <- function(package="RODBC", un=NULL, pw=NULL, db.con=db.con, SQLtext="SQLtext") {
+  
+  if(is.null(un)){
+    un <- readline(prompt="enter your oracle username: \n");  
+    un <- gsub(x=un, pattern="[^[:alnum:]]", replacement="")
+  }
+  if(is.null(pw)){
+    pw <- readline(prompt="enter your oracle password: \n");  
+    pw <- gsub(x=pw, pattern="[^[:alnum:]]", replacement="")
+  }
   # Open the channel if using ROracle:
   if(package %in% "ROracle") {
     require(ROracle)

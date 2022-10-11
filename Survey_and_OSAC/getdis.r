@@ -63,6 +63,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
   # Initialize objects to use in for loop.
 	towtracks<-list(NULL)
 	SE<-list(NULL)
+	
 	# Loop to call in each tow and process the data accordingly.
 	for(i in 1:length(tows))
 	{
@@ -73,14 +74,14 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
 	  if(meh>0) towtrack <- read.table(paste0(path,substr(meh+tows[i],2,nchar(meh)),".log"),skip=5)
 	  
 	  #Read2 When meh = 0 we just grab the flat files from here sequentially.
-	  if(meh==0)towtrack<-read.table(paste(path,tows[i],".log",sep=''),skip=5)
+	  if(meh==0) towtrack <- read.table(paste(path,tows[i],".log",sep=''),skip=5)
 	  
 	  # Take all rows except the first, then replace all commas with a space.
 	  towtrack<-data.frame(sapply(2:ncol(towtrack),function(x){as.numeric(gsub(',','',towtrack[,x]))}))
 	  # Give towtrack some good anmes
 	  names(towtrack)<-c("X","Y","Time","Date","Speed","HDG")
 	  # Give it a PID, needed for PBSmapping function.
-	  towtrack$PID<-tows[i]
+	  towtrack$PID<-i
 	  # This is essentially counting the row numbers and giving a name... rownames(towtrack) would accomplish much the same result
 	  towtrack$POS<-1:nrow(towtrack)
 	  # rename towtrack
@@ -127,6 +128,7 @@ dist.coef<-function(tows,path="data/Tow_tracks/2015/GBa/",w=c(1:10,9:1),rule=8,s
 	attr(tracks.dat,"projection")<-"LL"
 	# From PBS mapping calculate the track length (rather important later!)
 	trackLen<-calcLength(tracks.dat)
+	
 	# Fix any problematic date information for tracks.dat.
 	tracks.dat$Date[nchar(tracks.dat$Date)==7]<-paste(0,tracks.dat$Date[nchar(tracks.dat$Date)==7],sep='')
 	

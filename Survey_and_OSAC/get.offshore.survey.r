@@ -46,7 +46,8 @@
 get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry.report = F,direct, direct_fns, cruise=NULL, yr=NULL)
 {
 	require(ROracle) || stop("Package ROracle cannot be found")
-	
+	require(lubridate) || stop("Package lubridate cannot be found")
+  
   ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
   if(missing(direct_fns))
   {
@@ -168,9 +169,29 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Convert the depth from fathoms to meters.
   samp$depth<-samp$DEPTH_F*1.8288
   
-
-
+  # correct for time zone
+  SHF$TOW_DATE <- ymd_hms(SHF$TOW_DATE)
+  pos$TOW_DATE <- ymd_hms(pos$TOW_DATE)
+  samp$TOW_DATE <- ymd_hms(samp$TOW_DATE)
   
+  if(tz(SHF$TOW_DATE) == "UTC"){
+    SHF$TOW_DATE <- SHF$TOW_DATE + hours(4)
+  }
+  if(!tz(SHF$TOW_DATE) == "UTC"){
+    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  }
+  if(tz(pos$TOW_DATE) == "UTC"){
+    pos$TOW_DATE <- pos$TOW_DATE + hours(4)
+  }
+  if(!tz(pos$TOW_DATE) == "UTC"){
+    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  }
+  if(tz(samp$TOW_DATE) == "UTC"){
+    samp$TOW_DATE <- samp$TOW_DATE + hours(4)
+  }
+  if(!tz(samp$TOW_DATE) == "UTC"){
+    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  }
   
   # Industry report
   if(industry.report == T)

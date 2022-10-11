@@ -1114,15 +1114,24 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                                                                            pad_x = unit(xpad + 1.5, "cm"), pad_y = unit(ypad+1.9, "cm"),style = north_arrow_fancy_orienteering)
     
     # Some finishing touches...I don't know that the xlim and ylim are actually necessary, think it is now redundant
-    if(legend == F) pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim) + theme(legend.position = "none",text = element_text(size=txt.size)) #+ theme_minimal()
+    if(legend == F) {
+      pect_plot <- pect_plot + 
+        coord_sf(xlim = xlim,ylim=ylim) + 
+        theme(legend.position = "none",text = element_text(size=txt.size), panel.background=element_blank())  +
+        xlab(NULL) + 
+        ylab(NULL)#+ theme_minimal()
+    }
     if(legend == T) 
     {
       if(length(brk) <= 6) hgt <- unit(0.5,'cm')
       if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
       if(length(brk) > 12) hgt <- unit(1,'cm')
       
-      pect_plot <- pect_plot + coord_sf(xlim = xlim,ylim=ylim)+
-        theme(legend.key.height =hgt,text = element_text(size=txt.size))
+      pect_plot <- pect_plot + 
+        coord_sf(xlim = xlim,ylim=ylim)+
+        theme(legend.key.height =hgt,text = element_text(size=txt.size), panel.background=element_blank()) +
+        xlab(NULL) +
+        ylab(NULL)
     }
 
   # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.

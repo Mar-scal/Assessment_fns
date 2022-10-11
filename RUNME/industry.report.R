@@ -1,7 +1,18 @@
 #### Run the industry report in R to compare against the SQL developer view
 direct <- "Y:/Offshore/Assessment/" 
-direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/" 
-source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep=""))
+# direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/" 
+# source(paste(direct_fns,"Survey_and_OSAC/get.offshore.survey.r",sep=""))
+
+funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/get.offshore.survey.r",
+          "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r")
+# Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+for(fun in funs) 
+{
+  download.file(fun,destfile = basename(fun))
+  source(paste0(getwd(),"/",basename(fun)))
+  file.remove(paste0(getwd(),"/",basename(fun)))
+} # end for(un in funs)
+
 
 
 require(plyr)
@@ -10,7 +21,7 @@ require(dplyr)
 require(ggplot2)
 
 # scaloff username and pwd needed (keyserf doesn't have the right access)
-indreport <- get.offshore.survey(direct=direct, cruise="LE14", yr=2021, industry.report = T, un = "scaloff", pw=pwd.id, direct_fns=direct_fns)
+indreport <- get.offshore.survey(direct=direct, cruise="LE16", yr=2022, industry.report = T, un = "scaloff", pw=pwd.id)
 
 
 industryreport <- indreport$industryreport
@@ -42,15 +53,21 @@ for(i in 1:length(unique(industryreport$MGT_AREA_CD))){
 
 sum(df[[1]]$total) + sum(df[[2]]$total) #+ sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
 
-df[[1]]
+df
 
-df[[2]]
-
-
+nrow(industryreport)
 
 industryreport$lon <- convert.dd.dddd(industryreport$START_LON)
 industryreport$lat <- convert.dd.dddd(industryreport$START_LAT)
-ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBa",], aes(lon,lat, label=TOW_NO)) + coord_map()
+ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBb",], aes(lon,lat, label=TOW_NO)) + coord_map()
+
+
+ggplotly
+
+olex_se[olex_se$ID==363,]
+
+-66.21633173	41.962685
+
 
 # checking out the german rake stuff. No obvious signs of bias. 
 # png(paste0(direct, "2019/Presentations/Survey_summary/test_figures/Ger/numberspertow_rake.png"), height=4, width=8, units="in", res=200)

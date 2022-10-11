@@ -397,15 +397,15 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         if(fig=="screen") windows(11,8.5)
         
         if(seed == yr-2000){
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
                                 height = 8.5,bg = "transparent")
         }
         if(!seed == yr-2000){
           dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
         }
         
         if(fig == "leaflet"){
@@ -530,35 +530,35 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
                            caption = paste("Survey stations (n = ",length(towlst[[i]]$Tows$Y),")"," \n Extra stations (n = ",
                                            nrow(extras),")",sep="",collapse =" ")) +
             theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) +
-            coord_sf(expand=F) + theme_bw()
+            coord_sf(expand=F) + theme_bw() + xlab(NULL) + ylab(NULL)
           if(fig != 'dashboard') print(pf)
           # Turn the device off if necessary.  
           if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
-          browser()
+          
           
           if(bnk=="GBa" & zoom==T & fig!= "dashboard") {
             if(seed == yr-2000) folder <- paste0(direct,yr,"/Survey_Design/",bnk,"/")
             if(!seed == yr-2000) folder <- paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab)
               
             if(fig=="screen") windows(11,8.5)
-            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNortheast_",point.style,".png"),width = 11, units="in", res=420,
-                                  height = 8.5,bg = "transparent")
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNortheast_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                  height = 8.5*0.75,bg = "transparent")
             if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaNortheast_",point.style,".pdf"),width = 11, 
                                   height = 8.5,bg = "transparent")
             print(pf + coord_sf(ylim=c(41.833,42.2),xlim=c(-66.6,-66), expand=F)) 
             dev.off()
             
             if(fig=="screen") windows(11,8.5)
-            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNorthwest_",point.style,".png"),width = 11, units="in", res=420,
-                                  height = 8.5,bg = "transparent")
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaNorthwest_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                  height = 8.5*0.75,bg = "transparent")
             if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaNorthwest_",point.style,".pdf"),width = 11, 
                                   height = 8.5,bg = "transparent")
             print(pf + coord_sf(ylim=c(41.833,42.2),xlim=c(-67.2,-66.6)))
             dev.off()
             
             if(fig=="screen") windows(11,8.5)
-            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaSouth_",point.style,".png"),width = 11, units="in", res=420,
-                                  height = 8.5,bg = "transparent")
+            if(fig =="png")   png(paste0(folder,"/Survey_allocation-",bnk,"_GBaSouth_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                  height = 8.5*0.75,bg = "transparent")
             if(fig =="pdf")   pdf(paste0(folder,"/Survey_allocation-",bnk,"_GBaSouth_",point.style,".pdf"),width = 11, 
                                   height = 8.5,bg = "transparent")
             print(pf + coord_sf(ylim=c(41.25,41.833),xlim=c(-66.6,-65.85)))
@@ -610,8 +610,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       if(plot == T)
       {
         if(fig=="screen") windows(11,8.5)
-        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                              height = 8.5,bg = "transparent")
+        if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                              height = 8.5*0.75,bg = "transparent")
         if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
                               height = 8.5,bg = "transparent")
         
@@ -825,16 +825,16 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         if(fig=="screen") windows(11,8.5)
         
         if(seed == yr-2000){
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
                                 height = 8.5,bg = "transparent")
         }
         
         if(!seed == yr-2000){
           dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
                                 height = 8.5,bg = "transparent")
         }
@@ -918,14 +918,14 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         if(fig=="screen") windows(11,8.5)
         
         if(seed == yr-2000){
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
                                 height = 8.5,bg = "transparent")
         }
         if(!seed == yr-2000){
-          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11, units="in", res=420,
-                                height = 8.5,bg = "transparent")
+          if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.png"),width = 11*0.75, units="in", res=420,
+                                height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_repeat.backups.pdf"),width = 11, 
                                 height = 8.5,bg = "transparent")
         }
