@@ -325,7 +325,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       y2020 <- survey.obj.last$GBa$model.dat[survey.obj.last$GBa$model.dat$year==2021,]
       y2020$year <- 2020
       y2020[,2:ncol(y2020)] <- NA
-      survey.obj.last$GBa$model.dat <- arrange(full_join(survey.obj.last$GBa$model.dat, y2020), year)
+      survey.obj.last$GBa$model.dat <- dplyr::arrange(dplyr::full_join(survey.obj.last$GBa$model.dat, y2020), year)
     }
   }
   
@@ -400,6 +400,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   require(plyr)|| stop("Install the plyr package for the subarea plots")
   require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
+  require(dplyr) || stop("It's 2020. We have entered the world of dplyr. ")
   # Function used for any beta models to transform 0's and 1's to near 0 and near 1 (beta doesn't allow for 0's and 1's.)
   beta.transform <- function(dat,s=0.5)  (dat*(length(dat)-1) + s) / length(dat)
   
@@ -1234,11 +1235,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # The color ramp for Clapper proportion
               base.lvls=c(0,5,10,15,20,50,100)
               cols <- rev(viridis::plasma(length(base.lvls)-1,alpha=0.7))
-              # Get the levels correct            
+              # Get the levels correct      
+              
               # And get the labels for the figures...
-              fig.title <- substitute(bold(paste("Clappers (% dead ","">=c, " mm ", bank,"-",year,")",sep="")),
+              fig.title <- substitute(bold(paste("Clappers (% dead, ", bank,"-",year,")",sep="")),
                                       list(c=as.character(RS),bank=banks[i],year=as.character(yr)))
-              if(banks[i] == "GB") clap.dis.title <- substitute(bold(paste("Clappers (% dead ","">=c, " mm ", bank,"-Spr-",year,")",sep="")),
+              if(banks[i] == "GB") clap.dis.title <- substitute(bold(paste("Clappers (% dead, ", bank,"-Spr-",year,")",sep="")),
                                                                 list(c=as.character(RS),bank=banks[i],year=as.character(yr)))
               leg.title <- "% Dead"
             } # end if(maps.to.make[m]  %in% c("Clap-spatial")
@@ -1350,7 +1352,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                 }
               }
             }
-            
+           
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
             p2 <- pecjector(gg.obj = p, 
                             area = banks[i],
@@ -1399,7 +1401,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F) +
                 theme(legend.key = element_rect(fill=NA))
             }
-            
+      
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
@@ -1608,7 +1610,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         CF.ts.title <- substitute(bold(paste("Condition factor (",bank,-"Spr)",sep="")),
                                   list(year=as.character(yr),bank=banks[i]))
       } # end if(banks[i] == "GB")
-      
       
       # Don't add the titles
       if(add.title == F) MWSH.title <- ""
@@ -2053,7 +2054,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             geom_text(data=subarea_LTM, aes(subarea, value), label="   LTM", size=3, hjust=0) + 
             geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
             theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
-            ylab(expression(frac("kg","tow"), "\n")) +
+            ylab(expression(frac("g","tow"), "\n")) +
             xlab(NULL) +
             ggtitle(paste0(yr, " Survey Biomass by GBa Sub-area")) +
             facet_wrap(~variable, nrow=3, scales="free_y") +

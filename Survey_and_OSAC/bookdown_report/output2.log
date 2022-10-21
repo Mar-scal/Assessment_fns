@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  29 SEP 2022 21:55
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  17 OCT 2022 16:09
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -415,8 +415,59 @@ Package fancyhdr Warning: \fancyfoot's `E' option without twoside option is usel
 File: l3backend-pdftex.def 2022-02-07 L3 backend support: PDF output (pdfTeX)
 \l__color_backend_stack_int=\count301
 \l__pdf_internal_box=\box63
+) (./output2.aux
+
+LaTeX Warning: Label `fig:unnamed-chunk-2' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-4' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-5' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-6' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-7' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-8' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-9' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-11' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-12' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-13' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-14' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-15' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-16' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-17' multiply defined.
+
+
+LaTeX Warning: Label `tab:unnamed-chunk-18' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-19' multiply defined.
+
+
+LaTeX Warning: Label `fig:unnamed-chunk-20' multiply defined.
+
 )
-No file output2.aux.
 \openout1 = `output2.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 98.
@@ -540,7 +591,7 @@ LaTeX Font Info:    Trying to load font information for U+msb on input line 100.
 File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) (c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/microtype/mt-msb.cfg
 File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
-)
+) (./output2.toc)
 \tf@toc=\write3
 \openout3 = `output2.toc'.
 
@@ -551,7 +602,7 @@ LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 13
 (c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 ) [2] [3]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/survey_strata.png, id=47, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/survey_strata.png, id=51, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/survey_strata.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/survey_strata.png  used on input line 192.
@@ -576,7 +627,7 @@ l.238 \newpage
                                                   \__shipout_drop_firstpage_...
 l.238 \newpage
               ]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png, id=65, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png, id=69, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png  used on input line 242.
@@ -586,7 +637,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.250 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/abundance_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png, id=73, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png, id=77, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png  used on input line 254.
@@ -596,7 +647,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.262 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/biomass_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png, id=82, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png, id=86, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png  used on input line 271.
@@ -606,7 +657,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.279 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/SHF.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png, id=91, 614.295pt x 939.51pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png, id=95, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png  used on input line 288.
@@ -616,7 +667,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.296 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MWSH_and_CF_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png, id=100, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png, id=104, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png  used on input line 322.
@@ -630,7 +681,7 @@ l.330 \newpage
                                                   \__shipout_drop_firstpage_...
 l.330 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/PR-spatial.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png, id=110, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png, id=114, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png  used on input line 334.
@@ -640,7 +691,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.342 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Rec-spatial.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png, id=118, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png, id=122, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png  used on input line 346.
@@ -650,7 +701,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.354 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/FR-spatial.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png, id=126, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png, id=130, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png  used on input line 376.
@@ -664,7 +715,7 @@ l.384 \newpage
                                                   \__shipout_drop_firstpage_...
 l.384 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/CF-spatial.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png, id=136, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png, id=140, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png  used on input line 388.
@@ -674,7 +725,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.396 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/MC-spatial.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png, id=144, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png, id=148, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png  used on input line 420.
@@ -688,7 +739,7 @@ l.426
                                                   \__shipout_drop_firstpage_...
 l.428 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/Clapper_per_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png, id=159, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png, id=163, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png  used on input line 437.
@@ -698,7 +749,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.446 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBa/breakdown-2022.png>] [18]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/survey_strata.png, id=189, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/survey_strata.png, id=192, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/survey_strata.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/survey_strata.png  used on input line 502.
@@ -716,7 +767,7 @@ l.548 \newpage
                                                   \__shipout_drop_firstpage_...
 l.548 \newpage
               ]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png, id=207, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png, id=210, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png  used on input line 552.
@@ -726,7 +777,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.560 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/abundance_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png, id=215, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png, id=218, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png  used on input line 564.
@@ -736,7 +787,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.572 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/biomass_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png, id=223, 614.295pt x 794.97pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png, id=226, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png  used on input line 581.
@@ -746,7 +797,7 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.589 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/SHF.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png, id=232, 614.295pt x 939.51pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png, id=235, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png>
 Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png  used on input line 598.
@@ -756,7 +807,107 @@ Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summar
                                                   \__shipout_drop_firstpage_...
 l.606 \newpage
                <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MWSH_and_CF_ts.png>]
-<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png, id=241, 794.97pt x 614.295pt>
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png, id=244, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentatio
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png  used on input line 632.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[25pdfTeX warning (ext4): destination with the same identifier (name{table.8}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.640 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name{figure.18}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.640 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/PR-spatial.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Rec-spatial.png, id=255, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Rec-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Rec-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Rec-spatial.png  used on input line 644.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[26pdfTeX warning (ext4): destination with the same identifier (name{figure.19}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.652 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/FR-spatial.png, id=263, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/FR-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/FR-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/FR-spatial.png  used on input line 656.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[27pdfTeX warning (ext4): destination with the same identifier (name{figure.20}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.664 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/FR-spatial.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/CF-spatial.png, id=271, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/CF-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/CF-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/CF-spatial.png  used on input line 686.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[28pdfTeX warning (ext4): destination with the same identifier (name{table.9}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.694 \newpage
+              pdfTeX warning (ext4): destination with the same identifier (name{figure.21}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.694 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/CF-spatial.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MC-spatial.png, id=280, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MC-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MC-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MC-spatial.png  used on input line 698.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[29pdfTeX warning (ext4): destination with the same identifier (name{figure.22}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.706 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/MC-spatial.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Clapper_per_ts.png, id=288, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Clapper_per_ts.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Clapper_per_ts.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Clapper_per_ts.png  used on input line 730.
+(pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
+[30pdfTeX warning (ext4): destination with the same identifier (name{table.10}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.736 
+      ] [31pdfTeX warning (ext4): destination with the same identifier (name{figure.23}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.738 \newpage
+               <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/breakdown-2022.png, id=304, 614.295pt x 794.97pt>
+File: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/breakdown-2022.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/breakdown-2022.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/breakdown-2022.png  used on input line 747.
+(pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
+[32pdfTeX warning (ext4): destination with the same identifier (name{figure.24}) has been already used, duplicate ignored
+<argument> ...shipout:D \box_use:N \l_shipout_box 
+                                                  \__shipout_drop_firstpage_...
+l.756 \end{document}
+                     <y:/Offshore/Assessment/2022/Presentations/Survey_summary/test_figures/GBb/breakdown-2022.png>] (./output2.aux)
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
+Here is how much of TeX's memory you used:
+ 14441 strings out of 480238
+ 250890 string characters out of 5894108
+ 571031 words of memory out of 5000000
+ 31922 multiletter control sequences out of 15000+600000
+ 522955 words of font info for 127 fonts, out of 8000000 for 9000
+ 14 hyphenation exceptions out of 8191
+ 74i,11n,77p,1004b,342s stack positions out of 5000i,500n,10000p,200000b,80000s
+pdfTeX warning (dest): name{toc} has been referenced but does not exist, replaced by a fixed one
+
+{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on output2.pdf (32 pages, 8135129 bytes).
+PDF statistics:
+ 382 PDF objects out of 1000 (max. 8388607)
+ 282 compressed objects within 3 object streams
+ 105 named destinations out of 1000 (max. 500000)
+ 30865 words of extra memory for PDF output out of 35830 (max. 10000000)
+

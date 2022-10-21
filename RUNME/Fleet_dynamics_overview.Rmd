@@ -8,10 +8,11 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 require(patchwork)
+require(tidyverse)
 
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-year <- 2021
+year <- 2022
 months <- 1:12
 banks <- c("GBa")
 
@@ -27,7 +28,7 @@ new.log.dat$date <- ymd(new.log.dat$date)
 annual <- new.log.dat %>%
   filter(bank %in% banks & month %in% months) %>%
   group_by(year, fleet) %>%
-  summarize(effort = sum(hm),
+  summarize(effort = sum(hm, na.rm=T),
             landings = sum(pro.repwt),
             ntrip = length(unique(tripnum)),
             nvessels = length(unique(vrnum)))
@@ -37,7 +38,7 @@ annual$cpue <- annual$landings/annual$effort
 annual_combined <- new.log.dat %>%
   filter(bank %in% banks & month %in% months) %>%
   group_by(year) %>%
-  summarize(effort = sum(hm),
+  summarize(effort = sum(hm, na.rm=T),
             landings = sum(pro.repwt),
             ntrip = length(unique(tripnum)),
             nvessels = length(unique(vrnum))) %>%

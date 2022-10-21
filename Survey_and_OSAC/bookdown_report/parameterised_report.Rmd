@@ -23,7 +23,7 @@ options(tinytex.verbose = TRUE)
 
 year <- 2022
 
-load("summary2.Rdata")
+load("summary.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows
@@ -82,7 +82,7 @@ table$word[as.numeric(table$thisyearraw) > as.numeric(table$lastyearraw)] <- "in
 
 table$perc[table$word=="increased"] <- 
   (as.numeric(table$thisyearraw[table$word=="increased"]) - as.numeric(table$lastyearraw[table$word=="increased"]))/
-  as.numeric(table$thisyearraw[table$word=="increased"]) *100
+  as.numeric(table$lastyearraw[table$word=="increased"]) *100
 
 table$perc[table$word=="decreased"] <-   
   (as.numeric(table$lastyearraw[table$word=="decreased"]) - as.numeric(table$thisyearraw[table$word=="decreased"]))/
@@ -91,7 +91,7 @@ table$perc[table$word=="decreased"] <-
 table$perclab <- ScallopRound(table$perc, 2)
 
 table$perclab[table$perc>0 & table$perc < 0.01] <- "<0.01"
-table$perclab[table$perc>99] <- ">99"
+#table$perclab[table$perc>99] <- ">99"
 
 table$state <- paste0(table$word, " by ", table$perclab, "% since")
 

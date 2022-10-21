@@ -343,7 +343,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     #Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
     # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
-    
+    # Commercial hydration data from 1992-1998 were loaded to CHISHOLMA.comm_samples_scaloff
+    # Note - in 2019, data from 2001-2005 were accidentally excluded. In 2022 (after SS) this was identified. I also realized that 2006-2008 data have been excluded for even longer. 
+    # I am adding these commercial samples back in now. 
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
@@ -1500,13 +1502,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # This may need adjusted if we had a weird survey year (such as 2015).
   
   # If I'm just testing
+  if(testing == F & !is.null(nickname)) message(paste0("saving as testing_results_", nickname, " even though testing was set to F"))
   if(testing == T & is.null(nickname)) save(list = ls(all.names = TRUE), 
                                             file = paste(direct,"Data/Survey_data/",yr,
                                                          "/Survey_summary_output/testing_results.Rdata",sep=""))
-  if(testing == T & !is.null(nickname)) save(list = ls(all.names = TRUE), 
+  if(testing == T & !is.null(nickname) | testing==F & !is.null(nickname)) save(list = ls(all.names = TRUE), 
                                              file = paste(direct,"Data/Survey_data/",yr,
                                                           "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
-  if(testing == F)
+  if(testing == F & is.null(nickname))
   {
     if(season == "both" && num.surveys >=7)	save(list = ls(all.names = TRUE), 
                                                  file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))

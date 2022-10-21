@@ -1,0 +1,154 @@
+---
+title: "OSAC text"
+output:
+  word_document:
+  pdf_document: default
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include=F}
+### THIS TEMPLATE IS FOR ONE BANK ONLY. FOR A FRESH OSAC RUN, COPY AND PASTE THE TEMPLATE FOR EACH BANK, AND EDIT ACCORDINGLY. 
+### THE TEMPLATE ASSUMES THAT FISHING OCCURRED, AND THAT MEAT COUNT DATA ARE AVAILABLE
+### BOLDED CODE GENERALLY NEEDS UPDATING. SAVE THE ANNUAL RESULT IN Y:/Offshore/Assessment/YYYY/PRESENTATIONS/OSAC/
+### THE POWERPOINT PRESENTATION IS NOT GENERATED AUTOMATICALLY. USE SURVEY SUMMARY PPTX AND LAST YEAR'S VERSION. 
+
+
+year <- 2022
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+load(paste0(direct, "Data/Fishery_data/Summary/", year, "/OSAC_summary.Rdata"))
+load(paste0(direct, "Data/Fishery_data/Summary/", year, "/OSAC_tidy_logs.Rdata"))
+load(paste0(direct, "Data/Survey_data/", year, "/Survey_summary_output/Survey_all_results.Rdata"))
+
+options(scipen=999)
+
+fish.res[,2:13] <- apply(fish.res[,2:13], 2, function(x) as.numeric(as.character(x)))
+sum.stat <- dplyr::rename(sum.stat, bank=Bank)
+
+require(plyr)
+require(tidyverse)
+
+cpue.dat <- plyr::ldply(cpue.dat)
+cpue.dat <- dplyr::rename(cpue.dat, bank=.id)
+LTMs <- plyr::ddply(.data=cpue.dat, .(bank),
+              summarize,
+              catchLTM = median(catch, na.rm=T),
+              effortLTM = median(effort, na.rm=T),
+              cpueLTM = median(cpue, na.rm=T))
+LY <- ddply(.data=cpue.dat[cpue.dat$year==year-1,], .(bank),
+            summarize,
+            catchLY = catch,
+            effortLY = effort,
+            cpueLY = cpue)
+
+
+# 2020 will not work in Survey_summary_word.R without major changes. Try to do it manually instead. 
+fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
+
+sizes <- fish.reg %>%
+  filter(year==2022) %>%
+  group_by(Bank)%>%
+  mutate(MC = MC_reg) %>%
+  select(Bank, MC)
+
+
+meanSH <- NULL
+for (i in names(surv.Rand)[which(names(surv.Rand) %in% sizes$Bank)]){
+  if(!i =="Ger") CS <- survey.obj[[i]]$model.dat$CS[survey.obj[[i]]$model.dat$year==year]
+  if(i =="Ger") CS <- lined.survey.obj$model.dat$CS[lined.survey.obj$model.dat$year==year]
+  CSmin <- which(names(surv.Rand[[i]]) == paste0("h", CS))
+  CSmax <-  which(names(surv.Rand[[i]]) == "h200")
+  meanSH[[i]] <- mean(apply(surv.Rand[[i]][surv.Rand[[i]]$year %in% year, CSmin:CSmax], 1, function(x) sum(x*seq((CS-2.5),197.5,5))/sum(x)), na.rm=T)
+}
+
+
+require(pander)
+panderOptions('round', 2)
+panderOptions('keep.trailing.zeros', TRUE)
+
+```
+
+# **YYYY OSAC** - `r Sys.time()`
+
+## **Outline**
+1.	This is an outline of the various banks that we’ll be discussing today. All of the banks except Middle and Sable Banks were fished this year.
+
+2.	Note that the fishery data comes from logs and reports that we were able to verify up to october 15, `r year`
+_IMPORTANT We have an agreement in place with offshore valid until end of Dec 2020 to show all data (including any banks with less than 5 trips) so no need to alter anything due to privacy.  In 2020 we will need to get that agreement resigned by all the players!!!_
+
+
+## **Bank name:**
+
+1.	Management
+    a.	The TAC on **Bank name** in `r year` was **XXX** tonnes
+    b.	the Meat count regulation was `r sizes[sizes$Bank==bank,]$MC` scallops per 500 grams of meat (about 13 grams per scallop)
+
+<br>
+
+2.	Fishery
+    a.	There were n=`r fish.res$WF.trips[fish.res$bank==bank] + fish.res$FT.trips[fish.res$bank==bank]` trips on Browns Bank North in `r year`
+        i.	Numbers here are verified logs up to October 15, `r year`
+        ii.	Last trip was ≈ `r format(max(fish.dat$fished[fish.dat$bank==bank & fish.dat$year==year]), "%d-%b-%Y")`
+    b.	Total catch was `r round(fish.res$catch[fish.res$bank==bank], 0)` tonnes
+    c.	Total effort was `r round(fish.res$effort[fish.res$bank==bank], 0)` hm
+    d.	The CPUE was **above** the bank median, coming in at `r round(fish.res$cpue[fish.res$bank==bank], 1)` kg/hm
+    e.	The average fishery meat count was `r round(meat.count$summarytable$mean[meat.count$summarytable$bank=="brownsnorth" &  meat.count$summarytable$fleet=="all"], 1)` scallops per 500 grams of meat.
+            i.	These would be an average of `r round(500/meat.count$summarytable$mean[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="all"],1)` gram scallops.
+    f.The range was `r floor(round(meat.count$summarytable$min[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="all"], 1))` to `r ceiling(round(meat.count$summarytable$max[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="all"], 1))`
+
+    f.	There were `r fish.res$FT.trip[fish.res$bank==bank]` FT trips and `r fish.res$WF.trip[fish.res$bank==bank]` WF trips
+        i.	FT fleet caught `r round(fish.res$FT.catch[fish.res$bank==bank], 0)`  tonnes  while WF fleet caught `r round(fish.res$WF.catch[fish.res$bank==bank], 1)` tonnes
+        ii.	FT CPUE was `r round(fish.res$FT.cpue[fish.res$bank==bank], 1)` kg/hm, and WF CPUE was `r round(fish.res$WF.cpue[fish.res$bank==bank], 1)` kg/hm
+        iv. FT meat count was `r round(meat.count$summarytable$mean[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="FT"], 1)` scallops per 500g of meat on average. FT meat counts ranged from `r floor(round(meat.count$summarytable$min[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="FT"], 1))` - `r ceiling(round(meat.count$summarytable$max[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="FT"], 1))` scallops per 500g of meat
+        v.	WF meat count was `r round(meat.count$summarytable$mean[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="WF"], 1)` scallops per 500g of meat. WF meat counts ranged from `r floor(round(meat.count$summarytable$min[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="WF"], 1))` - `r ceiling(round(meat.count$summarytable$max[meat.count$summarytable$bank=="brownsnorth" & meat.count$summarytable$fleet=="WF"], 1))` scallops per 500g of meat
+
+<br>
+
+11.	So now we'll look at the fishery time series figures
+    a. Catch and effort were **below** their long term medians in `r year`, and CPUE was **above** its long term median
+    b. _Remember the standard error bars represent our confidence in the mean estimate for the bank CPUE, wider indicates years in which catch was more variable_
+    c. _Note different fleets_
+
+<br>
+
+12.	Fishery spatial
+    a.	Now we will at the catch spatially,
+        i.	grouped into “1 minute” cells
+        ii. The darker the colour, the higher the catch in that cell
+    b.	**There were 6 trips on XXXXX in `r year`**
+    d.	There were `r length(fish.cells$catch[fish.cells$bank==bank & fish.cells$catch>5])` cells above 5 tonnes of catch in `r year`. Catch ranged from `r round(sum.stat$min.catch[sum.stat$bank==bank],2)` –  `r round(sum.stat$max.catch[sum.stat$bank==bank],2)` tonnes. Median catch was `r round(sum.stat$median.catch[sum.stat$bank==bank],2)`.
+```{r, echo=F, message=F}
+pander::pander(plyr::join(sum.stat[sum.stat$bank==bank,], fish.res[fish.res$bank==bank,], type="full"))
+```
+
+<br>
+
+```{r, echo=F}
+knitr::kable(meat.count$summarytable[meat.count$summarytable$bank=="brownsnorth",], row.names=F, digits=4)
+```
+
+<br>
+
+```{r, echo=F}
+knitr::kable(LY[LY$bank==bank,], row.names=F, digits=4)
+```
+
+<br>
+```{r, echo=F}
+knitr::kable(LTMs[LTMs$bank==bank,], row.names=F, digits=4)
+```
+
+
+<br>
+
+INSERT SURVEY NOTES
+
+<br>
+
+11. **So the outlook for XXXXXXX**
+    a. **From the fishery data, CPUE was XXXXX the long term median**
+    b. **And from the survey data, Pre-recruit abundance was XXXXX the long term median**
+    c. **Recruit and fully-recruited abundance and biomass were XXXXX their long term medians**
+    d. **condition factor was XXXXX the LTM.**
+

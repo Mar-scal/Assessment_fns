@@ -64,7 +64,7 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))
   par(...)
   # Make the plot, using the parameters specified in function call.  
-	plot(unlist(data[x[1]]),unlist(data[y[1]]), type="n", las=1, ylim=ylim, xlim=xlim, ylab="", xlab="", xaxt="n",,yaxt="n",
+	base::plot(unlist(data[x[1]]),unlist(data[y[1]]), type="n", las=1, ylim=ylim, xlim=xlim, ylab="", xlab="", xaxt="n",,yaxt="n",
 	     mgp=c(1,0.5,0), lty=lty[1], pch=pch[1], col=col[1],cex=labcx)
 	points(unlist(data[x[1]]),unlist(data[y[1]]),type=type,lty=lty[1], pch=pch[1], col=col[1],bg=col[1])
 	if(error==T)  segments(unlist(data[x[1]]),unlist(data[y[1]])+1.96*unlist(data$CFse.fit),unlist(data[x[1]]),unlist(data[y[1]])-1.96*unlist(data$CFse.fit),col=col[1])

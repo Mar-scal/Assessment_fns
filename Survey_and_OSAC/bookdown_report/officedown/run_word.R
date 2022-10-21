@@ -3,15 +3,15 @@ library(rmarkdown)
 require(ggplot2)
 
 ######## prep input data if you haven't already
-year <- 2021
-
+year <- 2022
+reportyear <- 2022
 #direct_fns <- "C:/Documents/Assessment_fns/"
 
 #################################################
 ### if you need to re-create the summary.RData
 
 #direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-direct_fns <- "C:/Documents/Assessment_fns/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
@@ -31,6 +31,7 @@ save(summary_data, file = "summary4.Rdata")
 source("officedown/render_markdowns_word.R")
 ########################################################
 
+write.csv(x = highlights, "officedown/highlights.csv")
 
 ### feedback
 # Change "Return to links" to "Return to bank summary" (be really cool if you could make it "Return to Middle Bank Summary" but only if you could automate the naming for the bank)
