@@ -1126,17 +1126,16 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Using the Live scallops only make the Middle Bank survey object
       # Simple survey updated to enable the caluclation for user specified sH bins.
       # Now we can subset the clappers, randome, live and surv dat objects, once we do this I think we are golden...
-      
       if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       {
         # now we need to remove all data outside our domain of interest and get the data in the same projection...
-        coordinates(surv.Clap[[bnk]])<- ~ lon+lat
+        coordinates(surv.Clap[[bnk]])<- ~ slon+slat
         proj4string(surv.Clap[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Live[[bnk]])<- ~ lon+lat
+        coordinates(surv.Live[[bnk]])<- ~ slon+slat
         proj4string(surv.Live[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Rand[[bnk]])<- ~ lon+lat
+        coordinates(surv.Rand[[bnk]])<- ~ slon+slat
         proj4string(surv.Rand[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.dat[[bnk]])<- ~ lon+lat
+        coordinates(surv.dat[[bnk]])<- ~ slon+slat
         proj4string(surv.dat[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
         
         # spat.bound.sp would have been created above...
@@ -1158,7 +1157,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
-      
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
       if(bank.4.spatial %in% c("Ban", "BanIce")) {

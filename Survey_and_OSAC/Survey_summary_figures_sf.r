@@ -1908,7 +1908,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig != "screen") dev.off()
       
       if(banks[i] == "GBa" & sub.area==T) {
-        
+        # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
+        # subarea_bars_facet_fix.R
+        #browser()
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=100,bg="transparent")
@@ -2027,7 +2029,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig != "screen") dev.off()
       
       if(banks[i] == "GBa" & sub.area==T){
-        
+        # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
+        # subarea_bars_facet_fix.R
+        # browser()
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=420,bg="transparent")
