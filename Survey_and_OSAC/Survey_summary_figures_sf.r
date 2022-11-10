@@ -1424,7 +1424,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             
             # Now print the figure
-            print(p3)
+            print(p3 + guides(fill=guide_legend(order=2), shape=guide_legend(order=1)))
        
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
@@ -1559,11 +1559,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           geom_sf(data=shpf,aes(colour = `Area (km^2)`), alpha=0, linetype="blank")  +
           new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA, alpha=0.7)    +  
           geom_sf(data=surv, aes(shape=`Tow type`)) + 
-          scale_shape_manual(values = shp) +
+          scale_shape_manual(values = shp, guide=guide_legend(order=4)) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
-          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)))  +
-          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), name=expression(paste("Area (", km^{2}, ")")))  +
-          scale_linetype_manual(values = rep("blank", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), 
+          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols), order=1))  +
+          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7), order=2), name=expression(paste("Area (", km^{2}, ")")))  +
+          scale_linetype_manual(values = rep("blank", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7), order=3), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line"),
