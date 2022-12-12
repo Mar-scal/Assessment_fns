@@ -8,18 +8,20 @@ editor_options:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 require(patchwork)
+require(tidyverse)
 
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-year <- 2021
-months <- 1:12
-banks <- c("GBa")
+year <- 2022
 
 source(paste0(direct_fns, "Fishery/logs_and_fishery_data.r"))
-logs_and_fish(loc="offshore",year = 2004:year, direct="Y:/Offshore/Assessment/")
+logs_and_fish(loc="offshore",year = 2010:year, direct="Y:/Offshore/Assessment/")
 new.log.dat$year <- year(new.log.dat$fished)
 new.log.dat$month <- month(new.log.dat$fished)
 new.log.dat$date <- ymd(new.log.dat$date)
+
+months <- 1:12
+banks <- c("SPB")
 ```
 
 
@@ -27,7 +29,7 @@ new.log.dat$date <- ymd(new.log.dat$date)
 annual <- new.log.dat %>%
   filter(bank %in% banks & month %in% months) %>%
   group_by(year, fleet) %>%
-  summarize(effort = sum(hm),
+  summarize(effort = sum(hm, na.rm=T),
             landings = sum(pro.repwt),
             ntrip = length(unique(tripnum)),
             nvessels = length(unique(vrnum)))
@@ -37,7 +39,7 @@ annual$cpue <- annual$landings/annual$effort
 annual_combined <- new.log.dat %>%
   filter(bank %in% banks & month %in% months) %>%
   group_by(year) %>%
-  summarize(effort = sum(hm),
+  summarize(effort = sum(hm, na.rm=T),
             landings = sum(pro.repwt),
             ntrip = length(unique(tripnum)),
             nvessels = length(unique(vrnum))) %>%

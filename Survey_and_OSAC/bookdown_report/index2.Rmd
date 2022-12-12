@@ -1,6 +1,6 @@
 --- 
 title: "Offshore Scallop Survey Summary"
-subtitle: "Summer 2021"
+subtitle: "Summer 2022"
 author: "Scallop and Benthic Habitat Unit"
 output: 
   bookdown::pdf_document2:
@@ -11,7 +11,7 @@ header-includes:
  - \usepackage{float}
  - \usepackage{fancyhdr}
  - \pagestyle{fancy}
- - \fancyfoot[CO,CE]{Summer Survey 2021}
+ - \fancyfoot[CO,CE]{Summer Survey 2022}
  - \fancyfoot[LE,RO]{\thepage}
 ---
 
@@ -22,6 +22,8 @@ load("summary2.Rdata")
 dates <- summary_data$dates[summary_data$dates$bank %in% c(#"Mid", "Sab", "Ger", "BBn", "BBs", "GB",
                                                            "GBa", "GBb"
                                                            ),]
+# for dates:
+# `r stamp("March 1")(min(dates$start)-days(1))` to `r stamp("March 1, 2021")(max(dates$end) + days(1))`
 ```
 
  
@@ -30,17 +32,26 @@ dates <- summary_data$dates[summary_data$dates$bank %in% c(#"Mid", "Sab", "Ger",
 
 # Survey overview
 
-The Summer Offshore Scallop Survey occurred from August 6 to `r stamp("March 1, 2021")(max(dates$end) + days(1))` on Georges Bank 'a' and 'b'. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
+The Summer Offshore Scallop Survey occurred from August 6 to 15, 2022 on Georges Bank 'a' and 'b'. The Chief Scientist was Tricia Pearo Drew, and the survey was carried out on the Fundy Leader.
 
 This report summarizes the information collected during the survey. At each survey station, the 8-ft scallop dredge is towed for 10 minutes, and all sea scallops are counted and assigned to 5mm shell height bins (ranging from 0-200mm). This information informs the abundance time series, shell height frequency, clapper time series, and spatial distribution figures. 
 
-Detailed sampling occurred at a selection of the stations, where the exact shell heights and meat weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures.  
+Detailed sampling occurred at a selection of the stations, where the exact shell heights and meat weights are recorded for a subsample of the scallops caught. This allows for the calculation of biomass and condition that are presented in the biomass time series, meat weight-shell height relationship, and condition time series figures. 
 
-**In 2021, the 10 samples collected in tow 301 on Georges Bank 'b' were excluded from the meat weight-shell height relationship and condition factor calculation for the bank.** The meat weight-shell height relationship for this tow was highly unusual compared to past and current sampled tows, and had a disproportionate impact on the bank-wide relationship this year. To ensure that the meat weight-shell height relationship is representative of the population on Georges 'b' this year, the sampling data for this tow have been excluded from the results found in this report and will be excluded from all future analyses. Results informing this decision were presented and discussed at the Survey Summary Meeting, held November 1, 2021. 
+Some of the figures and analyses presented in this report refer to the different size classes of scallop: pre-recruits, recruits, and fully-recruited scallops. The shell height range for each size class differs by bank, but the general convention is that recruits are expected to grow to commercial size in the next year, while fully-recruited scallops were commercial size at the time of the survey. 
 
-Some of the figures and analyses presented in this report refer to the different size classes of scallop: pre-recruits, recruits, and fully-recruited scallops. The shell height ranges for each size class differs by bank, but the general convention is that recruits are expected to grow to commercial size in the next year, while fully-recruited scallops were commercial size at the time of the survey. 
+We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. 
 
-We also compare values from the current survey to the most recent previous survey, and/or to long term medians. In this report, all long term medians exclude the value from the current year. For this 2021 survey, results are compared to the 2019 survey results since the full assessment survey did not occur in 2020 due to the COVID-19 pandemic.
+
+## Special considerations  
+
+During the 2022 survey, both Olex and Ocean Vision navigational software programs were used. All tows were tracked using both programs, but tracks from Ocean Vision were used to calculate the distance coefficients needed to standardize tow lengths. 
+
+In 2022, before the Spring and Summer Surveys occurred, all historical survey data were loaded to the DFO SCALOFF database following the completion of a comprehensive data review. For the majority of banks and years, this review had no impact on survey summary results. The following corrections had minor impacts on survey summary results for the figures noted: 
+
+-  Georges Bank 'a': depths were corrected for 11 sampled tows in 1998 (Figure 5)
+-  Georges Bank 'b': 1 tow of sampling data was added and 2 tows of sampling data were removed in 1987; 1 tow was re-assigned to stratum 101 in 1992 (previously, stratum 102); depths were corrected for 3 sampled tows in 1998 (Figures 14, 15, 17, and 23)
+
 
 
 

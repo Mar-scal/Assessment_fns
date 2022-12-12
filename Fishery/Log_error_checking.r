@@ -305,7 +305,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     
     # check for extra rows that are full of NA's, and remove them if they exist:
     if(dim(trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),])[1] >0 & length(which(any(!is.na(trip.log[which(apply(trip.log, 1, function(x){any(is.na(x))})),])))) == 0) {
-      stop("Entirely NA in rows in data. Delete them in the CSV.")
+      stop("Data contains rows that are completely NA. Either delete them in the CSV, or if there are no empty rows in the CSV, you may have a mismatch between slips and logs (all logs much have a matching slip, and vice versa).")
     }
     
     # Check to ensure vessel gear size and number of rakes and gear size is correct.  I don't want to flag NA"s here as that would be redundant with above

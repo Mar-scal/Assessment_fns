@@ -4,7 +4,7 @@ print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
            "Mid", "Sab", "Ger",
-         #  "BBs",
+          # "BBs",
          "BBn", "GB"#,
   #"GBa", "GBb"
            )

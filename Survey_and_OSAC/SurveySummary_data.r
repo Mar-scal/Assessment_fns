@@ -343,7 +343,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     #Source7 	source("fn/import.hyd.data.r") 'Hydration' sampling, essentially this is the MW data that isn't yet in the SQL DB
     # NOTE:  This function will go away once we have Offshore data loaded, someday...
     # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
-    
+    # Commercial hydration data from 1992-1998 were loaded to CHISHOLMA.comm_samples_scaloff
+    # Note - in 2019, data from 2001-2005 were accidentally excluded. In 2022 (after SS) this was identified. I also realized that 2006-2008 data have been excluded for even longer. 
+    # I am adding these commercial samples back in now. 
     MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
     
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
@@ -939,13 +941,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 5:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]], month %in% 5:6,select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6 & year > 1983,select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
           if(bank.4.spatial %in% c("Ban", "BanIce")) {
             mw.dat.all[[bnk]] <- merge(
               subset(MW.dat,bank==bank.4.spatial & month %in% 4:6 & year > 1983,
                      c("tow","year","lon","lat","depth","sh","wmw")),
-              subset(mw[[bnk]], month %in% 5:6, select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
+              subset(mw[[bnk]], month %in% 5:6 & year > 1983, select=c("tow","year","lon","lat","depth","sh","wmw")),all=T)
           }
         }
         if(commercialsampling==F) mw.dat.all[[bnk]] <- select(mw[[bnk]], tow, year, lon, lat, depth, sh, wmw)
@@ -1124,17 +1126,16 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Using the Live scallops only make the Middle Bank survey object
       # Simple survey updated to enable the caluclation for user specified sH bins.
       # Now we can subset the clappers, randome, live and surv dat objects, once we do this I think we are golden...
-      
       if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       {
         # now we need to remove all data outside our domain of interest and get the data in the same projection...
-        coordinates(surv.Clap[[bnk]])<- ~ lon+lat
+        coordinates(surv.Clap[[bnk]])<- ~ slon+slat
         proj4string(surv.Clap[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Live[[bnk]])<- ~ lon+lat
+        coordinates(surv.Live[[bnk]])<- ~ slon+slat
         proj4string(surv.Live[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Rand[[bnk]])<- ~ lon+lat
+        coordinates(surv.Rand[[bnk]])<- ~ slon+slat
         proj4string(surv.Rand[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.dat[[bnk]])<- ~ lon+lat
+        coordinates(surv.dat[[bnk]])<- ~ slon+slat
         proj4string(surv.dat[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
         
         # spat.bound.sp would have been created above...
@@ -1156,7 +1157,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
-      
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
       if(bank.4.spatial %in% c("Ban", "BanIce")) {
@@ -1500,13 +1500,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   # This may need adjusted if we had a weird survey year (such as 2015).
   
   # If I'm just testing
+  if(testing == F & !is.null(nickname)) message(paste0("saving as testing_results_", nickname, " even though testing was set to F"))
   if(testing == T & is.null(nickname)) save(list = ls(all.names = TRUE), 
                                             file = paste(direct,"Data/Survey_data/",yr,
                                                          "/Survey_summary_output/testing_results.Rdata",sep=""))
-  if(testing == T & !is.null(nickname)) save(list = ls(all.names = TRUE), 
+  if(testing == T & !is.null(nickname) | testing==F & !is.null(nickname)) save(list = ls(all.names = TRUE), 
                                              file = paste(direct,"Data/Survey_data/",yr,
                                                           "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
-  if(testing == F)
+  if(testing == F & is.null(nickname))
   {
     if(season == "both" && num.surveys >=7)	save(list = ls(all.names = TRUE), 
                                                  file = paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))

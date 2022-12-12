@@ -6,6 +6,8 @@ params:
   banknum: NA
 header-includes:
  - \usepackage{float}
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -19,7 +21,7 @@ options(tinytex.verbose = TRUE)
 knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
 library(officedown)
 
-year <- 2021
+year <- 2022
 
 load("summary4.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
@@ -80,7 +82,7 @@ sumtable$word[as.numeric(sumtable$thisyearraw) > as.numeric(sumtable$lastyearraw
 
 sumtable$perc[sumtable$word=="increased"] <- 
   (as.numeric(sumtable$thisyearraw[sumtable$word=="increased"]) - as.numeric(sumtable$lastyearraw[sumtable$word=="increased"]))/
-  as.numeric(sumtable$thisyearraw[sumtable$word=="increased"]) *100
+  as.numeric(sumtable$lastyearraw[sumtable$word=="increased"]) *100
 
 sumtable$perc[sumtable$word=="decreased"] <-   
   (as.numeric(sumtable$lastyearraw[sumtable$word=="decreased"]) - as.numeric(sumtable$thisyearraw[sumtable$word=="decreased"]))/
@@ -89,7 +91,7 @@ sumtable$perc[sumtable$word=="decreased"] <-
 sumtable$perclab <- ScallopRound(sumtable$perc, 2)
 
 sumtable$perclab[sumtable$perc>0 & sumtable$perc < 0.01] <- "<0.01"
-sumtable$perclab[sumtable$perc>99] <- ">99"
+#sumtable$perclab[sumtable$perc>99] <- ">99"
 
 sumtable$state <- paste0(sumtable$word, " by ", sumtable$perclab, "% since")
 
@@ -130,7 +132,7 @@ _In the `r bankname` survey, pre-recruits are considered to be scallops with she
 
 ## Abundance & biomass time series summary 
 
-Abundance and biomass throughout the survey time series are presented using numbers or kilograms of scallop per standardized tow, respectively.   
+Abundance and biomass throughout the survey time series are presented using numbers and kilograms of scallop per standardized tow, respectively.   
 
 -  Pre-recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NPR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NPR"]` the long term median. 
 -  Recruit abundance `r sumtable$state[sumtable$bank==params$bank & sumtable$variable == "NR"]` `r yeartable$lastyear[yeartable$bank == params$bank]`, and was `r sumtable$nearLTM[sumtable$bank==params$bank & sumtable$variable == "NR"]` the long term median.

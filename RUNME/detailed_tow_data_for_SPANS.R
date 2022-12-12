@@ -1,6 +1,6 @@
 # For Detailed Tow Data (for SPANS, usually right after Industry report)
 year<- 2022
-DR <- "DR2022_07"
+DR <- "DR2022_10"
 direct <- "Y:/Offshore/Assessment/"
 #load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
 
@@ -13,7 +13,7 @@ cruises <- c("GBa", "GBb")
 #cruises <- c("GBa", "GBb", "BB")
 
 # read in this function
-detailed.tow.data <- function(year=2021, DR="DR2021_04", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID, db.con="ptran"){
+detailed.tow.data <- function(year=2022, DR="DR2022_10", banks=banks, cruises=cruises, un.ID=un.ID, pwd.ID=pwd.ID, db.con="ptran"){
 
   require(ROracle)
   
@@ -153,6 +153,11 @@ MIDmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/MID.",
 GERshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GER.", year, ".std.hf.csv"))
 GERmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GER.", year, ".mwsh.csv"))
 
+GBashf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBa.", year, ".std.hf.csv"))
+GBamwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBa.", year, ".mwsh.csv"))
+GBbshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBb.", year, ".std.hf.csv"))
+GBbmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBb.", year, ".mwsh.csv"))
+
 
 require(tidyverse)
 source(paste0("C:/Users/keyserf/Documents/Github/Assessment_fns/Survey_and_OSAC/convert.dd.dddd.r"))
@@ -168,16 +173,16 @@ plot <- function(melted) {
     coord_sf()
 }
 
-melted <- pivot_longer(GBAshf[GBAshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+melted <- pivot_longer(GBashf[GBashf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
 plot(melted)
 
-melted <- pivot_longer(GBAshf[GBAshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+melted <- pivot_longer(GBashf[GBashf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
 plot(melted)
 
-melted <- pivot_longer(GBBshf[GBBshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+melted <- pivot_longer(GBbshf[GBbshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
 plot(melted)
 
-melted <- pivot_longer(GBBshf[GBBshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
+melted <- pivot_longer(GBbshf[GBbshf$STATE=="dead",], cols=starts_with("BIN_"), names_prefix = "BIN_")
 plot(melted)
 
 melted <- pivot_longer(GBshf[GBshf$STATE=="live",], cols=starts_with("BIN_"), names_prefix = "BIN_")
@@ -217,8 +222,8 @@ melted <- pivot_longer(GERshf[GERshf$STATE=="dead",], cols=starts_with("BIN_"), 
 plot(melted)
 
 # MWSH checks
-ggplot() + geom_smooth(data=GBAmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
-ggplot() + geom_smooth(data=GBBmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
+ggplot() + geom_smooth(data=GBamwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
+ggplot() + geom_smooth(data=GBbmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
 ggplot() + geom_smooth(data=GBmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
 ggplot() + geom_smooth(data=BBNmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)
 ggplot() + geom_smooth(data=BBSmwsh, aes(SHELL_HEIGHT, WET_MEAT_WGT, group=TOW_NO)) + facet_wrap(~TOW_NO)

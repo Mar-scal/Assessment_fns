@@ -22,7 +22,7 @@
 #direct <- "d:/r/"
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2021
+yr <- 2022
 
 # Load the function...
 source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
@@ -30,9 +30,9 @@ source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 # This will take more than 10 minutes when using GBa as it takes a while to do the jackknife for the CPUE on GBa.
 # Note that this will lead to an error if there was no fishing on a bank in a given year so make sure you remove any
 # banks that don't have fishery data for the current year!
-OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2021,
+OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2022,
              bank ="all",
-             save.fig = T,save.res=T,export=T, calc.mc = F, rdata.logs=F)
+             save.fig = T,save.res=T,export=T, calc.mc = F, rdata.logs=T)
 
 OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),
@@ -48,7 +48,7 @@ rm("fleet_data","new.log.dat","old.log.dat","slip.dat")
 fish.res
 meat.count
 
-load(paste(direct,"Data/Fishery_data/Summary/2020/OSAC_summary.RData",sep = ""))
+load(paste(direct,"Data/Fishery_data/Summary/2022/OSAC_summary.RData",sep = ""))
 # object names in OSAC_summary.RData and in OSAC_res (if it's immediately after running): fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch, cpue.ts,mctable
 names(OSAC_res)
 

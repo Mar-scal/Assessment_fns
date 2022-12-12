@@ -46,6 +46,7 @@
 #19: pw         Your password to connect to SQL database.  Default = pwd.ID
 #20: direct     The directory where everything resides. Default = "Y:/Offshore scallop/Assessment"
 #21: direct_fns Where you are sourcing the functions from.  Default is missing which will point to github.
+#22: rdata.logs saves the logs to an rdata file. Default is F (do not save). 
 ############################# LOAD DATA 
 ################################### START LOAD Data and Functions ############################################
 ##########################################################################################################
