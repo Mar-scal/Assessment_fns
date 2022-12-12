@@ -228,9 +228,9 @@ ScallopMap<-function(area='custom',
 	if(area=='BBs')		   { ylim=c(42.25,42.75); 	xlim=c(-66,-65.25)	}
 	if(area=='BB')		   { ylim=c(42.25,43);      xlim=c(-66.5,-65.25)	}
 	if(area=='GB')		   { ylim=c(41.1,42.3); 	  xlim=c(-67.3,-65.6)	}
-  if(area=='GBa')      {ylim=c(41.2,42.3);      xlim=c(-67.15,-65.85)}
+  if(area=='GBa')      {ylim=c(41.2,42.3);      xlim=c(-67.2,-65.85)}
 	if(area=='GBb')		   { ylim=c(41.6,42.3); 	  xlim=c(-66.7,-65.6)	}
-	if(area=='Ger')		   { ylim=c(42.8,43.825); 	  xlim=c(-67.1,-65.6)		}
+	if(area=='Ger')		   { ylim=c(42.8,43.825); 	  xlim=c(-67.1,-65.5)		}
 	if(area=='Sab')		   { ylim=c(43,44.35); 	    xlim=c(-62.5,-60.5)	}
 	if(area=='SPB')		   { ylim=c(44.5,47.5);	    xlim=c(-58,-55)		}
   if(area=='SPB-banks'){ ylim=c(45.25,46.25);	  xlim=c(-57.25,-55.5)		}

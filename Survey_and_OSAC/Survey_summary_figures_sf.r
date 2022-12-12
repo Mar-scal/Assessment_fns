@@ -213,9 +213,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      if(!yr==2021) load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-      if(yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-      if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 191 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(!tmp.yr==2021) load(paste(direct,"Data/Survey_data/",(tmp.yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(tmp.yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(dim(survey.obj$GBa$model.dat[survey.obj$GB$model.dat$year==(yr-1),])[1]==0) message("Edit line 216 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
       yr <- tmp.yr
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -224,7 +224,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022_2.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -269,8 +269,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GB"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",(yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""), )  
-      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 259 to pull in last year's Survey summary object for the GB MWSH plot.")
+      if(!tmp.yr==2021) load(paste(direct,"Data/Survey_data/",(tmp.yr-1),"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(tmp.yr==2021) load(paste(direct,"Data/Survey_data/2019/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+      if(dim(survey.obj$GBa$model.dat)[1]==0) message("Edit line 273 to pull in last year's Survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
     season <- tmp.season 
@@ -318,6 +319,16 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   direct_fns <- dir.fn.temp
   season <- tmp.season 
   yr <- tmp.yr
+  
+  if(exists("survey.obj.last")) {
+    if(max(survey.obj.last$GBa$model.dat$year)>2020 & !2020 %in% survey.obj.last$GBa$model.dat$year) {
+      y2020 <- survey.obj.last$GBa$model.dat[survey.obj.last$GBa$model.dat$year==2021,]
+      y2020$year <- 2020
+      y2020[,2:ncol(y2020)] <- NA
+      survey.obj.last$GBa$model.dat <- dplyr::arrange(dplyr::full_join(survey.obj.last$GBa$model.dat, y2020), year)
+    }
+  }
+  
   # Now get the banks to plot set up.
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
@@ -375,7 +386,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   } # end if(!missing(direct_fns))
   
-  source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
   require(viridis) || stop("Install the viridis package for the color ramps")
   require(INLA) || stop("Install the INLA package for the spatial plots")
   require(maps)|| stop("Install the maps package for the spatial plots")
@@ -390,6 +400,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   require(plyr)|| stop("Install the plyr package for the subarea plots")
   require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
+  require(dplyr) || stop("It's 2020. We have entered the world of dplyr. ")
   # Function used for any beta models to transform 0's and 1's to near 0 and near 1 (beta doesn't allow for 0's and 1's.)
   beta.transform <- function(dat,s=0.5)  (dat*(length(dat)-1) + s) / length(dat)
   
@@ -1089,24 +1100,50 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           } # end if(any(plots %in% "user.SH.bins") ==F) 
           
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
-          
-          p <- pecjector(area = banks[i],
+          # encountering some issues with pecjector, so using tryCatch to determine if it's going to work, and if not, I add a 0.001 buffer.
+          x <- tryCatch(print(eval(parse(text = 'pecjector(area = banks[i],
                          plot = F,
                          repo = direct_fns, 
                          c_sys = st_crs(mesh$crs)$epsg, 
-                         quiet=T,
-                         add_layer = list(eez = 'eez', 
-                                          sfa = 'offshore', 
-                                          bathy = bathy, 
-                                          scale.bar= scale.bar)) +
-            theme(panel.grid=element_blank(), 
-                  axis.ticks=element_line(),
-                  legend.position = 'right',
-                  legend.direction = 'vertical',
-                  legend.justification = 'left',
-                  legend.key.size = unit(.5,"line")) #+
+                         quiet=T)'))), 
+                        error = function(e) e)
+          
+          if("error" %in% class(x)) {
+            p <- pecjector(area = banks[i], buffer=0.0001,
+                           plot = F,
+                           repo = direct_fns, 
+                           c_sys = st_crs(mesh$crs)$epsg, 
+                           quiet=T,
+                           add_layer = list(eez = 'eez', 
+                                            sfa = 'offshore', 
+                                            bathy = bathy, 
+                                            scale.bar= scale.bar)) +
+              theme(panel.grid=element_blank(), 
+                    axis.ticks=element_line(),
+                    legend.position = 'right',
+                    legend.direction = 'vertical',
+                    legend.justification = 'left',
+                    legend.key.size = unit(.5,"line")) #+
             #coord_sf(expand=F)
-          # 
+          } 
+          if(!"error" %in% class(x)) {
+            p <- pecjector(area = banks[i], 
+                           plot = F,
+                           repo = direct_fns, 
+                           c_sys = st_crs(mesh$crs)$epsg, 
+                           quiet=T,
+                           add_layer = list(eez = 'eez', 
+                                            sfa = 'offshore', 
+                                            bathy = bathy, 
+                                            scale.bar= scale.bar)) +
+              theme(panel.grid=element_blank(), 
+                    axis.ticks=element_line(),
+                    legend.position = 'right',
+                    legend.direction = 'vertical',
+                    legend.justification = 'left',
+                    legend.key.size = unit(.5,"line")) #+
+            #coord_sf(expand=F)
+          } 
           # # manually adjust the bathy lines
           # p$layers[[2]]$aes_params$colour <- "blue"
           # p$layers[[2]]$aes_params$alpha <- 0.25
@@ -1118,8 +1155,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # Make the maps...
           for(m in 1:n.maps)
           {
-            #browser()
-            
             # This is what we want for the spatial count maps
             if(maps.to.make[m]  %in% c("PR-spatial", "Rec-spatial", "FR-spatial")) 
             {
@@ -1200,11 +1235,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # The color ramp for Clapper proportion
               base.lvls=c(0,5,10,15,20,50,100)
               cols <- rev(viridis::plasma(length(base.lvls)-1,alpha=0.7))
-              # Get the levels correct            
+              # Get the levels correct      
+              
               # And get the labels for the figures...
-              fig.title <- substitute(bold(paste("Clappers (% dead ","">=c, " mm ", bank,"-",year,")",sep="")),
+              fig.title <- substitute(bold(paste("Clappers (% dead, ", bank,"-",year,")",sep="")),
                                       list(c=as.character(RS),bank=banks[i],year=as.character(yr)))
-              if(banks[i] == "GB") clap.dis.title <- substitute(bold(paste("Clappers (% dead ","">=c, " mm ", bank,"-Spr-",year,")",sep="")),
+              if(banks[i] == "GB") clap.dis.title <- substitute(bold(paste("Clappers (% dead, ", bank,"-Spr-",year,")",sep="")),
                                                                 list(c=as.character(RS),bank=banks[i],year=as.character(yr)))
               leg.title <- "% Dead"
             } # end if(maps.to.make[m]  %in% c("Clap-spatial")
@@ -1316,7 +1352,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                 }
               }
             }
-            
+           
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
             p2 <- pecjector(gg.obj = p, 
                             area = banks[i],
@@ -1365,7 +1401,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F) +
                 theme(legend.key = element_rect(fill=NA))
             }
-            
+      
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
               surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
@@ -1388,7 +1424,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             
             # Now print the figure
-            print(p3)
+            print(p3 + guides(fill=guide_legend(order=2), shape=guide_legend(order=1)))
        
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
@@ -1412,13 +1448,29 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
-      p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
+      if(banks[i] %in% spat.name) {
+        bbox <- st_bbox(st_as_sf(bound.poly.surv.GBsub[[banks[i]]], coords=c(X="X", Y="Y"), crs=4326))
+        p <- pecjector(area = list(y = c(bbox$ymin[[1]],bbox$ymax[[1]]),x = c(bbox$xmin[[1]],bbox$xmax[[1]]),crs = 4326),
+                       plot = F,repo = direct_fns,
+                       add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar)) +
+          coord_sf(expand=F)
+        
+      }
+      
+      if(!banks[i] %in% spat.name) {
+        p <- pecjector(area = banks[i],plot = F,repo = direct_fns,
                      add_layer = list(eez = 'eez' , sfa = 'offshore',bathy = bathy,scale.bar = scale.bar)) +
         coord_sf(expand=F)
+      }
       #print(p)
       
       # For the banks with detailed strata...
       if(banks[i] %in% c("BBn" ,"BBs" ,"Sab", "GBb", "GBa")) shpf <- st_read(paste0(gis.repo,"/offshore_survey_strata/",banks[i],".shp"))
+      if(banks[i] == "Sab" & yr>2017) {
+        shpf$are_km2[shpf$Strt_ID==501] <- surv.info$area_km2[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]
+        shpf$towbl_r[shpf$Strt_ID==501] <- surv.info$towable_area[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]
+      }
+      if(banks[i] %in% spat.name) shpf <- st_read(paste0(gis.repo,"/offshore_survey_strata/GBa.shp"))
       # For the ones we just have a cut of of the survey boundaries
       if(banks[i] %in% c("Ban","SPB")) shpf <- st_read(paste0(gis.repo,"/survey_boundaries/",banks[i],".shp"))
 
@@ -1434,8 +1486,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
+      if(banks[i] == 'GB') surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
-      if(length(unique(surv$`Tow type`)) ==1) shp <- 16
+      if(length(unique(surv$`Tow type`)) ==1) shp <- 16; ptcol <- c("black")
       if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("darkorange", "black")
       if(banks[i] == "Ger" & length(unique(surv$`Tow type`))==2) shp <- c(16,22); ptcol <- c("black", "yellow")
       if(length(unique(surv$`Tow type`)) ==3) shp <- c(24,16,22); ptcol <- c("darkorange", "black", "yellow")
@@ -1506,11 +1559,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           geom_sf(data=shpf,aes(colour = `Area (km^2)`), alpha=0, linetype="blank")  +
           new_scale("fill") + geom_sf(data=shpf,aes(fill= ID), colour=NA, alpha=0.7)    +  
           geom_sf(data=surv, aes(shape=`Tow type`)) + 
-          scale_shape_manual(values = shp) +
+          scale_shape_manual(values = shp, guide=guide_legend(order=4)) +
           #taking advantage of OTHER aes types and then overriding them with fill (hacky but it works):
-          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols)))  +
-          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), name=expression(paste("Area (", km^{2}, ")")))  +
-          scale_linetype_manual(values = rep("blank", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7)), 
+          scale_fill_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols), order=1))  +
+          scale_colour_manual(values = cols, guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7), order=2), name=expression(paste("Area (", km^{2}, ")")))  +
+          scale_linetype_manual(values = rep("blank", length(cols)), guide=guide_legend(override.aes = list(fill= cols, col=cols, alpha=0.7), order=3), 
                                 labels= shpf$tow_num)  +
           theme(legend.position = 'right',legend.direction = 'vertical',
                 legend.justification = 'left',legend.key.size = unit(.5,"line"),
@@ -1557,7 +1610,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         CF.ts.title <- substitute(bold(paste("Condition factor (",bank,-"Spr)",sep="")),
                                   list(year=as.character(yr),bank=banks[i]))
       } # end if(banks[i] == "GB")
-      
       
       # Don't add the titles
       if(add.title == F) MWSH.title <- ""
@@ -1638,6 +1690,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
       } # end if(banks[i] == "GBa")
       # Here I'm adding in the cf for August into the spring survey data.
+      
       if(banks[i] == "GB")
       {
         stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=22,ylab=cf.lab,col="red",lty=2,
@@ -1655,7 +1708,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           {  
             survey.obj.last[["GBa"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GBa"]][[1]]$year))[survey.obj.last[["GBa"]][[1]]$year]
           } # end if(is.factor(survey.obj.last[["GBa"]][[1]]$year)) 
-          points(survey.obj.last[["GBa"]][[1]]$year-0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
+          points(survey.obj.last[["GBa"]][[1]]$year+0.25,survey.obj.last[["GBa"]][[1]]$CF,col="blue", lty=1, pch=16,type="o")
           lines(y=rep(median(survey.obj.last[["GBa"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GBa"]][[1]]$year)-1), 
                 x = survey.obj.last[["GBa"]][[1]]$year[-length(survey.obj.last[["GBa"]][[1]]$year)],col="blue",lty=3)
         } # end  if(season=="spring")
@@ -1855,7 +1908,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig != "screen") dev.off()
       
       if(banks[i] == "GBa" & sub.area==T) {
-        
+        # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
+        # subarea_bars_facet_fix.R
+        #browser()
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=100,bg="transparent")
@@ -1974,7 +2029,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig != "screen") dev.off()
       
       if(banks[i] == "GBa" & sub.area==T){
-        
+        # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
+        # subarea_bars_facet_fix.R
+        # browser()
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=420,bg="transparent")
@@ -2001,7 +2058,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             geom_text(data=subarea_LTM, aes(subarea, value), label="   LTM", size=3, hjust=0) + 
             geom_errorbar(data=subarea_biomass, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
             theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
-            ylab(expression(frac("kg","tow"), "\n")) +
+            ylab(expression(frac("g","tow"), "\n")) +
             xlab(NULL) +
             ggtitle(paste0(yr, " Survey Biomass by GBa Sub-area")) +
             facet_wrap(~variable, nrow=3, scales="free_y") +

@@ -18,16 +18,16 @@ direct <- "Y:/Offshore/Assessment/"
 # direct_fns <- "Y:/Github/Offshore/Assessment_fns/FK/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
 
-year <- c(2021)
+year <- c(2022)
 
 source(paste0(direct_fns, "Fishery/CPUE_monthly_or_observer.R"))
 
 
 ### For catch effort tables by bank and fleet, run the following:
-banks <- c(#"GBa", "GBb", "Sab", "Ger", "Mid", "BBn", "BBs", "Ban", 
+banks <- c("GBa", "GBb", "Sab", "Ger", "Mid", "BBn", "BBs", "Ban", 
   "SPB") # pick your banks
 fleets <- c("FT", "WF") # pick your fleets
-marfis = F # T for pull from marfis (uncorrected), F for pull from log and slip csvs (corrected)
+marfis = T # T for pull from marfis (uncorrected), F for pull from log and slip csvs (corrected)
 # un.ID <- ""
 # pwd.ID <-""
 

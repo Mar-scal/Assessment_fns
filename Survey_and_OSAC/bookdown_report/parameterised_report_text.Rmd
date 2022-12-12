@@ -1,14 +1,14 @@
 ---
-output: 
+output:
+  word_document: default
   pdf_document:
     fig_caption: yes
-    extra_dependencies: ["float"]
+    extra_dependencies: float
 linkcolor: blue
 params:
   bank: NA
   banknum: NA
-header-includes:
- - \usepackage{float}
+header-includes: \usepackage{float}
 ---
 
 ```{r, echo=F, message=F, warning=F}
@@ -19,7 +19,7 @@ require(tidyverse)
 options(tinytex.verbose = TRUE)
 
 
-year <- 2021
+year <- 2022
 
 load("summary.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))

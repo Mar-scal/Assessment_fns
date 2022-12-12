@@ -79,8 +79,10 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   # Dump the commments they are just messy..
   seedboxes <- seedboxes[,-grep("comment",names(seedboxes))]
   # Read2 Get the survey boundary polygons for all banks.
-  survey.bound.polys<-read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),
-                               header=T,stringsAsFactors = F)
+  # survey.bound.polys<-read.csv(paste(direct,"Data/Maps/approved/Survey/survey_boundary_polygons.csv",sep=""),
+  #                              header=T,stringsAsFactors = F)
+  sfa.polys <-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),
+                         header=T,stringsAsFactors = F)
   
   # Now subset the fishery data if we need to remove some data (usually b/c recent data is not QA/QC ready) ...
   fish.dat <- subset(fish.dat, date < max.date)
@@ -180,36 +182,36 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
       } # end if(bnk[i] == "BBn" || bnk[i] == "GBa")
       
       # Get the survey boundary polygon for the bank 
-      bnk.survey.bound.poly <- subset(survey.bound.polys,label==bnk[i])
-      bnk.survey.bound.poly <- bnk.survey.bound.poly[bnk.survey.bound.poly$startyear == max(bnk.survey.bound.poly$startyear),]
+      bnk.sfa.poly <- subset(sfa.polys,bank==bnk[i])
+
       # discovered in 2021 that german was being clipped to the detailed polygon. Stole this code from survey summary figures_sf to get boundary
-      if(bnk[i] == "Ger" & yr>2020) {
-        g.bnds <- survey.bound.polys[survey.bound.polys$label==bnk[i],]
-        Y.range <- range(g.bnds$Y,na.rm=T)
-        X.range <- range(g.bnds$X,na.rm=T)
-        newAreaPolys<-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep="")
-                               ,stringsAsFactors = F,header=T)
-        g.tmp <- newAreaPolys[newAreaPolys$label=="SFA26",]
-        g.tmp <- g.tmp[, c("PID", "POS", "X", "Y", "label", "bank")]
-        g.tmp$X[g.tmp$X < X.range[1]] <- X.range[1]
-        g.tmp$X[g.tmp$X > X.range[2]] <- X.range[2]
-        g.tmp$Y[g.tmp$Y > Y.range[2]] <- Y.range[2]
-        g.tmp$Y[g.tmp$Y < Y.range[1]] <- Y.range[1]
-        # Now I want to insert a segemnt into the boundary to run a diagonal line from around 43?9/-66.755 to 43/-66?24
-        g.tmp[2,] <- c(5,2,-66.4,Y.range[1],"SFA26","Ger")
-        g.tmp <- as.data.frame(rbind(g.tmp[c(1,2),],c(5,2,X.range[1],43.15,"SFA26","Ger"),g.tmp[3:nrow(g.tmp),]))
-        for(k in 1:4) g.tmp[,k] <- as.numeric(g.tmp[,k]) # Silly rbind making everything characters...
-        g.tmp$POS <- 1:nrow(g.tmp)
-        g.tmp$PID <- as.numeric(g.tmp$PID)
-        g.tmp$X <- as.numeric(g.tmp$X)
-        g.tmp$Y <- as.numeric(g.tmp$Y)
-        bnk.survey.bound.poly <- as.PolySet(g.tmp,projection="LL")
-      }
+      # if(bnk[i] == "Ger" & yr>2020) {
+      #   g.bnds <- survey.bound.polys[survey.bound.polys$label==bnk[i],]
+      #   Y.range <- range(g.bnds$Y,na.rm=T)
+      #   X.range <- range(g.bnds$X,na.rm=T)
+      #   newAreaPolys<-read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep="")
+      #                          ,stringsAsFactors = F,header=T)
+      #   g.tmp <- newAreaPolys[newAreaPolys$label=="SFA26",]
+      #   g.tmp <- g.tmp[, c("PID", "POS", "X", "Y", "label", "bank")]
+      #   g.tmp$X[g.tmp$X < X.range[1]] <- X.range[1]
+      #   # g.tmp$X[g.tmp$X > X.range[2]] <- X.range[2]
+      #   # g.tmp$Y[g.tmp$Y > Y.range[2]] <- Y.range[2]
+      #   # g.tmp$Y[g.tmp$Y < Y.range[1]] <- Y.range[1]
+      #   # # Now I want to insert a segemnt into the boundary to run a diagonal line from around 43?9/-66.755 to 43/-66?24
+      #    g.tmp[2,] <- c(5,2,-66.4,Y.range[1],"SFA26","Ger")
+      #    g.tmp <- as.data.frame(rbind(g.tmp[c(1,2),],c(5,2,X.range[1],43.15,"SFA26","Ger"),g.tmp[3:nrow(g.tmp),]))
+      #    for(k in 1:4) g.tmp[,k] <- as.numeric(g.tmp[,k]) # Silly rbind making everything characters...
+      #    g.tmp$POS <- 1:nrow(g.tmp)
+      #   g.tmp$PID <- as.numeric(g.tmp$PID)
+      #   g.tmp$X <- as.numeric(g.tmp$X)
+      #   g.tmp$Y <- as.numeric(g.tmp$Y)
+      #   bnk.survey.bound.poly <- as.PolySet(g.tmp,projection="LL")
+      # }
         
       # Set the levels, might need to think a bit about these!
       lvls=lvl
       #Get the total removals from each 1 minute cell within the bank for the levels (10 kg to 50 tonnes!)
-      bnk.polys <- gridPlot(bnk.fish.dat,bnk.survey.bound.poly,lvls,border=poly.brd,FUN=fun,grid.size=grids)
+      bnk.polys <- gridPlot(bnk.fish.dat,bnk.sfa.poly,lvls,border=poly.brd,FUN=fun,grid.size=grids)
       
       ##########
       # Plot the spatial distribution of catch for each bank and save the image (or just plot to a window if you prefer)
