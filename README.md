@@ -2,7 +2,7 @@
 
 This is the core collection of functions used for the assessment of Offshore Scallop.
 
-To install Git: https://git-scm.com/download/win
+To install Git: https://git-scm.com/download/win 
 
 Some tips/best practices: https://guides.github.com/introduction/flow/
 
