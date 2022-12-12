@@ -1,6 +1,6 @@
 # Assessment_fns
 
-This is the core collection of functions used for the assessment of Offshore Scallop.
+This is the core collection of functions used for the assessment of Offshore Scallop. a
 
 To install Git: https://git-scm.com/download/win 
 
