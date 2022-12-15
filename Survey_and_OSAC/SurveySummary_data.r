@@ -504,13 +504,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   if(is.null(survey.year)) survey.year <- yr
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
-  BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
+  #BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
   # If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
-  if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
+  #if(BBs.this.year == 0) {surveys <- surveys[surveys != "BBsspring"]; num.surveys <- length(surveys)}
   
   # Prep the BanIce data here too
-  if("BanIcespring" %in% surveys) BanIceSurvey2012$surv.bank <- paste0(BanIceSurvey2012$bank,"spring")
-  
+  # if("BanIcespring" %in% surveys) BanIceSurvey2012$surv.bank <- paste0(BanIceSurvey2012$bank,"spring")
+
   # Now if we are going to run the spatial sub-areas we can nicely increase the number of survey
   spat.names <- NULL
   if(spatial == T)
@@ -557,7 +557,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   for(i in 1:num.surveys)
   {
-
     # first things first, if you're dealing with Icelandic scallops from Banquereau, go to the one-off script:
     if("BanIcespring" %in% surveys[i]){
       message("Running BanIce survey summary in BanIce_SurveySummary_data.R since BanIce 2006 and 2012 is in flat files.")
@@ -983,7 +982,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           # special handling for 2000 German survey (August) and 2015 BBn/Ger survey (July-September)
           if(bank.4.spatial %in% c("BBn","Ger","Sab","BBs","GB") & !yr == 2020) 
           {
-            #browser()
             mw.dat.all[[bnk]] <- merge(
               subset(mw.tmp, 
                      month %in% 5:6 & year %in% years,

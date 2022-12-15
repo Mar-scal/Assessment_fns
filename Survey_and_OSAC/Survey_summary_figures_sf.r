@@ -591,6 +591,16 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       subarea_df <- join(subarea_df, subarea_cv[, c("year", "subarea", "N.cv", "NPR.cv", "NR.cv", "I.cv", 'IR.cv', "IPR.cv", "CF")], type="full")
       
     }
+    
+    if(any(plots== "framework-ts")) {
+      banklist <- c("GBa", "GBb", "BBn", "BBs", "Ger", "Ban", "BanIce", "Sab", "Mid")
+      ts_df <- do.call(rbind,lapply(lapply(survey.obj[names(survey.obj)[which(names(survey.obj) %in% banklist)]], function(x) x$bankpertow),data.frame))
+      ts_cv <- do.call(rbind,lapply(lapply(survey.obj[names(survey.obj)[which(names(survey.obj) %in% banklist)]], function(x) x[[1]]),data.frame))
+      ts_df$subarea <- gsub(x=row.names(subarea_df),pattern = "\\..*",replacement="")
+      ts_cv$subarea <- gsub(x=row.names(subarea_cv),pattern = "\\..*",replacement="")
+      ts_df <- join(ts_df, ts_cv[, c("year", "subarea", "N.cv", "NPR.cv", "NR.cv", "I.cv", 'IR.cv', "IPR.cv", "CF")], type="full")
+    }
+    
     ################################# START MAKING FIGURES################################# START MAKING FIGURES################################# 
     #browser()
     ################  The non-survey spatial plots ###########################
@@ -1353,6 +1363,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               }
             }
            
+            # if(is.null(mod.res[[maps.to.make[m]]]) & file.exists(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))){
+            #   load(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
+            # }
+            # 
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
             p2 <- pecjector(gg.obj = p, 
                             area = banks[i],
@@ -1482,16 +1496,16 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         dplyr::filter(year == yr & state == 'live')
       surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
-      
+     
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
       if(banks[i] == 'GB') surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
       if(length(unique(surv$`Tow type`)) ==1) shp <- 16; ptcol <- c("black")
-      if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("darkorange", "black")
-      if(banks[i] == "Ger" & length(unique(surv$`Tow type`))==2) shp <- c(16,22); ptcol <- c("black", "yellow")
-      if(length(unique(surv$`Tow type`)) ==3) shp <- c(24,16,22); ptcol <- c("darkorange", "black", "yellow")
+      if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("transparent", "black")
+      if(banks[i] == "Ger" & length(unique(surv$`Tow type`))==2) shp <- c(16,22); ptcol <- c("black", "black")
+      if(length(unique(surv$`Tow type`)) ==3) shp <- c(24,16,22); ptcol <- c("transparent", "black", "black")
       
       # For this figure we want full bank names, this is ugly hack but does the trick.
       if(banks[i] %in% c("SPB","Ban", "BanIce", "BBn" ,"BBs" ,"Ger", "Mid", "Sab", "GB" ,"GBb", "GBa") && add.title == T)
@@ -1512,6 +1526,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           scale_shape_manual(values = shp) +
           scale_fill_manual(values = ptcol) +
           theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.key = element_rect(fill = NA),
                 legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
@@ -1521,6 +1536,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           scale_shape_manual(values = shp) +
           scale_fill_manual(values = ptcol) +
           theme(legend.position = 'right',legend.direction = 'vertical',
+                legend.key = element_rect(fill = NA),
                 legend.justification = 'left',legend.key.size = unit(.5,"line")) 
       }
       
@@ -1590,8 +1606,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     ####################################  END SPATIAL PLOTS ####################################  END SPATIAL PLOTS
     ####################################  END SPATIAL PLOTS ####################################  END SPATIAL PLOTS
-    
-    
     
     
     ####################################  MWSH and CF Time series plot #################################### 
@@ -2452,6 +2466,100 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
     }  # end if(any(plots== "SH-MW-CF-ts"))
     
+    if(any(plots== "Avg-SH-MW-ts"))
+    {
+      # This only works for the banks we have thse data for...
+      if(banks[i] %in% c("BBn" ,"BBs", "Sab" ,  "GBb", "GBa"))
+      {
+        if(fig == "screen") windows(11,8.5)
+        if(fig == "png") png(paste(plot.dir,"Avg-SH-MW-ts.png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
+        if(fig == "pdf") pdf(paste(plot.dir,"Avg-SH-MW-ts.pdf",sep=""),width = 11,height = 8.5)
+        par(mfrow=c(2,1),omi=c(0.3,0.6,0.3,0.2))
+        yrs <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
+        # yrs2 <-min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
+        # yrs <- min(yrs,yrs2):max(yrs,yrs2)
+        # This fills the missing years with NA's so the plot looks better...
+        tmp <- as.data.frame(cbind(yrs,matrix(NA,nrow=length(yrs),ncol=ncol(survey.obj[[banks[i]]][[1]][,-1]))))
+        tmp[tmp$yrs %in% survey.obj[[banks[i]]][[1]]$year,2:ncol(survey.obj[[banks[i]]][[1]])] <- survey.obj[[banks[i]]][[1]][,-1]
+        names(tmp) <- names(survey.obj[[banks[i]]][[1]])
+        
+        stdts.plt(subset(tmp,year %in% yrs),y="l.bar",pch=17,lty=1,ylab="Average\n shell\n height\n (mm)",las=1,
+                  median.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
+        stdts.plt(subset(tmp,year %in% yrs),y="w.bar",pch=17,lty=1,ylab="Average\n meat\n weight\n(g)",
+                  median.line=T,graphic='none',xlab='',labcx=1.2,las=1,axis.cx=1.2)
+        if(add.title ==T) title(paste("Average shell height and meat weight (",banks[i],")",sep=""), cex.main=3,outer=T)
+        if(fig != "screen") dev.off()   
+      } # end if(banks[i] %in% c("BBn" ,"BBs", "Sab" ,  "GBb", "GBa"))
+    }
+    
+    if(any(plots== "CF-ts"))
+    {
+      # This only works for the banks we have thse data for...
+      if(banks[i] %in% c("BBn" ,"BBs", "Sab" ,  "GBb", "GBa"))
+      {
+        if(fig == "screen") windows(11,8.5)
+        if(fig == "png") png(paste(plot.dir,"CF_ts.png",sep=""),units="in",width = 11,height = 8.5,res=420,bg = "transparent")
+        if(fig == "pdf") pdf(paste(plot.dir,"CF_ts.pdf",sep=""),width = 11,height = 8.5)
+        par(mfrow=c(1,1),omi=c(0.3,0.6,0.3,0.2))
+        yrs <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
+        # yrs2 <-min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
+        # yrs <- min(yrs,yrs2):max(yrs,yrs2)
+        # This fills the missing years with NA's so the plot looks better...
+        tmp <- as.data.frame(cbind(yrs,matrix(NA,nrow=length(yrs),ncol=ncol(survey.obj[[banks[i]]][[1]][,-1]))))
+        tmp[tmp$yrs %in% survey.obj[[banks[i]]][[1]]$year,2:ncol(survey.obj[[banks[i]]][[1]])] <- survey.obj[[banks[i]]][[1]][,-1]
+        names(tmp) <- names(survey.obj[[banks[i]]][[1]])
+        
+        stdts.plt(subset(survey.obj[[banks[i]]][[1]],year %in% yrs),y="CF",pch=17,lty=1,las=1, ylab=cf.lab,
+                  median.line=T,graphic='none',xlab='',labcx=1.2,axis.cx=1.2)
+        if(add.title ==T) title(paste("Condition time series (",banks[i],")",sep=""), cex.main=3,outer=T)
+        if(fig != "screen") dev.off()   
+      } # end if(banks[i] %in% c("BBn" ,"BBs", "Sab" ,  "GBb", "GBa"))
+    }
+    
+    if(any(plots=="framework-ts")){
+      browser()
+      ts_df
+      
+      
+      
+      subarea_LTM <- melt(subarea_df[!subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
+      subarea_LTM <- aggregate(data = subarea_LTM, value ~ subarea + variable, FUN = median)
+      subarea_abund <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N", "NPR", "NR")], id.vars="subarea")
+      subarea_abund_cv <- melt(subarea_df[subarea_df$year==yr, c("subarea", "N.cv", "NPR.cv", "NR.cv")], id.vars="subarea", variable.name = "CV")
+      subarea_abund_cv$variable <- gsub(x=subarea_abund_cv$CV, ".cv", "")
+      subarea_abund_cv$CV <- subarea_abund_cv$value
+      subarea_abund <- join(subarea_abund, subarea_abund_cv[,c("subarea","variable", "CV")], type="full")
+      subarea_abund$variable <- factor(subarea_abund$variable, levels=c("NPR", "NR", "N"))
+      levels(subarea_abund$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_abund$subarea <- factor(subarea_abund$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_abund$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      subarea_LTM$variable <- factor(subarea_LTM$variable, levels=c("NPR", "NR", "N"))
+      levels(subarea_LTM$variable) <- c("Pre-recruits", "Recruits", "Fully-recruited")
+      subarea_LTM$subarea <- factor(subarea_LTM$subarea, levels = c("GBa-North", "GBa-South", "GBa-West", "GBa-Central", "GBa-East"))
+      levels(subarea_LTM$subarea) <- c("North", "South", "North-West", "North-Central", "North-East")
+      
+      print(
+        ggplot() + geom_point(data=subarea_abund, aes(subarea, value, colour=subarea), size=3) + 
+          geom_point(data=subarea_LTM, aes(subarea, value), shape="-", size=10) + 
+          geom_text(data=subarea_LTM, aes(subarea, value), label="   LTM", size=3, hjust=0) + 
+          geom_errorbar(data=subarea_abund, aes(subarea, ymin=value-(value*CV), ymax=value+(value*CV),colour=subarea), width=0.1) +
+          theme_bw() + theme(panel.grid=element_blank(), plot.background = element_rect(fill="transparent", colour=NA), axis.title.y = element_text(angle=360, vjust=0.5), text = element_text(size=16), plot.title = element_text(hjust = 0.5, size = 20, face = "bold")) +
+          ylab(expression(frac("N","tow"), "\n")) +
+          xlab(NULL) +
+          ggtitle(paste0(yr, " Survey Abundance by GBa Sub-area")) +
+          facet_wrap(~variable, nrow=3, scales="free_y") +
+          theme(strip.text = element_blank()) + 
+          scale_y_continuous(expand=expansion(mult=c(0.1, 0.25), add=0)) +
+          geom_text(data=subarea_abund, aes(x=0.5, y=Inf, label=variable), vjust=2, hjust=0, size=5)+
+          geom_vline(xintercept = 2.5, linetype="dashed") +
+          scale_colour_manual(guide="none", values=c(surv.info$col[surv.info$Strata_ID==4], surv.info$col[surv.info$Strata_ID==7], rep(surv.info$col[surv.info$Strata_ID==4], 3)))
+      )
+      
+      
+      
+      
+      
+    }
     
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB  

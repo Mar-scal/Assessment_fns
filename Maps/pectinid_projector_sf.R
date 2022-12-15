@@ -803,7 +803,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(any(layers == 'survey')) 
   #sf::st_use_s2(FALSE)
   # Here you can add a custom sp, sf, PBSmapping object or shapefile here
- 
+  
   if(length(add_custom) != 0)
   {
     
@@ -1025,7 +1025,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Now to make the colour ramps...
     # First I'll make a couple of generic colour ramps 
     #I'll set one up using 100 colours and a maximium of 10 breaks, break locations based on the data.
-
+    
     if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
     if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
     if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
@@ -1123,9 +1123,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     }
     if(legend == T) 
     {
-      if(length(brk) <= 6) hgt <- unit(0.5,'cm')
-      if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
-      if(length(brk) > 12) hgt <- unit(1,'cm')
+      if(exists("brk")){
+        if(length(brk) <= 6) hgt <- unit(0.5,'cm')
+        if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
+        if(length(brk) > 12) hgt <- unit(1,'cm')
+      }
+      if(!exists("brk")) hgt <- unit(0.5,'cm')
       
       pect_plot <- pect_plot + 
         coord_sf(xlim = xlim,ylim=ylim)+

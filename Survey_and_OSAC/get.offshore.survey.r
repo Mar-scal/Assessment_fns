@@ -170,28 +170,32 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   samp$depth<-samp$DEPTH_F*1.8288
   
   # correct for time zone
-  SHF$TOW_DATE <- ymd_hms(SHF$TOW_DATE)
-  pos$TOW_DATE <- ymd_hms(pos$TOW_DATE)
-  samp$TOW_DATE <- ymd_hms(samp$TOW_DATE)
+  SHF$TOW_DATE <- ymd(SHF$TOW_DATE)
+  pos$TOW_DATE <- ymd(pos$TOW_DATE)
+  samp$TOW_DATE <- ymd(samp$TOW_DATE)
   
-  if(tz(SHF$TOW_DATE) == "UTC"){
-    SHF$TOW_DATE <- SHF$TOW_DATE + hours(4)
-  }
-  if(!tz(SHF$TOW_DATE) == "UTC"){
-    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
-  }
-  if(tz(pos$TOW_DATE) == "UTC"){
-    pos$TOW_DATE <- pos$TOW_DATE + hours(4)
-  }
-  if(!tz(pos$TOW_DATE) == "UTC"){
-    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
-  }
-  if(tz(samp$TOW_DATE) == "UTC"){
-    samp$TOW_DATE <- samp$TOW_DATE + hours(4)
-  }
-  if(!tz(samp$TOW_DATE) == "UTC"){
-    stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
-  }
+  # this was added in summer 2022 for some reason. Running the code in December 2022 lead to errors, so I am removing this.
+  # On Dec 8,2022:
+  # head(ymd(SHF$TOW_DATE))
+  # [1] "2012-05-29" "2013-05-09" "2012-05-30" "1997-05-26" "1998-05-30" "1996-08-09"
+  # if(tz(SHF$TOW_DATE) == "UTC"){
+  #   SHF$TOW_DATE <- SHF$TOW_DATE + hours(4)
+  # }
+  # if(!tz(SHF$TOW_DATE) == "UTC"){
+  #   stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  # }
+  # if(tz(pos$TOW_DATE) == "UTC"){
+  #   pos$TOW_DATE <- pos$TOW_DATE + hours(4)
+  # }
+  # if(!tz(pos$TOW_DATE) == "UTC"){
+  #   stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  # }
+  # if(tz(samp$TOW_DATE) == "UTC"){
+  #   samp$TOW_DATE <- samp$TOW_DATE + hours(4)
+  # }
+  # if(!tz(samp$TOW_DATE) == "UTC"){
+  #   stop("In get.offshore.survey, data were read in using a timezone other than UTC. You need to correct time zone in get.offshore.survey.")
+  # }
   
   # Industry report
   if(industry.report == T)

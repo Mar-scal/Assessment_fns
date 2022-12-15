@@ -68,7 +68,7 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
 
   # Subset the data into the years of interest
   shf<-subset(shf,year %in% years)
-  # Get the current years RS and CS for the bank, this is slighly dis-engenious for GB since we actually calculate the biomass for the RS/CS
+  # Get the current years RS and CS for the bank, this is slightly disingenuous for GB since we actually calculate the biomass for the RS/CS
   # for a given year and this has changed over time on GB, solution isn't straightforward so I leave it how we've always done it for the moment...
   RS <- shf$RS[nrow(shf)]
   CS <- shf$CS[nrow(shf)]
