@@ -338,7 +338,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           savetowlst <- towlst[[i]]
           if(!seed == yr-2000) seedlab <- seed
           if(!seed == yr-2000) {
-            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"), recursive=T)
             write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
             save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
           } #Write1
@@ -351,7 +351,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           savetowlst <- towlst[[i]]
           if(!seed == yr-2000) seedlab <- seed
           if(!seed == yr-2000) {
-            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"))
+            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/"), recursive=T)
             write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Summer/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
             save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Summer/",bnk,"/", seedlab, "/towlst.RData"))
           } #Write1
@@ -387,7 +387,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         towlst[[i]] <- savetowlst
       }
       
-      
       # Now if you want to make the plots do all of this.
       if(plot == T)
       {
@@ -403,7 +402,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
                                 height = 8.5,bg = "transparent")
         }
         if(!seed == yr-2000){
-          dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+          dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"), recursive=T)
           if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
                                 height = 8.5*0.75,bg = "transparent")
         }
@@ -596,6 +595,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         
         if(export == T) {
           savetowlst <- towlst[[i]]
+          dir.create(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/"), recursive=T)
           write.csv(writetows[,c("EID", "X", "Y", "lon.deg.min", "lat.deg.min", "Bank", "Survey")],paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F) #Write1
           save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
         }
@@ -610,6 +610,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       if(plot == T)
       {
         if(fig=="screen") windows(11,8.5)
+        if(!fig=="screen") dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/"), recursive=T)
         if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
                               height = 8.5*0.75,bg = "transparent")
         if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/Survey_allocation-",bnk,"_",point.style,".pdf"),width = 11, 
@@ -770,7 +771,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           savetowlst <- Ger.tow.lst
           if(!seed == yr-2000) seedlab <- seed
           if(!seed == yr-2000) {
-            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"))
+            dir.create(path = paste0(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/"), recursive=T)
             write.csv(writetows,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_", bnk, ".csv",sep=""),row.names=F)
             write.csv(writerepeats,paste(direct,"Data/Survey_Data/",yr,"/Spring/",bnk,"/", seedlab, "/Preliminary_Survey_design_Tow_locations_",bnk,"_repbackups.csv",sep=""),row.names=F)
             save(savetowlst, file = paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
@@ -817,6 +818,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       
       # Plot this bad boy up if you want to do such things
       # PLOTTING GERMAN
+      
       if(plot==T)
       {
         if(!seed == yr-2000) seedlab <- seed
@@ -832,7 +834,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         }
         
         if(!seed == yr-2000){
-          dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"))
+          dir.create(path = paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/"), recursive=T)
           if(fig =="png")   png(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation-",bnk,"_",point.style,".png"),width = 11*0.75, units="in", res=420,
                                 height = 8.5*0.75,bg = "transparent")
           if(fig =="pdf")   pdf(paste0(direct,yr,"/Survey_Design/",bnk,"/", seedlab, "/Survey_allocation_",bnk,"_",point.style,".pdf"),width = 11, 
@@ -896,7 +898,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           
           cap <- paste("New stations (n = ",nrow(tmp.sf.reg %>% dplyr::filter(`Tow type`=="new")),")"," \n Repeat stations (n = ",
                        nrow(tmp.sf.reg %>% dplyr::filter(`Tow type`=="repeated")),")",sep="",collapse =" ")
-          if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
+          if(nrow(extras) >0) cap <- paste(cap," \n Extra stations (n = ",
                                             nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           
@@ -904,8 +906,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
                            subtitle = sub.title,
                            caption = cap) + coord_sf(expand=F)+
             ylim(42.95, 43.7) +
-            xlim(-66.8, -65.6) +
-            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
+            xlim(-66.8, -65.4) +
+            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,4,1,0,"cm")) 
           
           if(fig != 'dashboard') print(pf)
           
@@ -986,7 +988,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
                             caption = cap) + coord_sf(expand=F) +
             ylim(42.95, 43.7) +
             xlim(-66.8, -65.6) +
-            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,9,1,0,"cm")) 
+            theme(legend.position=c(1.01,0.25), legend.justification=c(0,0), plot.margin = margin(1,4,1,0,"cm")) 
           if(fig != 'dashboard') print(pf2)
           
         }
