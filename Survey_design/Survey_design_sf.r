@@ -83,7 +83,7 @@
 #
 # repo:          Where are the functions you need for this.  Default = 'github' which points to the github repo and latest stable versions of the functions
 # gis.repo       The repository from which you will pull the GIS related data likely you want to use the default "Y:/GISData/Github_Repo/GIS_layers"
-# load_stations: Does something
+# load_stations: default is F (runs fresh stations). T will load stations from towlst.Rdata. OR you can set load_stations="Y:/path/to/csv.csv", which will load in a csv in the exported format
 # tow_buffer  :  Does something else
 #####                 Alternative is to specify the directory the function exists, something like "D:/Github/Offshore/Assessment_fns/DK/" to get to the folders with this files in them
 ##### SURVEY DESIGN
@@ -150,8 +150,10 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   
   if(missing(direct)) direct <- "Y:/Offshore/Assessment/"
   
-  # need s2 to be true to read in the shapefiles. 
+  # # need s2 to be true to read in the shapefiles. 
+  # see Supporting_task_code/2023/strata_sf_use_s2.R for further justification. s2 gets turned off later for GBa, but stays on for all other banks.
   sf_use_s2(TRUE)
+  
   # Bring in flat files we need for this to work, they are survey polyset, survey information, extra staions and the seedboxes.
   if(repo =='github')
   {
@@ -178,9 +180,6 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   # the extra stations for all the banks are also stored in the same location (Extra_stations.csv), my hope is this is the file in which
   # all of the new extra stations are stored so that we have the details regarding the extra station locations for all banks in all years
   # in one location.
-  
-  # now we can turn off s2
-  sf_use_s2(FALSE)
   
   # Define some variables
   surv.poly <- NULL
@@ -244,7 +243,16 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # observed since 2010, but every year has varied slightly (in the north).
       # This scheme is based on a vague comment in the 2013 GBa Assessment about preferentially placing some tows in the northern portion of the bank.  Note that for the 2017 survey we 
       # had simply stratified by area based on disscusions with Ginette and a collective lack of knowledge about the details around the 2013 comment.
-      if(bnk == "GBa") shp_strata$allocation <- c(51,37,32,26,35,11,8) 
+      if(bnk == "GBa") {
+        shp_strata$allocation <- c(51,37,32,26,35,11,8) 
+        sf_use_s2(FALSE)
+      }
+      if(!bnk == "GBa") {
+        sf_use_s2(TRUE)
+      }
+      # see Supporting_task_code/2023/strata_sf_use_s2.R for justification for above code
+      
+      
       #if(bnk == "BBn") shp_strata$allocation <- c(43,18,18,12,9) 
       
       #shp_strata <- pbs.2.gis(dat = surv.poly[[i]], env.object=T)
@@ -260,7 +268,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
       # DK revised Sable to be a minimum distance of 2 km given that the Haddock box has removed a percentage of the bank...
       
       #table(towlst[[i]]$Strata_ID)
-      if(load_stations==F){
+      if(!load_stations==T){
         
         if(bnk == "BBn") towlst[[i]]<-alloc.poly(strata = shp_strata, 
                                                  ntows=100,pool.size=3,mindist=1,seed=seed, repo=repo)
@@ -385,6 +393,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           } #Write1
         }
         towlst[[i]] <- savetowlst
+      }
+      
+      if(!load_stations %in% c(T, F)) {
+        readtows <- read.csv(load_stations)
+        
+        towlst[[i]]$Tows <- st_as_sf(readtows, coords=c("X", "Y"), remove=F, crs=4326)
+        
       }
       
       # Now if you want to make the plots do all of this.
@@ -816,6 +831,17 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           st_transform(4326)
       }
       
+      if(!load_stations %in% c(T,F)){
+        
+        stations <- read.csv(load_stations)
+        Ger.tow.dat <- stations[stations$STRATA %in% c("new", "repeated"),]
+        Ger.tow.dat.rep <- stations[stations$STRATA=="repeated",]
+        
+        Ger.sf <- 
+          st_read(paste0(direct, "Data/Maps/approved/Survey/German_WGS_84/WGS_84_German.shp"), quiet=T) %>%
+          st_make_valid() %>%
+          st_transform(4326)
+      }
       # Plot this bad boy up if you want to do such things
       # PLOTTING GERMAN
       
@@ -980,7 +1006,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           
           cap <- paste("Repeated stations (n = ",nrow(tmp.sf.rpt %>% dplyr::filter(`Tow type`=="repeated")),")"," \n Repeat backup stations (n = ",
                        nrow(tmp.sf.rpt %>% dplyr::filter(`Tow type`=="repeated-backup")),")",sep="",collapse =" ")
-          if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
+          if(nrow(extras) >0 ) cap <- paste(cap," \n Extra stations (n = ",
                                             nrow(extras),")",sep="",collapse =" ")
           sub.title <- paste("Note: The random seed was set to ",seed,sep="")
           pf2 <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
