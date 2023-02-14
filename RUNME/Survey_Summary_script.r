@@ -58,17 +58,17 @@ res <- survey.data(direct = direct,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
                    surveys = c(#"Banspring", 
                     # #"BanIcespring", 
-                      "BBnspring",
-                      #"BBsspring",
-                      "Gerspring",
+                      #"BBnspring",
+                      "BBsspring",
+                       "Gerspring",
                       "Midspring",
                       "Sabspring",
                       "GBspring",
                         "GBbsummer",
                         "GBasummer"
                      ), 
-                   db.con="ptran",testing=F, season="both", spatial=T, mwsh.test=F,
-                   commercialsampling=T, nickname=NULL)
+                   db.con="ptran",testing=T, season="both", spatial=T, mwsh.test=F,
+                   commercialsampling=T, nickname="framework2")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),

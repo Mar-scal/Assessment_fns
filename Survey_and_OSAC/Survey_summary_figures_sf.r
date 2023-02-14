@@ -674,8 +674,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                lat=CF.current[[banks[i]]]$lat[CF.current[[banks[i]]]$year == yr])
           # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
           # and these may screw up the INLA'ing
-          loc.gp <- data.frame(lon = pot.grow[[banks[i]]]$slon[pot.grow[[banks[i]]]$year == yr],
-                               lat=pot.grow[[banks[i]]]$slat[pot.grow[[banks[i]]]$year == yr])
+          loc.gp <- data.frame(lon = pot.grow[[banks[i]]]$lon[pot.grow[[banks[i]]]$year == yr],
+                               lat=pot.grow[[banks[i]]]$lat[pot.grow[[banks[i]]]$year == yr])
         }# end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB"))
         # I want 1 mesh for all of Georges bank summer survey.
         if(banks[i] %in% c("GBa","GBb")) 
@@ -688,8 +688,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                lat=c(CF.current[["GBa"]]$lat[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lat[CF.current[["GBb"]]$year == yr]))
           # For the growth potential related figures we also need to make a special mesh as there could be some tows with 0 individuals
           # and these may screw up the INLA'ing
-          loc.gp <- data.frame(lon = c(pot.grow[["GBa"]]$slon[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$slon[pot.grow[["GBb"]]$year == yr]),
-                               lat=c(pot.grow[["GBa"]]$slat[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$slat[pot.grow[["GBb"]]$year == yr]))
+          loc.gp <- data.frame(lon = c(pot.grow[["GBa"]]$lon[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$lon[pot.grow[["GBb"]]$year == yr]),
+                               lat=c(pot.grow[["GBa"]]$lat[pot.grow[["GBa"]]$year == yr],pot.grow[["GBb"]]$lat[pot.grow[["GBb"]]$year == yr]))
           
         } # end if(banks[i] %in% c("GBa","GBb") 
         
@@ -1480,6 +1480,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       # For the banks with detailed strata...
       if(banks[i] %in% c("BBn" ,"BBs" ,"Sab", "GBb", "GBa")) shpf <- st_read(paste0(gis.repo,"/offshore_survey_strata/",banks[i],".shp"))
+      # this gets dealt with on line 1565 instead
+      # if(banks[i] == "BBn" & yr>2020) {
+      #   shpf$are_km2 <- surv.info$area_km2[surv.info$label=="BBn" & surv.info$startyear==2021,]
+      #   shpf$towable_area <- surv.info$towable_area[surv.info$label=="BBn" & surv.info$startyear==2021,]
+      # }
       if(banks[i] == "Sab" & yr>2017) {
         shpf$are_km2[shpf$Strt_ID==501] <- surv.info$area_km2[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]
         shpf$towbl_r[shpf$Strt_ID==501] <- surv.info$towable_area[surv.info$Strata_ID==501 & surv.info$label=="Sab" & surv.info$startyear==2018]

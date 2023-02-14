@@ -129,8 +129,16 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	# If CS and RS are just one value turn them into a vector the same length as the number of years of data.
 	if(length(CS) == 1)	CS <- rep(CS, length(years))
 	if(length(RS) == 1)	RS <- rep(RS, length(years))
+		browser()
 		
-	# For loop to do the calculations of meat weight for non-restratified banks
+	#exclude biomass calcs for years that did not sample MWSH
+	mwsh.yrs <- unique(shf[, c("year", "cruise", "CF")])
+	mwsh.yrs$mwsh <- mwsh.yrs$CF
+	mwsh.yrs$mwsh[!is.na(mwsh.yrs$mwsh)] <- "y"	
+	mwsh.yrs <- unique(mwsh.yrs[,c("year", "cruise", "mwsh")])
+  mwsh.yrs <- mwsh.yrs$year[!is.na(mwsh.yrs$mwsh)]
+	
+  # For loop to do the calculations of meat weight for non-restratified banks
 	for(i in 1:length(years))
 	{
 	  # Set the bins
@@ -181,7 +189,9 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  pstrat <- as.numeric(N.tu/sum(N.tu))
 	  # Calculate the mean abundance and mean biomass (grams) per tow (for each strata. (ybar_h)
 	  n.stratmeans[[i]] <- with(num, sapply(1:40, function(x){tapply(num[,x],STRATA.ID,mean)}))
-	  w.stratmeans[[i]] <- with(w, sapply(1:40, function(x){tapply(w[,x],STRATA.ID,mean)}))
+	  
+	  if(i %in% mwsh.yrs) w.stratmeans[[i]] <- with(w, sapply(1:40, function(x){tapply(w[,x],STRATA.ID,mean)}))
+	  if(!i %in% mwsh.yrs) w.stratmeans[[i]] <- data.frame()
 	  
 	  #Multiply the mean abundance(biomass) in each shell height category in a strata by the proportion of towable area
 	  #in that strata.  Sum this product for each strata resulting in an estimate of total abundance (biomass) for each
@@ -192,46 +202,62 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  # The abundance is actual numbers 
 	  n.Yst <- n.yst[i,] * sum(N.tu) 
 	
-	  if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- w.stratmeans[[i]]
-	  if(!is.null(nrow(w.stratmeans[[i]]))) w.yst[i,] <- apply(sapply(1:nrow(w.stratmeans[[i]]), function(x){w.stratmeans[[i]][x,] * pstrat[x]}),1,sum)
-	  w.Yst <- w.yst[i,] * sum(N.tu)
+	  # only do the biomass stuff if we have MWSH data for that year
+	  if(nrow(w.stratmeans[[i]]==0)) {
+	    Strata.obj$I[[i]] <- NA
+	    Strata.obj$IR[[i]] <- NA
+	    Strata.obj$IPR[[i]] <- NA
+	    strat.res$I.cv[i] <- NA
+	    strat.res$IR.cv[i] <- NA
+	    strat.res$IPR.cv[i] <- NA
+	    I.tmp <- data.frame(yst=NA, se.yst=NA)
+	    IR.tmp <- data.frame(yst=NA, se.yst=NA)
+	    IPR.tmp <- data.frame(yst=NA, se.yst=NA)
+	  }
 	  
-	  # Strata calculations for biomass for commerical size Scallops
-	  Strata.obj$I[[i]] <- PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$com)
-	  # total number of tows
-	  strat.res$n[i] <- sum(Strata.obj$I[[i]]$nh)
-	  # summary of stratified design, returns a number of useful survey design results and optimization summaries.
-	  I.tmp <- summary(Strata.obj$I[[i]],effic=T)
-	  # Convert to Biomass estiamte for the bank in tonnes
+	  if(nrow(w.stratmeans[[i]])>0){
+	    if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- w.stratmeans[[i]]
+	    if(!is.null(nrow(w.stratmeans[[i]]))) w.yst[i,] <- apply(sapply(1:nrow(w.stratmeans[[i]]), function(x){w.stratmeans[[i]][x,] * pstrat[x]}),1,sum)
+	    w.Yst <- w.yst[i,] * sum(N.tu)
+	    
+	    # Strata calculations for biomass for commerical size Scallops
+	    Strata.obj$I[[i]] <- PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$com)
+	    
+	    # total number of tows
+	    strat.res$n[i] <- sum(Strata.obj$I[[i]]$nh)
+	    # summary of stratified design, returns a number of useful survey design results and optimization summaries.
+	    I.tmp <- summary(Strata.obj$I[[i]],effic=T)
+	    # Convert to Biomass estiamte for the bank in tonnes
+	    
+	    strat.res$I[i] <- I.tmp$yst * sum(N.tu)/10^6			#g to t
+	    # Calculate the CV, 'str' is the stratified CV, the 'ran' option gives the random design CV.
+	    if(err=='str') strat.res$I.cv[i] <- I.tmp$se.yst / I.tmp$yst
+	    # Note here that the variance from the summary is more like a variance of an s.e. rather than a variance of a s.d.
+	    if(err=='ran') strat.res$I.cv[i] <- sqrt(I.tmp$var.ran) / I.tmp$yst
+	    
+	    # Strata calculations for biomass for recruit sized Scallops
+	    Strata.obj$IR[[i]]<-PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$rec)
+	    IR.tmp <- summary(Strata.obj$IR[[i]],effic=T)
+	    strat.res$IR[i] <- IR.tmp$yst* sum(N.tu)/10^6			#g to t
+	    if(err=='str')  strat.res$IR.cv[i] <- IR.tmp$se.yst / IR.tmp$yst
+	    # Note here that the variance from the summary is more like a variance of an s.e. rather than a variance of a s.d.
+	    if(err=='ran') strat.res$IR.cv[i] <- sqrt(IR.tmp$var.ran) / IR.tmp$yst
+	    
+	    # Strata calculations for biomass for pre-recruit sized Scallops
+	    Strata.obj$IPR[[i]]<-PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$pre)
+	    IPR.tmp <- summary(Strata.obj$IPR[[i]],effic=T)
+	    strat.res$IPR[i] <- IPR.tmp$yst* sum(N.tu)/10^6			#g to t
+	    if(err=='str') strat.res$IPR.cv[i] <- IPR.tmp$se.yst /  IPR.tmp$yst
+	    if(err=='ran') strat.res$IPR.cv[i] <- sqrt(IPR.tmp$var.ran) /  IPR.tmp$yst
+	  }
 	  
-	  strat.res$I[i] <- I.tmp$yst * sum(N.tu)/10^6			#g to t
-	  # Calculate the CV, 'str' is the stratified CV, the 'ran' option gives the random design CV.
-	  if(err=='str') strat.res$I.cv[i] <- I.tmp$se.yst / I.tmp$yst
-	  # Note here that the variance from the summary is more like a variance of an s.e. rather than a variance of a s.d.
-	  if(err=='ran') strat.res$I.cv[i] <- sqrt(I.tmp$var.ran) / I.tmp$yst
-	  
-	  # Strata calculations for biomass for recruit sized Scallops
-	  Strata.obj$IR[[i]]<-PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$rec)
-	  IR.tmp <- summary(Strata.obj$IR[[i]],effic=T)
-	  strat.res$IR[i] <- IR.tmp$yst* sum(N.tu)/10^6			#g to t
-	  if(err=='str')  strat.res$IR.cv[i] <- IR.tmp$se.yst / IR.tmp$yst
-	  # Note here that the variance from the summary is more like a variance of an s.e. rather than a variance of a s.d.
-	  if(err=='ran') strat.res$IR.cv[i] <- sqrt(IR.tmp$var.ran) / IR.tmp$yst
-	  
-	  # Strata calculations for biomass for pre-recruit sized Scallops
-	  Strata.obj$IPR[[i]]<-PEDstrata(w, HSIstrata.obj,'STRATA.ID',w$pre)
-	  IPR.tmp <- summary(Strata.obj$IPR[[i]],effic=T)
-	  strat.res$IPR[i] <- IPR.tmp$yst* sum(N.tu)/10^6			#g to t
-	  if(err=='str') strat.res$IPR.cv[i] <- IPR.tmp$se.yst /  IPR.tmp$yst
-	  if(err=='ran') strat.res$IPR.cv[i] <- sqrt(IPR.tmp$var.ran) /  IPR.tmp$yst
-
+	  # next, do abundance
 	  # Strata calculations for abundance for commerical size Scallops
 	  Strata.obj$N[[i]]<-PEDstrata(num, HSIstrata.obj,'STRATA.ID',num$com)
 	  N.tmp <- summary(Strata.obj$N[[i]],effic=T)
 	  strat.res$N[i] <- N.tmp$yst * sum(N.tu)/10^6			#in millions
 	  if(err=='str') strat.res$N.cv[i] <- N.tmp$se.yst / N.tmp$yst
 	  if(err=='ran') strat.res$N.cv[i] <- sqrt(N.tmp$var.ran) / N.tmp$yst
-	  
 	  
 	  # Strata calculations for abundance for recruit size Scallops
 	  Strata.obj$NR[[i]]<-PEDstrata(num, HSIstrata.obj,'STRATA.ID',num$rec)
@@ -249,7 +275,8 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  
 	  # Save the bank-wide per tow estimates
 	  bankpertow <- rbind(bankpertow, data.frame(year=years[i], N = N.tmp$`yst`, NR = NR.tmp$`yst`, NPR = NPR.tmp$`yst`, 
-	                                             I=I.tmp$`yst`, IR=IR.tmp$`yst`, IPR=IPR.tmp$`yst`, N.se = N.tmp$`se.yst`, NR.se = NR.tmp$`se.yst`, NPR.se = NPR.tmp$`se.yst`, 
+	                                             I=I.tmp$`yst`, IR=IR.tmp$`yst`, IPR=IPR.tmp$`yst`, 
+	                                             N.se = N.tmp$`se.yst`, NR.se = NR.tmp$`se.yst`, NPR.se = NPR.tmp$`se.yst`, 
 	                                             I.se=I.tmp$`se.yst`, IR.se=IR.tmp$`se.yst`, IPR.se=IPR.tmp$`se.yst`))
 	  
 	  # Average weight of fully recruited scallop by year
@@ -302,12 +329,16 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	    # Now we can get the stratified results...
 	    for(m in 1:length(mean.names))
 	    {
+	      if(nrow(w)==0) {tmp[i, CV.names[m]] <- NA }
+	      
 	      # The stratified calculation/object
-	      res.tmp <- summary(PEDstrata(w, HSIstrata.obj,'STRATA.ID', user.bin.res[[bnames[m]]]),effic=T)
-	      tmp[i,mean.names[m]] <-  res.tmp$yst* sum(N.tu)/10^6			# in millions or tonnes...
-	      # Strata calculations for biomass for pre-recruit sized Scallops
-	      if(err=='str') tmp[i,CV.names[m]] <- res.tmp$se.yst /  res.tmp$yst
-	      if(err=='ran') tmp[i,CV.names[m]] <- sqrt(res.tmp$var.ran) /  res.tmp$yst
+	      if(nrow(w)>0) {
+	        res.tmp <- summary(PEDstrata(w, HSIstrata.obj,'STRATA.ID', user.bin.res[[bnames[m]]]),effic=T)
+	        tmp[i,mean.names[m]] <-  res.tmp$yst* sum(N.tu)/10^6			# in millions or tonnes...
+	        # Strata calculations for biomass for pre-recruit sized Scallops
+	        if(err=='str') tmp[i,CV.names[m]] <- res.tmp$se.yst /  res.tmp$yst
+	        if(err=='ran') tmp[i,CV.names[m]] <- sqrt(res.tmp$var.ran) /  res.tmp$yst
+	      }
 	    } # end for(m in 1:length(mean.names))
 	  } # end if(!is.null(user.bins))
 	}	# end for(i in 1:length(years))

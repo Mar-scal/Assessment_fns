@@ -91,7 +91,8 @@ shwt.lme<-function(wt.dat,random.effect="year",verbose=T, GBmodel=F, b.par='esti
 	  {
 	    # Convert the shell height to it's cube.
   		wt.gdat$sh<-wt.gdat$sh^b.par
-  		# Now fit a linear model on the wmw v.s. shell height to find the intercept, note this is forced through 0.
+  		# Now fit a linear model on the wmw v.s. shell height to find the "a" intercept for the linearized MWSH relationship, 
+  		# which will be the random slopes from this model. Note the model intercept is forced through 0.
   	  
   		wt.lme <- lme(fixed = wmw ~ sh -1, data = wt.gdat, random = ~ sh -1 | raneff, method="REML",control=lmeControl(opt='optim'))
   		# Pull out the random intercepts and make into a dataframe

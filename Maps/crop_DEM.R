@@ -5,6 +5,7 @@ require(raster)
 require(stars)
 require(tidyverse)
 require(ggplot2)
+require(mapview)
 
 # read in DEM
 bathy <- raster("Z:/Inshore/StandardDepth/ScotianShelfDEM_Olex/mdem_olex/w001001.adf")
@@ -37,4 +38,18 @@ write_stars(obj = bathystars, "C:/Users/keyserf/Documents/mdem_olex_german.tif")
 # Read the cropped DEM in alter
 DEM <- raster("C:/Users/keyserf/Documents/mdem_olex_german.tif")
 plot(DEM)
+
+
+# interactive plot!
+DEM <- st_as_stars(DEM)
+mapview(list(DEM, stns))
+
+fish <- read.csv("Y:/Offshore/Assessment/Data/Fishery_data/Logs/Preliminary/2022log.csv")
+fish <- fish[fish$FISHING_AREA=="26C",]
+fish <- st_as_sf(fish, coords=c(X="LONGITUDE_DEG", Y="LATITUDE_DEG"), crs=4326) %>%
+  st_transform(crs(DEM))
+
+mapview(DEM) +
+  mapview(fish, col.regions="red") +
+  mapview(stns, col.regions="blue")
 

@@ -1,5 +1,5 @@
 #### Data processing for model inputs
-#### FK 2021
+#### FK 2021/2022
 # conclusion of 2022 process was to use "mixed" approach for imputation. midpoints for everything except growth, which uses LTM, so I have made that the default param.
 model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns, survey.obj=NULL){
   

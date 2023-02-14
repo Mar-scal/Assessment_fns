@@ -1,5 +1,5 @@
 # Offshore Scallop Survey Data - converting Olex to .csv and useable coordinates
-# Code by TPD April 2022, inspired by https://github.com/Mar-scal/Inshore/blob/main/Survey/OLEX-latlong_conversion.R
+# Code by TPD & FK April 2022, inspired by https://github.com/Mar-scal/Inshore/blob/main/Survey/OLEX-latlong_conversion.R
 
 ###################
 ### ARGUMENTS
@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -130,7 +130,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     mutate(X=End_long_dec, Y=End_lat_dec)
   
   coords.track <- rbind(coords.sf, coords.sf.end) %>%
-    st_transform(32620) %>%
+    st_transform(UTM) %>%
     group_by(ID) %>%
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
@@ -180,7 +180,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
-    st_transform(32620) %>%
+    st_transform(UTM) %>%
     group_by(tow) %>%
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
@@ -218,7 +218,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       
     trackpts$length <- trackpts %>%
       arrange(tow) %>%
-      st_transform(32620) %>%
+      st_transform(UTM) %>%
       group_by(tow) %>% 
       st_length()
     

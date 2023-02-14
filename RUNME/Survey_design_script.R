@@ -29,37 +29,40 @@ source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
 # seed1 <- floor(runif(n = 1, min = 10000, max=99999)) 
 # 2022 seed1 = 14188
 # 2023 
-seed1 = 54880
-t1 <- Sys.time()
-for(i in seed1:(seed1+4)){
-  Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,
-                fig="png",seed=i, repo=direct_fns, point.style = "points", 
+# seed1 = 54880
+# t1 <- Sys.time()
+# for(i in seed1:(seed1+4)){
+  Survey.design(yr = yr,banks = "Ger",direct = direct,export=F,relief.plots = F,
+                fig="png",seed=54880, repo=direct_fns, point.style = "points", 
                 pt.txt.sz=3, x.adj=0.04, y.adj=0.001, ger.new = 80, ger.rep=20, 
-                add.extras=F, load_stations=F)
+                add.extras=T, 
+                load_stations="Y:/Offshore/Assessment/Data/Survey_data/2023/Spring/Ger/Preliminary_Survey_design_Tow_locations_Ger54880_tpd.csv")
   
-  Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,
-                fig="png",seed=i, repo=direct_fns,point.style = "points", 
+  Survey.design(yr = yr,banks = "BBn",direct = direct,export=F,
+                fig="screen",seed=54882, repo=direct_fns,point.style = "points", 
                 pt.txt.sz=3, x.adj=0.02, y.adj=0.001, add.extras=F, 
-                cables=T, load_stations=F, tow_buffer=F)
+                cables=T, tow_buffer=F, load_stations=F)
+                #load_stations="Y:/Offshore/Assessment/Data/Survey_data/2023/Spring/BBn/Preliminary_Survey_design_Tow_locations_BBn54882_tpd.csv")
   
   Survey.design(yr = yr,banks = "BBs",direct = direct,export=T,
                 fig="png",seed=i, repo=direct_fns, point.style = "points", 
                 x.adj=0.04, y.adj=0.001,add.extras=F)
   
-  Survey.design(yr = yr,banks = "Sab",direct = direct, export=T,
-                fig="png",seed=i, repo=direct_fns,point.style = "points", 
+  Survey.design(yr = yr,banks = "Sab",direct = direct, export=F,
+                fig="screen",seed=54884, repo=direct_fns,point.style = "points", 
                 x.adj=0.035, y.adj=0.001, add.extras=F,
-                load_stations=F, tow_buffer=F)
+                tow_buffer=F,
+                load_stations="Y:/Offshore/Assessment/Data/Survey_data/2023/Spring/Sab/Preliminary_Survey_design_Tow_locations_Sab54884_tpd.csv")
   
-  Survey.design(yr = yr,banks = "GBb",direct = direct, export=T,
-                fig="png",seed=i, repo=direct_fns,point.style = "points", 
+  Survey.design(yr = yr,banks = "GBb",direct = direct, export=F,
+                fig="screen",seed=54880, repo=direct_fns,point.style = "points",
                 x.adj=0.02, y.adj=0.001, add.extras=F, load_stations=F)
-  
-  Survey.design(yr = yr,banks = "GBa",direct = direct, export=T,
-                fig="png",seed=i, repo=direct_fns, point.style = "points",
+
+  Survey.design(yr = yr,banks = "GBa",direct = direct, export=F,
+                fig="screen",seed=54880, repo=direct_fns, point.style = "points",
                 x.adj=0.01, y.adj=0.001, add.extras=F,
                 load_stations=F, zoom=T)
-}
+# }
 Survey.design(yr = yr,banks = "Mid",direct = direct,export=F,fig="png",
               seed=NULL, repo=direct_fns, point.style = "points", 
               pt.txt.sz =4, x.adj=0.02, y.adj=0.001, add.extras=F, load_stations=F)

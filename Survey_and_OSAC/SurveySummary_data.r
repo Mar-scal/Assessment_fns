@@ -807,8 +807,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # Get the boundary for our subset area.
         spat.bound <- as.PolySet(newAreaPolys[newAreaPolys$label == bnk,],projection = "LL")
         # Now clip out the boundary area and the detailed polygons
-        bound.poly.surv <- joinPolys(full.bound.poly,spat.bound,"INT")
-        detail.poly.surv <- joinPolys(full.detail,spat.bound,"INT")
+        bound.poly.surv <- joinPolys(full.bound.poly, spat.bound, "INT")
+        detail.poly.surv <- joinPolys(full.detail, spat.bound, "INT")
         # Add back in the information that joinPolys strips away.
         detail.poly.surv$label <- full.detail$label[1]
         bound.poly.surv$label <- full.bound.poly$label[1]
@@ -960,7 +960,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # data this is like far more complex still than the really allows for.
         # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
         
-        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
+        #remove missing years from bank.dat
+        yrs <- unique(mw.dat.all[[bnk]]$year)
+        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
         
         if(mwsh.test == T) {
           browser()
@@ -1010,11 +1012,12 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
+        yrs <- unique(mw.dat.all[[bnk]]$year)
         # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
         if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.601",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
-        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
-        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
+        if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
+        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
@@ -1043,7 +1046,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(mwsh.test == F) cf.data[[bnk]]$CFyrs <-merge(cf.data[[bnk]]$CFyrs,data.frame(year=1983:yr),all=T)
       
       # Output the predictions for the bank
-      surv.dat[[bnk]] <- cf.data[[bnk]]$pred.dat
+      surv.dat[[bnk]] <- left_join(bank.dat[[bnk]], cf.data[[bnk]]$pred.dat)
       
       # Pull out the ID and condition factor
       tmp.dat<-subset(cf.data[[bnk]]$CF.data,select=c("ID","CF"))
@@ -1061,7 +1064,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # e.g. in 1984 RS =60 and CS=75, so the pre's will be < 60 while the user specified bins are constrained
       # to use just the current RS size (unless of course you specify something yourself).
       #Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
-      
+      browser()
       if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn","GB","GBa","GBb")) 
       {
         surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
@@ -1329,7 +1332,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         {
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
                                                   bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
-          clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],htwt.fit=SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
+          clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],RS=RS, CS= CS, 
                                                        bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)		
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
@@ -1349,7 +1352,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           }
           survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                           bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
-          clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]],SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
+          clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, 
                                                bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)
           print("survey.dat done")
         } # end if(bnk!="Sab")
@@ -1385,18 +1388,30 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       #                            "FR_N", "CV.FR.N",  "R.N","CV.R.N","Pre.N", "CV.Pre.N","bank")
       
       # MEAT COUNT & CONDITION FACTOR requires some processing
-      if(!bank.4.spatial %in% c("Ban", "BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr,c('tow','lon','lat')),
+      if(!bank.4.spatial %in% c("Ban", "BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                                          bank == bnk & year==yr,
+                                                                                          c('tow','lon','lat')),
                                                                                    SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="seascallop",c('tow','lon','lat')),
+      if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                               bank == bnk & year==yr & species=="seascallop",
+                                                                               c('tow','lon','lat')),
                                                                         SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bnk & year==yr & species=="icelandic",c('tow','lon','lat')),
+      if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                                  bank == bnk & year==yr & species=="icelandic",
+                                                                                  c('tow','lon','lat')),
                                                                            SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank %in% c("GB","GBa","GBb") & year==yr & month < 7,
-                                                                         c('tow','lon','lat')),SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial == "GBa") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bank.4.spatial & year==yr & month > 6,
-                                                                          c('tow','lon','lat')),SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial == "GBb") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),bank == bank.4.spatial & year==yr & month > 6,
-                                                                          c('tow','lon','lat')), SpatHtWt.fit[[bnk]]$fit))
+      if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                         bank %in% c("GB","GBa","GBb") & year==yr & month < 7,
+                                                                         c('tow','lon','lat')),
+                                                                  SpatHtWt.fit[[bnk]]$fit))
+      if(bank.4.spatial == "GBa") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                          bank == bank.4.spatial & year==yr & month > 6,
+                                                                          c('tow','lon','lat')),
+                                                                   SpatHtWt.fit[[bnk]]$fit))
+      if(bank.4.spatial == "GBb") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+                                                                          bank == bank.4.spatial & year==yr & month > 6,
+                                                                          c('tow','lon','lat')), 
+                                                                   SpatHtWt.fit[[bnk]]$fit))
       names(CF.current[[bnk]])[4]<-"CF"
       # For German we want all the tows here, both the random and the repeats.
       if(bank.4.spatial == "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
