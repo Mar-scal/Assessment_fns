@@ -506,7 +506,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           }
           if(cables==T)
           {
-            cables <- st_read("Z:/Maps/Undersea_cables/AllKnownCables2015.shp") %>%
+            cables <- st_read("Y:/GISdata/Private/Cables/AllKnownCables2015.shp") %>%
               st_transform(st_crs(shp_strata)) %>%
               filter(Name_EN == st_intersection(.,shp_strata)$Name_EN)
             
@@ -647,16 +647,32 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         {
           # Now to get the points and the colors all tidy here...
           tmp <- towlst[[i]]
+          
+          if(nrow(extras) > 0) 
+          {
+            extras$STRATA <- "extra"
+            tmp <- full_join(tmp, extras)
+          }
+          
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
           
           # Make the base plot...
           if(!bnk=="Mid") bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore',survey=c('offshore','outline')),plot=F, quiet=T)# + 
           if(bnk=="Mid") bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore'),plot=F, quiet=T)# + 
           
+          if(nrow(extras)>0) {
+            shapes <- c(24,21)
+            cols <- c("darkorange", "transparent", "transparent")
+          }
+          if(nrow(extras)==0) {
+            shapes <- c(21)
+            cols <- c("transparent")
+          }
+          
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,shape=1,size=pt.txt.sz/2) 
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values=shapes) + scale_shape_fill(values=cols)
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
@@ -664,17 +680,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
           if(point.style == "both" ) {
             bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
-              geom_sf(data=tmp.sf, shape=1,size=pt.txt.sz/2)
-          }
-          if(nrow(extras) > 0) 
-          {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
-            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
+              geom_sf(data=tmp.sf, aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + 
+              scale_shape_manual(values=shapes) + scale_shape_fill(values=cols)
           }
           
           if(cables==T)
           {
-            cables <- st_read("Z:/Maps/Undersea_cables/AllKnownCables2015.shp") %>%
+            cables <- st_read("Y:/GISdata/Private/Cables/AllKnownCables2015.shp") %>%
               st_transform(4326) %>%
               filter(Name_EN == st_intersection(.,shp_strata)$Name_EN)
             bp2 <- bp2 + geom_sf(data=cables, colour="red") +
@@ -883,8 +895,15 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         {
           # Now to get the points and the colors all tidy here...
           tmp <- Ger.tow.dat
+          
+          if(nrow(extras) > 0) 
+          {
+            extras$STRATA <- "extra"
+            tmp <- full_join(tmp, extras)
+          }
+          
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
-          tmp.sf.reg <- tmp.sf %>% dplyr::filter(STRATA %in% c("new","repeated"))
+          tmp.sf.reg <- tmp.sf %>% dplyr::filter(STRATA %in% c("new","repeated","extra"))
           tmp.sf.reg$`Tow type` <- tmp.sf.reg$STRATA
           Ger.sf <- st_transform(Ger.sf, 4326)
           # Make the base plot...
@@ -892,29 +911,30 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           sf_use_s2(FALSE)
           bp <- bp + geom_sf(data=Ger.sf, fill="lightgrey", colour="NA", alpha=0.75)
           
+          if(nrow(extras)>0) {
+            shapes <- c(24,21,22)
+            cols <- c("darkorange", "transparent", "transparent")
+          }
+          if(nrow(extras)==0) {
+            shapes <- c(21,22)
+            cols <- c("transparent", "transparent")
+          }
+          
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values = c(1,0))
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values = shapes) + scale_fill_manual(values=cols)
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
           # Add points, station numbers, or both.
           
           if(point.style == "both") bp2 <- bp + geom_sf_text(data=tmp.sf.reg,aes(label = EID),size=pt.txt.sz,nudge_x = x.adj,nudge_y = y.adj) + 
-            geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values = c(1,0))
-          
-          if(nrow(extras) > 0) 
-          {
-            if(point.style == "points") bp2 <- bp2 + geom_sf(data = extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
-            if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=extras,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
-            if(point.style == "both" )  bp2 <- bp2 + geom_sf_text(data=extras,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) +
-                geom_sf(data=extras, shape =24,fill = "darkorange" ,size=pt.txt.sz/2)
-          }
+            geom_sf(data=tmp.sf.reg,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) +  scale_shape_manual(values = shapes) + scale_fill_manual(values=cols)
           
           if(cables==T)
           {
-            cables <- rgdal::readOGR("Z:/Maps/Undersea_cables/AllKnownCables2015.shp")
+            cables <- rgdal::readOGR("Y:/GISdata/Private/Cables/AllKnownCables2015.shp")
             cables.sf <- st_transform(st_as_sf(cables),crs=4326)
             bp2 <- bp2 + geom_sf(data=cables.sf)
           }
@@ -996,7 +1016,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           
           if(cables==T)
           {
-            cables <- rgdal::readOGR("Z:/Maps/Undersea_cables/AllKnownCables2015.shp")
+            cables <- rgdal::readOGR("Y:/GISdata/Private/Cables/AllKnownCables2015.shp")
             cables.sf <- st_transform(st_as_sf(cables),crs=4326)
             bp2 <- bp2 + geom_sf(data=cables.sf)
           }
