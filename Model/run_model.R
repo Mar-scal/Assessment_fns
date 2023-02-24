@@ -99,7 +99,6 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       if(!is.null(nickname) & dir.exists(paste0(direct,"Data/Model/",(yr+1),"/",bnk, "/Results/", nickname))==F) dir.create(paste0(direct,"Data/Model/",(yr+1),"/",bnk,"/Results/", nickname))
     } # end if(dir.exists(plot.dir)==F)
     
-    
     #Read2 Get the managment data, note this file needs updated annually! 
     cat(paste("*NOTE #1* Please ensure the file Ref_pts_and_tac.csv is updated with the interim TAC (from the Interim Fishing Plan sent after OSAC) or you won't have information for the", 
               yr+1,"prediction, wouldn't you feel silly without that.\n",sep = " "))
@@ -259,6 +258,17 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       if(!bnk %in% c("GBa","BBn")) {D_low[[bnk]] <- 0; D_high[[bnk]] <- out$BUGSoutput$mean$B[length(out$BUGSoutput$mean$B)]/3}
       # The increment size for the decision table.  500 for GBa and 50 for BBn
       step <- ifelse(bnk == "GBa", 500,50)
+      
+      # The interim TAC is known for GBa and BBn,
+      if(bnk %in% c("GBa","BBn")) TACi[[bnk]] <- subset(manage.dat,year== (max(DD.dat$year)+1) & bank == bnk)$TAC
+      # For the sub-areas let's just make this last years catch from the area, not perfect but should be reasonable
+      if(!bnk %in% c("GBa","BBn")) TACi[[bnk]] <- DD.lst[[bnk]]$C[DD.lst[[bnk]]$NY]
+      # if interim TAC isn't nicely aligned with one of the default step values, then add more options
+      if(!TACi[[bnk]] %in% seq(D_low[[bnk]],D_high[[bnk]],step)) {
+        if(bnk=="GBa") step <- 100
+        if(bnk=="BBn") step <- 10
+      }
+      
       # The URP and LRP for the bank, for the moment only GBa has been accepted so it's the only one used.
       # For more info on GBa reference points: see Y:\Offshore\Assessment\Non-Github archive and documentation\Help and Documentation\GBa Reference Points Literature Review.docx 
       if(bnk %in% c("GBa","BBn"))
@@ -278,13 +288,8 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       {
         # Set projected catch to 0
         proj.catch[[bnk]] <- 0
-        proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
         writeLines("YO YO LOOK HERE!!  The projected catch used in this model is 0, this should only happen in preliminary runs!!")
       }
-      # The interim TAC is known for GBa and BBn,
-      if(bnk %in% c("GBa","BBn")) TACi[[bnk]] <- subset(manage.dat,year== (max(DD.dat$year)+1) & bank == bnk)$TAC
-      # For the sub-areas let's just make this last years catch from the area, not perfect but should be reasonable
-      if(!bnk %in% c("GBa","BBn")) TACi[[bnk]] <- DD.lst[[bnk]]$C[DD.lst[[bnk]]$NY]
       
       # Now do the projections
       DD.out[[bnk]]<- projections(DD.out[[bnk]],C.p=proj[[bnk]]) # C.p = potential catches in decision table
