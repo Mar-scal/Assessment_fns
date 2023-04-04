@@ -56,18 +56,18 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
-                   surveys = c(#"Banspring", 
+                   surveys = c("Banspring", 
                     # #"BanIcespring", 
-                      #"BBnspring",
+                      "BBnspring",
                       "BBsspring",
-                       "Gerspring",
-                      "Midspring",
-                      "Sabspring",
-                      "GBspring",
-                        "GBbsummer",
-                        "GBasummer"
+                        "Gerspring",
+                       "Midspring",
+                       "Sabspring"#,
+                       # "GBspring",
+                       #   "GBbsummer",
+                       #   "GBasummer"
                      ), 
-                   db.con="ptran",testing=T, season="both", spatial=T, mwsh.test=F,
+                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
                    commercialsampling=T, nickname="framework2")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,

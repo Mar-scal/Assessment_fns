@@ -344,7 +344,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       if(final.run==T & grepl(pattern="Final", x = model.dat)==F) stop("You are trying to use the final run but the model.dat file name is not a final run. Check arguments in run.model")
       load(model.dat)
     }
-        
+     
     ##################################################################################
     ################### run model diagnostics
     ##################################################################################
@@ -601,7 +601,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
           dat <- fishery.dat(fish.dat,bk=bnk,yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct, period = "calyr")
           if(bnk=="GBa")dat1<-fishery.dat(fish.dat,bk="GBb",yr=1998:max(mod.dat[[bnk]]$year),method='jackknife',direct=direct, period = "calyr")
         }
-        
+  
         if(fig== "screen") windows(8.5,8.5)
         if(fig == "pdf") pdf(paste(plotsGo,"TAC_landings.pdf",sep=""),width=8.5,height=8.5)
         if(fig == "png") png(paste(plotsGo,"TAC_landings.png",sep=""),width=8.5,height=8.5,res=920,units="in")

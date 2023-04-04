@@ -91,7 +91,8 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
               
-banks <- c("GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core","GBa", "BBn")
+banks <- c(#"GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core",
+  "GBa", "BBn")
 yr <- 2022
 
 for(b in banks){
@@ -102,7 +103,7 @@ for(b in banks){
     model_inputs(bank=b,
                  yr=2022, # the survey year, not the current year if running in January-April
                  impute=it,
-                 nickname=it,
+                 nickname=NULL,
                  direct,
                  direct_fns,
                  survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2022/Survey_summary_output/Survey_all_results.RData")
@@ -110,16 +111,16 @@ for(b in banks){
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
               yr=2022,
-              nickname=it,
+              nickname=NULL,
               direct,
               direct_fns,
               direct_out = "C:/Users/keyserf/Documents/",
               run.model = T,
               parallel=T,
-              # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
-              # final.run=T,
-              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
-              final.run=F,
+              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
+              final.run=T,
+              # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+              # final.run=F,
               nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
               export.tables=T,
               make.diag.figs = T,
@@ -129,7 +130,7 @@ for(b in banks){
     
     # prediction evaluation
     
-      load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
+      load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""))
 
       if(!dir.exists(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))) dir.create(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
 

@@ -1988,7 +1988,7 @@ convert_col_dat_to_bank_dat <- function(v=v1){
   all <- arrange(all, TOW_NO, bin)
   
   # there was no sub-sampling of icelandic scallops in 2012, so we just need the discoef column. we can get this from the DB for Sea scallops.
-  chan <-dbConnect(dbDriver("Oracle"),username="keyserf", password="Decade06","ptran")
+  chan <-dbConnect(dbDriver("Oracle"),username="keyserf", password="","ptran")
   db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
   qu.tows <- paste0("select * from ", db, ".OSTOWS WHERE SURVEY_SEQ in (133)")
   qu.tows <- dbGetQuery(chan, qu.tows)

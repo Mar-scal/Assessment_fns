@@ -129,7 +129,6 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	# If CS and RS are just one value turn them into a vector the same length as the number of years of data.
 	if(length(CS) == 1)	CS <- rep(CS, length(years))
 	if(length(RS) == 1)	RS <- rep(RS, length(years))
-		browser()
 		
 	#exclude biomass calcs for years that did not sample MWSH
 	mwsh.yrs <- unique(shf[, c("year", "cruise", "CF")])
@@ -190,8 +189,8 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  # Calculate the mean abundance and mean biomass (grams) per tow (for each strata. (ybar_h)
 	  n.stratmeans[[i]] <- with(num, sapply(1:40, function(x){tapply(num[,x],STRATA.ID,mean)}))
 	  
-	  if(i %in% mwsh.yrs) w.stratmeans[[i]] <- with(w, sapply(1:40, function(x){tapply(w[,x],STRATA.ID,mean)}))
-	  if(!i %in% mwsh.yrs) w.stratmeans[[i]] <- data.frame()
+	  if(years[i] %in% mwsh.yrs) w.stratmeans[[i]] <- with(w, sapply(1:40, function(x){tapply(w[,x],STRATA.ID,mean)}))
+	  if(!years[i] %in% mwsh.yrs) w.stratmeans[[i]] <- data.frame()
 	  
 	  #Multiply the mean abundance(biomass) in each shell height category in a strata by the proportion of towable area
 	  #in that strata.  Sum this product for each strata resulting in an estimate of total abundance (biomass) for each
@@ -201,9 +200,9 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	  #  Now multiply by the total bank area to determine the survey estimated abundance(biomass).
 	  # The abundance is actual numbers 
 	  n.Yst <- n.yst[i,] * sum(N.tu) 
-	
+
 	  # only do the biomass stuff if we have MWSH data for that year
-	  if(nrow(w.stratmeans[[i]]==0)) {
+	  if(nrow(w.stratmeans[[i]])==0) {
 	    Strata.obj$I[[i]] <- NA
 	    Strata.obj$IR[[i]] <- NA
 	    Strata.obj$IPR[[i]] <- NA

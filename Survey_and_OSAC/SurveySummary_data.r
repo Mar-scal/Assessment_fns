@@ -400,6 +400,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins.tmp <- bins
     test <- testing
     mwsh <-mwsh.test
+    tmp.spatial <- spatial
     
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
@@ -453,6 +454,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins <- bins.tmp
     testing <- test
     mwsh.test <-mwsh
+    spatial <- tmp.spatial
   } # end if(preprocessed == T) 
   
   
@@ -1064,7 +1066,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # e.g. in 1984 RS =60 and CS=75, so the pre's will be < 60 while the user specified bins are constrained
       # to use just the current RS size (unless of course you specify something yourself).
       #Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
-      browser()
+      
       if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn","GB","GBa","GBb")) 
       {
         surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
@@ -1357,9 +1359,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           print("survey.dat done")
         } # end if(bnk!="Sab")
         
-        survey.obj[[bnk]][[1]]$CF <- na.omit(sapply(1:length(years),
-                                                    function(x){with(subset(surv.Rand[[bnk]],year == years[x]),
-                                                                     weighted.mean(CF,com.bm,na.rm=T))}))
+        vec <- sapply(1:length(unique(survey.obj[[bnk]][[1]]$year)),
+               function(x){with(subset(surv.Rand[[bnk]],year == unique(survey.obj[[bnk]][[1]]$year)[x]),
+                                weighted.mean(CF,com.bm,na.rm=T))})
+        vec[which(vec =="NaN")] <- NA
+        survey.obj[[bnk]][[1]]$CF <- vec
         survey.obj[[bnk]][[1]]$clappers<-clap.survey.obj[[bnk]][[1]]$N
         survey.obj[[bnk]][[1]]$clappersR<-clap.survey.obj[[bnk]][[1]]$NR
         
@@ -1375,7 +1379,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Now get the rest of the Survey summary and SHF summaries for the banks, later we'll export as csv's.
       if(bank.4.spatial != "Ger")
       {
-        
         SS.summary[[bnk]] <- survey.obj[[bnk]][[1]]
         SS.summary[[bnk]]$bank <- bank.4.spatial
         # Same for the SHF data.
