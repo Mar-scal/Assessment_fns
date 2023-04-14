@@ -234,6 +234,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         dplyr::rename(Strata_ID = 'Strt_ID') %>%
         dplyr::rename(towable_area = 'towbl_r')
       
+      if(nchar(shp_strata$Strata_ID)==3) shp_strata$Strata_ID <- shp_strata$PID 
+      
       #attr(surv.poly[[i]],"projection")<-"LL"
       
       #polydata[[i]] <- subset(surv.polydata,label==bnk)
@@ -1050,6 +1052,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     
   } # end for(i in 1:num.banks)
   if(fig == 'dashboard') plotly::ggplotly(pf)
+  
   rm(shp_strata)
   rm(strata)
   rm(surv.polyset)

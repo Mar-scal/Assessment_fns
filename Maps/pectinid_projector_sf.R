@@ -152,8 +152,7 @@
 
 # A working almost full example (no custom) of a call to this function that should work without any modification as long
 # as you are connected to the NAS drive...
-#pecjector(obj = NULL, plot_as == "ggplot", area = "BBn",plot = T, 
-#          gis.repo = 'local',c_sys = 32619, buffer =1000,repo = "Y:/Offshore/Assessment/Assesment_fns/",
+#pecjector(obj = NULL, area = "BBn",plot = T, 
 #          add_layer = list(land = 'grey',eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
@@ -1315,7 +1314,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   #browser()
   if(plot_as != "plotly")
   {
-    pect_plot <- pect_plot + coord_sf(expand=F) + xlab("") + ylab("") + 
+    pect_plot <- pect_plot + 
+      # scale_x_continuous(limits=xlim) + # keep this so you can extract coords outside pecjector
+      # scale_y_continuous(limits=ylim) + # keep this so you can extract coords outside pecjector
+      coord_sf(expand=F, xlim=xlim, ylim=ylim) + xlab("") + ylab("") + 
                              theme(panel.grid=element_blank(),panel.background = element_rect(fill = 'white'))
   } # end if(plot_as != "plotly")
   

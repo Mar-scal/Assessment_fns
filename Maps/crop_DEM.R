@@ -53,3 +53,4 @@ mapview(DEM) +
   mapview(fish, col.regions="red") +
   mapview(stns, col.regions="blue")
 
+

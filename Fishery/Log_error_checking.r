@@ -472,6 +472,7 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       }
       
       trip_plot <- pect_plot  + geom_sf(data=trip.log) + 
+        coord_sf(xlim=pect_plot$coordinates$limits$x, ylim=pect_plot$coordinates$limits$y) +
         ggtitle(paste0(trip.log$ves[1],"_",trip.log$vrnum[1],"_",min(trip.log$fished,na.rm=T),"-",max(trip.log$fished,na.rm=T))) +
         scale_x_continuous(expand=c(0.1, 0)) + scale_y_continuous(expand=c(0.1, 0))
       
@@ -498,6 +499,11 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
       osa.all[[i]] <- osa
       
       #manually expand pr for each trip
+      if(is.character(pr)) {
+        pr$x <- trip_plot$coordinates$limits$x
+        pr$y <- trip_plot$coordinates$limits$y 
+      }
+      
       if(pr$x[1] < pr$x[2])
       {
         if(pr$x[1] < 0) pr$x[1] <-pr$x[1] + 0.0025*pr$x[1]
@@ -583,9 +589,9 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
     assign('dat.export',dat.export,pos=1)
   } # end if(!is.null(export))
   
-  if(is.null(export)) return(dat.export)
+  if(is.null(export) & !plot == "shiny") return(dat.export)
   
-  if(plot== "shiny" && is.null(reg.2.plot)) {
+  if(plot== "shiny") {
     shinyapp(trip.log=trip.log.all, osa=osa.all, pr=pr.all, direct=direct, direct_fns=direct_fns, repo=repo, pect_ggplot = pect_ggplot.all)
   }
   
