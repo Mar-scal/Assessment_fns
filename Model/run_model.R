@@ -30,7 +30,9 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       source(paste0(getwd(),"/",basename(fun)))
       file.remove(paste0(getwd(),"/",basename(fun)))
     }
-  } else { 
+  } 
+  
+  if(!missing(direct_fns)) { 
     source(paste(direct_fns,"Model/projections.r",sep=""))
     source(paste(direct_fns,"Model/decision.r",sep=""))
     source(paste(direct_fns,"Model/post.plt.R",sep=""))
@@ -399,7 +401,6 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       #Not sure what our minimum should be here, but using the Rhat + looking at the chains should indicate where there are problems...
       neff[[bnk]] <- range(DD.out[[bnk]]$summary[,9])
       
-      
       if(is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
                                  file=paste(direct_out,"Data/Model/",(yr+1),"/",bnk,"/Results/Model_results_and_diagnostics.RData",sep=""))
       if(!is.null(nickname)) save(mort,TACI,BM.proj.1yr,B.quantiles,percent.B.change,prob.below.USR,FR.bm,FR.ltm,rec.bm,rec.ltm,neff,rhat,
@@ -437,6 +438,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
       
       # model biomass fit to survey
       fit.plt(DD.plt, years = yrs[[bnk]], CI=T,graphic=fig,path=plotsGo,CV=T, language=language)
+      
       # diagnostic plot
       diag.plt(DD.out[[bnk]], years = yrs[[bnk]],graphic=fig,path=plotsGo)
       
@@ -685,7 +687,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
         sf_use_s2(FALSE)
         joined <- st_join(offshore, sfa.labels)
         
-        joined <- st_difference(joined[!(joined$bank=="Banquereau" & joined$ID.x=="Sab"),])
+        joined <- joined[!(joined$bank=="Banquereau" & joined$ID.x=="SFA25A"),]
         joined$fr <- joined$lab_short
         joined$fr <- gsub(x=joined$fr, pattern="Browns South", replacement ="Sud de Brown")
         joined$fr <- gsub(x=joined$fr, pattern="Browns North", replacement ="Nord de Brown")

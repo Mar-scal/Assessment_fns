@@ -326,7 +326,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # We also want to get the land
   if(any(layers == 'land'))
   {
-  
     lnd <- add_layer$land
     # If using the world map we go here
     if(lnd == 'world')
@@ -337,19 +336,23 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(lnd != 'world' & gis.repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/other_boundaries/other_boundaries.zip", temp,quiet=quiet)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/other_boundaries.zip", temp,quiet=quiet)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       land.all <- st_read(dsn = paste0(temp2,"/Atl_region_land.shp"))
       land.col <- lnd
+      stpierre <- st_read(dsn = paste0(temp2,"/SPM_adm0.shp"))
+      land.all <- st_union(land.all, stpierre)
     }
     # If you want to sorce it locally.
     if(lnd != 'world' & gis.repo != 'github') 
     {
       land.all <- st_read(paste0(gis.repo,"/other_boundaries/Atl_region_land.shp"))
       land.col <- lnd
+      stpierre <- st_read(paste0(gis.repo,"/other_boundaries/SPM_adm0.shp"))
+      land.all <- st_union(land.all, stpierre)
     }
     
     # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
