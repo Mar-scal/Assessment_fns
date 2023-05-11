@@ -222,6 +222,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     #Read7 The boundary between Fully recruited and recruit size classes (RS = Recruit min, CS = Fully recruited (commercial) min)
     size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
                           header=T,stringsAsFactors = F)
+    
     ###############################################################################################################
     ################################## End LOAD FLAT FILES ################################## 
     
@@ -927,7 +928,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3,)
+      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -1352,6 +1353,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             CS <- SH.dat$CS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
             RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
           }
+          
           survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                           bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
           clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, 

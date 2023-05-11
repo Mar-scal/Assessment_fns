@@ -340,6 +340,7 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
 	      }
 	    } # end for(m in 1:length(mean.names))
 	  } # end if(!is.null(user.bins))
+	  
 	}	# end for(i in 1:length(years))
 
 	# Data for the delay-difference stock assessment model and survey summary
