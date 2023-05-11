@@ -15,7 +15,7 @@ create_grid <- function(gridsize, polygon) {
   xmax <- xmin + ((nx+1)*gridsize)
   ymin <- st_bbox(polygon)$ymin[[1]]
   ymax <- ymin + ((ny+1)*gridsize)
-  box <- st_as_sf(x = expand.grid(x=c(xmin,xmax), y=c(ymin, ymax))[c(1,2,4,3),],coords=c(X="x", Y="y"), crs=32619) %>% 
+  box <- st_as_sf(x = expand.grid(x=c(xmin,xmax), y=c(ymin, ymax))[c(1,2,4,3),],coords=c(X="x", Y="y"), crs=st_crs(polygon)) %>% 
     st_combine() %>% 
     st_cast("POLYGON")
   r <- st_rasterize(sf = st_sf(box), template = st_as_stars(box, nx = (nx+1), ny = (ny+1)))
@@ -33,3 +33,7 @@ create_grid <- function(gridsize, polygon) {
 #                    hm = sum(hm, na.rm=T),
 #                    nvessels = length(unique(vrnum)),
 #                    ncompanies = length(unique(Company)))
+# 
+# st_geometry(fish_grid) <- NULL
+# 
+# fish_grid <- dplyr::left_join(GBraster, fish_grid)
