@@ -1458,7 +1458,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     #Do we want to plot the survey?
     if(any(plots %in% "Survey"))
     {
-      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 6.5*2, height = 4*2,res=420,bg = "transparent")
+      if(fig == "png") png(paste(plot.dir,"/survey_strata.png",sep=""),units="in",width = 11, height = 8.5,res=420,bg = "transparent")
       if(fig == "pdf")  pdf(paste(plot.dir,"/survey_strata.pdf",sep=""),width = 11,height = 8.5)
       if(fig == "screen") windows(11,8.5)
       
@@ -1521,7 +1521,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
         survey.title <- substitute(bold(paste("Survey (",bank," ",year,")",sep="")),
                                    list(year=as.character(yr),bank=as.character(full.names$full[full.names$abrv == banks[i]])))
-        #p <- p + ggtitle(survey.title)
+        p <- p + ggtitle(survey.title)
       }
 
       # That's all we need for the areas without survey strata, pretty easy! No fill on strata
@@ -1601,7 +1601,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)+coord_sf(expand=F)
       }
       # }
-      browser()
+      
       if(save.gg == T) save(p2,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
       print(p2 + coord_sf(expand=F))
       if(fig != "screen") dev.off()
