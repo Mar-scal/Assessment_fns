@@ -66,7 +66,7 @@ ggplotly
 
 olex_se[olex_se$ID==363,]
 
--66.21633173	41.962685
+# -66.21633173	41.962685
 
 
 # checking out the german rake stuff. No obvious signs of bias. 
