@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -53,7 +53,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   #Split characters separated by spaces into columns.
   zz <- cSplit(zz, "Ferdig.forenklet", sep = " ", type.convert = FALSE) 
-  
   
   # startend <- zz %>% filter(Ferdig.forenklet_4 %in% c("Garnstart", "Garnstopp")) %>% 
   #   dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
@@ -135,10 +134,11 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
-  
+
   # export the start and end points if that's all you want!
   if(type=="startend") {
     print(ggplot() + geom_sf(data=coords.track, lwd=1) + coord_sf() + theme_bw())
+    warning("No date check for startend option, may contain tows from other surveys/years")
     return(coords.track)
   }
   
@@ -157,7 +157,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
       mutate(tow=i,
              datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
-      select(-Ferdig.forenklet_3)
+      dplyr::select(-Ferdig.forenklet_3)
     
     trackpts <- rbind(trackpts, trackpts1)
   }
@@ -165,16 +165,19 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   # olex is in UTC-4
   trackpts$datetime <- trackpts$datetime + hours(4)
   
+  if(!is.null(earliest)) trackpts <- trackpts[trackpts$datetime>ymd(earliest),]
+  if(!is.null(latest)) trackpts <- trackpts[trackpts$datetime<ymd(latest),]
+  
   # hold onto this for later
   unsmoothed <- trackpts
   
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
   starttime$start <- starttime$datetime
-  starttime <- select(starttime, -datetime)
+  starttime <- dplyr::select(starttime, -datetime)
   
   endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
   endtime$end <- endtime$datetime
-  endtime <- select(endtime, -datetime)
+  endtime <- dplyr::select(endtime, -datetime)
   
   time <- left_join(starttime, endtime)
   

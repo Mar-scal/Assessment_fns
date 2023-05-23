@@ -8,7 +8,7 @@
 # if interactive=T, HTML widget "olex_check_strata.html" is saved in your working directory (getwd()) 
 
 
-olex_check_strata <- function(towplan, towfile, bank, interactive=F){
+olex_check_strata <- function(towplan, towfile, bank, interactive=F, UTM=NULL, earliest=NULL, latest=NULL){
   require(sf)
   sf_use_s2(FALSE)
   #Import olex data:
@@ -39,13 +39,13 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F){
     st_transform(4326)
   
   ##### Now get the tow tracks 
-  track <- olex_import(towfile, type="startend") %>%
+  track <- olex_import(towfile, type="sf", UTM=UTM, earliest = earliest, latest = latest) %>%
     st_transform(4326)
   
   sf_use_s2(FALSE)
   
   inter <- st_intersection(track, dplyr::select(offshore.strata[offshore.strata$label==bank,], Strt_ID, col, PName))
-  
+  browser()
   
   #### get the station list (tow plan)
   planned <- read.csv(towplan)
@@ -59,15 +59,17 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F){
   
   plancheck <- st_intersection(inter, dplyr::select(planned_buff, plan_ID, Strata_ID, STRATA))
   
+  if(any(nchar(plancheck$Strt_ID) == 3)) plancheck$Strt_ID <- str_sub(plancheck$Strt_ID, start=3, end=3)
+  
   if(any(!plancheck$Strt_ID == plancheck$Strata_ID)) {
     message("The following planned tows ended up in a different strata:")
-    print(plancheck[which(!plancheck$Strt_ID == plancheck$Strata_ID,)])
+    print(plancheck[which(!plancheck$Strt_ID == plancheck$Strata_ID),])
   }
   if(any(!inter$ID %in% plancheck$ID)) {
     message("The following completed tows did not intersect with a planned tow (with 800m buffer):")
-    print(inter[which(!inter$ID %in% plancheck$ID,)])
+    print(inter[which(!inter$ID %in% plancheck$ID),])
   }
-  
+  browser()
   baseplot <- pecjector(area=bank, add_layer = list(survey=c("offshore", "detailed")))
   
   print(baseplot + 
@@ -82,8 +84,8 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F){
     require(plotly)
     htmlwidgets::saveWidget(
       ggplotly(baseplot + 
-                 geom_sf(data=inter, colour="blue", aes(label=ID))+
-                 geom_sf(data=planned, colour="red", aes(label=plan_ID))+
+                 geom_sf(data=inter, colour="blue")+
+                 geom_sf(data=planned, colour="red")+
                  theme_bw() +
                  coord_sf(expand=F)),
       paste0(getwd(), "/olex_check_strata.html"))
