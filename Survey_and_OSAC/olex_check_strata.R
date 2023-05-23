@@ -45,7 +45,7 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F, UTM=NULL, e
   sf_use_s2(FALSE)
   
   inter <- st_intersection(track, dplyr::select(offshore.strata[offshore.strata$label==bank,], Strt_ID, col, PName))
-  browser()
+  
   
   #### get the station list (tow plan)
   planned <- read.csv(towplan)
@@ -69,7 +69,7 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F, UTM=NULL, e
     message("The following completed tows did not intersect with a planned tow (with 800m buffer):")
     print(inter[which(!inter$ID %in% plancheck$ID),])
   }
-  browser()
+  
   baseplot <- pecjector(area=bank, add_layer = list(survey=c("offshore", "detailed")))
   
   print(baseplot + 
