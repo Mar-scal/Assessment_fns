@@ -250,13 +250,14 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     trackpts$start_lat <- NA
     trackpts$end_lon <- NA
     trackpts$end_lat <- NA
+    
     for(i in 1:nrow(trackpts)){
-      trackpts$bearing[i] <- geosphere::bearing(p1 = c(coords$Start_long_dec[i], coords$Start_lat_dec[i]), 
-                                                p2 = c(coords$End_long_dec[i], coords$End_lat_dec[i]))
-      trackpts$start_lon[i] <- -coords$Start_long[i]
-      trackpts$start_lat[i] <- coords$Start_lat[i]
-      trackpts$end_lon[i] <- -coords$End_long[i]
-      trackpts$end_lat[i] <- coords$End_lat[i]
+      trackpts$bearing[i] <- geosphere::bearing(p1 = c(coords$Start_long_dec[coords$ID == trackpts$tow[i]], coords$Start_lat_dec[coords$ID == trackpts$tow[i]]), 
+                                                p2 = c(coords$End_long_dec[coords$ID == trackpts$tow[i]], coords$End_lat_dec[coords$ID == trackpts$tow[i]]))
+      trackpts$start_lon[i] <- -coords$Start_long[coords$ID == trackpts$tow[i]]
+      trackpts$start_lat[i] <- coords$Start_lat[coords$ID == trackpts$tow[i]]
+      trackpts$end_lon[i] <- -coords$End_long[coords$ID == trackpts$tow[i]]
+      trackpts$end_lat[i] <- coords$End_lat[coords$ID == trackpts$tow[i]]
     }
     
     trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
