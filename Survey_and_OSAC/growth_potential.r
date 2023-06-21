@@ -46,13 +46,13 @@ grow.pot <- function(dat= NULL, mwsh.fit=NULL, von.b = NULL, year=NULL,bank = NU
   if(is.null(mwsh.fit) && pred.mw == T) 
   {
     cat("Hallo... In the growth potential function if you area trying to predict mw next year you need to provide the 'mwsh.fit' object 
-          which is the MW-SH relationship. Blessed be the meat.")
+          which is the MW-SH relationship.")
     stop()
   }
   if(is.null(von.b) && bank != "GBa") 
   {
   cat("Heads up!!!  In the growth potential function you didn't provide the von B parameters and specified a bank other than GBa, therefore
-             we are using the von B parameters for Browns Bank North... Under his eyes")
+             we are using the von B parameters for Browns Bank North...")
   }
   # If year is not supplied than obtain from the data, this is meant to run for just one year of data, by default it picks the most recent year of data
 	if(is.null(year)==T) year<-max(unique(dat$year))

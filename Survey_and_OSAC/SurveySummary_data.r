@@ -1334,9 +1334,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bank.4.spatial=="Sab")  
         {
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
-                                                  bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
+                                                  bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(min(strata.areas$startyear), max(strata.areas$startyear)),], mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
           clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],RS=RS, CS= CS, 
-                                                       bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)		
+                                                       bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(min(strata.areas$startyear), max(strata.areas$startyear)),], mw.par="CF",user.bins = bin)		
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         

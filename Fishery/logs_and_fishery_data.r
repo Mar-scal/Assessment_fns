@@ -42,7 +42,7 @@
 ##### End ARGUMENTS ####################################################
 
 
-logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.marfis = F,ex.marfis = F,
+logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),export=F,get.local=T,get.marfis = F,ex.marfis = F,
                           direct.in = NULL, un=un.ID,pw=pwd.ID,db.con="ptran",db.lib = "ROracle", direct, direct_fns)
 {
   # Set up the directories
@@ -218,7 +218,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
   
  
   # Start the offshore call.
-  if(loc == "offshore" || loc == "both")  
+  if(loc == "offshore" || loc == "both")
     {
   
     #####  The rest of the data has to be read from flat files.  We have these scattered all over the place.  Again I'm suggesting 
@@ -236,6 +236,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
     # For the stuff before 2008 the files are simply these, grab them and bring them into import.fishery.data_DK
     # These are already processed and ready to go so no need to do anything pre-2009 here.
   
+    if(get.local==T || is.null(get.local)){
         if(max(yr) > 2008) 
         {
           new.yr <- yr[yr > 2008]
@@ -563,7 +564,7 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                                                sep=",",row.names=F,col.names=T)
           } # end if(export ==T)
       } # end if(min(log.year) <= 2008 ) 
-    
+    }
      
     #############################  End Section 2 import the the offshore data from local flat files  #############################
     

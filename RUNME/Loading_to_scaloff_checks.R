@@ -3,8 +3,8 @@
 #### set up directory, year, cruise info...
 
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-year <- 2022
-cruise <- "LE15"
+year <- 2023
+cruise <- "LE17"
 
 #### First, check the data file-by-file (by bank) using scaloff_bank_check.R
 ### Step 1: Load the scaloff_bank_check function
@@ -12,11 +12,13 @@ source(paste0(direct_fns, "Survey_and_OSAC/scaloff_bank_check.R"))
 
 direct <- "Y:/Offshore/Assessment/"
 
+# Make sure CSV files are saved as CSV (Comma Delimited) (*.csv) (NOT UTF-8)
+
 ### Step 2: Run the function with the various arguments you need:
 scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", spatialplot = T,
-                   cruise = cruise, bank = "Ger", survey_name = "Ger2022", 
+                   cruise = cruise, bank = "Sab", survey_name = "Sab2023", 
                    tow=TRUE, hf = TRUE, mwsh = TRUE, un=un.ID, pwd.ID=pw,
-                   nickname = ".GerLE15")
+                   nickname = ".SabLE17")
 
 ### Step 3: Scroll through the output and read the error messages to look at issues. Be thorough!
 ### For GB monitoring survey (spring), warnings like "the condition has length > 1 and only the first element will be used" are ok

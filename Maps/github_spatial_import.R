@@ -1,6 +1,6 @@
 # to import layers from github for adding to figures manually
 
-github_spatial_import <- function(subfolder, zipname, direct_fns, quiet=F) {
+github_spatial_import <- function(subfolder, zipname, specific_shp=NULL, direct_fns, quiet=F) {
   
   # Load our file
   if(missing(direct_fns))
@@ -22,7 +22,13 @@ github_spatial_import <- function(subfolder, zipname, direct_fns, quiet=F) {
   temp2 <- tempfile()
   # Unzip it
   unzip(zipfile=temp, exdir=temp2)
-  imported_sf_obj <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
-  return(imported_sf_obj)
+  if(is.null(specific_shp)){
+    imported_sf_obj <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=quiet)
+    return(imported_sf_obj)
+  }
+  
+  if(!is.null(specific_shp)){
+    return(st_read(paste0(temp2, "\\", specific_shp)))
+  }
 }
 
