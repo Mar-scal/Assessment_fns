@@ -346,8 +346,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     # 2022: Amy loaded non-commercial hydration data to database only. Commercial hydration samples are still in flat files, so we still need this step
     # Commercial hydration data from 1992-1998 were loaded to CHISHOLMA.comm_samples_scaloff
     # Note - in 2019, data from 2001-2005 were accidentally excluded. In 2022 (after SS) this was identified. I also realized that 2006-2008 data have been excluded for even longer. 
-    # I am adding these commercial samples back in now. 
-    MW.dat<-import.hyd.data(yrs=1982:2000, export=F,dirt=direct)
+    # I am adding these commercial samples back in now in 2023. 
+    MW.dat<-import.hyd.data(yrs=1982:2008, export=F,dirt=direct)
     
     # No hydration data was collected from Icelandic scallops on Banquereau until 2012, so this next line is unnecessary
     # if("BanIcespring" %in% surveys) MW.dat.BanIce <- import.hyd.data(yrs=2001:2006, Bank="BanIce", export=F, dirt=direct)
