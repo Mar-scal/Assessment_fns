@@ -21,6 +21,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   require(lubridate) || stop("Make sure you have lubridate package installed to run this")
   require(sp) || stop("Make sure you have sp package installed to run this")
+  require(sf) || stop("Make sure you have sf package installed to run this")
   
   ### other functions
   ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
@@ -455,12 +456,58 @@ Check the MGT_AREA_CD values for the following tows:")
           print(plot.list)
           dev.off()
         }
-      }
-      
-      if(!is.null(icetow)) {
-        if(unique(icetow$SPECIES_ID) == "2 - Iceland scallop"){
-        test <- dim(icetow)[1] == dim(join(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "TOW_TYPE_ID")], icetow[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO")], type="full"))[1]
-        if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
+        
+        files <- list.files(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/"))
+        files <- files[grep(x = files, pattern=bank)]
+        files <- files[grep(x = files, pattern="Olex_distance_coefficients")]
+        
+        if(length(files)>0) {
+          olex <- read.csv(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", files))
+          olex$startlon <- convert.dd.dddd(olex$start_lon)
+          olex$startlat <- convert.dd.dddd(olex$start_lat)
+          olex$endlon <- convert.dd.dddd(olex$end_lon)
+          olex$endlat <- convert.dd.dddd(olex$end_lat)
+          
+          png(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/olex_compare_spatial.png"), width=11, height=8, units="in", res=600)
+          print(ggplot() + 
+            # geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, linetype="tow file"), lwd=3, na.rm = T) +
+            geom_segment(data=olex, aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
+            geom_text(data=area.test.both, aes(x=START_LON_DD, y=START_LAT_DD, colour="tow file (start point)", label=TOW_NO), na.rm = T, size=1) +
+            geom_text(data=olex, aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
+            scale_colour_manual(values=c("red", "blue")) + 
+            coord_map())
+          dev.off()
+          
+          olex_sf <- st_as_sf(olex, coords=c("startlon", "startlat"), crs=4326)
+          
+          tows_sf <- tows
+          tows_sf$START_LON_DD <- convert.dd.dddd(tows_sf$START_LON)
+          tows_sf$START_LAT_DD <- convert.dd.dddd(tows_sf$START_LAT)
+          tows_sf <- st_as_sf(tows_sf, coords=c("START_LON_DD", "START_LAT_DD"), crs=4326)
+          tows_sf_buffer <- st_buffer(tows_sf, dist = 1000)
+          
+          compare <- st_intersection(tows_sf_buffer, olex_sf)
+          
+          if(nrow(compare) == nrow(tows_sf)) message("number of matched tows = number of tows expected - Good!")
+          if(all(compare$bearing - compare$BEARING < 1)) message("bearings match between olex and tow file")  
+          if(any(compare$bearing - compare$BEARING > 1)) {
+            message("bearings mismatch between olex and tow file. review the following tows:")  
+            print(compare[which(compare$bearing-compare$BEARING >1),])
+          }
+          if(all(compare$dis_coef - compare$DIS_COEF < 0.001)) message("distance coefficients match between olex and tow file")  
+          if(any(compare$dis_coef - compare$DIS_COEF > 0.001)) {
+            message("distance coefficient mismatch between olex and tow file. review the following tows:")  
+            print(compare[which(compare$dis_coef-compare$DIS_COEF >0.001),])
+          }
+        }
+        
+        if(length(files)==0) message("Could not find corresponding Olex file, make sure bank name is in filename.")        
+        
+        if(!is.null(icetow)) {
+          if(unique(icetow$SPECIES_ID) == "2 - Iceland scallop"){
+            test <- dim(icetow)[1] == dim(join(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "TOW_TYPE_ID")], icetow[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO")], type="full"))[1]
+            if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
+          }
         }
       }
     }
@@ -468,7 +515,9 @@ Check the MGT_AREA_CD values for the following tows:")
     # run checks only on tow data if it's all sea scallops, otherwise, compare sea scallop tow metadata to icelandic scallop metadata
     if(is.null(icetow)) towchecks(tows=tows)
     if(!is.null(icetow)) towchecks(tows=tows, icetow=icetow)
+    
   }
+
   
 
   ####################### Height frequency checks
@@ -697,4 +746,5 @@ Check the MGT_AREA_CD values for the following tows:")
     
     if(!is.null(icemwshs)) mwshchecks(icemwshs)
   }
+  
 }
