@@ -15,7 +15,8 @@ direct <- "Y:/Offshore/Assessment/"
 # Make sure CSV files are saved as CSV (Comma Delimited) (*.csv) (NOT UTF-8)
 
 ### Step 2: Run the function with the various arguments you need:
-scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", spatialplot = T,
+scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", 
+                   spatialplot = T, assign.strata=T, # NOTE: spatialplot must be T for assign.strata to work
                    cruise = cruise, bank = "Sab", survey_name = "Sab2023", 
                    tow=TRUE, hf = TRUE, mwsh = TRUE, un=un.ID, pwd.ID=pw,
                    nickname = ".SabLE17")
@@ -56,4 +57,5 @@ scaloff_cruise_check(year=year, direct=direct, direct_fns=direct_fns,
 ### Step 9: Scroll through the output and make sure it's all logical. 
 ### The last line should read: Successfully passed duplicate tow check without any issues. Yay!
 ### If it doesn't the duplicate tow check did not occur as expected. Look inside scalloff_cruise_check.R
+
 

@@ -7,6 +7,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
                                type="csv", 
                                cruise, bank, survey_name, nickname=NULL,
                                spatialplot=TRUE,
+                               assign.strata=TRUE,
                                un=NULL,
                                pwd.ID=NULL) {
   icetow <- NULL
@@ -28,7 +29,8 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   if(missing(direct_fns))
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r")
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/Github_spatial_import.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -41,6 +43,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   if(!missing(direct_fns)) {
     source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
     source(paste(direct_fns,"Other_functions/ScallopQuery.r",sep=""))
+    source(paste(direct_fns,"Maps/Github_spatial_import.R",sep=""))
   }
     
   
@@ -509,6 +512,41 @@ Check the MGT_AREA_CD values for the following tows:")
             if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
           }
         }
+      
+        
+        #assign to strata
+        if(assign.strata==TRUE & bank %in% c("Sab", "BBn", "BBs", "GBa", "GBb")){
+          shp <- github_spatial_import(subfolder = "offshore_survey_strata", zipname = "offshore_survey_strata.zip",quiet = T, specific_shp = paste0(bank,".shp"))
+          tows_sf <- st_intersection(tows_sf, st_transform(shp, st_crs(tows_sf))) %>% 
+            dplyr::select(-PID, -col, -border, -PName, -towbl_r, -are_km2, -label, -startyr)
+          
+          #check allocation
+          assigned <- as.data.frame(table(tows_sf$Strt_ID[tows_sf$TOW_TYPE_ID=="1 - Regular survey tow"]))
+          names(assigned)[1] <- "Strt_ID"
+          assigned$Strt_ID <- as.numeric(as.character(assigned$Strt_ID))
+          survey.info <- read.csv(paste0(direct, "Data/Survey_data/survey_information.csv"))
+          survey.info <- survey.info[survey.info$label==bank,]
+          survey.info <- survey.info[survey.info$startyear==unique(survey.info$startyear)[which.min(year - unique(survey.info$startyear))],]
+          survey.info$allocation <- survey.info$area_km2/sum(survey.info$area_km2) * nrow(tows[tows$TOW_TYPE_ID=="1 - Regular survey tow",])
+          names(survey.info)[which(names(survey.info)=="Strata_ID")] <- "Strt_ID"
+          assigned <- left_join(assigned, survey.info) 
+          
+          if(all(abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata matches expected allocation") 
+          if(any(!abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata does not match expected allocation")
+          if(nrow(tows_sf) == nrow(tows) & !any(is.na(tows_sf$Strt_ID))){
+            message("Assigned strata successfully. See tow_file_strata.csv")
+            write.csv(x = dplyr::arrange(tows_sf[tows_sf$TOW_TYPE_ID=="1 - Regular survey tow",], TOW_NO), paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/tow_file_strata.csv"))
+          }
+          if(!nrow(tows_sf) == nrow(tows) | any(is.na(tows_sf$Strt_ID))){message("Strata assignment failed. You need to investigate this.")}
+        }
+        
+      }
+      
+      if(bank %in% c("Sab", "BBn", "BBs") & all(is.na(tows$STRATA_ID)) & assign.strata==F) message("You need to assign the strata for this bank. Set spatialplot=T and assign.strata=T and re-run, then transfer Strt_ID column.")
+      
+      if(any(complete.cases(dplyr::select(tows, -STRATA_ID, -BOTTOM_TEMP, -BOTTOM_TYPE_ID, -PIC_NUM, -COMMENTS)) == FALSE)) {
+        message("missing data in the following Tow file rows:")
+        print(tows[which(complete.cases(dplyr::select(tows, -STRATA_ID, -BOTTOM_TEMP, -BOTTOM_TYPE_ID, -PIC_NUM, -COMMENTS))==FALSE),])
       }
     }
     
@@ -654,6 +692,11 @@ Check the MGT_AREA_CD values for the following tows:")
         dev.off()
       }
       
+      
+      if(any(complete.cases(hfs) == FALSE)) {
+        message("missing data in the following HF file rows:")
+        print(hfs[which(complete.cases(hfs)==FALSE),])
+      }
     }
     
     hfchecks(hfs, tows)
@@ -680,6 +723,11 @@ Check the MGT_AREA_CD values for the following tows:")
       # missing sampler ID
       if(any(is.na(mwshs$SAMPLER_ID) | is.null(mwshs$SAMPLER_ID))) {
         message("Data missing from SAMPLER_ID column")
+      }
+      
+      if(any(complete.cases(mwshs) == FALSE)) {
+        message("missing data in the following MWSH file rows:")
+        print(mwshs[which(complete.cases(mwshs)==FALSE),])
       }
       
       if(!is.null(un) & !is.null(pwd.ID)){

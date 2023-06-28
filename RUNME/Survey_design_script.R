@@ -58,8 +58,8 @@ source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
                 fig="screen",seed=54880, repo=direct_fns,point.style = "points",
                 x.adj=0.02, y.adj=0.001, add.extras=F, load_stations=F)
 
-  Survey.design(yr = yr,banks = "GBa",direct = direct, export=F,
-                fig="screen",seed=54880, repo=direct_fns, point.style = "points",
+  Survey.design(yr = yr,banks = "GBa",direct = direct, export=T,
+                fig="png",seed=54883, repo=direct_fns, point.style = "points",
                 x.adj=0.01, y.adj=0.001, add.extras=F,
                 load_stations=F, zoom=T)
 # }
