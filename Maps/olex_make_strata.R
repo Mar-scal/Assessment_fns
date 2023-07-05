@@ -31,6 +31,13 @@ require(scales)
 require(purrr)
 require(stars) #new version of raster that uses sf
 
+
+# boundary
+boundary <- offshore.strata[offshore.strata$label=="BBn",]
+boundary <- st_union(boundary) %>% st_sf()
+boundary$raster_id <- 1
+test <- boundary
+
 for(i in unique(offshore.strata$label)) {
   
   # subsetting for just the bank in this round of the loop
@@ -40,7 +47,7 @@ for(i in unique(offshore.strata$label)) {
   test$raster_id <- 1:length(unique(test$Strt_ID))*100
   
   # take the bounding box of the strata (aka the survey domain) and convert it to a raster (grid) of 1000x1000 (adjustable).
-  grid <- st_as_stars(st_bbox(test), nx = 1000, ny = 1000, values = NA_real_)
+  grid <- st_as_stars(st_bbox(test), nx = 1000, ny = 1000)#, values = NA_real_)
   
   # apply the raster grid to the original strata polygons
   test <- st_rasterize(sf=test, template = grid)
@@ -54,6 +61,8 @@ for(i in unique(offshore.strata$label)) {
     # remove NAs
     dplyr::filter(!is.na(raster_id))
   
+  ggplot() + geom_raster(data=rasterdf, aes(x, y, fill=raster_id))
+  
   # rename columns
   names(rasterdf) <- c("Y", "X", "ID")
   print(paste("printing", i))
@@ -66,15 +75,20 @@ for(i in unique(offshore.strata$label)) {
   write.table(rasterdf, paste0(direct,"Data/Maps/approved/Survey/olex_strata_", i, ".txt"),
               append = FALSE, sep = '\t', dec = ".",
               row.names = F, col.names = TRUE)
+  
+  write.table(rasterdf, paste0(direct,"Data/Maps/approved/Survey/olex_strata_bbn_Jun29_noRound.txt"),
+              append = FALSE, sep = '\t', dec = ".",
+              row.names = F, col.names = TRUE)
 }
 
 
-olex_gbb <- read.table(paste0(direct,"Data/Maps/approved/Survey/olex_strata_GBb.txt"), header=T)
+olex_gbb <- read.table(paste0(direct,"Data/Maps/approved/Survey/olex_strata_bbn_Jun28_rounded_keepBbox.txt"), header=T)
 
 olex_gbb <- st_as_sf(olex_gbb, coords=c("X", "Y"))
 plot(olex_gbb)
 
 olex_gba <- read.table(paste0(direct,"Data/Maps/approved/Survey/olex_strata_GBa.txt"), header=T)
+ggplot() + geom_raster(data=olex_gba, aes(X, Y, fill=ID))
 
 olex_gba <- st_as_sf(olex_gba, coords=c("X", "Y"))
 plot(olex_gba)

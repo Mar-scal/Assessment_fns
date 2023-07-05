@@ -271,6 +271,8 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
     industryreport[is.na(industryreport)] <- 0
     
     industryreport <- aggregate(cbind(catchbaskets, `L_0-70`, `L_70-100`, `L_100+`, `D_0-70`, `D_70-100`, `D_100+`) ~ ., data=industryreport, sum)
+    
+    industryreport <- dplyr::arrange(industryreport, SURVEY_NAME, TOW_NO)
       
     # And make the CSV...
     write.csv(industryreport,paste(direct,"Data/Survey_data/",yr,"/Industry Reports/IndustryReport_fromR_", Sys.Date(), ".csv",sep=""),row.names=F)

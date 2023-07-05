@@ -23,6 +23,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   require(lubridate) || stop("Make sure you have lubridate package installed to run this")
   require(sp) || stop("Make sure you have sp package installed to run this")
   require(sf) || stop("Make sure you have sf package installed to run this")
+  require(dplyr) || stop("Make sure you have dplyr package installed to run this")
   
   ### other functions
   ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
@@ -632,6 +633,32 @@ Check the MGT_AREA_CD values for the following tows:")
         print(comparehf[which((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets))),])
       }
       
+      ## Make sure the number of baskets corresponds between files.
+      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+             (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & !is.na(comparehf$TOW_TYPE_ID))) {
+        message("Too many baskets in HF file compared to Total Baskets in Tow file")
+        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+                                (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets) & !is.na(comparehf$TOW_TYPE_ID))),])
+      }
+      
+      ## Make sure the number of buckets corresponds between files.
+      
+      comparehf2 <- comparehf %>%
+        group_by(TOW_NUM, Total.Buckets, Total.Baskets) %>%
+        summarize(LIVE_QTY_BASKET = sum(LIVE_QTY_BASKET),
+                  DEAD_QTY_BASKET = sum(DEAD_QTY_BASKET),
+                  LIVE_QTY_BUCKET = sum(LIVE_QTY_BUCKET),
+                  DEAD_QTY_BUCKET = sum(DEAD_QTY_BUCKET))
+      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+        message("Total buckets is greater than 0, but there is nothing in HF file. Review these tows")
+        print(comparehf2[comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET==0,])
+      }
+      
+      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+        message("Total baskets is greater than 0, but there is nothing in HF file. Review these tows")
+        print(comparehf2[comparehf2$Total.Baskets>0 & comparehf2$LIVE_QTY_BASKET==0 & comparehf2$DEAD_QTY_BASKET==0,])
+      }
+      
       # make sure all bins are present
       bins <- as.data.frame(table(hfs$TOW_NUM, hfs$BIN_ID))
       if(dim(bins[bins$Freq<1 | bins$Freq>1,])[1] > 0) {
@@ -663,7 +690,12 @@ Check the MGT_AREA_CD values for the following tows:")
         print(longhfs[is.na(longhfs$value),])
       }
       
-       # plot the raw HF distributions by tow (one tow per pdf page)
+      # are any records <50mm in baskets instead of buckets?
+      if(nrow(longhfs[longhfs$variable %in% c("LIVE_QTY_BASKET", "DEAD_QTY_BASKET") & longhfs$BIN_ID<50 & longhfs$value>0,])>0) {
+        message("The following HF records should be in BUCKETS not BASKETS. Check them out.")
+        print(longhfs[longhfs$variable %in% c("LIVE_QTY_BASKET", "DEAD_QTY_BASKET") & longhfs$BIN_ID<50 & longhfs$value>0,])
+      }
+      # plot the raw HF distributions by tow (one tow per pdf page)
       ## plot tows to PDF
       print("plotting HF distributions:")
       plotnum <- seq(1,length(unique(longhfs$TOW_NUM)), 4)
@@ -710,7 +742,7 @@ Check the MGT_AREA_CD values for the following tows:")
   if(mwsh==TRUE){
     
     mwshchecks<- function(mwshs){
-      
+    browser()  
       message("Are there empty rows at the bottom of the MWSH dataframe? If so, go back to your spreadsheet and delete empty rows.")
       print(tail(mwshs))
       
@@ -718,6 +750,14 @@ Check the MGT_AREA_CD values for the following tows:")
       if(any(is.na(mwshs$TOW_NUM))) {
         message("The following rows have no tow number:")
         print(hfs[which(is.na(mwshs$TOW_NUM)),])
+      }
+      
+      # duplicate tow number
+      dups <- as.data.frame(table(mwshs$TOW_NUM, mwshs$SCALLOP_NUM))
+      names(dups) <- c("TOW_NUM", "SCALLOP_NUM", "Freq")
+      if(any(dups$Freq>1)) {
+        message("Duplicate tow numbers in MWSH file. Review records below:")
+        print(dups[dups$Freq>1,])
       }
       
       # missing sampler ID
