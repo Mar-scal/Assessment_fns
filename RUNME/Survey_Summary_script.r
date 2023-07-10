@@ -24,7 +24,7 @@
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2022
+yr <- 2023
 un.ID <- "ENTER UN HERE"
 pwd.ID <- "ENTER PW HERE"
 
@@ -59,16 +59,16 @@ res <- survey.data(direct = direct,
                    surveys = c(#"Banspring", 
                     # #"BanIcespring", 
                       "BBnspring",
-                      #"BBsspring",
+                      "BBsspring",
                       "Gerspring",
                       "Midspring",
                       "Sabspring",
-                      "GBspring",
-                        "GBbsummer",
-                        "GBasummer"
+                      "GBspring"#,
+                      #   "GBbsummer",
+                      #   "GBasummer"
                      ), 
-                   db.con="ptran",testing=F, season="both", spatial=T, mwsh.test=F,
-                   commercialsampling=T, nickname=NULL)
+                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
+                   commercialsampling=T, nickname="spring2023")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
