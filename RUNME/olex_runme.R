@@ -25,6 +25,10 @@ for(fun in funcs)
   file.remove(paste0(dir,"/",basename(fun)))
 }
 
+# UTM 32619 for GBa, GBb, BBn, Ger
+# UTM 32620 for BBs, Sab, Mid
+# UTM 32621 for Ban
+
 ### OPTIONAL: Extract the start and endpoints in sf format. Warning: May contain tows from wrong years!
 olex_se <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
                        type="startend", UTM=32620)
@@ -36,6 +40,22 @@ olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Da
 ### OPTIONAL: Extract the tow tracks for sharing in txt file
 olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
                            UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="tracks")
+
+# for industry report
+for(i in unique(olex_tracks$Bank)){
+  write <- filter(olex_tracks, Bank==i)
+  year <- unique(lubridate::year(write$Date_time))
+  write$Year <- year
+  write <- dplyr::select(write, -Date_time)
+  if(i == "SFA25A") write$Bank <- "SabMid"
+  if(i == "SFA25B") write$Bank <- "Ban"
+  if(i == "SFA26A") write$Bank <- "BBn"
+  if(i == "SFA26B") write$Bank <- "BBs"
+  if(i == "SFA26C") write$Bank <- "Ger"
+  if(i == "SFA27A") write$Bank <- "GBa"
+  if(i == "SFA27B") write$Bank <- "GBb"
+  write.csv(write, paste0("Y:/Offshore/Assessment/Data/Survey_data/2023/Industry Reports/", unique(write$Bank), "_olex_tracks_", year, ".csv"))
+}
 
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
