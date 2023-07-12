@@ -31,6 +31,9 @@ require(raster)
 require(scales)
 require(purrr)
 require(stars) #new version of raster that uses sf
+require(fasterize)
+require(ggplot2)
+require(sf)
 
 for(i in c("BBn", "BBs", "GBa", "GBb", "Sab")) {
   
@@ -46,8 +49,16 @@ for(i in c("BBn", "BBs", "GBa", "GBb", "Sab")) {
   # assigning a unique ID to each row
   test$raster_id <- 1:length(unique(test$Strt_ID))*100
   
-  # take the bounding box of the strata (aka the survey domain) and convert it to a raster (grid) of 1000x1000 (adjustable).
-  grid <- st_as_stars(st_bbox(test), nx = 2000, ny = 2000, values = NA_real_)
+  if(i %in% c("BBn", "GBa", "GBb")) UTM <- 32619 
+  if(i %in% c("BBs", "Sab")) UTM <- 32620
+  
+  test <- st_transform(test, UTM)
+  
+  # width <- (st_bbox(test)$xmax[[1]] - st_bbox(test)$xmin[[1]])/100
+  # height <- (st_bbox(test)$ymax[[1]] - st_bbox(test)$ymin[[1]])/100
+
+  # raster package. Make a grid, 20x20m
+  r <- raster(test, res=20)
   
   if(i == "GBa") sf_use_s2(FALSE)
   # make the boundary buffer
@@ -62,43 +73,50 @@ for(i in c("BBn", "BBs", "GBa", "GBb", "Sab")) {
   }
   
   # apply the raster grid to the original strata polygons
-  test <- st_rasterize(sf=test, template = grid)
+  #test <- st_rasterize(sf=test, template = grid)
+  test <- fasterize(test, r, field="raster_id", fun="min")
   
-  outer <- st_rasterize(sf=outer, template=grid)
+  #outer <- st_rasterize(sf=outer, template=grid)
+  # have to use raster package for this (instead of fasterize) since it's a line and not a polygon. 
+  outer <- rasterize(outer, r, field="raster_id", fun="min")
   
-  # plot(test)
-  # plot(outer)
+  # convert to XYZ df
+  test_df <- as.data.frame(test, xy=T)
+  test_df <- test_df[!is.na(test_df$layer),]
+  outer_df <- as.data.frame(outer, xy=T)
+  outer_df <- outer_df[!is.na(outer_df$layer),]
   
-  # turn the strata raster into a dataframe
-  rasterdf <- as.data.frame(test) %>%
-    # remove unnecessary columns
-    dplyr::select(y, x, raster_id) %>%
-    # remove NAs
-    dplyr::filter(!is.na(raster_id))
+  rasterdf <- rbind(test_df, outer_df)
+  #rasterdf <- test_df
   
-  rasterdf2 <- as.data.frame(outer) %>%
-    # remove unnecessary columns
-    dplyr::select(y, x, raster_id) %>%
-    # remove NAs
-    dplyr::filter(!is.na(raster_id))
+  # convert it back to WGS84
+  rasterdf <- st_as_sf(rasterdf, coords=c("x", "y"), crs=UTM)
+  # this step is slow:
+  rasterdf <- st_transform(rasterdf, 4326)
   
-  rasterdf <- rbind(rasterdf, rasterdf2)
+  # then back to a dataframe
+  coords <- st_coordinates(rasterdf)
+  st_geometry(rasterdf) <- NULL
+  rasterdf <- cbind(coords, rasterdf)
   
   # rename columns
-  names(rasterdf) <- c("Y", "X", "ID")
+  names(rasterdf) <- c("X", "Y", "ID")
+  rasterdf <- dplyr::select(rasterdf, Y, X, ID)
   print(paste("printing", i))
   
   # round to ensure consistency
-  rasterdf$Y <- round(rasterdf$Y, 5)
-  rasterdf$X <- round(rasterdf$X, 5)
+  rasterdf$Y <- round(rasterdf$Y, 7)
+  rasterdf$X <- round(rasterdf$X, 7)
   
   # save the as a txt file
-  write.table(rasterdf, paste0("C:/Users/keyserf/Documents/GitHub/GIS_layers/offshore_survey_strata/olex/olex_strata_", i, "_2023.txt"),
+  write.table(rasterdf, paste0("C:/Users/keyserf/Documents/GitHub/GIS_layers/offshore_survey_strata/olex/olex_strata_", i, "_2023_w_border.txt"),
               append = FALSE, sep = '\t', dec = ".",
               row.names = F, col.names = TRUE)
 }
+
+
 require(ggplot2)
-ggplot() + geom_point(data=rasterdf, aes(X,Y,colour=ID)) + coord_map() 
+ggplot() + geom_point(data=rasterdf[rasterdf$Y<42.59,], aes(X,Y,colour=ID)) + coord_map() 
 
 tows <- read.csv("Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/GBMon/OS.scallop.tow.GBMonLE17.csv")
 tows$START_LAT <- convert.dd.dddd(tows$START_LAT)
