@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL, tow_number_key=NULL){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -135,6 +135,18 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     st_cast("LINESTRING") %>%
     st_transform(4326)
 
+  if(!is.null(tow_number_key)) {
+    tnk <- readxl::read_xlsx(tow_number_key)
+    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
+    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- look[which(!is.na(banks$start))]
+    tnk <- tnk[tnk$Bank %in% look,]
+    names(tnk)[which(names(tnk) == "olex_no")] <- "ID"
+    coords.track <- left_join(coords.track, tnk)
+    names(coords.track)[which(names(coords.track) == "tow_track_order")] <- "official_tow_number"
+  }
+  
+  
   # export the start and end points if that's all you want!
   if(type=="startend") {
     print(ggplot() + geom_sf(data=coords.track, lwd=1) + coord_sf() + theme_bw())
@@ -198,6 +210,17 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     st_join(offshore_sf) %>%
     dplyr::rename(bank=ID)
   
+  if(!is.null(tow_number_key)) {
+    tnk <- readxl::read_xlsx(tow_number_key)
+    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
+    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- look[which(!is.na(banks$start))]
+    tnk <- tnk[tnk$Bank %in% look,]
+    names(tnk)[which(names(tnk) == "olex_no")] <- "tow"
+    trackpts <- left_join(trackpts, tnk)
+    names(trackpts)[which(names(trackpts) == "tow_track_order")] <- "official_tow_number"
+  }
+  
   # if all you want are tracks in sf format, here you go!
   if(type=="sf"){
     return(trackpts)  
@@ -211,6 +234,14 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
                     Tow=tow,
                     Date_time = datetime) %>%
       dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
+    
+    if(!is.null(tow_number_key)) {
+      names(tnk)[which(names(tnk) == "tow")] <- "Tow"
+      names(tnk)[which(names(tnk) == "Bank")] <- "bank"
+      tracks <- left_join(tracks, tnk)
+      names(tracks)[which(names(tracks) == "tow_track_order")] <- "official_tow_number"
+    }
+    
     return(tracks)
   }
   
@@ -263,6 +294,11 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
     st_geometry(trackpts) <- NULL
+    
+    if(!is.null(tow_number_key)) {
+      trackpts <- left_join(trackpts, tnk)
+      names(trackpts)[which(names(trackpts) == "tow_track_order")] <- "official_tow_number"
+    }
     
     return(trackpts)
   }

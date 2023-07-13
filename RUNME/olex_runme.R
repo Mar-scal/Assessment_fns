@@ -30,18 +30,21 @@ for(fun in funcs)
 # UTM 32621 for Ban
 
 ### OPTIONAL: Extract the start and endpoints in sf format. Warning: May contain tows from wrong years!
-olex_se <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
-                       type="startend", UTM=32620)
+olex_se <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracksLE17.gz", 
+                       type="startend", UTM=32620,
+                       tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
 ### OPTIONAL: Extract the tow tracks in sf format
-olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
-                       UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="sf")
+olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracksLE17.gz", 
+                       UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="sf",
+                       tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
 ### OPTIONAL: Extract the tow tracks for sharing in txt file
-olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
-                           UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="tracks")
+olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks.gz", 
+                           UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="tracks",
+                           tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
-# for industry report
+# for industryreport
 for(i in unique(olex_tracks$Bank)){
   write <- filter(olex_tracks, Bank==i)
   year <- unique(lubridate::year(write$Date_time))
@@ -59,8 +62,9 @@ for(i in unique(olex_tracks$Bank)){
 
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
-olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz", 
-                         UTM=32620, type="load", correction_factor = 1.04, earliest="2023-05-01", latest="2023-07-01")
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracksLE17.gz", 
+                         UTM=32620, type="load", correction_factor = 1.04, earliest="2023-05-01", latest="2023-07-01",
+                         tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
 #write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/Olex_distance_coefficients_MidSab.csv")
 
