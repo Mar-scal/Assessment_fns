@@ -220,7 +220,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
                             header=T,stringsAsFactors = F)
     
     #Read7 The boundary between Fully recruited and recruit size classes (RS = Recruit min, CS = Fully recruited (commercial) min)
-    size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank.csv",sep=""),
+    size.cats <- read.csv(paste(direct,"data/Size_categories_by_bank_framework.csv",sep=""),
                           header=T,stringsAsFactors = F)
     
     ###############################################################################################################
