@@ -400,6 +400,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins.tmp <- bins
     test <- testing
     mwsh <-mwsh.test
+    tmp.spatial <- spatial
     
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
@@ -453,6 +454,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins <- bins.tmp
     testing <- test
     mwsh.test <-mwsh
+    spatial <- tmp.spatial
   } # end if(preprocessed == T) 
   
   
@@ -773,7 +775,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(bnk == "BBs"  && yr.start < 1988) years <- c(1985,1986,1988:yr)
       if(bnk == "BBn"  && yr.start < 1991) years <- c(1991:yr)
       bank.dat[[bnk]] <- subset(bank.dat[[bnk]] , year %in% years)
-      browser()
+      
       # Now run the survey boundary and seedboxes in here.
       # Get the  bank survey boundary polygon when we are dealing with the entire bank
       if(is.null(spat.names) || !(surveys[i] %in% spat.names$label)) 
@@ -789,9 +791,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # Get the strata areas.
         surv.info <- subset(survey.info,label== bnk)
         strata.areas <- subset(surv.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
-        if(post2024framework==F) strata.areas <- strata.areas[strata.areas$startyear<2023,]
+        strata.areas <- strata.areas[strata.areas$startyear<2023,]
         #Read25 read removed... Get all the details of the survey strata
-        ### NEED TO FIGURE OUT FRAMEWORK VS NON FRAMEWORK VERSION MANAGEMENT
+        
       } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
       
       # If we are dealing with a spatial subset we need to do some fancy dancy-ness
@@ -926,7 +928,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3,)
+      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       # here we are putting the commercial MW hydration sampling together with the survey data and 
@@ -1327,11 +1329,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         ## Sable was restratified in 2018 to remove WEBCA
         if(bank.4.spatial=="Sab")  
         {
-          browser()
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
-                                                  bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
+                                                  bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(1900,2018),], mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
           clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],htwt.fit=SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
-                                                       bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)		
+                                                       bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(1900,2018),], mw.par="CF",user.bins = bin)		
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         

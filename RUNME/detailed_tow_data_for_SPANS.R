@@ -1,11 +1,11 @@
 # For Detailed Tow Data (for SPANS, usually right after Industry report)
-year<- 2022
-DR <- "DR2022_10"
+year<- 2023
+DR <- "DR2023_05_StdData"
 direct <- "Y:/Offshore/Assessment/"
 #load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
 
 #banks <- names(survey.obj)
-banks <- c("GB", "BBn", "Sab", "Mid", "Ger")
+banks <- c("GB", "BBn", "BBs", "Sab", "Mid", "Ger")
 banks <- c("GBa", "GBb")
 
 cruises <- c("GB", "BB", "SAB", "MID", "GER")
@@ -144,8 +144,8 @@ GBshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBspring
 GBmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/GBspring.", year, ".mwsh.csv"))
 BBNshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBN.", year, ".std.hf.csv"))
 BBNmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBN.", year, ".mwsh.csv"))
-# BBSshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".std.hf.csv"))
-# BBSmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".mwsh.csv"))
+BBSshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".std.hf.csv"))
+BBSmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/BBS.", year, ".mwsh.csv"))
 SABshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/SAB.", year, ".std.hf.csv"))
 SABmwsh <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/SAB.", year, ".mwsh.csv"))
 MIDshf <- read.csv(paste0("Y:/Offshore/Data requests/", year, "/", DR, "/MID.", year, ".std.hf.csv"))
