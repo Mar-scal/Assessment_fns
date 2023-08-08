@@ -1,0 +1,4 @@
+fig:templates-2
+fig:catch2gears
+fig:base1
+fig:base2
