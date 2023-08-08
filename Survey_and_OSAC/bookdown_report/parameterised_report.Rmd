@@ -17,11 +17,12 @@ editor_options:
 knitr::opts_knit$set(eval.after = "fig.cap")
 knitr::opts_chunk$set(fig.pos = 'H')
 options(knitr.kable.NA = '')
+options(knitr.graphics.rel_path = FALSE)
 require(tidyverse)
 options(tinytex.verbose = TRUE)
 
 
-year <- 2022
+year <- 2023
 
 load("summary.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))

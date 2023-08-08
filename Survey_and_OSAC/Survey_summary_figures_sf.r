@@ -683,7 +683,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
         } # end if(banks[i] %in% c("GBa","GBb") 
         
-        if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) 
+        if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB", "BBs")) 
         {
           loc.sf <- st_as_sf(loc,coords = c('lon','lat'),crs = 4326)
           loc.sf <- st_transform(loc.sf,crs = 32620)
@@ -696,7 +696,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32620)
         }  
         
-        if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
+        if(banks[i] %in% c("GBa","GBb","BBn","GB","Ger")) 
         {
           loc.sf <- st_as_sf(loc,coords = c('lon','lat'),crs = 4326)
           loc.sf <- st_transform(loc.sf,crs = 32619)
@@ -724,7 +724,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # plot(pts_to_add, add=T)
               # plot(poly_to_add, add=T)
               
-              bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
+              bound.poly.surv.sf <- st_union(st_make_valid(bound.poly.surv.sf), poly_to_add)
               bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
             }
           }
@@ -1342,6 +1342,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             if(fig == "screen") windows(11,8.5)
 
             if(exists("poly_to_add")){
+              
+              if(!st_crs(bound.poly.surv.sf)==st_crs(poly_to_add)) poly_to_add <- st_transform(poly_to_add, crs = st_crs(bound.poly.surv.sf))
+              
               if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial")){
                 bound.poly.surv.sf <- st_difference(bound.poly.surv.sf, poly_to_add)
               }

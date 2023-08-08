@@ -4,7 +4,7 @@ print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
            "Mid", "Sab", "Ger",
-          # "BBs",
+          "BBs",
          "BBn", "GB"#,
   #"GBa", "GBb"
            )
@@ -53,7 +53,6 @@ markdowns <- append(index_file, markdowns)
 # Stitch together markdowns ----------------------------------------------------
 
 # paste the markdowns together
-# this is taken from bookdown:::merge_chapters()
 content = unlist(mapply(markdowns, markdowns, SIMPLIFY = FALSE, FUN = function(f, o) {
   x = xfun::read_utf8(f)
   # add a comment at the end of each file
