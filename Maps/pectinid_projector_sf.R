@@ -192,7 +192,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   }
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   require(rgdal)|| stop("You need rgdal pal")
-  require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
+  #require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
   require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
@@ -480,8 +480,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
             # I need a new grid that is a raster object
             re.proj.bathy <- projectRaster(bathy,b.ras)
             re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
+            
             # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
-            bathy.gg <- fortify(re.proj.bathy)
+            bathy.gg <- as.data.frame(re.proj.bathy, xy=T) #fortify(re.proj.bathy)
           } else { bathy.gg <- fortify(bathy)}
           # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
           bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
