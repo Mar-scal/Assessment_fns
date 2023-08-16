@@ -5,7 +5,7 @@
 # Update history
 # Commented, checked  and revised by DK April 4th, 2016
 # May 12th, updated to use the updated sql database back to 2002.  The method for selecting matched tows on German
-# bank also modified, no longer using or creating flat files with the german tow list information in it.
+# bank also modified, no longer usingg or creating flat files with the german tow list information in it.
 # June 16th, revised to add the "season" variable so we could save results for the spring survey.  Some other minor tweaks
 # related to the tow tracks as well.
 # June 22nd, I removed the tow tracks from this, they are more a pain than anything...
@@ -769,7 +769,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       # Remove years in which we don't have good data for specific banks, 1984 very problematic with clappers/live data.
       # One Browns South and North we also need to be particulatr with data # NOTE: May need to add Ban year cut-off here?
-      if((bnk == "Ger" || bnk == "Mid" || bnk=="Ban" ||bnk=="BanIce") && yr.start < 1985) years <- 1985:yr
+      if((bnk == "Ger" || bnk == "Mid" || bnk=="Ban" || bnk=="BanIce") && yr.start < 1985) years <- 1985:yr
       if(bnk == "Sab" && yr.start < 1986) years <- 1986:yr # The first year for Sable is causing issues with condFac model.
       # Looks like it is due to the lme part of the model predicting mw of 9.5 (rest of years more like 12-13)
       
@@ -965,7 +965,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
         #remove missing years from bank.dat
         yrs <- unique(mw.dat.all[[bnk]]$year)
-        cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
+        cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
         
         if(mwsh.test == T) {
           browser()
@@ -1020,7 +1020,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.601",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
-        if(bnk != "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
+        if(!bnk %in% c("GBa-Large_core", "BBn", "Sab", "Ger", "BBs"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
+        if(bnk %in% c("BBn", "Sab", "Ger", "BBs"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
@@ -1052,15 +1053,16 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       surv.dat[[bnk]] <- left_join(bank.dat[[bnk]], cf.data[[bnk]]$pred.dat)
       
       # Pull out the ID and condition factor
+      if(!"ID" %in% names(cf.data[[bnk]]$CF.data)) cf.data[[bnk]]$CF.data$ID <- paste0(cf.data[[bnk]]$CF.data$year, ".", cf.data[[bnk]]$CF.data$tow)
       tmp.dat<-subset(cf.data[[bnk]]$CF.data,select=c("ID","CF"))
       # Rename CF to CFh
       names(tmp.dat)[2]<-"CFh"
       # merge the two data sets, keeping all x values
-      surv.dat[[bnk]]<-merge(surv.dat[[bnk]],tmp.dat,all.x=T)
+      surv.dat[[bnk]]<-dplyr::left_join(surv.dat[[bnk]],unique(tmp.dat))
       # Replace any NA's in CFh with the original Condition Factor.
       surv.dat[[bnk]]$CFh[is.na(surv.dat[[bnk]]$CFh)]<-surv.dat[[bnk]]$CF[is.na(surv.dat[[bnk]]$CFh)]
       
-      # Calculate the biomass of the Pre-recruits, Recruits and the Commerical Scallops in each tow on the bank
+      # Calculate the biomass of the Pre-recruits, Recruits and the Commercial Scallops in each tow on the bank
       # Here we have added the ability to calculate the biomass of specific bins of interest. Also for
       # GBa note that b/c of changes in sizes over time the user specified bins won't 
       # necessarily add up to the pre,rec, or com totals as the bins won't necessaryily be the same thing
@@ -1068,21 +1070,20 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # to use just the current RS size (unless of course you specify something yourself).
       #Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
       
-      if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn","GB","GBa","GBb")) 
+      if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn", "Sab", "BBs"))
       {
-        surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
+        surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "weight.matrix", htwt.fit=cf.data[[bnk]]$CF.fit$weight.matrix, user.bins = bin)
         #surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS, type='B', mw.par="CF")
       } # end if(bnk %in% c("Mid","Ger","BBn","GB","GBa","GBb"))
       
-      if(bank.4.spatial == "Sab" || bnk == "BBs" ) 
+      if(bank.4.spatial %in% c("GB", "GBa", "GBb")) 
       {
-        surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type="ALL",mw.par ="CFh",user.bins = bin)
+        surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
         #surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS, type='B', mw.par="CFh")
       } # end if(bnk == "Sab" || bnk == "BBs" ) 
       
       print("surv.by.tow done")
       
-    
       # On Georges spring we need to tidy up some of the randoms..
       if(bank.4.spatial == "GB")
       {
@@ -1354,10 +1355,20 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
           }
           
-          survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
-                                          bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
-          clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, 
-                                               bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)
+          if(bank.4.spatial %in% c("GBa", "GBb")){
+            survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
+                                            bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
+            clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, 
+                                                 bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)
+          }
+          browser()
+          if(!bank.4.spatial %in% c("GBa", "GBb")){ # 2024 framework change
+            survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, htwt.fit = cf.data[[bnk]]$CF.fit$weight.matrix,
+                                            bk=bank.4.spatial, areas=strata.areas, mw.par="weight.matrix",user.bins = bin)	
+            clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, htwt.fit = cf.data[[bnk]]$CF.fit$weight.matrix,
+                                                 bk=bank.4.spatial, areas=strata.areas, mw.par="weight.matrix",user.bins = bin)
+          }
+          
           print("survey.dat done")
         } # end if(bnk!="Sab")
         
