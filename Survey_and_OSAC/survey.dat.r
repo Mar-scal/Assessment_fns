@@ -172,17 +172,16 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
       if(!dim(htwt.fit.y)[1] == dim(ann.dat)[1]) {
         
         #if ann.dat is EXACTLY half as long as htwt.fit.y, assume it's only for dead OR live, not both, so use unique on htwt.fit.y andproceeed
-        if(dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
-          htwt.fit.y <- unique(htwt.fit.y)
-          mw[[i]] <- htwt.fit.y[grep("h5", colnames(htwt.fit.y))[1]:grep("h200", colnames(htwt.fit.y))]
-        }
-        
         # if not, something is up and you are given NAs.
         if(!dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
           # use ann.dat to get the structure right
           mw[[i]] <- ann.dat[,grep("h5", colnames(ann.dat))[1]:grep("h200", colnames(ann.dat))]
           # but then replace all values with NA because you need to multiply by NAs in the next step
           mw[[i]][!is.na(mw[[i]])] <- NA
+        }
+        if(dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
+          htwt.fit.y <- unique(htwt.fit.y)
+          mw[[i]] <- htwt.fit.y[grep("h5", colnames(htwt.fit.y))[1]:grep("h200", colnames(htwt.fit.y))]
         }
       }			  
       
