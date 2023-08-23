@@ -22,6 +22,7 @@ shwt.glmer <- function(wt.dat, yrs)
     mod.res[[as.character(yrs[i])]] <- glmer(wmw ~ log.sh.cen + depth.cen + (1| new_ID),data = dat.tmp,family=Gamma(link=log))
     dat.tmp$residuals <- residuals(mod.res[[as.character(yrs[i])]])
     resids[[as.character(yrs[i])]] <- dat.tmp
+    
     #qq.plt[[as.character(yrs[i])]] <- qqplot.data(dat.tmp$residuals)
   }
   # 1991 doesn't converge and we don't need it for the models, so I suggest we only use 1992 onwards for this.

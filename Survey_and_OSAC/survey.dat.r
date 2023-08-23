@@ -171,6 +171,9 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
       
       if(!dim(htwt.fit.y)[1] == dim(ann.dat)[1]) {
         
+        # subset htwt.fit.y for tows that are not in ann.dat (regular survey stations)
+        htwt.fit.y <- htwt.fit.y[htwt.fit.y$tow %in% unique(ann.dat$tow),]
+        
         #if ann.dat is EXACTLY half as long as htwt.fit.y, assume it's only for dead OR live, not both, so use unique on htwt.fit.y andproceeed
         # if not, something is up and you are given NAs.
         if(!dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
@@ -381,6 +384,10 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
   # Return the data to function calling it.
   
   model.dat$year <- as.numeric(as.character(model.dat$year))
+  
+  if(is.list(model.dat$I)) model.dat$I <- unlist(model.dat$I)
+  if(is.list(model.dat$IR)) model.dat$IR <- unlist(model.dat$IR)
+  if(is.list(model.dat$IPR)) model.dat$IPR <- unlist(model.dat$IPR)
   
   if(is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, bankpertow=bankpertow))
   if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj,bin.names = bnames,user.bins = user.bins, bankpertow=bankpertow))

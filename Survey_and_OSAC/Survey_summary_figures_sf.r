@@ -46,6 +46,7 @@
 # 3:  survey.ts.r
 # 4:  shf.plt.r
 # 6:  shwt.plt1.r
+# 6b:  shwt.plt2.r
 # 7:  Clap3.plt.R
 # 8:  gridPlot.r
 # 9:  meat_count_shell_height_breakdown_figure.r    
@@ -361,6 +362,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.ts.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shf.plt.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt1.R",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt2.R",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/Clap3.plt.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r")
@@ -381,6 +383,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     source(paste(direct_fns,"Survey_and_OSAC/survey.ts.r",sep=""),local=T)
     source(paste(direct_fns,"Survey_and_OSAC/shf.plt.r",sep=""))
     source(paste(direct_fns,"Survey_and_OSAC/shwt.plt1.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/shwt.plt2.r",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
@@ -1658,8 +1661,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(layout=="portrait") par(mfrow=c(2,1))
       if(layout=="landscape") par(mfrow=c(1,2))
       
-      shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
-      
+      if(banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
+      if(!banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt2(mw.sh.coef = cf.data[[bnk]]$CF.fit$mw.sh.coef,
+                                                          wgt.dat = cf.data[[bnk]]$HtWt.fit$resid,
+                                                          yr = yr)
       # now the condition factor figure..
       # only show the median line if there are more than 3 CF values
       if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")
@@ -1994,7 +1999,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(fig == "png") png(paste(plot.dir,"/biomass_ts.png",sep=""),
                            units="in",width = 8.5, height = 11,res=420,bg="transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"/biomass_ts.pdf",sep=""),width = 8.5, height = 11)
-      
       
       if(banks[i] != "Ger" && banks[i] != "Mid" && banks[i] != "Ban" && banks[i] != "BanIce" && banks[i] != "GB" && banks[i] != "Sab")
         

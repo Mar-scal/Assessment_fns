@@ -928,7 +928,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
+      if(bnk %in% c("GBa", "GBb", "GB")) SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -1334,7 +1334,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         ## Sable was restratified in 2018 to remove WEBCA
         if(bank.4.spatial=="Sab")  
         {
-          browser()
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
                                                   htwt.fit = cf.data[[bnk]]$CF.fit$weight.matrix,
                                                   bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(min(strata.areas$startyear), max(strata.areas$startyear)),], 
@@ -1409,18 +1408,19 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       #                            "FR_N", "CV.FR.N",  "R.N","CV.R.N","Pre.N", "CV.Pre.N","bank")
       
       # MEAT COUNT & CONDITION FACTOR requires some processing
-      if(!bank.4.spatial %in% c("Ban", "BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+      if(bank.4.spatial %in% c("GB", "GBa", "GBb")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
                                                                                           bank == bnk & year==yr,
                                                                                           c('tow','lon','lat')),
                                                                                    SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
-                                                                               bank == bnk & year==yr & species=="seascallop",
-                                                                               c('tow','lon','lat')),
-                                                                        SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
-                                                                                  bank == bnk & year==yr & species=="icelandic",
-                                                                                  c('tow','lon','lat')),
-                                                                           SpatHtWt.fit[[bnk]]$fit))
+      if(!bank.4.spatial %in% c("Ban", "BanIce", "GBa", "GB", "GBb")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
+                                        bank == bnk & year==yr,
+                                        c('tow','lon','lat', 'CF')))
+      if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
+                                                                        bank == bnk & year==yr & species=="seascallop",
+                                                                        c('tow','lon','lat', 'CF')))
+      if(bank.4.spatial %in% c("BanIce")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
+                                                                           bank == bnk & year==yr & species=="icelandic",
+                                                                           c('tow','lon','lat', 'CF')))
       if(bank.4.spatial == "GB") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
                                                                          bank %in% c("GB","GBa","GBb") & year==yr & month < 7,
                                                                          c('tow','lon','lat')),
@@ -1476,8 +1476,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } #end if(length(boxes[,1]) > 0))
       
       # Now let's calculate the average size and growth potential by bank, use surv.Live b/c we want to look at this for all tows.
+      if(bnk %in% c("GBa", "GB", "GBb")){
+        pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
+      }
       
-      pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
+      if(!bnk %in% c("GBa", "GB", "GBb")) {
+        pot.grow[[bnk]] <- grow.pot(dat=surv.Live[[bnk]], mwsh.fit=cf.data[[bnk]]$CF.fit$mw.sh.coef, bank=bank.4.spatial)
+      }
       
       # Set biomass and condition to NA for years with no detailed sampling data
       survey.obj[[bnk]]$model.dat[!survey.obj[[bnk]]$model.dat$year %in% unique(cf.data[[bnk]]$CFyrs$year), 
@@ -1513,9 +1518,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     if(bnk %in% c("BBn" ,"BBs" ,"Ger", "Mid", "Ban", "BanIce", "Sab", "GB" ,"GBb", "GBa"))
     {
       #Write2 Output some of the summary data from the survey.
-      write.csv(SS.summary[[bnk]],
-                file = paste(direct,"Data/Survey_data/",yr,"/",na.omit(unique(bank.dat[[bnk]]$survey)),"/",bank.4.spatial,"/Annual_summary",
-                             yr,".csv",sep=""),row.names = F)
+      # write.csv(SS.summary[[bnk]],
+      #           file = paste(direct,"Data/Survey_data/",yr,"/",na.omit(unique(bank.dat[[bnk]]$survey)),"/",bank.4.spatial,"/Annual_summary",
+      #                        yr,".csv",sep=""),row.names = F)
       #Write3
       write.csv(SHF.summary[[bnk]],
                 file = paste(direct,"Data/Survey_data/",yr,"/",na.omit(unique(bank.dat[[bnk]]$survey)),"/",bank.4.spatial,"/Annual_SHF_summary",

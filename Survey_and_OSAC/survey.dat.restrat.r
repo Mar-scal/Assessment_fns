@@ -219,6 +219,9 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         
         if(!dim(htwt.fit.y)[1] == dim(ann.dat)[1]) {
           
+          # subset htwt.fit.y for tows that are not in ann.dat (regular survey stations)
+          htwt.fit.y <- htwt.fit.y[htwt.fit.y$tow %in% unique(ann.dat$tow),]
+          
           #if ann.dat is EXACTLY half as long as htwt.fit.y, assume it's only for dead OR live, not both, so use unique on htwt.fit.y andproceeed
           # if not, something is up and you are given NAs.
           if(!dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
@@ -306,6 +309,12 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         NPR.tmp <- BIOSurvey2::summary.domain.est(scall.dom.NPR)
         NR.tmp <- BIOSurvey2::summary.domain.est(scall.dom.NR)
         N.tmp <- BIOSurvey2::summary.domain.est(scall.dom.N)
+        
+        if(nrow(w)==0) {
+          IPR.tmp[[2]]$yst <- NA
+          IR.tmp[[2]]$yst <- NA
+          I.tmp[[2]]$yst <- NA
+        }
         
         # step 3: grab the "yst" (stratified estimates) for each size category. Remember you're still in a year loop, so this is only one year at a time.
         out.domain[i, seq(3, 13, 2)] <- as.numeric(c(IPR.tmp[[2]][2],
@@ -566,6 +575,10 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # Return the data to function calling it.
 
     model.dat$year <- as.numeric(as.character(model.dat$year))
+    
+    if(is.list(model.dat$I)) model.dat$I <- unlist(model.dat$I)
+    if(is.list(model.dat$IR)) model.dat$IR <- unlist(model.dat$IR)
+    if(is.list(model.dat$IPR)) model.dat$IPR <- unlist(model.dat$IPR)
     
     if(is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, Domain.obj=Domain.obj, bankpertow=bankpertow))
     if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, Domain.obj=Domain.obj, bin.names = bnames,user.bins = user.bins, bankpertow=bankpertow))

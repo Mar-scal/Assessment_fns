@@ -170,6 +170,8 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
     # 1991  only has 3 tows so is problematic for many of our models, so let's start in 1992, if we want we can
     # start in 1994 as that's the first year of the model.
     yrs <-sort(unique(wgt.dat$year))
+    ntows <- wgt.dat %>% dplyr::group_by(year) %>% dplyr::summarize(ntow=length(unique(tow)))
+    yrs <- ntows$year[ntows$ntow>1]
     yrs <- yrs[yrs > 1991]
     
     SpatHtWt.fit <- shwt.glmer(wgt.dat, yrs) # list object with model and residuals for each year
