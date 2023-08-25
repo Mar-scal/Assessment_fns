@@ -1665,6 +1665,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(!banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt2(mw.sh.coef = cf.data[[bnk]]$CF.fit$mw.sh.coef,
                                                           wgt.dat = cf.data[[bnk]]$HtWt.fit$resid,
                                                           yr = yr)
+      
       # now the condition factor figure..
       # only show the median line if there are more than 3 CF values
       if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")
