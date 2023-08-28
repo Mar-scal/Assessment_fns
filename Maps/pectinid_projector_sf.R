@@ -483,7 +483,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
             
             # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
             bathy.gg <- as.data.frame(re.proj.bathy, xy=T) #fortify(re.proj.bathy)
-          } else { bathy.gg <- fortify(bathy)}
+          } else { bathy.gg <- as.data.frame(bathy, xy=T)}
           # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
           bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
         }
