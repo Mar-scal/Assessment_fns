@@ -356,6 +356,17 @@ mort
 # $BBn 2022
 # [1] 0.03283034
 
+# Fishing mortality (mu) for current year
+# GBa
+DD.out$GBa$median$mu
+# 0.1577278 (2022)
+
+# BBn
+DD.out$BBn$median$mu
+# 0.07226612 (2022)
+
+# note, Fmort is calculated in the model, but not saved in output
+
 # The probability of currently being below the USR.
 prob.below.USR
 # GBa 2022
