@@ -206,9 +206,10 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   offshore_sf <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip", quiet = T)
   
-  trackpts <- trackpts %>%
-    st_join(offshore_sf) %>%
-    dplyr::rename(bank=ID)
+  trackpts <- st_transform(trackpts, UTM) %>%
+    st_join(st_transform(offshore_sf, UTM)) %>%
+    dplyr::rename(bank=ID) %>%
+    st_transform(4326)
   
   if(!is.null(tow_number_key)) {
     tnk <- readxl::read_xlsx(tow_number_key)
