@@ -39,7 +39,7 @@ olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Da
                        UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="sf",
                        tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
-### OPTIONAL: Extract the tow tracks for sharing in txt file
+### OPTIONAL: Extract the tow tracks for sharing in txt file or CSV file
 olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks.gz", 
                            UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="tracks",
                            tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
@@ -62,8 +62,16 @@ for(i in unique(olex_tracks$Bank)){
 
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
-olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBb_gba1to3.gz", 
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
                          UTM=32620, type="load", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01")
+
+# to create an editable CSV file
+olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
+            UTM=32620, type="csv", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01")
+# to load using an edited CSV file
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
+                         UTM=32620, type="load", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01",
+                         edited_csv="C:/Users/keyserf/Desktop/csv_to_edit.csv")
 
 #write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/Olex_distance_coefficients_MidSab.csv")
 

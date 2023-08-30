@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL, tow_number_key=NULL){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL, tow_number_key=NULL, edited_csv=NULL){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -134,7 +134,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
-
+  
   if(!is.null(tow_number_key)) {
     tnk <- readxl::read_xlsx(tow_number_key)
     look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
@@ -153,7 +153,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     warning("No date check for startend option, may contain tows from other surveys/years")
     return(coords.track)
   }
-  
   
   # continue on to look at actual tracks (instead of just start and end points). Need to go back to raw data for this (zz)
   track <- data.frame(start=which(zz$Ferdig.forenklet_4=="Garnstart"), end=which(zz$Ferdig.forenklet_4=="Garnstopp"))
@@ -183,15 +182,35 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   # hold onto this for later
   unsmoothed <- trackpts
   
+  if(type=="csv"){
+    write.csv(trackpts, paste0(getwd(), "/csv_to_edit.csv"))
+    print(paste0(getwd(), "/csv_to_edit.csv"))
+    return()
+  }
+  
+  if(!is.null(edited_csv)){
+    trackpts <- read.csv(edited_csv)
+    message("edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format!")
+  }
+  
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
-  starttime$start <- starttime$datetime
+  starttime$start <- ymd_hms(starttime$datetime)
   starttime <- dplyr::select(starttime, -datetime)
   
   endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
-  endtime$end <- endtime$datetime
+  endtime$end <- ymd_hms(endtime$datetime)
   endtime <- dplyr::select(endtime, -datetime)
   
   time <- left_join(starttime, endtime)
+  
+  # check the tow time duration
+  if(any((time$end - time$start)>10.20)){
+    toolong <- time$tow[(time$end-time$start >10.20)]
+    message("These tows were tracked for over 10 minutes. Run this with type='csv', to create file below.\n
+            Read it back in with the edited_csv argument.")
+    print(toolong)
+    print(paste0(getwd(), "/csv_to_edit.csv"))
+  }
   
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
@@ -250,7 +269,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(type=="load") {
     
     trackpts <- arrange(trackpts, tow)
-      
+    
     trackpts$length <- trackpts %>%
       arrange(tow) %>%
       st_transform(UTM) %>%
