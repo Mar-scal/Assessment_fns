@@ -881,12 +881,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(bnk != "Ger" && bnk != "Mid"  && bnk != "GB" && bnk!= "Sab" && bnk!= "Ban" && bnk!="BanIce") bank.dat[[bnk]] <- assign.strata(bank.dat[[bnk]],detail.poly.surv)
       # above assigns strata to each tow. 
       
-      # NOTE FOR RAPH, SUMMER 2023: There is an issue with tow 104 on GBa. Start 
-      # point puts it on GBb due to an issue with the Olex data.
-      # This tow will need to have it's stratum manually assigned, as it should 
-      # fail the above step! 
-      if(Sys.Date()>"2023-08-30") stop("Buggy tow in summer 2023! See Note for Raph in SurveySummary_data.R")
-      
       print("assign.strata done. Note, this is based on tow start location.")
       
       # MEAT WEIGHT DATA from SCALOFF database, all years - if we aren't doing any spatial subsetting
