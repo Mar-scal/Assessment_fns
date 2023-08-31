@@ -183,14 +183,24 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   unsmoothed <- trackpts
   
   if(type=="csv"){
-    write.csv(trackpts, paste0(getwd(), "/csv_to_edit.csv"))
+    write.table(trackpts, paste0(getwd(), "/csv_to_edit.csv"), sep = ",")
     print(paste0(getwd(), "/csv_to_edit.csv"))
     return()
   }
   
   if(!is.null(edited_csv)){
-    trackpts <- read.csv(edited_csv)
-    message("edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format!")
+    trackpts <- read.table(file=edited_csv, header = T, sep = ",")
+    message("edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format, and edited end points must be labelled Garnstopp")
+    if(grepl(names(trackpts), pattern="X")) trackpts <- dplyr::select(trackpts, -X)
+    trackpts$datetime <- ymd_hms(trackpts$datetime)
+    
+    fixed <- unique(dplyr::setdiff(unsmoothed[,c("tow", "datetime")], trackpts[,c("tow", "datetime")])$tow)
+    for(i in fixed){
+      coords$Start_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][1], format="deg.min")
+      coords$Start_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][1], format="deg.min")
+      coords$End_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
+      coords$End_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
+    }
   }
   
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
@@ -207,7 +217,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(any((time$end - time$start)>10.20)){
     toolong <- time$tow[(time$end-time$start >10.20)]
     message("These tows were tracked for over 10 minutes. Run this with type='csv', to create file below.\n
-            Read it back in with the edited_csv argument.")
+            Read it back in with the edited_csv argument. Make sure the edited tow ends with 'Garnstopp'!")
     print(toolong)
     print(paste0(getwd(), "/csv_to_edit.csv"))
   }
