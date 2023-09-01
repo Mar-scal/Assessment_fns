@@ -190,8 +190,8 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   if(!is.null(edited_csv)){
     trackpts <- read.table(file=edited_csv, header = T, sep = ",")
-    message("edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format, and edited end points must be labelled Garnstopp")
-    if(grepl(names(trackpts), pattern="X")) trackpts <- dplyr::select(trackpts, -X)
+    message("Note: edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format, and edited end points must be labelled Garnstopp")
+    if(any(grepl(names(trackpts), pattern="X"))) trackpts <- dplyr::select(trackpts, -X)
     trackpts$datetime <- ymd_hms(trackpts$datetime)
     
     fixed <- unique(dplyr::setdiff(unsmoothed[,c("tow", "datetime")], trackpts[,c("tow", "datetime")])$tow)
