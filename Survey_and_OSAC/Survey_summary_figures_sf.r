@@ -333,7 +333,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
   if(banks == 'core') banks <- c("BBn" , "GBb", "GBa")
-  #browser()
+  
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
   if(is.null(bank.dat$BBs) && "BBs" %in% banks) banks <- banks[-which(grepl(x=banks, "BBs"))]
   # If we are plotting the sub-areas we wanna do this...
@@ -356,14 +356,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   # Bring in packages and functions
   if(missing(direct_fns))
   {
-    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/pectinid_projector_sf.R",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/stdts.plt.r",
+    funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/stdts.plt.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/survey.ts.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shf.plt.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt1.R",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/Clap3.plt.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r")
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",
+              "https://raw.githubusercontent.com/freyakeyser/Assessment_fns/master/Maps/pectinid_projector_sf.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -592,7 +592,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
     }
     ################################# START MAKING FIGURES################################# START MAKING FIGURES################################# 
-    #browser()
+    
     ################  The non-survey spatial plots ###########################
     ################  Next up are the rest of the spatial plots ###########################
     ################  Next up are the rest of the spatial plots ###########################
@@ -730,7 +730,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           }
         }
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
-      #browser()
+      
       # If we want spatial maps or seedboxes and/or have user SH.bins (for both of which we will produce all figures automatically.)
       if((length(spatial.maps > 0) || any(plots %in% "user.SH.bins"))) 
       {
@@ -740,7 +740,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         if(any(s.res == "high")) s.res <- c(250,250)
         if(any(s.res == "low")) s.res <- c(25,25)
         
-        #browser()
         # This section only needs run if we are running the INLA models
         if(length(grep("run",INLA)) > 0)
         {
@@ -748,7 +747,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # This is how the mesh and A matrix are constructed
           # Build the mesh, for our purposes I'm hopeful this should do the trick, should cover our entire survey area.
           cat("ALERT!  I'm building the mesh for",banks[i], "if this hangs here please try using a different offset for this bank.. \n")
-          #browser()
+          
           # Guidelines for meshes from Zuur, I expect the range for the process in these areas to be around 5 km (i.e. size of a bed.)
           # Using 10 km makes a mesh that seems to lead to weird behaviour so be warned!!
           range <- 5 * 1000 ; max.edge <- range/5
@@ -767,7 +766,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           windows(11,11) ; plot(mesh) ;  plot(bound.poly.surv.sp,add=T,lwd=2)
           cat("Mesh successful, woot woot!!")
           # Now make the A matrix
-          #browser()
+          
           A <- inla.spde.make.A(mesh, loc)
           A.cf <- inla.spde.make.A(mesh,loc.cf)
           
@@ -985,15 +984,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               
               if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]] <- inv.logit(mod$summary.random$s$mean + mod$summary.fixed$mean)*100
               
-              #browser()
               #       if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
             } # end for(k in 1:length(spatial.maps)) # End the loop for getting all the data needed for a bank for the spatial maps.
           } # end if(length(spatial.maps > 0))
         } # end the if(length(grep("run",INLA)) > 0)
         print("finished running normal models")
-        #browser()
-        
-        
         
         
         ############### IF I KEEP THIS IT WILL NEED TO MIRROR THE ABOVE FINAL PRODUCT!!
@@ -1098,7 +1093,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             n.maps <- length(spatial.maps) # This will plot only the spatial maps since we didn't ask for user SH maps.
             maps.to.make <- spatial.maps
           } # end if(any(plots %in% "user.SH.bins") ==F) 
-          
+       
           # Now let's start off by making our base map, if we want to make this work for inshore then we'd need to figure out how to deal with the sfa piece
           # encountering some issues with pecjector, so using tryCatch to determine if it's going to work, and if not, I add a 0.001 buffer.
           x <- tryCatch(print(eval(parse(text = 'pecjector(area = banks[i],
@@ -1151,7 +1146,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
          # Initialize a counter...
           count = 0
-          #browser()
           # Make the maps...
           for(m in 1:n.maps)
           {
@@ -1837,7 +1831,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
       {
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,pdf=F,
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                  areas=surv.info$towable_area[surv.info$startyear<2023],clr=c('blue',"blue","darkgrey"),se=T,pch=16,
                   add.title = T,titl = survey.ts.N.title,cx.mn=3,axis.cx = 1.5)
       }# end if(banks[i] != "Ger" && banks[i] != "Mid")
       # For german bank
@@ -1913,7 +1907,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GBa" & sub.area==T) {
         # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
         # subarea_bars_facet_fix.R
-        #browser()
+        
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=100,bg="transparent")
@@ -1983,7 +1977,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
       {
         survey.ts(survey.obj[[banks[i]]][[1]],min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):yr,Bank=banks[i],pdf=F,type='B', 
-                  areas=surv.info$towable_area,clr=c('blue',"blue","darkgrey"),se=T,pch=16,
+                  areas=surv.info$towable_area[surv.info$startyear<2023],clr=c('blue',"blue","darkgrey"),se=T,pch=16,
                   add.title = T,titl = survey.ts.BM.title,cx.mn=3,axis.cx = 1.5)
       } # end if(banks[i] != "Ger")
       if(banks[i] == "Ger")
@@ -2034,7 +2028,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GBa" & sub.area==T){
         # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
         # subarea_bars_facet_fix.R
-        # browser()
+        
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=420,bg="transparent")
