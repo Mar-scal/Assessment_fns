@@ -557,6 +557,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     if(!banks[i] %in% c("Sab", "BBn")) surv.info <- survey.strata.table[[banks[i]]]
     
+    # for 2023 survey summary, do not use updated strata areas!
+    surv.info <- surv.info[surv.info$startyear<2023,]
+    
     ### If we are missing years in the data I want to add those years in as NA's so the plots see those as NA's  ####
     check.year <- min(survey.obj[[banks[i]]][[1]]$year,na.rm=T):max(survey.obj[[banks[i]]][[1]]$year,na.rm=T)
     missing.year <- check.year[!is.element(check.year,survey.obj[[banks[i]]][[1]]$year)]
