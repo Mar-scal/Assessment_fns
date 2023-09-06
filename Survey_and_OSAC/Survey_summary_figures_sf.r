@@ -759,8 +759,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
           # Will this work for them all I wonder? Max edge should be around 1/5 of the range according to Zuur
           mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge)
-          if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- raster::crs(st_crs(32619)[[2]])
-          if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- raster::crs(st_crs(32620)[[2]])
+          #if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) 
+          mesh$crs <- raster::crs(st_crs(bound.poly.surv.sp)[[2]])
+          # if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- raster::crs(st_crs(bound.poly.surv.sp)[[2]])
           plot(mesh) # For testing I want to plot this to see it and ensure it isn't crazy for the moment...
           #if(!banks[i] %in% c("GB", "Ban", "BanIce", "Sab")) mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge/1.5)
           #if(banks[i] == "GB") mesh <- inla.mesh.2d(loc, boundary=bound.buff, max.edge=c(0.04))
@@ -1362,7 +1363,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                             c_sys = st_crs(mesh$crs)$epsg,
                             add_inla= list(field = mod.res[[maps.to.make[m]]],
                                            mesh = mesh, 
-                                           dims=s.res,
+                                           dims = s.res,
                                            clip = bound.poly.surv.sf,
                                            scale = list(scale = "discrete",
                                                         breaks = base.lvls, 
@@ -1412,9 +1413,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             
             ## NEXT UP FIGURE OUT THE SEEDBOXES!
-            
-            # Finally add seedboxes as appropriate
-            if(length(sb[,1]) > 0) 
+            Finally add seedboxes as appropriate
+            if(length(sb[,1]) > 0)
             {
               sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
               sbs <- as.PolySet(sb, projection = "LL")
@@ -1422,7 +1422,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
               p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1) + coord_sf(expand=F)
             }
-            
+
             # Now print the figure
             print(p3 + guides(fill=guide_legend(order=2), shape=guide_legend(order=1)))
        
@@ -1571,7 +1571,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
       # Finally add seedboxes as appropriate
-      if(length(sb[,1]) > 0) 
+      if(length(sb[,1]) > 0)
       {
         sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
         sbs <- as.PolySet(sb, projection = "LL")
@@ -1579,7 +1579,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)+coord_sf(expand=F)
       }
-      # }
+      }
       if(save.gg == T) save(p2,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
       print(p2 + coord_sf(expand=F))
       if(fig != "screen") dev.off()
@@ -1635,7 +1635,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         if(fig == "pdf") pdf(paste(plot.dir,"/MWSH_and_CF_ts_wide.pdf",sep=""),width = 13,height = 8.5)
       }
       
-      if(layout=="portrait") par(mfrow=c(2,1))
+      if(layout=="portrait") par(mfrow=c(2,1), oma=c(2,2,2,2))
       if(layout=="landscape") par(mfrow=c(1,2))
       
       shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
