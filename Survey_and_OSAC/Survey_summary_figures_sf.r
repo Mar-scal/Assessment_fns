@@ -1413,7 +1413,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             
             ## NEXT UP FIGURE OUT THE SEEDBOXES!
-            Finally add seedboxes as appropriate
+            #Finally add seedboxes as appropriate
             if(length(sb[,1]) > 0)
             {
               sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
@@ -1579,7 +1579,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)+coord_sf(expand=F)
       }
-      }
+      
       if(save.gg == T) save(p2,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/Survey.Rdata"))
       print(p2 + coord_sf(expand=F))
       if(fig != "screen") dev.off()
