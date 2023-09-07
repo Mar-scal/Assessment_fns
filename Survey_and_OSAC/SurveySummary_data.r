@@ -336,7 +336,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     all.surv.dat$lat<-with(all.surv.dat,apply(cbind(elat,slat),1,mean))
     
     print("NEED TO REVISE import.hyd.data yrs everytime more historical data is added to database. We need to investigate potential duplication?!")
-    
+   
     # THe MW data is now from 2006 to current soon to be all data...
     MW.dat.new <- SurvDB$MWs
     MW.dat.new$bank[MW.dat.new$bank=="Ban" & MW.dat.new$species=="icelandic"] <- "BanIce"
@@ -400,6 +400,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins.tmp <- bins
     test <- testing
     mwsh <-mwsh.test
+    tmp.spatial <- spatial
     
     if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed_", nickname, ".Rdata",sep=""))  
     if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_preprocessed.Rdata",sep=""))  
@@ -453,6 +454,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     bins <- bins.tmp
     testing <- test
     mwsh.test <-mwsh
+    spatial <- tmp.spatial
   } # end if(preprocessed == T) 
   
   
@@ -464,8 +466,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   ################################### END SECTION 1 END SECTION 1#################################################
   ###############################################################################################################
   
-  
-  
+
   
   
   ##############################################################################################################
@@ -790,6 +791,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # Get the strata areas.
         surv.info <- subset(survey.info,label== bnk)
         strata.areas <- subset(surv.info,label==bnk,select =c("Strata_ID","towable_area","startyear"))
+        strata.areas <- strata.areas[strata.areas$startyear<2023,]
         #Read25 read removed... Get all the details of the survey strata
         
       } # end if(is.null(spat.names) || !(surveys[i] %in% spat.names$label))
@@ -926,10 +928,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3,)
+      SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
-      
-      print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
       
       # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
@@ -1202,7 +1202,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         #Some funky code to get the matched tows...
         ger.tows <- NULL
         ger.years <- unique(surv.dat$Ger$year[surv.dat$Ger$year>2008]) # Pick the years for which we've had repeated tows.
-        
+
         for(b in 1:length(ger.years))
         {
           # Get the tows for the current year.
@@ -1278,7 +1278,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
           # Update the list with the new matched tows
           ger.tows <- rbind(ger.tows,new.ger.tows)
         } # end for(b in 1:length(ger.years))
-        
+
         # All the 2008 lined tows are given a stratum of 2, because that's how it was done...
         lined.dat$stratum[which(lined.dat$year == 2008)] <- 2
         # This gets us the overall estimates for the bank, but it doesn't get the shell height frequency data we need
@@ -1330,9 +1330,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bank.4.spatial=="Sab")  
         {
           survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Rand[[bnk]], RS=RS, CS=CS, #RS=80 CS=90
-                                                  bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
+                                                  bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(1900,2018),], mw.par="CF",user.bins = bin)	# bin = c(50, 70, 80, 90, 120)
           clap.survey.obj[[bnk]] <- survey.dat.restrat(shf=surv.Clap.Rand[[bnk]],htwt.fit=SpatHtWt.fit[[bnk]], RS=RS, CS= CS, 
-                                                       bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)		
+                                                       bk=bank.4.spatial, areas=strata.areas[strata.areas$startyear %in% c(1900,2018),], mw.par="CF",user.bins = bin)		
           print("survey.dat.restrat done")
         } # end if(bnk=="Sab")
         

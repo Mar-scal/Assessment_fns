@@ -24,7 +24,7 @@
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2022
+yr <- 2023
 un.ID <- "ENTER UN HERE"
 pwd.ID <- "ENTER PW HERE"
 
@@ -59,16 +59,16 @@ res <- survey.data(direct = direct,
                    surveys = c(#"Banspring", 
                     # #"BanIcespring", 
                       "BBnspring",
-                      #"BBsspring",
+                      "BBsspring",
                       "Gerspring",
                       "Midspring",
                       "Sabspring",
-                      "GBspring",
-                        "GBbsummer",
-                        "GBasummer"
+                      "GBspring"#,
+                      #   "GBbsummer",
+                      #   "GBasummer"
                      ), 
-                   db.con="ptran",testing=F, season="both", spatial=T, mwsh.test=F,
-                   commercialsampling=T, nickname=NULL)
+                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
+                   commercialsampling=T, nickname="spring2023")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -95,45 +95,45 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
-            yr=2022, 
+            yr=2023, 
             banks = c(
                   "BBn",
-                   "Ger",
-                "Mid",
-               "Sab",
-              "GBa",
-              "GBb",
-              "GB"#,
-              #"BBs"#,
+                    #"Ger",
+                 #"Mid",
+                #"Sab",
+               #"GBa",
+               #"GBb",
+               #"GB",
+               "BBs"#,
               #"Ban",
               # "BanIce"
             ),
             s.res="high",
             plots = c(
                # "Survey",
-               #  "abund-ts",
-               #  "biomass-ts",
-               #   "SHF",
-               #   "user.SH.bins",
-                 "MW-SH"#,
-              #   "clapper-abund-ts",
-              #   "clapper-per-ts",
-              #   "SH-MW-CF-ts",
-               #  "breakdown",
-              #       "PR-spatial",
-              #      "Rec-spatial",
-              #      "FR-spatial",
-               #   "CF-spatial"#,
-              #     "MC-spatial",
-              #     "Clap-spatial"#,
-              #      "MW-spatial", "SH-spatial",
-              #   "MW.GP-spatial",
-              #     "SH.GP-spatial",
+                # "abund-ts",
+                 #"biomass-ts",
+                  #"SHF",
+                 "user.SH.bins",
+              #    "MW-SH",
+                #"clapper-abund-ts",
+                #"clapper-per-ts",
+              #    "SH-MW-CF-ts",
+                 # "breakdown"#,
+                     "PR-spatial",
+                    "Rec-spatial",
+                    "FR-spatial",
+                 "CF-spatial",
+                   "MC-spatial",
+                   "Clap-spatial",
+                    "MW-spatial", "SH-spatial",
+                 "MW.GP-spatial",
+                   "SH.GP-spatial"#,
               #   "SHF-large",
               # "seedboxes"
               ), 
             bathy=c(10,'c'), 
-            sub.area=F, INLA="load", season="testing", nickname="commercial", layout="landscape")
+            sub.area=F, INLA="run.full", season="testing", nickname="spring2023", layout="landscape")
 
 Sys.time() -str
 
