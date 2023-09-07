@@ -1413,7 +1413,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             }
             
             ## NEXT UP FIGURE OUT THE SEEDBOXES!
-            Finally add seedboxes as appropriate
+            #Finally add seedboxes as appropriate
             if(length(sb[,1]) > 0)
             {
               sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
