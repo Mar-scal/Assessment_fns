@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  6 SEP 2023 15:11
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  6 SEP 2023 17:07
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1260,7 +1260,7 @@ Here is how much of TeX's memory you used:
 pdfTeX warning (dest): name{toc} has been referenced but does not exist, replaced by a fixed one
 
 {c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
-Output written on output.pdf (92 pages, 21715535 bytes).
+Output written on output.pdf (92 pages, 21727427 bytes).
 PDF statistics:
  1006 PDF objects out of 1200 (max. 8388607)
  745 compressed objects within 8 object streams
