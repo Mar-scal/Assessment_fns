@@ -58,7 +58,7 @@
 
 ###############################################################################################################
 # Arguments
-# 1:  direct:       The working directory to put figures are from which to grab data.  Default = "Y:/Offshore scallop/Assessment/", 
+# 1:  direct:       The working directory to put figures are from which to grab data.  Default = "Y:/Offshore/Assessment/", 
 # 1B: direct_fns:   If missing(default) this will go grab functions from github.
 # 2:  yr.start:     Start year for getting the data.  1984 is default, we haven't generally used older data 
 # 3:  yr:           End year.  Default is the current system year: as.numeric(format(Sys.time(), "%Y"))
@@ -84,7 +84,9 @@
 #                   we only have this available for GBa.
 # 13: commercialsampling:  Do we want to include MW-SH data that were collected during year-round commercial fishing trips? Default is T, yes include all data.
 #                    F means include only survey MW-SH samples.
-# 14: nickname:     if testing = T, adds a nickname to your Rdata file for testing purposes (so that you don't overwrite one of the hard-coded versions)
+# 14: mwsh.test:  For sensitivity testing of the meat weight-shell height sampling protocols. If T, will open a browser() for manual analysis. Default is F and should
+#                   be used for general survey summary purposes
+# 15: nickname:     if testing = T, adds a nickname to your Rdata file for testing purposes (so that you don't overwrite one of the hard-coded versions)
 ###############################################################################################################
 
 survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(format(Sys.time(), "%Y")) ,
