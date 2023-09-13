@@ -62,14 +62,14 @@ res <- survey.data(direct = direct,
                       "BBsspring",
                         "Gerspring",
                        "Midspring",
-                       "Sabspring"#,
+                       "Sabspring",
                        # "GBspring",
-                       #   "GBbsummer",
+                          "GBbsummer"#,
                        #   "GBasummer"
                      ), 
                    db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="framework_80-95RSCS_newMWSH", bins=c(50,65,95,110),
-                   size.cats="Size_categories_by_bank_80-95.csv")
+                   commercialsampling=T, nickname="framework_75-90RSCS_newMWSH_GBb", bins=c(50,65,95,110),
+                   size.cats="Size_categories_by_bank_75-90.csv")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),

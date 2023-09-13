@@ -1024,8 +1024,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.601",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
-        if(!bnk %in% c("GBa-Large_core", "BBn", "Sab", "Ger", "BBs"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
-        if(bnk %in% c("BBn", "Sab", "Ger", "BBs"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
+        if(!bnk %in% c("GBa-Large_core", "BBn", "Sab", "Ger", "BBs", "GBb"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
+        if(bnk %in% c("BBn", "Sab", "Ger", "BBs", "GBb"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
@@ -1074,13 +1074,13 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # to use just the current RS size (unless of course you specify something yourself).
       #Source7 source("...surv.by.tow.r") surv.by.tow calculates number or biomass of pre, rec and com size scallops in each tow
       
-      if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn", "Sab", "BBs"))
+      if(bank.4.spatial %in% c("Ban", "BanIce", "Mid","Ger","BBn", "Sab", "BBs", "GBb"))
       {
         surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "weight.matrix", htwt.fit=cf.data[[bnk]]$CF.fit$weight.matrix, user.bins = bin)
         #surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS, type='B', mw.par="CF")
       } # end if(bnk %in% c("Mid","Ger","BBn","GB","GBa","GBb"))
       
-      if(bank.4.spatial %in% c("GB", "GBa", "GBb")) 
+      if(bank.4.spatial %in% c("GB", "GBa")) 
       {
         surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS,type = "ALL",mw.par = "CF",user.bins = bin)
         #surv.dat[[bnk]] <- surv.by.tow(surv.dat[[bnk]], years, pre.ht=RS, rec.ht=CS, type='B', mw.par="CFh")
