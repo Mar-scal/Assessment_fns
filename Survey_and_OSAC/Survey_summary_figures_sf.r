@@ -745,7 +745,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
         # This section only needs run if we are running the INLA models
         if(length(grep("run",INLA)) > 0)
-        {
+        { 
+          if(packageVersion("Matrix")!="1.3.4") stop("Reinstall Matrix version 1.3.4 \nor INLA won't work")
+          if(packageVersion("INLA")!="22.4.16") stop("Install INLA version 22.4.16 from zip file at\n https://inla.r-inla-download.org/R/stable/bin/windows/contrib/4.1/")
           
           # This is how the mesh and A matrix are constructed
           # Build the mesh, for our purposes I'm hopeful this should do the trick, should cover our entire survey area.
@@ -770,7 +772,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           windows(11,11) ; plot(mesh) ;  plot(bound.poly.surv.sp,add=T,lwd=2)
           cat("Mesh successful, woot woot!!")
           # Now make the A matrix
-          
           A <- inla.spde.make.A(mesh, loc)
           A.cf <- inla.spde.make.A(mesh,loc.cf)
           
@@ -807,7 +808,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
           # basically the random deviations for each piece of the mesh.
           formula3 <- y ~ 0 + a0 + f(s, model=spde)
-          
           # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
           if(length(spatial.maps) > 0)
           {
@@ -861,7 +861,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               
               if(spatial.maps[k] == "FR-spatial") 
               {
-                
+                # browser()
                 # This is the stack for the INLA model
                 stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$com,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
@@ -2422,7 +2422,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series             
     ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series
-    
     if(any(plots== "SH-MW-CF-ts"))
     {
       # This only works for the banks we have thse data for...
@@ -2455,7 +2454,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB  
-    
     if(any(plots== "breakdown"))
     {
       # This only works for the banks we have thse data for...
