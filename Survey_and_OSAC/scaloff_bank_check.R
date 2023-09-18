@@ -466,6 +466,7 @@ Check the MGT_AREA_CD values for the following tows:")
         files <- files[grep(x = files, pattern="Olex_distance_coefficients")]
         
         if(length(files)>0) {
+          if(length(files)>1) stop("I don't know which olex file to use. Use browser() to do this manually, then turn off spatialplots when you want to skip this step.")
           olex <- read.csv(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", files))
           olex$startlon <- convert.dd.dddd(olex$start_lon)
           olex$startlat <- convert.dd.dddd(olex$start_lat)
@@ -488,7 +489,7 @@ Check the MGT_AREA_CD values for the following tows:")
           tows_sf$START_LON_DD <- convert.dd.dddd(tows_sf$START_LON)
           tows_sf$START_LAT_DD <- convert.dd.dddd(tows_sf$START_LAT)
           tows_sf <- st_as_sf(tows_sf, coords=c("START_LON_DD", "START_LAT_DD"), crs=4326)
-          tows_sf_buffer <- st_buffer(tows_sf, dist = 1000)
+          tows_sf_buffer <- st_buffer(tows_sf, dist = 500)
           
           compare <- st_intersection(tows_sf_buffer, olex_sf)
           
@@ -514,11 +515,13 @@ Check the MGT_AREA_CD values for the following tows:")
           }
         }
       
-        
         #assign to strata
         if(assign.strata==TRUE & bank %in% c("Sab", "BBn", "BBs", "GBa", "GBb")){
           shp <- github_spatial_import(subfolder = "offshore_survey_strata", zipname = "offshore_survey_strata.zip",quiet = T, specific_shp = paste0(bank,".shp"))
-          tows_sf <- st_intersection(tows_sf, st_transform(shp, st_crs(tows_sf))) %>% 
+          shp <- st_make_valid(shp)
+          if(bank %in% c("Sab","BBs")) CRS <- 32620
+          if(!bank %in% c("Sab","BBs")) CRS <- 32619
+          tows_sf <- st_intersection(st_transform(tows_sf, CRS), st_transform(shp, CRS)) %>% 
             dplyr::select(-PID, -col, -border, -PName, -towbl_r, -are_km2, -label, -startyr)
           
           #check allocation
@@ -528,7 +531,8 @@ Check the MGT_AREA_CD values for the following tows:")
           survey.info <- read.csv(paste0(direct, "Data/Survey_data/survey_information.csv"))
           survey.info <- survey.info[survey.info$label==bank,]
           survey.info <- survey.info[survey.info$startyear==unique(survey.info$startyear)[which.min(year - unique(survey.info$startyear))],]
-          survey.info$allocation <- survey.info$area_km2/sum(survey.info$area_km2) * nrow(tows[tows$TOW_TYPE_ID=="1 - Regular survey tow",])
+          if(bank=="GBa") survey.info$allocation <- c(51,37,32,26,35,11,8) 
+          if(!bank=="GBa") survey.info$allocation <- survey.info$area_km2/sum(survey.info$area_km2) * nrow(tows[tows$TOW_TYPE_ID=="1 - Regular survey tow",])
           names(survey.info)[which(names(survey.info)=="Strata_ID")] <- "Strt_ID"
           assigned <- left_join(assigned, survey.info) 
           
@@ -695,6 +699,13 @@ Check the MGT_AREA_CD values for the following tows:")
         message("The following HF records should be in BUCKETS not BASKETS. Check them out.")
         print(longhfs[longhfs$variable %in% c("LIVE_QTY_BASKET", "DEAD_QTY_BASKET") & longhfs$BIN_ID<50 & longhfs$value>0,])
       }
+      
+      # are any records >50mm in buckets instead of baskets?
+      if(nrow(longhfs[longhfs$variable %in% c("LIVE_QTY_BUCKET", "DEAD_QTY_BUCKET") & longhfs$BIN_ID>50 & longhfs$value>0,])>0) {
+        message("The following HF records should be in BASKETS not BUCKETS. Check them out.")
+        print(longhfs[longhfs$variable %in% c("LIVE_QTY_BUCKET", "DEAD_QTY_BUCKET") & longhfs$BIN_ID>50 & longhfs$value>0,])
+      }
+      
       # plot the raw HF distributions by tow (one tow per pdf page)
       ## plot tows to PDF
       print("plotting HF distributions:")
@@ -742,7 +753,7 @@ Check the MGT_AREA_CD values for the following tows:")
   if(mwsh==TRUE){
     
     mwshchecks<- function(mwshs){
-    browser()  
+      
       message("Are there empty rows at the bottom of the MWSH dataframe? If so, go back to your spreadsheet and delete empty rows.")
       print(tail(mwshs))
       
