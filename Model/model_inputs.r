@@ -126,7 +126,7 @@ model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns,
   
   #Read1 Bring in the VonB model parameters
   cat("We read in the von B growth parameters from the file .../Data/Ageing/Von_B_growth_parameters.csv \n")
-  vonB <- read.csv(paste(direct,"Data/Ageing/Von_B_growth_parameters.csv",sep=""))
+  vonB <- read.csv(paste(direct,"Data/Ageing/Von_B_growth_parameters_framework.csv",sep=""))
   
   # Run this for one or both banks
   mod.dat <- NULL
