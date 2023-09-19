@@ -170,8 +170,8 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 ```{r, echo=FALSE}
 if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot <- paste0("Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty. ")
 
-cftsltm <- "The dashed line is the long term median."
-if(params$bank %in% c("Ger", "GB", "GBa", "GBb")) cftsltm <- "The dashed lines are the long term medians for each time series. "
+cftsltm <- "The horizontal dashed line is the long term median."
+if(params$bank %in% c("Ger", "GB", "GBa", "GBb")) cftsltm <- "The horizontal dashed lines are the long term medians for each time series. "
 
 cftsgb <- NULL
 if(params$bank %in% c("GBa", "GBb", "GB")) cftsgb <- "The May and August results are shown separately. "
