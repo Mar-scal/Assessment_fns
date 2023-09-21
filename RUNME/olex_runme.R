@@ -67,11 +67,11 @@ olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/
 
 # to create an editable CSV file
 olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
-            UTM=32620, type="txt", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01")
+            UTM=32620, type="csv", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01")
 # to load using an edited CSV file
 olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
                          UTM=32620, type="load", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01",
-                         edited_txt="C:/Users/keyserf/Documents/Github/Assessment_fns/txt_to_edit.txt")
+                         edited_csv="path/to/csv_to_edit.csv")
 
 #write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/Olex_distance_coefficients_MidSab.csv")
 

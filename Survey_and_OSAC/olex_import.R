@@ -183,13 +183,13 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   unsmoothed <- trackpts
   
   if(type=="csv"){
-    write.table(trackpts, paste0(getwd(), "/csv_to_edit.csv"), sep = ",")
+    write.csv(trackpts, paste0(getwd(), "/csv_to_edit.csv"))
     print(paste0(getwd(), "/csv_to_edit.csv"))
     return()
   }
   
   if(!is.null(edited_csv)){
-    trackpts <- read.table(file=edited_csv, header = T, sep = ",")
+    trackpts <- read.csv(file=edited_csv, header = T)
     message("Note: edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format, and edited end points must be labelled Garnstopp")
     if(any(grepl(names(trackpts), pattern="X"))) trackpts <- dplyr::select(trackpts, -X)
     trackpts$datetime <- ymd_hms(trackpts$datetime)
