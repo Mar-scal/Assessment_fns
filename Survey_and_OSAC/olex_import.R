@@ -196,11 +196,16 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     
     fixed <- unique(dplyr::setdiff(unsmoothed[,c("tow", "datetime")], trackpts[,c("tow", "datetime")])$tow)
     for(i in fixed){
+      # to fix the coords object:
       coords$Start_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][1], format="deg.min")
       coords$Start_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][1], format="deg.min")
       coords$End_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
       coords$End_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
+      
+      # to fix the trackpts object
+      unsmoothed <- dplyr::arrange(rbind(unsmoothed[!unsmoothed$tow == i,], trackpts[trackpts$tow==i,]), tow, datetime)
     }
+    trackpts <- unsmoothed
   }
   
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
