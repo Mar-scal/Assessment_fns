@@ -75,13 +75,13 @@ olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/
                          edited_csv="C:/users/keyserf/Desktop/csv_to_edit - Copy.csv",
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18trackorder.xlsx")
 
-#write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/Olex_distance_coefficients_MidSab.csv")
+#write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/Olex_distance_coefficients_GBa_2023_withmanualrevision.csv")
 
 ##### Optional: 
-### Check to see if they stayed in the right strata.
-output <- olex_check_strata(towplan = "C:/Users/keyserf/Documents/temp_data/sab_plan23.csv", # from final station list
-                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks_May21.gz",
-                            bank="Sab", interactive=F, UTM=32620, earliest="2023-05-01", latest="2023-07-01")
+### Check to see if they stayed in the right strata (don't use this for entering strata, use tow_file_strata.csv instead)
+output <- olex_check_strata(towplan = "Y:/Offshore/Survey/SurveyWG/2023/Final_LE18station_list_GBa2023.csv", # from final station list
+                            towfile="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz",
+                            bank="GBa", interactive=F, UTM=32619, earliest="2023-08-01", latest="2023-09-01")
 
 # to check tow lengths
 olex_sf$length <- st_length(olex_sf)
