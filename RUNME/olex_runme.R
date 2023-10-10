@@ -40,9 +40,10 @@ olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Da
                        tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
 
 ### OPTIONAL: Extract the tow tracks for sharing in txt file or CSV file
-olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/MidSabtracks.gz", 
-                           UTM = 32620, earliest="2023-05-01", latest="2023-07-01", type="tracks",
-                           tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE17/LE17trackorder.xlsx")
+olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBb_gba1to3.gz", 
+                           UTM = 32619, earliest="2023-08-01", latest="2023-09-01", type="tracks",
+                           #edited_csv="C:/users/keyserf/Desktop/csv_to_edit - Copy.csv",
+                           tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/GBbLE18trackorder.xlsx")
 
 # for industryreport
 for(i in unique(olex_tracks$Bank)){
