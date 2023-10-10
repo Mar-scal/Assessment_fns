@@ -22,7 +22,7 @@ require(tidyverse)
 options(tinytex.verbose = TRUE)
 
 
-year <- 2023
+year<-2023
 
 load("summary_summer_2023.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
