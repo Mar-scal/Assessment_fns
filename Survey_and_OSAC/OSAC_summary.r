@@ -59,7 +59,6 @@ OSAC_summary <- function(yr = as.numeric(format(Sys.time(), "%Y")), mx.dt = as.D
                          mc.path = "default",direct, direct_fns,
                          un=NULL,pw=NULL,db.con="ptran")
 {
-
 # Load functions and external datafiles we might need
 if(missing(direct_fns))
 {
@@ -87,7 +86,6 @@ if(!missing(direct_fns))
   source(paste0(direct_fns, "Fishery/meat.count.table.R"))
 }  # end  if(!missing(direct_fns))
   
-  
 require(xlsx) || stop("Hold up!  If you don't install the xlsx package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 require(plyr) || stop("Hold up!  If you don't install the plyr package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
 require(splancs) || stop("Hold up!  If you don't install the splancs package, well ya know... spoilers... so I can't say what will happen, but it'll suck")
@@ -109,9 +107,11 @@ if(!is.null(bank))
   #                 in this document, though the fishery data may not be the latest 
   # This trick is needed because we don't have the Survey_all_results.Rdata file before 2015 (though it contains everything we want!)
   direct1 <- direct
+  direct_fns1<-direct_fns
   if(yr <= 2015) load(paste(direct,"Data/Survey_data/2015/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
-  if(yr > 2015) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))  
+  if(yr > 2015) load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
   direct <- direct1
+  direct_fns<-direct_fns1
   bnk <- bank # Reset the bank and year info
   years <- years.t
   yr <- max(years)
@@ -133,7 +133,6 @@ if(!is.null(bank))
   #  exist.
   # This object also contains the catch in each cell for each bank...
   print("fishery_figures")
-  
   bank.spatial <- fishery_figures(fish.dat=fish.dat,bnk=bnk,max.date=mx.dt,direct=direct, direct_fns = direct_fns,poly.brd=poly.brd,
                                   years=years,save.fig=save.fig,add.titles = add.titles)
   cpue.dat <- bank.spatial[[2]]

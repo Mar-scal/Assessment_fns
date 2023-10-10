@@ -21,7 +21,7 @@
 # Load your directory and the survey year
 #direct <- "d:/r/"
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 yr <- 2022
 
 # Load the function...
@@ -32,16 +32,18 @@ source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 # banks that don't have fishery data for the current year!
 OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2022,
              bank ="all",
-             save.fig = T,save.res=T,export=T, calc.mc = F, rdata.logs=T)
+             save.fig = F,save.res=F,export=F, calc.mc = T, rdata.logs=F)
+
+#NEED TO GO CHECK GERMAN, HAS SOME DIFFERENCES IN SPATIAL CATCH, histogram is fine
 
 OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),
              save.fig = F,save.res=F,export=F, calc.mc = F, rdata.logs=F)
 
-SPB <- OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
-             bank = c("SPB"#, "Mid","Sab","Ger","BBn","GBa","GBb","BBs"
+GBa <- OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
+             bank = c("GBa"#"SPB", "Mid","Sab","Ger","BBn","GBa","GBb","BBs"
                       ),
-             save.fig = T,save.res=F,export=F, calc.mc=T, rdata.logs=F)
+             save.fig = F,save.res=F,export=F, calc.mc=T, rdata.logs=F)
 # Get rid of some clutter...
 rm("fleet_data","new.log.dat","old.log.dat","slip.dat")
 # And the data is all summarized in the OSAC_res object

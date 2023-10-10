@@ -915,7 +915,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       
       # For the most recent data
-      if(!max(mw[[bnk]]$year)==yr) {
+      # browser()
+      #Changed this so that if there's nothing (for sub-areas) it keeps running
+      if (is.na(max(mw[[bnk]]$year)==yr)){
+        message(paste0("No MW data available for any years for ",bnk))
+      } else if(!max(mw[[bnk]]$year)==yr|is.na(max(mw[[bnk]]$year)==yr)) {
         message(paste0("no MW data available for specified yr, using ", max(mw[[bnk]]$year), " for mw.dm instead."))
         mw.dm <- na.omit(subset(mw[[bnk]], year==max(mw[[bnk]]$year)))
       }
@@ -932,7 +936,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
       SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
-      
+      browser()
       # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 

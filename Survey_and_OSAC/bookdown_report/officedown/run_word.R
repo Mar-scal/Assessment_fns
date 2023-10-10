@@ -11,7 +11,7 @@ reportyear <- 2022
 ### if you need to re-create the summary.RData
 
 #direct_fns <- "C:/Users/keyserf/Documents/Github/FK/Assessment_fns/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 

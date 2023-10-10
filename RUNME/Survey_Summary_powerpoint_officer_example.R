@@ -4,7 +4,7 @@ require(officer)
 require(tidyverse)
 
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 
 load("Y:/Offshore/Assessment/Data/Survey_data/2022/Survey_summary_output/Survey_all_results.Rdata")
 names(survey.obj) <- gsub(names(survey.obj), pattern="-", replacement="")
@@ -216,7 +216,8 @@ for (i in 1:length(banks)) {
     ph_with(location = ph_location_label(ph_label = "Content Placeholder 19"), value=corner, index=1)
 }
 
-print(newpres, target = "Y:/Offshore/Assessment/2022/Presentations/Survey_summary/officer_output.pptx")   
+# print(newpres, target = "Y:/Offshore/Assessment/2022/Presentations/Survey_summary/officer_output.pptx")
+print(newpres, target = "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/Survey_and_OSAC/officer_output_RAPHTEST.pptx")
 ###################################################################
 ###################################################################
 ##################### BASE POWERPOINT DONE ########################

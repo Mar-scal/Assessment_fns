@@ -224,7 +224,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022_2.Rdata",sep=""))  
+      warning("Verify that you are loading the correct spring survey file")
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -1193,7 +1194,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # Get the levels correct add extra levels to this to get a better resolution if we have levels > 18
               if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) 
               {
-                byextra <- pretty(max(base.lvls[-length(base.lvls)]):round(max(mod.res[[maps.to.make[m]]], na.rm=T)), n = 3)
+                #Changed next line to ceiling instead of round, creates NAs if value is too high
+                byextra <- pretty(max(base.lvls[-length(base.lvls)]):ceiling(max(mod.res[[maps.to.make[m]]], na.rm=T)), n = 3)
                 extra.lvls <- byextra[-1]
                 # extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra, 
                 #                 max(base.lvls[-length(base.lvls)]) + byextra*2,  
@@ -1683,9 +1685,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           {  
             survey.obj.last[["GB"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GB"]][[1]]$year))[survey.obj.last[["GB"]][[1]]$year]
           }
-          lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
-          lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1), 
+          #I have modified this because I was having issues with running "both"
+          points(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj.last[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
+          lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1),
                 x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
+          # lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
+          # lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1),
+          #       x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
         } # end if(season="both")
         legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
       } # end if(banks[i] == "GBa")
