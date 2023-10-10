@@ -22,9 +22,9 @@ require(tidyverse)
 options(tinytex.verbose = TRUE)
 
 
-year<-2023
+year <- 2023
 
-load("summary_summer_2023.Rdata")
+load("summary.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows
@@ -57,16 +57,6 @@ if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank == "Ger") surv.d
 if(length(ntows$Freq[ntows$bank==params$bank])>2 & params$bank == "Ger") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==1], " ", bank$towtype1[bank$lab==params$bank],  " stations within the survey domain, ", ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", "stations repeated from the previous survey, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1 %in% c(1, 3)], " exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==2 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations, and ", ntows$Freq[ntows$bank==params$bank & !ntows$Var1==3], " ", "exploratory stations.")
 if(length(ntows$Freq[ntows$bank==params$bank])==1 & params$bank =="GB") surv.description <- paste0(ntows$Freq[ntows$bank==params$bank & ntows$Var1==3], " ", bank$towtype1[bank$lab==params$bank],  " stations.")
-
-
-if(params$bank=="Ger") {
-  bank$towtype1[bank$lab==params$bank] <- "sampling with partial replacement"
-  ltm_ts <- "The horizontal dashed lines are the long term medians."
-}
-
-if(!params$bank=="Ger") {
-  ltm_ts <- "The dashed line is the long term median."
-}
 
 maxbin <- strsplit(highlights$word[highlights$variable=="maxbin" & highlights$bank==params$bank], "(", fixed=T)[[1]][1]
 
@@ -168,7 +158,7 @@ The survey of `r bankname` in `r year` used a `r bank$towtype1[bank$lab==params$
 In the `r bankname` survey, pre-recruits are considered to be scallops with shell heights less than `r sizes$RS[sizes$bank==params$bank]$size` mm, recruits have shell heights from `r sizes$RS[sizes$bank==params$bank]$size` mm to `r (sizes$CS[sizes$bank==params$bank]$size)-1` mm, and fully-recruited scallop have shell heights greater than or equal to `r sizes$CS[sizes$bank==params$bank]$size` mm. 
 
 ```{r, echo=F, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Survey station map. There were ", sum(ntows$Freq[ntows$bank==params$bank]), " tow locations on ", bankname, " in ", year, ".")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/survey_strata.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/survey_strata.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -179,6 +169,15 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ```{r, echo=FALSE}
 if(params$bank %in% c("Ban", "BanIce", "Mid", "GB")) fig1foot <- paste0("Note that error bars are not calculated for fixed station survey designs as they do not properly account for uncertainty. ")
+
+cftsltm <- "The horizontal dashed line is the long term median."
+if(params$bank %in% c("Ger", "GB", "GBa", "GBb")) cftsltm <- "The horizontal dashed lines are the long term medians for each time series. "
+
+cftsgb <- NULL
+if(params$bank %in% c("GBa", "GBb", "GB")) cftsgb <- "The May and August results are shown separately. "
+
+gearfoot <- NULL
+if(params$bank == "Ger") gearfoot <- "Results from each gear type (lined or unlined) are shown separately. "
 
 ```
 
@@ -221,16 +220,16 @@ kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex',
 [Return to bank summary](#`r paste0(params$bank, "links")`)
 \newpage
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Abundance time series for ", bankname, " in ", year, ", represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. ", ltm_ts)}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/abundance_ts.png"))
+```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Abundance time series for ", bankname, " in ", year, ", represented by number of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. ", gearfoot, "The horizontal dashed lines are the long term medians for each time series.")}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/abundance_ts.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
 \newpage
 
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Biomass time series for ", bankname, " in ", year, ", represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. ", ltm_ts)}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/biomass_ts.png"))
+```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Biomass time series for ", bankname, " in ", year, ", represented by kilograms (kg) of scallop per standardized tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. ", gearfoot, "The horizontal dashed lines are the long term medians for each time series.")}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/biomass_ts.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -242,7 +241,7 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 For `r bankname` in `r year`, the size bin with the most scallop per tow was `r maxbin` mm (Figure `r fignum[4]`).
 
 ```{r, echo=FALSE, message=F, out.height="85%", out.width="85%", fig.align="center", fig.cap=paste0("Shell height frequencies of scallop on ", bankname, " in ", year, ". Vertical lines are the recruit size limits.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/SHF.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/SHF.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -251,12 +250,12 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 
 ## Meat weight-shell height & condition {#`r paste0(params$bank, "MWSH")`}
 
-On `r bankname` in `r year`, the empirical meat weight-shell height relationship (Figure `r fignum[5]`) estimated that a scallop with a shell height of 100mm would have a meat weight of approximately `r ScallopRound(as.numeric( highlights$thisyear[highlights$variable=="fittedmw100mm" & highlights$bank==params$bank]),2)` grams. The modelled (GAMM) condition factor estimate `r cf_statement`, and was `r mwshltm` the long term median of `r highlights$LTM[highlights$variable=="CF" & highlights$bank==params$bank]`.
+On `r bankname` in `r year`, the empirical meat weight-shell height relationship (Figure `r fignum[5]`) estimated that a scallop with a shell height of 100mm would have a meat weight of approximately `r ScallopRound(as.numeric( highlights$thisyear[highlights$variable=="fittedmw100mm" & highlights$bank==params$bank]),2)` grams. The modelled (GAMM) condition factor estimate `r cf_statement`, and was `r mwshltm` the long term median of `r highlights$LTM[highlights$variable=="CF" & highlights$bank==params$bank]`. 
 
 <!-- \begin{landscape} -->
 
-```{r, echo=FALSE, message=F, out.height="70%", out.width="70%", fig.align="center", fig.cap=paste0("Meat weights and shell heights for sampled tows on ", bankname, " in ", year, " (top). Red points represent individual scallops, red lines represent the trend for each sampled tow, and the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which can be thought of as the meat weight of a scallop with a shell height of 100mm.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/MWSH_and_CF_ts.png"))
+```{r, echo=FALSE, message=F, out.height="70%", out.width="70%", fig.align="center", fig.cap=paste0("Meat weights and shell heights for sampled tows on ", bankname, " in ", year, " (top). Red points represent individual scallops, red lines represent the trend for each sampled tow, and the blue line is the overall trend for the current survey. Condition factor (bottom) is measured as grams of meat per decimeter cubed, which can be thought of as the meat weight of a scallop with a shell height of 100mm. ", cftsgb, gearfoot, cftsltm)}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MWSH_and_CF_ts.png"))
 ```
 
 <!-- \end{landscape} -->
@@ -309,21 +308,21 @@ kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex',
 
 
 ```{r, echo=FALSE, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Spatial distribution of pre-recruit scallop on ", bankname, " in ", year, ". Each point is a survey station, and the colour shows the distribution of modelled abundance.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/PR-spatial.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/PR-spatial.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
 \newpage
 
 ```{r, echo=FALSE, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Spatial distribution of recruit scallop on ", bankname, " in ", year, ". Each point is a survey station, and the colour shows the distribution of modelled abundance.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/Rec-spatial.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Rec-spatial.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
 \newpage
 
 ```{r, echo=FALSE, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Spatial distribution of fully-recruited scallop on ", bankname, " in ", year, ". Each point is a survey station, and the colour shows the distribution of modelled abundance.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/FR-spatial.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/FR-spatial.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -343,14 +342,14 @@ knitr::kable(table, format = "latex", row.names=F, booktabs=T, caption="Summary 
 
 
 ```{r, echo=FALSE, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Spatial distribution of scallop condition on ", bankname, " in ", year, ".")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/CF-spatial.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/CF-spatial.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
 \newpage
 
 ```{r, echo=FALSE, message=F, out.height="100%", out.width="100%", fig.align="center", fig.cap=paste0("Spatial distribution of meat count on ", bankname, " in ", year, ".")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/MC-spatial.png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/MC-spatial.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -376,8 +375,8 @@ kableExtra::kbl(table, booktabs = TRUE, escape =F, format='latex',
 ```
 
 
-```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Clapper time series for ", bankname, " in ", year, ", represented by percentage of clappers per tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. ", ltm_ts)}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/Clapper_per_ts.png"))
+```{r, echo=FALSE, message=F, out.height="90%", out.width="90%", fig.align="center", fig.cap=paste0("Clapper time series for ", bankname, " in ", year, ", represented by percentage of clappers per tow (y-axis). Pre-recruits are shown in the top panel, recruit-sized scallop in the middle panel, and fully-recruited scallop are in the bottom panel. The horizontal dashed lines are the long term medians for each time series.")}
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/Clapper_per_ts.png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
@@ -388,7 +387,7 @@ knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/
 Figure `r fignum[12]` provides an overview of the relationship between biomass, meat count, and shell height, by showing the biomass for each shell height bin and the meat count for each shell height bin. Scallop with shell heights of `r highlights$thisyear[highlights$variable=="sh_for_mcreg" & highlights$bank==params$bank]` mm and above at the time of the survey would result in meat counts at or below the regulation (`r sizes$mc[sizes$bank==params$bank]$size`).
 
 ```{r, echo=FALSE, message=F, out.height="75%", out.width="75%", fig.align="center", fig.cap = paste0("The relationship between biomass and meat count for ", bankname, " in ", year, ". Shell height (5 mm bins) is on the x-axis. Meat count is on the y-axis in the top panel. The solid red line is the estimated meat count for each shell height bin. Biomass (kilograms per standardized tow, kg/tow) is on the y-axis in the bottom panel. The dashed red lines delineate the size range at which you would have a meat count of ", sizes$mc[sizes$bank==params$bank]$size, " or below. The blue vertical lines represent the recruit size range.")}
-knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/", params$bank, "/breakdown-",year, ".png"))
+knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, "/Presentations/Survey_summary/test_figures/", params$bank, "/breakdown-",year, ".png"))
 ```
 
 [Return to bank summary](#`r paste0(params$bank, "links")`)
