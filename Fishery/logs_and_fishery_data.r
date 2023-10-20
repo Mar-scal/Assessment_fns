@@ -320,7 +320,8 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                                          sail = as.Date(DATE_SAILED,format="%d-%b-%y"), 
                                          land = as.Date(LANDING_DATE_TIME,format="%d-%b-%y"), 
                                          gear.ft = GEAR_SIZE_FEET, numshuck = NUM_OF_CREW_SHUCKING, numcrew = NUM_OF_CREW, 
-                                         weight = SLIP_WEIGHT_LBS, grade = FISH_GRADE,stringsAsFactors = F))
+                                         weight = SLIP_WEIGHT_LBS, grade = FISH_GRADE,stringsAsFactors = F,
+                                         licence = LICENCE_ID))
           
           # This removes columns/variables we do not need.
           log <- with(log1, data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME,vrnum = VR_NUMBER, tripnum = TRIP_ID, 
@@ -328,7 +329,8 @@ logs_and_fish <- function(loc = "both",year=as.numeric(format(Sys.Date(),"%Y")),
                                        sfa = FISHING_AREA, lon = LONGITUDE_DEG, lat = LATITUDE_DEG, depth.f = DEPTH_FM, 
                                        bottom = BOTTOM_TYPE, watch = WATCH, numrake = NO_RAKES_FISHED, 
                                        numtow = NO_TOWS_PER_WATCH, avgtime = AVG_TOW_TIME, 
-                                       pro.repwt = PRORATED_RPTD_WEIGHT_KGS, roeon = ROE_ON, numbags = NO_OF_BAGS,stringsAsFactors = F)) 
+                                       pro.repwt = PRORATED_RPTD_WEIGHT_KGS, roeon = ROE_ON, numbags = NO_OF_BAGS,stringsAsFactors = F,
+                                       licence = LICENCE_ID)) 
       } # End if max(yr > 2008)
     
     
