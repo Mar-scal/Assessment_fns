@@ -170,9 +170,11 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   samp$depth<-samp$DEPTH_F*1.8288
   
   # correct for time zone # persistent problem everytime the time changes...
-  SHF$TOW_DATE <- ymd_hms(SHF$TOW_DATE)
-  pos$TOW_DATE <- ymd_hms(pos$TOW_DATE)
-  samp$TOW_DATE <- ymd_hms(samp$TOW_DATE)
+  # if running between Nov and March (winter): ymd()
+  # if running between March and Nov (spring/summer): ymd_hms()
+  SHF$TOW_DATE <- ymd(SHF$TOW_DATE) #ymd_hms(SHF$TOW_DATE)
+  pos$TOW_DATE <- ymd(pos$TOW_DATE) #ymd_hms(pos$TOW_DATE)
+  samp$TOW_DATE <- ymd(samp$TOW_DATE) # ymd_hms(samp$TOW_DATE)
   
   # this was added in summer 2022 for some reason. Running the code in December 2022 lead to errors, so I am removing this.
   # On Dec 8,2022:

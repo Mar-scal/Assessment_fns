@@ -98,11 +98,11 @@ grow.pot <- function(dat= NULL, mwsh.fit=NULL, von.b = NULL, year=NULL,bank = NU
 	# Note that this should only be done for the year in which the MW-SH data is applicable
 	if(pred.mw == T)
 	{
-	  if(bank %in% c("GBa", "GBb", "GB")) {# This is the assumed offshore allometry, we'd have to change this up for inshore...
+	  if(bank %in% c("GBa", "GB")) {# This is the assumed offshore allometry, we'd have to change this up for inshore...
 	    dat$cur.mw[dat$tow %in% mwsh.fit$fit$tow] <- mwsh.fit$fit$a*(dat$cur.sh[dat$tow %in% mwsh.fit$fit$tow]/100)^3
 	    dat$pred.mw[dat$tow %in% mwsh.fit$fit$tow] <- mwsh.fit$fit$a*(dat$pred.sh[dat$tow %in% mwsh.fit$fit$tow]/100)^3
 	  }
-	  if(!bank %in% c("GBa", "GBb", "GB")) {
+	  if(!bank %in% c("GBa", "GB")) {
 	    slope <- mwsh.fit %>% dplyr::filter(year == year) %>% dplyr::pull(fix.slope); slope <- slope[1]
 	    int <- mwsh.fit %>% dplyr::filter(year == year) %>% dplyr::pull(fix.int); int <- int[1]
 	    rand.int <- mwsh.fit[mwsh.fit$year==year & !is.na(mwsh.fit$ran.int.act),] %>% dplyr::pull(ran.int.act,tow)

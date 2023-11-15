@@ -473,7 +473,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   
   
-  
+
   
   ##############################################################################################################
   ################################### SECTION 2 SECTION 2 SECTION 2 ############################################
@@ -509,6 +509,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
     dplyr::filter((year>1983 & !bank %in% c("GBa", "GBb", "GB")) | (year>1980 & bank %in% c("GBa", "GBb", "GB")))
   
   if(is.null(survey.year)) survey.year <- yr
+  
+  if(all(is.na(all.surv.dat$month))) message("time change messed up date formatting; go to get.offshore.survey() and fix the ymd_hms lines")
   
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
   #BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
@@ -932,7 +934,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      if(bnk %in% c("GBa", "GBb", "GB")) SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
+      if(bnk %in% c("GBa", "GB")) SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -1363,14 +1365,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
             RS <- SH.dat$RS[which(SH.dat$year %in% unique(surv.Rand[[bnk]]$year))]
           }
           
-          if(bank.4.spatial %in% c("GBa", "GBb")){
+          if(bank.4.spatial %in% c("GBa")){
             survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, 
                                             bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)	
             clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, 
                                                  bk=bank.4.spatial, areas=strata.areas, mw.par="CF",user.bins = bin)
           }
           
-          if(!bank.4.spatial %in% c("GBa", "GBb")){ # 2024 framework change
+          if(!bank.4.spatial %in% c("GBa")){ # 2024 framework change
             survey.obj[[bnk]] <- survey.dat(surv.Rand[[bnk]], RS=RS, CS=CS, htwt.fit = cf.data[[bnk]]$CF.fit$weight.matrix,
                                             bk=bank.4.spatial, areas=strata.areas, mw.par="weight.matrix",user.bins = bin)	
             clap.survey.obj[[bnk]] <- survey.dat(surv.Clap.Rand[[bnk]], RS=RS, CS= CS, htwt.fit = cf.data[[bnk]]$CF.fit$weight.matrix,
@@ -1412,11 +1414,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       #                            "FR_N", "CV.FR.N",  "R.N","CV.R.N","Pre.N", "CV.Pre.N","bank")
       
       # MEAT COUNT & CONDITION FACTOR requires some processing
-      if(bank.4.spatial %in% c("GB", "GBa", "GBb")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
+      if(bank.4.spatial %in% c("GB", "GBa")) CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
                                                                                           bank == bnk & year==yr,
                                                                                           c('tow','lon','lat')),
                                                                                    SpatHtWt.fit[[bnk]]$fit))
-      if(!bank.4.spatial %in% c("Ban", "BanIce", "GBa", "GB", "GBb")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
+      if(!bank.4.spatial %in% c("Ban", "BanIce", "GBa", "GB")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
                                         bank == bnk & year==yr,
                                         c('tow','lon','lat', 'CF')))
       if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
@@ -1432,10 +1434,6 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(bank.4.spatial == "GBa") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
                                                                           bank == bank.4.spatial & year==yr & month > 6,
                                                                           c('tow','lon','lat')),
-                                                                   SpatHtWt.fit[[bnk]]$fit))
-      if(bank.4.spatial == "GBb") CF.current[[bnk]]<-na.omit(merge(subset(na.omit(SurvDB$pos),
-                                                                          bank == bank.4.spatial & year==yr & month > 6,
-                                                                          c('tow','lon','lat')), 
                                                                    SpatHtWt.fit[[bnk]]$fit))
       names(CF.current[[bnk]])[4]<-"CF"
       # For German we want all the tows here, both the random and the repeats.
@@ -1480,11 +1478,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } #end if(length(boxes[,1]) > 0))
       
       # Now let's calculate the average size and growth potential by bank, use surv.Live b/c we want to look at this for all tows.
-      if(bnk %in% c("GBa", "GB", "GBb")){
+      if(bnk %in% c("GBa", "GB")){
         pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
       }
       
-      if(!bnk %in% c("GBa", "GB", "GBb")) {
+      if(!bnk %in% c("GBa", "GB")) {
         pot.grow[[bnk]] <- grow.pot(dat=surv.Live[[bnk]], mwsh.fit=cf.data[[bnk]]$CF.fit$mw.sh.coef, bank=bank.4.spatial)
       }
       
