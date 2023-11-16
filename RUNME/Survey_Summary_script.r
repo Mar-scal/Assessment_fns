@@ -56,19 +56,19 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
-                   surveys = c("Banspring",
-                    # #"BanIcespring", 
-                      "BBnspring",
-                      "BBsspring",
-                      "Gerspring",
-                      "Midspring",
-                      "Sabspring",
-                      "GBspring",
-                        "GBbsummer",
+                   surveys = c(#"Banspring",
+                    #"BanIcespring",
+                    # "BBnspring",
+                    # "BBsspring",
+                    # "Gerspring",
+                    # "Midspring",
+                    # "Sabspring",
+                    # "GBspring",
+                        # "GBbsummer",
                         "GBasummer"
                      ), 
-                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="testing_both")
+                   db.con="ptran",testing=T, season="both", spatial=T, mwsh.test=F,
+                   commercialsampling=T, nickname="survey_all_results_with_subs")
 #FOR MY TESTS, KEEP SPATIAL=F, SWITCH IT WHEN I WANT MORE DETAILS ONCE THE REST IS FIGURED OUT
 
 #Description of what comes out of this with spatial=F:
@@ -126,43 +126,43 @@ str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
             yr=yr, 
             banks = c(
-                  # "BBn",
-                    #"Ger",
-                 #"Mid",
-                #"Sab",
-               "GBa",
-               "GBb"
-               # "GB",
-               # "BBs"#,
-              #"Ban",
+                # "BBn",
+                # "Ger",
+                # "Mid",
+                # "Sab",
+               "GBa"#,
+               # "GBb",
+              # "GB",
+              # "BBs",
+              # "Ban"#,
               # "BanIce"
             ),
             s.res="high",
             plots = c(
               # "Survey",
-              #  "abund-ts",
-              #   "biomass-ts",
-              #    "SHF",
+               "abund-ts",
+                "biomass-ts",
+                 "SHF",
               # "user.SH.bins",
-               "MW-SH"
+              "MW-SH",
               # "clapper-abund-ts",
               # "clapper-per-ts",
-              #  "SH-MW-CF-ts",
-              #  "breakdown",
+              # "SH-MW-CF-ts",
+               "breakdown",
               #     "PR-spatial",
               # "Rec-spatial",
-              # "FR-spatial",
-              # "CF-spatial"
+              "FR-spatial"#,
+              # "CF-spatial",
               #   "MC-spatial",
               #   "Clap-spatial",
               #    "MW-spatial", "SH-spatial",
               # "MW.GP-spatial",
               #   "SH.GP-spatial",
-              #   "SHF-large",
+              #   "SHF-large"#,
               # "seedboxes"
               ), 
             bathy=c(10,'c'), 
-            sub.area=T, INLA="run", season="summer", nickname="summer2023_second_try", layout="portrait")
+            sub.area=T, INLA="run", season="testing", nickname="survey_all_results_with_subs", layout="landscape")
 
 Sys.time() -str
 

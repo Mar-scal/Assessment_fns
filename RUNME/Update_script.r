@@ -27,15 +27,15 @@
 # For linux
 #direct = "/media/sf_data/r/"
 #direct = "g:/r/"
-fork <- "FK"
+fork <- "RM"
 
 if(fork == "mar-scal") direct_fns <- "Y:/Offshore/Assessment/Assessment_fns/"
-if(!fork == "mar-scal") direct_fns <- paste0("C:/Users/keyserf/Documents/Github/Assessment_fns/") #, fork, "/")
+if(!fork == "mar-scal") direct_fns <- paste0("C:/Users/mcdonaldra/Documents/Github/Assessment_fns/") #, fork, "/")
 
 direct <- "Y:/Offshore/Assessment/"
 
 # All that is left to do is get the arguements for the final 3 model functions update and everything should be gold.
-source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
+# source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
 #source(paste(direct,"Assessment_fns/Model/diag.plt.R",sep=""))
 
 # # Just because of how I have set this up to save objects, if running a bunch of sub-areas it is quicker to run
@@ -79,8 +79,8 @@ source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
 
 ### 2022: FK broke up the Update_function_JAGS.r code into 2 separate scripts, and the projections are run below!
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-direct_out <- "C:/Users/keyserf/Documents/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
+direct_out <- "C:/Users/mcdonaldra/Documents/"
 source(paste0(direct_fns, "/Model/model_inputs.r"))
 source(paste0(direct_fns, "/Model/run_model.r"))
 source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
@@ -91,9 +91,10 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
               
-banks <- c("GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core")#, 
-  #"BBn")
-yr <- 2021
+# banks <- c("GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core", 
+#   "BBn")
+banks<-"GBa"
+yr <- 2023
 
 for(b in banks){
   for(it in imputetype){
@@ -101,22 +102,22 @@ for(b in banks){
     print(it)
     # uncomment this the first time!
     model_inputs(bank=b,
-                 yr=2021, # the survey year, not the current year if running in January-April
+                 yr=2023, # the survey year, not the current year if running in January-April
                  impute=it,
                  nickname=it,
                  direct,
                  direct_fns,
-                 survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_spatial.RData")
+                 survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2023/Survey_summary_output/Survey_all_results.RData")
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
-              yr=2021,
+              yr=2023,
               nickname=it,
               direct,
               direct_fns,
-              direct_out = "C:/Users/keyserf/Documents/",
+              direct_out = "C:/Users/mcdonaldra/Documents/",
               run.model = T,
-              parallel=T,
+              parallel=F,
               # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
               # final.run=T,
               model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),

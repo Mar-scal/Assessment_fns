@@ -3,8 +3,8 @@ library(rmarkdown)
 require(ggplot2)
 
 ######## prep input data if you haven't already
-year <- 2022
-reportyear <- 2022
+year <- 2023
+reportyear <- 2023
 #direct_fns <- "C:/Documents/Assessment_fns/"
 
 #################################################
@@ -15,14 +15,15 @@ direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
-Survey_Summary_Word(year=reportyear, reportseason="summer",
+Survey_Summary_Word(year=reportyear, reportseason="both",
+                    #data=paste0("C:/Users/keyserf/Documents/temp_data/testing_results_summer2022_4.Rdata"),
                     data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 
 summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights, spatial.sum.stats=spatial.sum.stats, dates=dates, yeartable=yeartable)
 
-save(summary_data, file = "summary4.Rdata")
+save(summary_data, file = paste0(direct_fns,"Survey_and_OSAC/bookdown_report/summary_both_2023.Rdata"))
 #######################################################
 
 ######################################################

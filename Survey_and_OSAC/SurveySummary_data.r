@@ -506,6 +506,8 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   
   if(is.null(survey.year)) survey.year <- yr
   
+  if(all(is.na(all.surv.dat$month))) message("time change messed up date formatting; go to get.offshore.survey() and fix the ymd_hms lines")
+  
   # We only survey BBs from time to time (maybe never once Fundian Channel happens), so make sure we have BBs data for the year of interest
   BBs.this.year <- nrow(all.surv.dat[all.surv.dat$surv.bank == "BBsspring" & all.surv.dat$year == survey.year,])
   # If there is no data remove BBs from the survey list and reduce the number of surveys accordingly
@@ -904,19 +906,22 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bank.4.spatial=="GBa")             mw[[bnk]] <- subset(MW.dat.new,bank %in% c("GBa") & month > 7)
         if(bank.4.spatial=="GBb")             mw[[bnk]] <- subset(MW.dat.new,bank %in% c("GBb") & month > 7)
         # now we need to remove all data outside our domain of interest and get the data in the same projection...
+        # browser()
         coordinates(mw[[bnk]])<- ~ lon+lat
         proj4string(mw[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
         spat.bound.sp <- PolySet2SpatialPolygons(spat.bound)
         spat.bound.sp <- spTransform(spat.bound.sp,CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
-        locs <- over(mw[[bnk]],spat.bound.sp)
-        mw[[bnk]] <- mw[[bnk]][which(locs == 1),]
+        # locs <- over(mw[[bnk]],spat.bound.sp)
+        # mw[[bnk]] <- mw[[bnk]][which(locs == 1),]
+        locs<-mw[[bnk]][spat.bound.sp,]
         # I really just want the data back out, not all the jazzy spatial info, later I might, but we're not there yet...
-        mw[[bnk]] <- cbind(mw[[bnk]]@data,mw[[bnk]]@coords)
+        mw[[bnk]] <- cbind(locs@data,locs@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       
       # For the most recent data
       # browser()
       #Changed this so that if there's nothing (for sub-areas) it keeps running
+      
       if (is.na(max(mw[[bnk]]$year)==yr)){
         message(paste0("No MW data available for any years for ",bnk))
       } else if(!max(mw[[bnk]]$year)==yr|is.na(max(mw[[bnk]]$year)==yr)) {
@@ -933,10 +938,10 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
 
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
-  
+
       SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
-      browser()
+      # browser()
       # here we are putting the commercial MW hydration sampling together with the survey data and 
       # then we export it as a csv. NOTE: FK added Ban here
       if(bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
@@ -970,7 +975,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         cf.data[[bnk]]<-condFac(mw.dat.all[[bnk]],bank.dat[[bnk]],model.type='glm',dirct=direct_fns)
         
         if(mwsh.test == T) {
-          browser()
+          # browser()
           source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
           mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                   sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
@@ -1027,7 +1032,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       
       if(mwsh.test == T) {
         
-        browser()
+        # browser()
         source(paste0(direct_fns, "Survey_and_OSAC/mwsh.sensit.R"))
         mwshtest <- mwsh.sensit(mwdat=na.omit(mw.dat.all[[bnk]]), shfdat=bank.dat[[bnk]], bank=bnk, plot=F, 
                                 sub.size=NULL, sub.year=NULL, sub.tows=NULL, sub.samples=NULL, 
@@ -1145,22 +1150,26 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         proj4string(surv.dat[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
         
         # spat.bound.sp would have been created above...
-        locs.c <- over(surv.Clap[[bnk]],spat.bound.sp)
-        locs.l <- over(surv.Live[[bnk]],spat.bound.sp)
-        locs.r <- over(surv.Rand[[bnk]],spat.bound.sp)
-        locs.d <- over(surv.dat[[bnk]],spat.bound.sp)
+        # locs.c <- over(surv.Clap[[bnk]],spat.bound.sp)
+        # locs.l <- over(surv.Live[[bnk]],spat.bound.sp)
+        # locs.r <- over(surv.Rand[[bnk]],spat.bound.sp)
+        # locs.d <- over(surv.dat[[bnk]],spat.bound.sp)
+        locs.c <- surv.Clap[[bnk]][spat.bound.sp,]
+        locs.l <- surv.Live[[bnk]][spat.bound.sp,]
+        locs.r <- surv.Rand[[bnk]][spat.bound.sp,]
+        locs.d <- surv.dat[[bnk]][spat.bound.sp,]
         
         # No cut out the survey data for each...
-        surv.Clap[[bnk]] <- surv.Clap[[bnk]][which(locs.c == 1),]
-        surv.Live[[bnk]] <- surv.Live[[bnk]][which(locs.l == 1),]
-        surv.Rand[[bnk]] <- surv.Rand[[bnk]][which(locs.r == 1),]
+        # surv.Clap[[bnk]] <- surv.Clap[[bnk]][which(locs.c == 1),]
+        # surv.Live[[bnk]] <- surv.Live[[bnk]][which(locs.l == 1),]
+        # surv.Rand[[bnk]] <- surv.Rand[[bnk]][which(locs.r == 1),]
         # For some reason surv.dat isn't working...???
         #tmp <- surv.dat[[bnk]][which(locs.d == 1),]
         
         # I really just want the data back out, not all the jazzy spatial info, later I might, but we're not there yet...
-        surv.Clap[[bnk]] <- cbind(surv.Clap[[bnk]]@data,surv.Clap[[bnk]]@coords)
-        surv.Live[[bnk]] <- cbind(surv.Live[[bnk]]@data,surv.Live[[bnk]]@coords)
-        surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
+        surv.Clap[[bnk]] <- cbind(locs.c@data,locs.c@coords)
+        surv.Live[[bnk]] <- cbind(locs.l@data,locs.l@coords)
+        surv.Rand[[bnk]] <- cbind(locs.r@data,locs.r@coords)
         #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       

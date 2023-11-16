@@ -21,9 +21,9 @@ options(tinytex.verbose = TRUE)
 knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
 library(officedown)
 
-year <- 2022
+year <- 2023
 
-load("summary4.Rdata")
+load(paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"))
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows
@@ -149,7 +149,7 @@ _Estimates are standardized to tows of 800 metres. `r if(params$bank %in% c("Ban
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("NPR", "NR", "N"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
 rownames(table) <- NULL
 
@@ -161,7 +161,7 @@ table
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("IPR", "IR", "I"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
 rownames(table) <- NULL
 
@@ -212,7 +212,7 @@ _These models may not represent the full range of values observed during the sur
 table <- spatial.stats.abund
 table$`Size class` <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 
 table
 
@@ -239,7 +239,7 @@ _The percentage is calculated as the number of clappers in each size class relat
 table <- highlights[highlights$bank==params$bank & highlights$variable %in% c("PRpercentclap", "Rpercentclap", "Cpercentclap"), c("variable", "lastyear", "thisyear", "LTM")]
 table$variable <- c(paste0("Pre-recruits (<", sizes$RS[sizes$bank==params$bank]$size, "mm)"),
                     paste0("Recruits (", sizes$RS[sizes$bank==params$bank]$size, "-", (sizes$CS[sizes$bank==params$bank]$size-1), "mm)"),
-                    paste0("Fully-recruited ($\\geq$", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
+                    paste0("Fully-recruited (>", sizes$CS[sizes$bank==params$bank]$size, "mm)"))
 names(table) <- c("Size class", paste0(yeartable[yeartable$bank==params$bank, "lastyear"], " survey"), paste0(yeartable[yeartable$bank==params$bank, "currentyear"], " survey"), "Long term median")
 rownames(table) <- NULL
 

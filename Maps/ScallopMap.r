@@ -226,6 +226,8 @@ ScallopMap<-function(area='custom',
 	if(area=='WSS')		   { ylim=c(41,44); 		    xlim=c(-67,-64)		}
 	if(area=='BBn')		   { ylim=c(42.4,43); 		  xlim=c(-66.6,-65.6)	}
 	if(area=='BBs')		   { ylim=c(42.25,42.75); 	xlim=c(-66,-65.25)	}
+  #Have a weird location way up in the corner for BBs in 2023, so changing up the ylim
+  # if(area=='BBs')		   { ylim=c(42.25,43.35); 	xlim=c(-66.4,-65.25)	}
 	if(area=='BB')		   { ylim=c(42.25,43);      xlim=c(-66.5,-65.25)	}
 	if(area=='GB')		   { ylim=c(41.1,42.3); 	  xlim=c(-67.3,-65.6)	}
   if(area=='GBa')      {ylim=c(41.2,42.3);      xlim=c(-67.2,-65.85)}

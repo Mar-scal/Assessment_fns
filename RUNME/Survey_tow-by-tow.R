@@ -36,7 +36,7 @@ source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 #          "GBa", 
 #   "GBb"
 #   )
-bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
+bnk <- c("GBa")#, "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
