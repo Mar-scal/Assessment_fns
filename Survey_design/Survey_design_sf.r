@@ -334,6 +334,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           writetows <- full_join(writetows, extras[,c("EID", "X", "Y", "Poly.ID")])
           if(!nrow(writetows) == (nrow(towlst[[i]]$Tows) + nrow(extras))) stop("extras were not added properly")
         }
+        
         writetows$`Longitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$X, format = "deg.min"), 4)
         writetows$`Latitude (DDMM.mm)` <- round(convert.dd.dddd(x = writetows$Y, format = "deg.min"), 4)
         writestrata <- dplyr::rename(towlst[[i]]$Strata, Poly.ID="PID")
