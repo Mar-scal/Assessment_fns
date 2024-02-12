@@ -152,8 +152,7 @@
 
 # A working almost full example (no custom) of a call to this function that should work without any modification as long
 # as you are connected to the NAS drive...
-#pecjector(obj = NULL, plot_as == "ggplot", area = "BBn",plot = T, 
-#          gis.repo = 'local',c_sys = 32619, buffer =1000,repo = "Y:/Offshore/Assessment/Assesment_fns/",
+#pecjector(obj = NULL, area = "BBn",plot = T, 
 #          add_layer = list(land = 'grey',eez = 'eez', bathy = 50, nafo = 'main',sfa = 'offshore',survey = c('offshore','detailed'),s.labels = 'offshore',scale.bar = 'bl',scale.bar = c('bl',0.5)))
 
 ########## If you had an INLA layer, a full call to that would be to add this to the above..
@@ -193,7 +192,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   }
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   require(rgdal)|| stop("You need rgdal pal")
-  require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
+  #require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
   require(ggspatial) ||stop ("Please install ggspatial which is needed to include the scale bar")
@@ -327,7 +326,6 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # We also want to get the land
   if(any(layers == 'land'))
   {
-  
     lnd <- add_layer$land
     # If using the world map we go here
     if(lnd == 'world')
@@ -338,19 +336,23 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(lnd != 'world' & gis.repo == 'github')
     {
       temp <- tempfile()
-      download.file("https://raw.githubusercontent.com/Dave-Keith/GIS_layers/master/other_boundaries/other_boundaries.zip", temp,quiet=quiet)
+      download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/other_boundaries/other_boundaries.zip", temp,quiet=quiet)
       # Download this to the temp directory you created above
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
       land.all <- st_read(dsn = paste0(temp2,"/Atl_region_land.shp"))
       land.col <- lnd
+      stpierre <- st_read(dsn = paste0(temp2,"/SPM_adm0.shp"))
+      land.all <- st_union(land.all, stpierre)
     }
     # If you want to sorce it locally.
     if(lnd != 'world' & gis.repo != 'github') 
     {
       land.all <- st_read(paste0(gis.repo,"/other_boundaries/Atl_region_land.shp"))
       land.col <- lnd
+      stpierre <- st_read(paste0(gis.repo,"/other_boundaries/SPM_adm0.shp"))
+      land.all <- st_union(land.all, stpierre)
     }
     
     # f we are lat/lon and WGS84 we don't need to bother worrying about clipping the land (plotting it all is fine)
@@ -478,9 +480,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
             # I need a new grid that is a raster object
             re.proj.bathy <- projectRaster(bathy,b.ras)
             re.proj.bathy <- projectRaster(bathy,b.ras) # For some reason this doesn't always work the first time you call it during an R session, but works when you do a second time?
+            
             # Now I need to try and fortify this raster, I need to have the RStoolbox to fortify the raster 
-            bathy.gg <- fortify(re.proj.bathy)
-          } else { bathy.gg <- fortify(bathy)}
+            bathy.gg <- as.data.frame(re.proj.bathy, xy=T) #fortify(re.proj.bathy)
+          } else { bathy.gg <- as.data.frame(bathy, xy=T)}
           # define the contour breaks, only plot contours between 0 and everything deeper than specificed (default = 500m) .
           bathy.breaks <- seq(0, -abs(as.numeric(add_layer$bathy[3])), -abs(as.numeric(add_layer$bathy[1])))
         }
@@ -803,7 +806,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   } # end if(any(layers == 'survey')) 
   #sf::st_use_s2(FALSE)
   # Here you can add a custom sp, sf, PBSmapping object or shapefile here
- 
+  
   if(length(add_custom) != 0)
   {
     
@@ -1025,7 +1028,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     # Now to make the colour ramps...
     # First I'll make a couple of generic colour ramps 
     #I'll set one up using 100 colours and a maximium of 10 breaks, break locations based on the data.
-
+    
     if(!is.null(add_inla$scale$alpha))   {alph <- add_inla$scale$alpha}                   else alph <- 1
     if(!is.null(add_inla$scale$palette)) {col <- addalpha(add_inla$scale$palette,alph)}   else col <- addalpha(pals::viridis(100),alph)
     if(!is.null(add_inla$scale$limits))  {lims <- add_inla$scale$limits}                  else lims <- c(min(spd$layer,na.rm=T),max(spd$layer,na.rm=T))
@@ -1123,9 +1126,12 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     }
     if(legend == T) 
     {
-      if(length(brk) <= 6) hgt <- unit(0.5,'cm')
-      if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
-      if(length(brk) > 12) hgt <- unit(1,'cm')
+      if(exists("brk")){
+        if(length(brk) <= 6) hgt <- unit(0.5,'cm')
+        if(length(brk) > 6 & length(brk) <= 12) hgt <- unit(0.75,'cm')
+        if(length(brk) > 12) hgt <- unit(1,'cm')
+      }
+      if(!exists("brk")) hgt <- unit(0.5,'cm')
       
       pect_plot <- pect_plot + 
         coord_sf(xlim = xlim,ylim=ylim)+
@@ -1312,7 +1318,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   #browser()
   if(plot_as != "plotly")
   {
-    pect_plot <- pect_plot + coord_sf(expand=F) + xlab("") + ylab("") + 
+    pect_plot <- pect_plot + 
+      # scale_x_continuous(limits=xlim) + # keep this so you can extract coords outside pecjector
+      # scale_y_continuous(limits=ylim) + # keep this so you can extract coords outside pecjector
+      coord_sf(expand=F, xlim=xlim, ylim=ylim) + xlab("") + ylab("") + 
                              theme(panel.grid=element_blank(),panel.background = element_rect(fill = 'white'))
   } # end if(plot_as != "plotly")
   

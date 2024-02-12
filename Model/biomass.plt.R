@@ -59,7 +59,7 @@ biomass.plt <- function(out.data, years, graphic='screen',avg.line=NULL,ht=11,wd
   # If only 1 alpha is defined add the same number to the second.	
   if(length(alpha)==1) alpha[2]<-alpha[1]
   #If TAC isn't specified set it as the catch from the data for the final year of data we are interested in..
-  if(missing(TAC)==T) TAC <- out.data$data$C[DD.out[[bnk]]$data$year == max(years)]
+  if(missing(TAC)==T) TAC <- out.data$data$C[out.data$data$year == max(years)]
   
   # Get the projected years TAC.
   TACI<-which(out.data$data$C.p==TAC)

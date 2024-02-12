@@ -47,9 +47,8 @@ plot_offshore_spatial<- function(direct_data,
                                  gis.repo = "Y:/GISdata/Github_Repo/GIS_layers",
                                  offshore_data,
                                  overlay_data,
-                                 station_years,
                                  survey_years,
-                                 fishery_years,
+                                 station_years,
                                  size_class,
                                  banks, 
                                  plotly=F,
@@ -79,8 +78,9 @@ plot_offshore_spatial<- function(direct_data,
     # tidy up the fishery data if that's the data you want to overlay
     if(overlay_data=="fishery"){
       fishery <- rbind(fishery, offshore_data$new.log.dat[offshore_data$new.log.dat$bank==banks[i],])
+      fishery <- fishery[!is.na(fishery$year),]
     }
-    
+ 
     # if station_years isn't null (i.e. you want to plot some stations), then get the data. Pulls in the stations for the bank(s) you selected.
     if(!is.null(station_years)){
       if(banks[i] %in% c("GBa", "GBb")) season <- "Summer" else season <- "Spring"

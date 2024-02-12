@@ -91,9 +91,9 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"max", 
   #"LTM")#, "previous_year", "midpoint"
               
-banks <- c("GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core")#, 
-  #"BBn")
-yr <- 2021
+banks <- c(#"GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core",
+  "GBa", "BBn")
+yr <- 2022
 
 for(b in banks){
   for(it in imputetype){
@@ -101,26 +101,26 @@ for(b in banks){
     print(it)
     # uncomment this the first time!
     model_inputs(bank=b,
-                 yr=2021, # the survey year, not the current year if running in January-April
+                 yr=2022, # the survey year, not the current year if running in January-April
                  impute=it,
-                 nickname=it,
+                 nickname=NULL,
                  direct,
                  direct_fns,
-                 survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2021/Survey_summary_output/testing_results_spatial.RData")
+                 survey.obj="Y:/Offshore/Assessment/Data/Survey_data/2022/Survey_summary_output/Survey_all_results.RData")
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
-              yr=2021,
-              nickname=it,
+              yr=2022,
+              nickname=NULL,
               direct,
               direct_fns,
               direct_out = "C:/Users/keyserf/Documents/",
               run.model = T,
               parallel=T,
-              # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
-              # final.run=T,
-              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
-              final.run=F,
+              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
+              final.run=T,
+              # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
+              # final.run=F,
               nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
               export.tables=T,
               make.diag.figs = T,
@@ -130,53 +130,57 @@ for(b in banks){
     
     # prediction evaluation
     
-    #   load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""))
-    # 
-    #   if(!dir.exists(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))) dir.create(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
-    # 
-    #   #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
-    #   pred.eval(input = DD.lst[[b]], priors = DD.out[[b]]$priors, pe.years= yr:(yr-6), growth="both",
-    #             model = paste0("/Assessment_fns/Model/DDwSE3_jags.bug"),  bank=b,
-    #             parameters = DD.out[[b]]$parameters, niter = 175000, nburn = 100000, nthin = 20, nchains=8,
-    #             direct=direct, save.res=paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
-    # 
-    #   # modelled:
-    #   # Up to 2016
-    #   load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
-    #   out.tmp <- out; rm(out)
-    #   #2017-2019
-    #   for(y in 2018:2020){
-    #     load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
-    #     out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
-    #   }
-    #   #2020
-    #   out.tmp[["2020"]] <- NULL
-    #   #2021
-    #   load(paste(direct_out,"Data/Model/",2022,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
-    #   out.tmp[["2021"]] <- out[["2021"]]
-    #   out.modelled <- out.tmp[order(names(out.tmp))]
-    # 
-    #   # realized:
-    #   # Up to 2016
-    #   load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_g2_growth.RData",sep=''))
-    #   out.tmp <- out; rm(out)
-    #   #2017-2019
-    #   for(y in 2018:2020){
-    #     load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
-    #     out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
-    #   }
-    #   #2020
-    #   out.tmp[["2020"]] <- NULL
-    #   #2021
-    #   load(paste(direct_out,"Data/Model/",2022,"/",b,"/Results/", it, "/Projection_evaluation_realized_growth.RData",sep=''))
-    #   out.tmp[["2021"]] <- out[["2021"]]
-    #   out.realized <- out.tmp[order(names(out.tmp))]
-    # 
-    #   # Now we make the figures and save them...
-    #   pe.fig(input=list(modelled=out.modelled, realized=out.realized), years=yr, growth="both", graphic = "png", direct= direct, bank = b, plot="box",
-    #          path=paste0(direct, yr+1, "/Updates/", b, "/Figures_and_tables/", it,"/"))
-    #   #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
-    # #}
+      load(paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""))
+
+      if(!dir.exists(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))) dir.create(paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
+
+      #Prediction Evaluation using the current year CF, this isn't how we model it as we don't know g2/gR2 when we do our predictions
+      pred.eval(input = DD.lst[[b]], priors = DD.out[[b]]$priors, pe.years= yr:(yr-6), growth="both",
+                model = paste0("/Assessment_fns/Model/DDwSE3_jags.bug"),  bank=b,
+                parameters = DD.out[[b]]$parameters, niter = 175000, nburn = 100000, nthin = 20, nchains=8,
+                direct=direct, save.res=paste0(direct_out, "Data/Model/", yr+1, "/", b, "/Results/", it,"/"))
+
+      # modelled:
+      # Up to 2016
+      load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
+      out.tmp <- out; rm(out)
+      #2017-2019
+      for(y in 2018:2020){
+        load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      }
+      #2020
+      out.tmp[["2020"]] <- NULL
+      #2021+
+      for(y in 2022:(yr+1)){
+        load(paste(direct_out,"Data/Model/",y,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
+        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      }
+      out.modelled <- out.tmp[order(names(out.tmp))]
+
+      # realized:
+      # Up to 2016
+      load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_g2_growth.RData",sep=''))
+      out.tmp <- out; rm(out)
+      #2017-2019
+      for(y in 2018:2020){
+        load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_realized_growth.RData",sep=''))
+        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      }
+      #2020
+      out.tmp[["2020"]] <- NULL
+      #2021+
+      for(y in 2022:(yr+1)){
+        load(paste(direct_out,"Data/Model/",y,"/",b,"/Results/", it, "/Projection_evaluation_realized_growth.RData",sep=''))
+        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      }
+      out.realized <- out.tmp[order(names(out.tmp))]
+
+      # Now we make the figures and save them...
+      pe.fig(input=list(modelled=out.modelled, realized=out.realized), years=yr, growth="both", graphic = "png", direct= direct, bank = b, plot="box",
+             path=paste0(direct, yr+1, "/Updates/", b, "/Figures_and_tables/", it,"/"))
+      #pe.fig(years=max(yrs[[bnk]]),growth="modelled",graphic = "screen",direct= direct,bank = bnk,plot="box")
+    #}
   }
 }
 
@@ -192,10 +196,10 @@ for(b in banks){
 
 
 # Here are a quick summary of the interesting model results which we report in the model update for BBn and GBa.
-load(paste(direct,"Data/Model/2022/GBa/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
-load(paste(direct,"Data/Model/2022/GBa/Results/Model_testing_results_mixed.RData",sep=""))
+load(paste(direct_out,"Data/Model/2023/GBa/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
+load(paste(direct_out,"Data/Model/2023/GBa/Results/Model_testing_results_mixed.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/GBa/Results/Model_results_and_diagnostics.RData",sep=""))
-load(paste(direct,"/Data/Model/2022/BBn/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
+load(paste(direct_out,"/Data/Model/2023/BBn/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/BBn/Results/Model_results_and_diagnostics.RData",sep=""))
 
 mod.dat
@@ -205,8 +209,8 @@ refyears <- which(DD.out$GBa$dat$year %in% 1986:2009)
 # mean(DD.out$GBa$mean$B[refyears]) * 0.3 #4 807 # 4752
 # mean(DD.out$GBa$mean$B[refyears]) * 0.8 #12 820 # 12671
 
-mean(DD.out$GBa$median$B[refyears]) * 0.3 #4 724 # 4673
-mean(DD.out$GBa$median$B[refyears]) * 0.8 #12 597 # 12461
+mean(DD.out$GBa$median$B[refyears]) * 0.3 #4 724 # 4673 # 4680
+mean(DD.out$GBa$median$B[refyears]) * 0.8 #12 597 # 12461 # 12480
 
 
 # The fully recruited biomass for the previous year and current year
@@ -219,6 +223,8 @@ FR.bm
 # [1] 29192.14 36757.09
 # $GBa 2022
 # [1] 26781.13 18117.58
+# $GBa 2023
+# [1] 18489.06 22966.65
 
 
 # $BBn 2018
@@ -235,8 +241,9 @@ FR.bm
 proj.dat[[1]]$catch[proj.dat[[1]]$year==yr]
 #GBa 2022 - 1011.932
 #BBn 2022 - 245.5611
+#GBa 2023 - 617.4805
 
-2800/4310# Long term median fully recruited biomass (not including the most recent year)
+# Long term median fully recruited biomass (not including the most recent year)
 FR.ltm
 # GBa 2018
 # 15903.81 
@@ -246,6 +253,8 @@ FR.ltm
 # 18107.2 
 # $GBa 2022
 # [1] 18487.7
+# $GBa 2023
+# [1] 18515.1
 
 # BBn 2018?
 # 5550.483 
@@ -262,13 +271,15 @@ rec.bm
 # [1] 6787.132 3762.147
 # $GBa 2022
 # [1] 3327.189 3173.423
+# $GBa 2023
+# [1] 3206.003 3154.261
 
 # $BBn
 # [1] 724.7716 193.6675 ok
 # $BBn 2022
 # [1] 209.7853 212.2573
 
-# (3327.189-3173.423)/3327.189 # percent decline
+# (3206.003-3154.261)/3206.003 # percent decline
 # (724.8-193.7)/724.8 # percent decline
 ##### ISSUE: NOT ABLE TO PULL INFO FROM FINAL RESULTS
 
@@ -278,6 +289,8 @@ rec.ltm
 # 3244.358 
 # $GBa 2022
 # [1] 3511.671
+# $GBa 2023
+# [1] 3434.434
 
 # BBn 
 # 648.1341 ok
@@ -290,6 +303,8 @@ neff
 # [1]   720 50000
 # $GBa 2022
 # [1]   340 30000
+# $GBa 2023
+# [1]   460 30000
 
 # $BBn
 # [1]  1500 50000 ok
@@ -298,9 +313,14 @@ neff
 
 # Range of rhat values
 rhat
-# $GBa
+# $GBa 2022
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 #   1.001   1.001   1.001   1.002   1.001   1.016
+# $GBa 2023
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+# 1.001   1.001   1.001   1.002   1.001   1.011 
+# 
+
 
 # $BBn
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -312,6 +332,8 @@ BM.proj.1yr
 # 25127.92  *** 
 # $GBa 2022
 # [1] 18001.77
+# $GBa 2023
+# [1] 22470.77
 
 # BBn 
 # 2621.141 ***
@@ -325,22 +347,39 @@ mort
 # 0.08850937 
 # $GBa 2022
 # [1] 0.1375507
+# $GBa 2023
+# [1] 0.1591694
+
 
 # BBn 
 # 0.1405179
 # $BBn 2022
 # [1] 0.03283034
 
+# Fishing mortality (mu) for current year
+# GBa
+DD.out$GBa$median$mu
+# 0.1577278 (2022)
+
+# BBn
+DD.out$BBn$median$mu
+# 0.07226612 (2022)
+
+# note, Fmort is calculated in the model, but not saved in output
+
 # The probability of currently being below the USR.
 prob.below.USR
-# GBa 
-# "2%" 
+# GBa 2022
+# "2%"
+# $GBa 2023
+# [1] "0%"
 
 NULL
 
 # The condition this year.
 DD.dat$CF[nrow(DD.dat)]
-# GBa [1] 18.43368
+# GBa [1] 18.43368 2022
+# [1] 17.12339 2023
 
 # BBn [1] 11.70429
 
@@ -350,6 +389,7 @@ DD.dat$CF[nrow(DD.dat)]
 100*percent.B.change[[1]]
 #      GBa 
 # -0.6392381 ***
+# [1] -2.159137 2023
 
 #     BBn 
 # 2.663624 ***

@@ -54,9 +54,9 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
       message("STOP! Please re-consider using CSVs instead of XLSX files. You should have created CSVs because of date formatting issues between users with XLSX files.")
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
-        towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".xlsx")]
-        mwshfile <- files[grep(files, pattern="meat")][grep(files[grep(files, pattern="meat")], pattern=".xlsx")]
-        hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".xlsx")]
+        towfile <- files[grep(files, pattern=".tow")][grep(files[grep(files, pattern=".tow")], pattern=".xlsx")]
+        mwshfile <- files[grep(files, pattern=".meat")][grep(files[grep(files, pattern=".meat")], pattern=".xlsx")]
+        hffile <- files[grep(files, pattern=".hf")][grep(files[grep(files, pattern=".hf")], pattern=".xlsx")]
         if(length(towfile) > 1 | length(mwshfile) > 1 | length(hffile) > 1) {
           message(paste0("\nThere are multiple files of the same type (tow/mwsh/hf). Check the following files in the folder: \n", 
                          direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i]))
@@ -86,9 +86,9 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
     if(type=="csv"){
       for(i in 1:length(unique(banks))){
         files <- list.files(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise[j], "/", banks[i], "/"))
-        towfile <- files[grep(files, pattern="tow")][grep(files[grep(files, pattern="tow")], pattern=".csv")]
-        mwshfile <- files[grep(files, pattern="meat")][grep(files[grep(files, pattern="meat")], pattern=".csv")]
-        hffile <- files[grep(files, pattern="hf")][grep(files[grep(files, pattern="hf")], pattern=".csv")]
+        towfile <- files[grep(files, pattern=".tow")][grep(files[grep(files, pattern=".tow")], pattern=".csv")]
+        mwshfile <- files[grep(files, pattern=".meat")][grep(files[grep(files, pattern=".meat")], pattern=".csv")]
+        hffile <- files[grep(files, pattern=".hf")][grep(files[grep(files, pattern=".hf")], pattern=".csv")]
         # bring in the extras or icelandic if they are in separate CSVs
         extrahffile <- hffile[grep(hffile, pattern="extra")]
         extratowfile <- towfile[grep(towfile, pattern="extra")]

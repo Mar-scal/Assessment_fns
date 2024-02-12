@@ -186,6 +186,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # For loop to do the calculations of meat weight for non-restratified banks. Domain estimation happens in here too!
     for(i in 1:length(years))
     {
+      
       # Set the bins
       mw.bin<-seq(5,200,5)
       # select the current years data.
@@ -205,9 +206,39 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
       # Use some other data to estimate Meat Weight, Condition factor generally used for this option.
       # Remember mw is in grams here.
       
-      if(mw.par !='annual' && mw.par !='fixed') mw[[i]]<-sweep(matrix((seq(2.5,200,5)/100)^3,nrow(ann.dat),
+      if(mw.par !='annual' && mw.par !='fixed' && mw.par !="weight.matrix") mw[[i]]<-sweep(matrix((seq(2.5,200,5)/100)^3,nrow(ann.dat),
                                                                       40,byrow=T,dimnames=list(ann.dat$tow,mw.bin)),1,FUN='*',ann.dat[,mw.par])
-      print("Careful, you didn't specify the location for prediction of CF so I have picked mean depth, lat, and lon between 2005 and 2014 be sure this is how this has been done in the past!")
+      
+      if(mw.par=="weight.matrix") {
+        htwt.fit.y <- dplyr::arrange(htwt.fit, year, tow) %>% dplyr::filter(year==years[i])
+        ann.dat <- dplyr::arrange(ann.dat, year, tow, state)
+        
+        if(dim(htwt.fit.y)[1] == dim(ann.dat)[1]) {
+          mw[[i]] <- htwt.fit.y[grep("h5", colnames(htwt.fit.y))[1]:grep("h200", colnames(htwt.fit.y))]
+        }
+        
+        if(!dim(htwt.fit.y)[1] == dim(ann.dat)[1]) {
+          
+          # subset htwt.fit.y for tows that are not in ann.dat (regular survey stations)
+          htwt.fit.y <- htwt.fit.y[htwt.fit.y$tow %in% unique(ann.dat$tow),]
+          
+          #if ann.dat is EXACTLY half as long as htwt.fit.y, assume it's only for dead OR live, not both, so use unique on htwt.fit.y andproceeed
+          # if not, something is up and you are given NAs.
+          if(!dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
+            # use ann.dat to get the structure right
+            mw[[i]] <- ann.dat[,grep("h5", colnames(ann.dat))[1]:grep("h200", colnames(ann.dat))]
+            # but then replace all values with NA because you need to multiply by NAs in the next step
+            mw[[i]][!is.na(mw[[i]])] <- NA
+          }
+          
+          if(dim(htwt.fit.y)[1]/dim(ann.dat)[1] == 2){
+            htwt.fit.y <- unique(htwt.fit.y)
+            mw[[i]] <- htwt.fit.y[grep("h5", colnames(htwt.fit.y))[1]:grep("h200", colnames(htwt.fit.y))]
+          }
+        }			  
+        
+      }
+      
       
       num <- data.frame(subset(shf, year==years[i], which(bin==5):which(bin==200)), 
                         STRATA.ID.NEW=shf$Strata_ID_new[shf$year==years[i]], 
@@ -279,6 +310,12 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         NR.tmp <- BIOSurvey2::summary.domain.est(scall.dom.NR)
         N.tmp <- BIOSurvey2::summary.domain.est(scall.dom.N)
         
+        if(nrow(w)==0) {
+          IPR.tmp[[2]]$yst <- NA
+          IR.tmp[[2]]$yst <- NA
+          I.tmp[[2]]$yst <- NA
+        }
+        
         # step 3: grab the "yst" (stratified estimates) for each size category. Remember you're still in a year loop, so this is only one year at a time.
         out.domain[i, seq(3, 13, 2)] <- as.numeric(c(IPR.tmp[[2]][2],
                                                      IR.tmp[[2]][2],
@@ -306,7 +343,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         Domain.obj$NPR[[i]] <- out.domain$yst.n.IPR[i]
         
         # Step 6: Put the total number of tows into the strat.res object
-        strat.res$n[i] <- sum(scall.dom.I$nh)
+        strat.res$n[i] <- sum(scall.dom.N$nh)
         
         # Step 7: Convert to Biomass (tonnes) and abundance (in millions) estimates for the bank
         strat.res$I[i] <- I.tmp[[2]]$yst * sum(N.tu) / 10^6			#g to t
@@ -351,12 +388,20 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         Strata.obj$NR[[i]] <- PEDstrata(num, domain.obj, 'STRATA.ID.NEW', num$rec)
         Strata.obj$NPR[[i]] <- PEDstrata(num, domain.obj, 'STRATA.ID.NEW', num$pre)
         
-        I.tmp <- summary(Strata.obj$I[[i]], effic = T)
-        IR.tmp <- summary(Strata.obj$IR[[i]], effic = T)
-        IPR.tmp <- summary(Strata.obj$IPR[[i]], effic = T)
         N.tmp <- summary(Strata.obj$N[[i]], effic = T)
         NR.tmp <- summary(Strata.obj$NR[[i]], effic = T)
         NPR.tmp <- summary(Strata.obj$NPR[[i]], effic = T)
+        
+        if(nrow(w)==0){
+          I.tmp$yst <- NA; I.tmp$se.yst <- NA
+          IR.tmp$yst <- NA; IR.tmp$se.yst <- NA
+          IPR.tmp$yst <- NA; IPR.tmp$se.yst <- NA
+        }
+        if(nrow(w)>0){
+          I.tmp <- summary(Strata.obj$I[[i]], effic = T)
+          IR.tmp <- summary(Strata.obj$IR[[i]], effic = T)
+          IPR.tmp <- summary(Strata.obj$IPR[[i]], effic = T)
+        } 
         
         # Step 2: Store the stratified estimates in Strata.obj. Note that the Strata.obj for Sable will ONLY contain the yst
         # values now, and will therefore not match the Strata.obj for other banks.
@@ -368,7 +413,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         Domain.obj$NPR[[i]] <- NPR.tmp$yst
         
         # Step 3: Put the total number of tows in strat.res object
-        strat.res$n[i] <- sum(Strata.obj$I[[i]]$nh)
+        strat.res$n[i] <- sum(Strata.obj$N[[i]]$nh)
         
         # Step 4: Calculate Biomass (tonnes) and abundance (millions) estimates for the bank
         strat.res$I[i] <- I.tmp$yst * sum(N.tu) / 10^6			#g to t
@@ -407,7 +452,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
       #  Now multiply by the total bank area to determine the survey estimated abundance(biomass).
       # The abundance is actual numbers
       n.Yst <- n.yst[i,] * sum(N.tu)
-      if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- w.stratmeans[[i]]
+      if(is.null(nrow(w.stratmeans[[i]])))  w.yst[i,] <- NA
       if(!is.null(nrow(w.stratmeans[[i]]))) w.yst[i,] <- apply(X=sapply(1:nrow(w.stratmeans[[i]]), function(x){w.stratmeans[[i]][x,] * pstrat_new$prop[pstrat_new$strata_id %in% row.names(n.stratmeans[[i]])][x]}),MARGIN=1, FUN = function(X) sum(X, na.rm=T))
       w.Yst <- w.yst[i,] * sum(N.tu)
       
@@ -453,34 +498,36 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
           {
             # The abundance and biomass of the smallest user specified size bin
             user.bin.res[[bnames[k]]]  <- rowSums(num[, which(mw.bin==5):which(mw.bin==user.bins[k])],na.rm=T)
-            user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==5):which(mw.bin==user.bins[k])],na.rm=T)
+            if(nrow(w)>0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==5):which(mw.bin==user.bins[k])],na.rm=T)
+            if(nrow(w)==0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rep(NA, nrow(num))
           } #end if(k == 1)
           # For the middle size categories
           if(k > 1 && k <= length(user.bins))
           {
             # The abundance and biomass of the smallest user specified size bin
             user.bin.res[[bnames[k]]]  <- rowSums(num[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==user.bins[k])],na.rm=T)
-            user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==user.bins[k])],na.rm=T)
+            if(nrow(w)>0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==user.bins[k])],na.rm=T)
+            if(nrow(w)==0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rep(NA, nrow(num))
           } # end if(k > 1 && k <= length(user.bins))
           # And finally the largest size categories
           if(k == (length(user.bins)+1))
           {
             # The abundance and biomass of the smallest user specified size bin
             user.bin.res[[bnames[k]]]  <-  rowSums(num[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==200)],na.rm=T)
-            user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==200)],na.rm=T)
+            if(nrow(w)>0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rowSums(w[, which(mw.bin==user.bins[k-1]+5):which(mw.bin==200)],na.rm=T)
+            if(nrow(w)==0) user.bin.res[[bnames[k+length(user.bins)+1]]] <- rep(NA, nrow(num))
           } # end if(k == (length(user.bins)+1))
           
           # need to have the strata assigned here too.
-          user.bin.res$STRATA.ID.OLD <- w$STRATA.ID.OLD
-          user.bin.res$STRATA.ID.NEW <- w$STRATA.ID.NEW
-          
+          user.bin.res$STRATA.ID.OLD <- num$STRATA.ID.OLD
+          user.bin.res$STRATA.ID.NEW <- num$STRATA.ID.NEW
+
           user.bin.res <- as.data.frame(user.bin.res)
         }# end for(k in 1:length(user.bins)+1))
-
+   
         # Now we can get the stratified results... 
         for(f in 1:length(mean.names))
         {
-          
           if(years[i]<max(unique(HSIstrata.obj$startyear))){
             # get domaine estimator for biomasses in each size category - Domain.est(data, Strata, Domain, strata.obj, domain.obj, Nd = NULL
             #source("Y:/Offshore scallop/Assessment/Assessment_fns/Survey_and_OSAC/Domainestimates.R")
@@ -496,9 +543,15 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
           }
           
           if(years[i]>max(unique(HSIstrata.obj$startyear)) | years[i]==max(unique(HSIstrata.obj$startyear))) {
-            # The stratified calculation/object
-            res.tmp <- summary(PEDstrata(w, domain.obj, 'STRATA.ID.NEW', user.bin.res[[bnames[f]]]),effic=T)
             
+            # The stratified calculation/object
+            if(!grepl(x=bnames[f], pattern="_bm")){
+              res.tmp <- summary(PEDstrata(num, domain.obj, 'STRATA.ID.NEW', user.bin.res[[bnames[f]]]),effic=T)
+            }
+            if(grepl(x=bnames[f], pattern="_bm")){
+              if(nrow(w)>0) res.tmp <- summary(PEDstrata(w, domain.obj, 'STRATA.ID.NEW', user.bin.res[[bnames[f]]]),effic=T)
+              if(nrow(w)==0) res.tmp$yst <- NA; res.tmp$se.yst <- NA
+            }
             tmp[i,mean.names[f]] <-  res.tmp$yst* sum(N.tu)/10^6			# in millions or tonnes...
             # Strata calculations for biomass for pre-recruit sized Scallops
             tmp[i,CV.names[f]] <- res.tmp$se.yst /  res.tmp$yst
@@ -506,7 +559,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
         } # end for(m in 1:length(mean.names))
       } # end if(!is.null(user.bins))
     }# end for(i in 1:length(years))
-    
+ 
     names(strat.res) <- c("year", "n", "I", "I.cv",
                           "IR", "IR.cv", "IPR", "IPR.cv",
                           "N", "N.cv", "NR", "NR.cv", "NPR", "NPR.cv",
@@ -522,6 +575,10 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
     # Return the data to function calling it.
 
     model.dat$year <- as.numeric(as.character(model.dat$year))
+    
+    if(is.list(model.dat$I)) model.dat$I <- unlist(model.dat$I)
+    if(is.list(model.dat$IR)) model.dat$IR <- unlist(model.dat$IR)
+    if(is.list(model.dat$IPR)) model.dat$IPR <- unlist(model.dat$IPR)
     
     if(is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, Domain.obj=Domain.obj, bankpertow=bankpertow))
     if(!is.null(user.bins)) return(list(model.dat=model.dat,shf.dat=shf.dat,Strata.obj=Strata.obj, Domain.obj=Domain.obj, bin.names = bnames,user.bins = user.bins, bankpertow=bankpertow))

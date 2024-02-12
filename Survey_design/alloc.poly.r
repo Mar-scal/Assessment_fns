@@ -86,8 +86,19 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   
   if(!is.null(seed)) set.seed(seed)
   
-  # make sure s2 is off!
-  sf_use_s2(FALSE)
+  #if(!unique(strata$label) == "GBa"){# make sure s2 is off!
+    sf_use_s2(FALSE)
+  #}
+  # if(unique(strata$label) == "GBa"){# make sure s2 is off!
+  #   sf_use_s2(TRUE)
+  # }
+  
+  #ger strata obj has diff format
+    if(round(strata$area)==1793) utm=32619
+    if(!round(strata$area)==1793){  
+      if(unique(strata$label) %in% c("GBa", "GBb", "BBn", "Ger")) utm=32619
+      if(!unique(strata$label) %in% c("GBa", "GBb", "BBn", "Ger")) utm=32620
+    }
   
   Tows <- strata %>%
     st_transform(32620) %>% 
@@ -96,7 +107,7 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   
   Tows <- st_intersection(Tows, st_transform(strata, 32620)) %>%
     cbind(st_coordinates(.))
- 
+
   # Get the nearest neighbour distances
   nearest<-st_nearest_feature(Tows)
   Tows$nndist <- as.numeric(st_distance(Tows, Tows[nearest,], by_element = TRUE))/1000
@@ -198,6 +209,53 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   
   # Turn the warnings back on.
   options(warn=0)
+  
+  #make sure you have the right number of tows
+  if(is.null(repeated.tows)){
+    if(!dim(Tows)[1]==ntows) {
+      message("Too many tows were allocated, manually dropping extra tows.")
+      allocated <- Tows %>%
+        dplyr::group_by(Poly.ID) %>%
+        dplyr::summarise(n=length(unique(EID))) %>%
+        mutate(Strata_ID=Poly.ID)
+      st_geometry(allocated) <- NULL
+      stratachk <- left_join(strata, allocated)
+      stratachk$diff <- stratachk$n-stratachk$allocation
+      stratachk <- stratachk[stratachk$diff>0,]
+      out<- NULL
+      for(i in unique(stratachk$Strata_ID)){
+        everythingelse <- Tows[!Tows$Poly.ID == i,]
+        drop <- Tows[Tows$Poly.ID==i,]
+        drop <- drop[1:(nrow(drop)-stratachk$diff[stratachk$Strata_ID==i]),]
+        out <- rbind(everythingelse, drop)
+      }
+      Tows <- arrange(out, Poly.ID, EID)
+      Tows$EID <- 1:nrow(Tows)
+    }
+  }
+  
+  if(!is.null(repeated.tows)){
+    if(!dim(Tows$new.tows)[1]==ntows) {
+      message("Too many tows were allocated, manually dropping extra tows.")
+      allocated <- Tows$new.tows %>%
+        dplyr::group_by(Poly.ID) %>%
+        dplyr::summarise(n=length(unique(EID))) %>%
+        mutate(Strata_ID=Poly.ID)
+      st_geometry(allocated) <- NULL
+      stratachk <- left_join(strata, allocated)
+      stratachk$diff <- stratachk$n-stratachk$allocation
+      stratachk <- stratachk[stratachk$diff>0,]
+      out<- NULL
+      for(i in unique(stratachk$Strata_ID)){
+        everythingelse <- Tows$new.tows[!Tows$new.tows$Poly.ID == i,]
+        drop <- Tows$new.tows[Tows$new.tows$Poly.ID==i,]
+        drop <- drop[1:(nrow(drop)-stratachk$diff[stratachk$Strata_ID==i]),]
+        out <- rbind(everythingelse, drop)
+      }
+      Tows$new.tows <- arrange(out, Poly.ID, EID)
+      Tows$new.tows$EID <- 1:nrow(Tows$new.tows)
+    }
+  }
   # Return the results to the function calling this.
   return(list(Tows=Tows, Strata=strata))
   rm(strata)

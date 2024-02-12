@@ -48,6 +48,7 @@ combo.shp <- function(loc,make.sf = F,make.polys=F,make.lines =F, quiet=F)
   # So this checks if the number of columns in the data is all the same, if so
   # they are easy to merge...
   num.cols <- unique(purrr::map_chr(my.shp, function(x) ncol(x)))
+  
   # The number of colums is not the same we need to clean up the data so we can merge them into one object
   # We should also spit a warning here...
   if(length(num.cols) > 1){

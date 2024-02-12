@@ -7,6 +7,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
                                type="csv", 
                                cruise, bank, survey_name, nickname=NULL,
                                spatialplot=TRUE,
+                               assign.strata=TRUE,
                                un=NULL,
                                pwd.ID=NULL) {
   icetow <- NULL
@@ -21,13 +22,16 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   require(lubridate) || stop("Make sure you have lubridate package installed to run this")
   require(sp) || stop("Make sure you have sp package installed to run this")
+  require(sf) || stop("Make sure you have sf package installed to run this")
+  require(dplyr) || stop("Make sure you have dplyr package installed to run this")
   
   ### other functions
   ### DK:  I believe I need this, but maybe not? Now defaults to looking at Github if not specified.
   if(missing(direct_fns))
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r")
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r",
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/Github_spatial_import.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -40,6 +44,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   if(!missing(direct_fns)) {
     source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
     source(paste(direct_fns,"Other_functions/ScallopQuery.r",sep=""))
+    source(paste(direct_fns,"Maps/Github_spatial_import.R",sep=""))
   }
     
   
@@ -455,20 +460,107 @@ Check the MGT_AREA_CD values for the following tows:")
           print(plot.list)
           dev.off()
         }
+        
+        files <- list.files(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/"))
+        files <- files[grep(x = files, pattern=bank)]
+        files <- files[grep(x = files, pattern="Olex_distance_coefficients")]
+        
+        if(length(files)>0) {
+          if(length(files)>1) stop("I don't know which olex file to use. Use browser() to do this manually, then turn off spatialplots when you want to skip this step.")
+          olex <- read.csv(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", files))
+          olex$startlon <- convert.dd.dddd(olex$start_lon)
+          olex$startlat <- convert.dd.dddd(olex$start_lat)
+          olex$endlon <- convert.dd.dddd(olex$end_lon)
+          olex$endlat <- convert.dd.dddd(olex$end_lat)
+          
+          png(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/olex_compare_spatial.png"), width=11, height=8, units="in", res=600)
+          print(ggplot() + 
+            # geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, linetype="tow file"), lwd=3, na.rm = T) +
+            geom_segment(data=olex, aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
+            geom_text(data=area.test.both, aes(x=START_LON_DD, y=START_LAT_DD, colour="tow file (start point)", label=TOW_NO), na.rm = T, size=1) +
+            geom_text(data=olex, aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
+            scale_colour_manual(values=c("red", "blue")) + 
+            coord_map())
+          dev.off()
+          
+          olex_sf <- st_as_sf(olex, coords=c("startlon", "startlat"), crs=4326)
+          
+          tows_sf <- tows
+          tows_sf$START_LON_DD <- convert.dd.dddd(tows_sf$START_LON)
+          tows_sf$START_LAT_DD <- convert.dd.dddd(tows_sf$START_LAT)
+          tows_sf <- st_as_sf(tows_sf, coords=c("START_LON_DD", "START_LAT_DD"), crs=4326)
+          tows_sf_buffer <- st_buffer(tows_sf, dist = 500)
+          
+          compare <- st_intersection(tows_sf_buffer, olex_sf)
+          
+          if(nrow(compare) == nrow(tows_sf)) message("number of matched tows = number of tows expected - Good!")
+          if(all(compare$bearing - compare$BEARING < 1)) message("bearings match between olex and tow file")  
+          if(any(compare$bearing - compare$BEARING > 1)) {
+            message("bearings mismatch between olex and tow file. review the following tows:")  
+            print(compare[which(compare$bearing-compare$BEARING >1),])
+          }
+          if(all(compare$dis_coef - compare$DIS_COEF < 0.001)) message("distance coefficients match between olex and tow file")  
+          if(any(compare$dis_coef - compare$DIS_COEF > 0.001)) {
+            message("distance coefficient mismatch between olex and tow file. review the following tows:")  
+            print(compare[which(compare$dis_coef-compare$DIS_COEF >0.001),])
+          }
+        }
+        
+        if(length(files)==0) message("Could not find corresponding Olex file, make sure bank name is in filename.")        
+        
+        if(!is.null(icetow)) {
+          if(unique(icetow$SPECIES_ID) == "2 - Iceland scallop"){
+            test <- dim(icetow)[1] == dim(join(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "TOW_TYPE_ID")], icetow[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO")], type="full"))[1]
+            if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
+          }
+        }
+      
+        #assign to strata
+        if(assign.strata==TRUE & bank %in% c("Sab", "BBn", "BBs", "GBa", "GBb")){
+          shp <- github_spatial_import(subfolder = "offshore_survey_strata", zipname = "offshore_survey_strata.zip",quiet = T, specific_shp = paste0(bank,".shp"))
+          shp <- st_make_valid(shp)
+          if(bank %in% c("Sab","BBs")) CRS <- 32620
+          if(!bank %in% c("Sab","BBs")) CRS <- 32619
+          tows_sf <- st_intersection(st_transform(tows_sf, CRS), st_transform(shp, CRS)) %>% 
+            dplyr::select(-PID, -col, -border, -PName, -towbl_r, -are_km2, -label, -startyr)
+          
+          #check allocation
+          assigned <- as.data.frame(table(tows_sf$Strt_ID[tows_sf$TOW_TYPE_ID=="1 - Regular survey tow"]))
+          names(assigned)[1] <- "Strt_ID"
+          assigned$Strt_ID <- as.numeric(as.character(assigned$Strt_ID))
+          survey.info <- read.csv(paste0(direct, "Data/Survey_data/survey_information.csv"))
+          survey.info <- survey.info[survey.info$label==bank,]
+          survey.info <- survey.info[survey.info$startyear==unique(survey.info$startyear)[which.min(year - unique(survey.info$startyear))],]
+          if(bank=="GBa") survey.info$allocation <- c(51,37,32,26,35,11,8) 
+          if(!bank=="GBa") survey.info$allocation <- survey.info$area_km2/sum(survey.info$area_km2) * nrow(tows[tows$TOW_TYPE_ID=="1 - Regular survey tow",])
+          names(survey.info)[which(names(survey.info)=="Strata_ID")] <- "Strt_ID"
+          assigned <- left_join(assigned, survey.info) 
+          
+          if(all(abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata matches expected allocation") 
+          if(any(!abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata does not match expected allocation")
+          if(nrow(tows_sf) == nrow(tows) & !any(is.na(tows_sf$Strt_ID))){
+            message("Assigned strata successfully. See tow_file_strata.csv")
+            write.csv(x = dplyr::arrange(tows_sf[tows_sf$TOW_TYPE_ID=="1 - Regular survey tow",], TOW_NO), paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/tow_file_strata.csv"))
+          }
+          if(!nrow(tows_sf) == nrow(tows) | any(is.na(tows_sf$Strt_ID))){message("Strata assignment failed. You need to investigate this.")}
+        }
+        
       }
       
-      if(!is.null(icetow)) {
-        if(unique(icetow$SPECIES_ID) == "2 - Iceland scallop"){
-        test <- dim(icetow)[1] == dim(join(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "TOW_TYPE_ID")], icetow[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO")], type="full"))[1]
-        if(test == FALSE) message("There is a difference in the tow metadata between sea scallop and icelandic tows")
-        }
+      if(bank %in% c("Sab", "BBn", "BBs") & all(is.na(tows$STRATA_ID)) & assign.strata==F) message("You need to assign the strata for this bank. Set spatialplot=T and assign.strata=T and re-run, then transfer Strt_ID column.")
+      
+      if(any(complete.cases(dplyr::select(tows, -STRATA_ID, -BOTTOM_TEMP, -BOTTOM_TYPE_ID, -PIC_NUM, -COMMENTS)) == FALSE)) {
+        message("missing data in the following Tow file rows:")
+        print(tows[which(complete.cases(dplyr::select(tows, -STRATA_ID, -BOTTOM_TEMP, -BOTTOM_TYPE_ID, -PIC_NUM, -COMMENTS))==FALSE),])
       }
     }
     
     # run checks only on tow data if it's all sea scallops, otherwise, compare sea scallop tow metadata to icelandic scallop metadata
     if(is.null(icetow)) towchecks(tows=tows)
     if(!is.null(icetow)) towchecks(tows=tows, icetow=icetow)
+    
   }
+
   
 
   ####################### Height frequency checks
@@ -545,6 +637,32 @@ Check the MGT_AREA_CD values for the following tows:")
         print(comparehf[which((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets))),])
       }
       
+      ## Make sure the number of baskets corresponds between files.
+      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+             (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & !is.na(comparehf$TOW_TYPE_ID))) {
+        message("Too many baskets in HF file compared to Total Baskets in Tow file")
+        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+                                (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets) & !is.na(comparehf$TOW_TYPE_ID))),])
+      }
+      
+      ## Make sure the number of buckets corresponds between files.
+      
+      comparehf2 <- comparehf %>%
+        group_by(TOW_NUM, Total.Buckets, Total.Baskets) %>%
+        summarize(LIVE_QTY_BASKET = sum(LIVE_QTY_BASKET),
+                  DEAD_QTY_BASKET = sum(DEAD_QTY_BASKET),
+                  LIVE_QTY_BUCKET = sum(LIVE_QTY_BUCKET),
+                  DEAD_QTY_BUCKET = sum(DEAD_QTY_BUCKET))
+      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+        message("Total buckets is greater than 0, but there is nothing in HF file. Review these tows")
+        print(comparehf2[comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET==0,])
+      }
+      
+      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+        message("Total baskets is greater than 0, but there is nothing in HF file. Review these tows")
+        print(comparehf2[comparehf2$Total.Baskets>0 & comparehf2$LIVE_QTY_BASKET==0 & comparehf2$DEAD_QTY_BASKET==0,])
+      }
+      
       # make sure all bins are present
       bins <- as.data.frame(table(hfs$TOW_NUM, hfs$BIN_ID))
       if(dim(bins[bins$Freq<1 | bins$Freq>1,])[1] > 0) {
@@ -576,7 +694,19 @@ Check the MGT_AREA_CD values for the following tows:")
         print(longhfs[is.na(longhfs$value),])
       }
       
-       # plot the raw HF distributions by tow (one tow per pdf page)
+      # are any records <50mm in baskets instead of buckets?
+      if(nrow(longhfs[longhfs$variable %in% c("LIVE_QTY_BASKET", "DEAD_QTY_BASKET") & longhfs$BIN_ID<50 & longhfs$value>0,])>0) {
+        message("The following HF records should be in BUCKETS not BASKETS. Check them out.")
+        print(longhfs[longhfs$variable %in% c("LIVE_QTY_BASKET", "DEAD_QTY_BASKET") & longhfs$BIN_ID<50 & longhfs$value>0,])
+      }
+      
+      # are any records >50mm in buckets instead of baskets?
+      if(nrow(longhfs[longhfs$variable %in% c("LIVE_QTY_BUCKET", "DEAD_QTY_BUCKET") & longhfs$BIN_ID>50 & longhfs$value>0,])>0) {
+        message("The following HF records should be in BASKETS not BUCKETS. Check them out.")
+        print(longhfs[longhfs$variable %in% c("LIVE_QTY_BUCKET", "DEAD_QTY_BUCKET") & longhfs$BIN_ID>50 & longhfs$value>0,])
+      }
+      
+      # plot the raw HF distributions by tow (one tow per pdf page)
       ## plot tows to PDF
       print("plotting HF distributions:")
       plotnum <- seq(1,length(unique(longhfs$TOW_NUM)), 4)
@@ -605,6 +735,11 @@ Check the MGT_AREA_CD values for the following tows:")
         dev.off()
       }
       
+      
+      if(any(complete.cases(hfs) == FALSE)) {
+        message("missing data in the following HF file rows:")
+        print(hfs[which(complete.cases(hfs)==FALSE),])
+      }
     }
     
     hfchecks(hfs, tows)
@@ -628,9 +763,22 @@ Check the MGT_AREA_CD values for the following tows:")
         print(hfs[which(is.na(mwshs$TOW_NUM)),])
       }
       
+      # duplicate tow number
+      dups <- as.data.frame(table(mwshs$TOW_NUM, mwshs$SCALLOP_NUM))
+      names(dups) <- c("TOW_NUM", "SCALLOP_NUM", "Freq")
+      if(any(dups$Freq>1)) {
+        message("Duplicate tow numbers in MWSH file. Review records below:")
+        print(dups[dups$Freq>1,])
+      }
+      
       # missing sampler ID
       if(any(is.na(mwshs$SAMPLER_ID) | is.null(mwshs$SAMPLER_ID))) {
         message("Data missing from SAMPLER_ID column")
+      }
+      
+      if(any(complete.cases(mwshs) == FALSE)) {
+        message("missing data in the following MWSH file rows:")
+        print(mwshs[which(complete.cases(mwshs)==FALSE),])
       }
       
       if(!is.null(un) & !is.null(pwd.ID)){
@@ -697,4 +845,5 @@ Check the MGT_AREA_CD values for the following tows:")
     
     if(!is.null(icemwshs)) mwshchecks(icemwshs)
   }
+  
 }

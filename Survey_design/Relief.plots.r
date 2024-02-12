@@ -44,7 +44,7 @@
 
 Relief.plots<-function(tows,MBdata='from.file',expd=1,fig="pdf",digits=4,dirt = direct,repo = 'github',
                        save.dir=paste(direct,yr,"/Survey_Design/Ger/",sep=""),
-                       kms=1,gerfiles=1:77,key.dir=paste(direct,"Data/Environmental/Bathymetry/Ger/Bathymetry/fileKey.csv",sep=""),
+                       kms=1,gerfiles=1:77,key.dir=paste("Y:/GISdata/Private/German_bathy_DEM/fileKey.csv",sep=""),
                        tracks=F,trackPath=paste(direct,"Data/Tow_tracks/",yr,"/Spring/German/",sep=""))
 {
   
@@ -75,6 +75,8 @@ dpkm <- 0.008983346
 # This gets us the aspect ratio accounting for our location on the big ol' sphere
 aspr=1/cos(rad(mean(tows$Y)))
 
+tows <- tows[2,]
+
 # Run this loop for each tow.
 for(i in 1:nrow(tows))
 {
@@ -98,7 +100,7 @@ for(i in 1:nrow(tows))
 			for(f in 1:length(gets))
 			{
 			  #Read2 Bring in the file with the bathymetry data in it
-				tmp <-read.table(paste(dirt,"Data/Environmental/Bathymetry/Ger/Bathymetry/gerbk_5/german_",gets[f],".txt",sep=''),header=T)
+				tmp <-read.table(paste("Y:/GISdata/Private/German_bathy_DEM/gerbk_5/german_",gets[f],".txt",sep=''),header=T)
 				# Now set up the location for the tow, note the dpkm, aspr, and kms adjustments that are necessary.
 				locdata.lst[[f]]<-subset(tmp,X<(tows$X[i]+dpkm*aspr*kms)&X>(tows$X[i]-dpkm*aspr*kms)&Y<(tows$Y[i]+dpkm*kms)&Y>(tows$Y[i]-dpkm*kms))
 			} # end for(f in 1:length(gets))

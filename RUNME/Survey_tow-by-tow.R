@@ -23,18 +23,18 @@ require(RColorBrewer)
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2023.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn",
+bnk <- c("BBn"),
          "Ger","Sab","Mid",
-  "GB", #"BBs",#, "Ban", "BanIce"
-         "GBa", 
-  "GBb"
+  "GB", "BBs"#,#, "Ban", "BanIce"
+         #"GBa", 
+  #"GBb"
   )
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
@@ -48,7 +48,7 @@ for(i in 1:length(bnk)){
   print(bnk[i])
   # Set up the directory to save the figures.
   # Get the plot directory
-  plot.dir = paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures",bnk[i],"/",sep="")
+  plot.dir = paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/",sep="")
   # If the above directory does not exist then we need to create it.
   if(dir.exists(plot.dir)==F)
   {
@@ -1536,14 +1536,14 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location"),dec.deg=F)
+             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location (black), max CF (red)"),dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
 if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location"),dec.deg=F)
+             nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location (black); max CF (red)"),dec.deg=F)
 } # end if(is.null(bank.survey.info) ==T)
 
 points(x=cf.data2[[bnk[i]]]$CFyrs$lon[cf.data2[[bnk[i]]]$CFyrs$year==yr], y=cf.data2[[bnk[i]]]$CFyrs$lat[cf.data2[[bnk[i]]]$CFyrs$year==yr], cex=3)
@@ -1988,7 +1988,7 @@ convert_col_dat_to_bank_dat <- function(v=v1){
   all <- arrange(all, TOW_NO, bin)
   
   # there was no sub-sampling of icelandic scallops in 2012, so we just need the discoef column. we can get this from the DB for Sea scallops.
-  chan <-dbConnect(dbDriver("Oracle"),username="keyserf", password="Decade06","ptran")
+  chan <-dbConnect(dbDriver("Oracle"),username="keyserf", password="","ptran")
   db <- "SCALOFF" ### CHANGE HUMF TO SCALOFF!!!
   qu.tows <- paste0("select * from ", db, ".OSTOWS WHERE SURVEY_SEQ in (133)")
   qu.tows <- dbGetQuery(chan, qu.tows)
