@@ -21,7 +21,7 @@ require(dplyr)
 require(ggplot2)
 
 # scaloff username and pwd needed (keyserf doesn't have the right access)
-indreport <- get.offshore.survey(direct=direct, cruise="LE16", yr=2022, industry.report = T, un = "scaloff", pw=pwd.id)
+indreport <- get.offshore.survey(direct=direct, cruise="LE17", yr=2023, industry.report = T, un = "scaloff", pw=pwd.id)
 
 
 industryreport <- indreport$industryreport
@@ -51,7 +51,7 @@ for(i in 1:length(unique(industryreport$MGT_AREA_CD))){
       
 }
 
-sum(df[[1]]$total) + sum(df[[2]]$total) #+ sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
+sum(df[[1]]$total) + sum(df[[2]]$total) + sum(df[[3]]$total)+ sum(df[[4]]$total) + sum(df[[5]]$total)  + sum(df[[6]]$total)  + sum(df[[7]]$total) 
 
 df
 
@@ -59,14 +59,14 @@ nrow(industryreport)
 
 industryreport$lon <- convert.dd.dddd(industryreport$START_LON)
 industryreport$lat <- convert.dd.dddd(industryreport$START_LAT)
-ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="GBb",], aes(lon,lat, label=TOW_NO)) + coord_map()
+ggplot() + geom_text(data=industryreport[industryreport$MGT_AREA_CD=="Mid",], aes(lon,lat, label=TOW_NO)) + coord_map()
 
 
 ggplotly
 
 olex_se[olex_se$ID==363,]
 
--66.21633173	41.962685
+# -66.21633173	41.962685
 
 
 # checking out the german rake stuff. No obvious signs of bias. 

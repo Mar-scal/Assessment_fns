@@ -53,9 +53,9 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   if(graphic=="screen")windows(width = wd, height = ht)
   
   # If we are ploting the CPUE time series set the figure up like so.
-  if("qU"%in%names(data.out$median))par(mfrow = c(3,1), mar = c(1, 4, 1, 1), omi = c(0.2, 0.3, 0, 0.2))
+  if("qU"%in%names(data.out$median))par(mfrow = c(3,1), mar = c(1, 5, 1, 1), omi = c(0.2, 0.3, 0, 0.2))
   # If not plotting CPUE then this is our set up.
-  else par(mfrow = c(2,1), mar = c(1, 4, 1, 1), omi = c(0.2, 0.3, 0, 0.2))
+  else par(mfrow = c(2,1), mar = c(1, 5, 1, 1), omi = c(0.2, 0.3, 0, 0.2))
   
   # If ymax for the biomass hasn't been supplied calculate it
   if(missing(ymaxB)==T)
@@ -84,10 +84,10 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
   axis(4, lab = F, tcl = -0.3)
   
   # Add the appropriate y axis label
-  if(Iadj!=1 & language=="en")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="en")mtext("Survey Biomass", 2, 3.5, cex = 1.25)
-  if(Iadj!=1 & language=="fr")mtext("Survey Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="fr")mtext("Biomasse (relev\u00E9)", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="en")mtext("Fully-Recruited Survey\nBiomass Index (kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="en")mtext("Fully-Recruited Survey\nBiomass Index (tonnes)", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="fr")mtext("Indice de la biomasse pleinement\nrecrut\u00E9e (relev\u00E9, kg/trait)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Indice de la biomasse pleinement\nrecrut\u00E9e (relev\u00E9, tonnes)", 2, 3.5, cex = 1.25)
   # If plotting credible intervals these are them.  Note they are 1-alpha/2 CI's, defaults to 95%.
   if(CI==T)
   {
@@ -127,10 +127,10 @@ fit.plt <- function(data.out,name="",years, CI=F,CV=F,Iadj=1,Uadj=1,graphic='scr
     }
   }
   # Add the appropriate y axis label
-  if(Iadj!=1 & language=="en")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="en")mtext("Survey Recruit Biomass", 2, 3.5, cex = 1.25)
-  if(Iadj!=1 & language=="fr")mtext("Survey Recruit Biomass \n (kg/tow)", 2, 2.5, cex = 1.25)
-  if(Iadj==1 & language=="fr")mtext("Biomasse des recrues (relev\u00E9)", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="en")mtext("Recruit Survey Biomass Index\n(kg/tow)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="en")mtext("Recruit Survey Biomass Index \n(tonnes)", 2, 3.5, cex = 1.25)
+  if(Iadj!=1 & language=="fr")mtext("Indice de la biomasse des\nrecrues (relev\u00E, kg/trait)", 2, 2.5, cex = 1.25)
+  if(Iadj==1 & language=="fr")mtext("Indice de la biomasse des\nrecrues (relev\u00E9, tonnes)", 2, 3.5, cex = 1.25)
   # If we asked for credbile limits plot them.
   if(CI==T)
   {

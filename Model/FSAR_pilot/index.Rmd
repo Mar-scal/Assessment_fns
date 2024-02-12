@@ -1,0 +1,60 @@
+---
+report_title: "Georges Bank 'a' Scallop (_Placopecten magellanicus_) Update in 2022"
+report_year: "2022"
+release_month: "January"
+report_number: "044"
+meeting_date: "January 25, 2022"
+region: "Maritime Region"
+phone: "(555) 555-5555"
+email: "email@csa-email.com"
+csa_address: "CSA Address goes here"
+report_title_french: "Fish stock name"
+inuktitut_citation: "Inuktitut citation here"
+context: |
+  Here is the context text. Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+output:
+ csasdown::fsar_word
+link-citations: false
+bibliography: bib/MAR_SABHU.bib
+# End of options to set
+title: ""
+knit: (function(input, ...) {
+       csasdown::render_sar()
+      })
+---
+
+```{r setup, echo=FALSE, cache=FALSE, message=FALSE, results='hide', warning=FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.path = "knitr-figs-docx/",
+  fig.asp = 0.618,
+  fig.width = 7,
+  echo = FALSE,
+  dev = "png",
+  dpi = 180
+)
+```
+
+```{r load-libraries, cache=FALSE}
+# add other packages here:
+library(dplyr)
+library(ggplot2)
+
+library(rosettafish)
+library(csasdown)
+
+options(scipen=999)
+
+direct <- "Y:/Offshore/Assessment/"
+direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_out <- "C:/Users/keyserf/Documents/"
+bank <- "GBa"
+year <- 2023 # current year
+yr <- 2022 # fishery year
+#load(paste(direct_out,"Data/Model/", year, "/GBa/Results/Model_testing_results_mixed.RData",sep=""))
+load(paste(direct_out,"Data/Model/", year, "/GBa/Results/Final_model_results.RData",sep="")) # used mixed as final!
+#load(paste(direct_out,"Data/Model/", year, "/GBa/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
+load(paste(direct_out,"Data/Model/", year, "/GBa/Results/Model_results_and_diagnostics.RData",sep=""))
+```

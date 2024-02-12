@@ -35,6 +35,7 @@
 # printtow:   prints the tow information to the screen to track progress.
 # direct:     Directory to grab the function from.  Defaults = "Y:/Offshore scallop/Assessment/"
 # direct_fns: Directory to grab functions from, if missing it goes to github...
+### NOTE: the default arguments are used for calculating offshore scallop survey distance coefficients from tows tracked by Ocean Vision
 ######################  Section 1 - The getdis function ###################################  
 
 

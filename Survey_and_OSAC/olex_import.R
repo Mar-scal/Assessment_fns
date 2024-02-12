@@ -1,5 +1,5 @@
 # Offshore Scallop Survey Data - converting Olex to .csv and useable coordinates
-# Code by TPD April 2022, inspired by https://github.com/Mar-scal/Inshore/blob/main/Survey/OLEX-latlong_conversion.R
+# Code by TPD & FK April 2022, inspired by https://github.com/Mar-scal/Inshore/blob/main/Survey/OLEX-latlong_conversion.R
 
 ###################
 ### ARGUMENTS
@@ -13,7 +13,7 @@
 
 
 
-olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04){
+olex_import <- function(filename, ntows=NULL, type, length="sf", correction_factor=1.04, UTM, earliest=NULL, latest=NULL, tow_number_key=NULL, edited_csv=NULL){
   #Import olex data:
   library(data.table)
   library(tidyverse)
@@ -53,7 +53,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   #Split characters separated by spaces into columns.
   zz <- cSplit(zz, "Ferdig.forenklet", sep = " ", type.convert = FALSE) 
-  
   
   # startend <- zz %>% filter(Ferdig.forenklet_4 %in% c("Garnstart", "Garnstopp")) %>% 
   #   dplyr::select(Ferdig.forenklet_1, Ferdig.forenklet_2, Ferdig.forenklet_4) %>% 
@@ -130,18 +129,30 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     mutate(X=End_long_dec, Y=End_lat_dec)
   
   coords.track <- rbind(coords.sf, coords.sf.end) %>%
-    st_transform(32620) %>%
+    st_transform(UTM) %>%
     group_by(ID) %>%
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
     st_transform(4326)
   
+  if(!is.null(tow_number_key)) {
+    tnk <- readxl::read_xlsx(tow_number_key)
+    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
+    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- look[which(!is.na(banks$start))]
+    tnk <- tnk[tnk$Bank %in% look,]
+    names(tnk)[which(names(tnk) == "olex_no")] <- "ID"
+    coords.track <- left_join(coords.track, tnk)
+    names(coords.track)[which(names(coords.track) == "tow_track_order")] <- "official_tow_number"
+  }
+  
+  
   # export the start and end points if that's all you want!
   if(type=="startend") {
     print(ggplot() + geom_sf(data=coords.track, lwd=1) + coord_sf() + theme_bw())
+    warning("No date check for startend option, may contain tows from other surveys/years")
     return(coords.track)
   }
-  
   
   # continue on to look at actual tracks (instead of just start and end points). Need to go back to raw data for this (zz)
   track <- data.frame(start=which(zz$Ferdig.forenklet_4=="Garnstart"), end=which(zz$Ferdig.forenklet_4=="Garnstopp"))
@@ -157,7 +168,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
       mutate(tow=i,
              datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
-      select(-Ferdig.forenklet_3)
+      dplyr::select(-Ferdig.forenklet_3)
     
     trackpts <- rbind(trackpts, trackpts1)
   }
@@ -165,22 +176,60 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   # olex is in UTC-4
   trackpts$datetime <- trackpts$datetime + hours(4)
   
+  if(!is.null(earliest)) trackpts <- trackpts[trackpts$datetime>ymd(earliest),]
+  if(!is.null(latest)) trackpts <- trackpts[trackpts$datetime<ymd(latest),]
+  
   # hold onto this for later
   unsmoothed <- trackpts
   
+  if(type=="csv"){
+    write.csv(trackpts, paste0(getwd(), "/csv_to_edit.csv"))
+    print(paste0(getwd(), "/csv_to_edit.csv"))
+    return()
+  }
+  
+  if(!is.null(edited_csv)){
+    trackpts <- read.csv(file=edited_csv, header = T)
+    message("Note: edited csv file datetime must be in yyyy-mm-dd hh:mm:ss format, and edited end points must be labelled Garnstopp")
+    if(any(grepl(names(trackpts), pattern="X"))) trackpts <- dplyr::select(trackpts, -X)
+    trackpts$datetime <- ymd_hms(trackpts$datetime)
+    
+    fixed <- unique(dplyr::setdiff(unsmoothed[,c("tow", "datetime")], trackpts[,c("tow", "datetime")])$tow)
+    for(i in fixed){
+      # to fix the coords object:
+      coords$Start_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][1], format="deg.min")
+      coords$Start_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][1], format="deg.min")
+      coords$End_long[coords$ID==i] <- convert.dd.dddd(x = trackpts$Longitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
+      coords$End_lat[coords$ID==i] <- convert.dd.dddd(x = trackpts$Latitude[trackpts$tow==i][nrow(trackpts[trackpts$tow==i,])], format="deg.min")
+      
+      # to fix the trackpts object
+      unsmoothed <- dplyr::arrange(rbind(unsmoothed[!unsmoothed$tow == i,], trackpts[trackpts$tow==i,]), tow, datetime)
+    }
+    trackpts <- unsmoothed
+  }
+  
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
-  starttime$start <- starttime$datetime
-  starttime <- select(starttime, -datetime)
+  starttime$start <- ymd_hms(starttime$datetime)
+  starttime <- dplyr::select(starttime, -datetime)
   
   endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
-  endtime$end <- endtime$datetime
-  endtime <- select(endtime, -datetime)
+  endtime$end <- ymd_hms(endtime$datetime)
+  endtime <- dplyr::select(endtime, -datetime)
   
   time <- left_join(starttime, endtime)
   
+  # check the tow time duration
+  if(any((time$end - time$start)>10.20)){
+    toolong <- time$tow[(time$end-time$start >10.20)]
+    message("These tows were tracked for over 10 minutes. Run this with type='csv', to create file below.\n
+            Read it back in with the edited_csv argument. Make sure the edited tow ends with 'Garnstopp'!")
+    print(toolong)
+    print(paste0(getwd(), "/csv_to_edit.csv"))
+  }
+  
   trackpts <- trackpts %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
-    st_transform(32620) %>%
+    st_transform(UTM) %>%
     group_by(tow) %>%
     dplyr::summarize(do_union=FALSE) %>%
     st_cast("LINESTRING") %>%
@@ -191,9 +240,21 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   offshore_sf <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip", quiet = T)
   
-  trackpts <- trackpts %>%
-    st_join(offshore_sf) %>%
-    dplyr::rename(bank=ID)
+  trackpts <- st_transform(trackpts, UTM) %>%
+    st_join(st_transform(offshore_sf, UTM)) %>%
+    dplyr::rename(bank=ID) %>%
+    st_transform(4326)
+  
+  if(!is.null(tow_number_key)) {
+    tnk <- readxl::read_xlsx(tow_number_key)
+    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
+    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- look[which(!is.na(banks$start))]
+    tnk <- tnk[tnk$Bank %in% look,]
+    names(tnk)[which(names(tnk) == "olex_no")] <- "tow"
+    trackpts <- left_join(trackpts, tnk)
+    names(trackpts)[which(names(trackpts) == "tow_track_order")] <- "official_tow_number"
+  }
   
   # if all you want are tracks in sf format, here you go!
   if(type=="sf"){
@@ -208,6 +269,14 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
                     Tow=tow,
                     Date_time = datetime) %>%
       dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
+    
+    if(!is.null(tow_number_key)) {
+      names(tnk)[which(names(tnk) == "tow")] <- "Tow"
+      names(tnk)[which(names(tnk) == "Bank")] <- "bank"
+      tracks <- left_join(tracks, tnk)
+      names(tracks)[which(names(tracks) == "tow_track_order")] <- "official_tow_number"
+    }
+    
     return(tracks)
   }
   
@@ -215,10 +284,10 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(type=="load") {
     
     trackpts <- arrange(trackpts, tow)
-      
+    
     trackpts$length <- trackpts %>%
       arrange(tow) %>%
-      st_transform(32620) %>%
+      st_transform(UTM) %>%
       group_by(tow) %>% 
       st_length()
     
@@ -247,18 +316,24 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     trackpts$start_lat <- NA
     trackpts$end_lon <- NA
     trackpts$end_lat <- NA
+    
     for(i in 1:nrow(trackpts)){
-      trackpts$bearing[i] <- geosphere::bearing(p1 = c(coords$Start_long_dec[i], coords$Start_lat_dec[i]), 
-                                                p2 = c(coords$End_long_dec[i], coords$End_lat_dec[i]))
-      trackpts$start_lon[i] <- -coords$Start_long[i]
-      trackpts$start_lat[i] <- coords$Start_lat[i]
-      trackpts$end_lon[i] <- -coords$End_long[i]
-      trackpts$end_lat[i] <- coords$End_lat[i]
+      trackpts$bearing[i] <- geosphere::bearing(p1 = c(coords$Start_long_dec[coords$ID == trackpts$tow[i]], coords$Start_lat_dec[coords$ID == trackpts$tow[i]]), 
+                                                p2 = c(coords$End_long_dec[coords$ID == trackpts$tow[i]], coords$End_lat_dec[coords$ID == trackpts$tow[i]]))
+      trackpts$start_lon[i] <- -coords$Start_long[coords$ID == trackpts$tow[i]]
+      trackpts$start_lat[i] <- coords$Start_lat[coords$ID == trackpts$tow[i]]
+      trackpts$end_lon[i] <- -coords$End_long[coords$ID == trackpts$tow[i]]
+      trackpts$end_lat[i] <- coords$End_lat[coords$ID == trackpts$tow[i]]
     }
     
     trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
     st_geometry(trackpts) <- NULL
+    
+    if(!is.null(tow_number_key)) {
+      trackpts <- left_join(trackpts, tnk)
+      names(trackpts)[which(names(trackpts) == "tow_track_order")] <- "official_tow_number"
+    }
     
     return(trackpts)
   }

@@ -55,20 +55,21 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
-                   surveys = c(#"Banspring", 
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
+                   surveys = c("Banspring", 
                     # #"BanIcespring", 
                       "BBnspring",
-                      #"BBsspring",
-                      "Gerspring",
-                      "Midspring",
-                      "Sabspring",
-                      "GBspring",
-                        "GBbsummer",
-                        "GBasummer"
+                      "BBsspring",
+                        "Gerspring",
+                       "Midspring",
+                       "Sabspring",
+                       # "GBspring",
+                          "GBbsummer"#,
+                       #   "GBasummer"
                      ), 
-                   db.con="ptran",testing=F, season="both", spatial=T, mwsh.test=F,
-                   commercialsampling=T, nickname=NULL)
+                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
+                   commercialsampling=T, nickname="framework_75-90RSCS_newMWSH_GBb", bins=c(50,65,95,110),
+                   size.cats="Size_categories_by_bank_75-90.csv")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -94,16 +95,16 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 # Did this work... NO :-/  It is related to the loading of the MW-SH data from the previsou year for the MW-SH plot... annoyingly!!
 
 str <- Sys.time()
-survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
+survey.figs(direct = direct, direct_fns=direct_fns, fig="screen",
             yr=2022, 
             banks = c(
-                  "BBn",
-                   "Ger",
-                "Mid",
-               "Sab",
-              "GBa",
-              "GBb",
-              "GB"#,
+                  #"BBn",
+                    "Ger"#,
+                # "Mid",
+               #"Sab"#,
+              # "GBa",
+              # "GBb",
+              # "GB"#,
               #"BBs"#,
               #"Ban",
               # "BanIce"
@@ -112,8 +113,8 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
             plots = c(
                # "Survey",
                #  "abund-ts",
-               #  "biomass-ts",
-               #   "SHF",
+                # "biomass-ts",
+                  "SHF",
                #   "user.SH.bins",
                  "MW-SH"#,
               #   "clapper-abund-ts",
@@ -133,7 +134,7 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
               # "seedboxes"
               ), 
             bathy=c(10,'c'), 
-            sub.area=F, INLA="load", season="testing", nickname="commercial", layout="landscape")
+            sub.area=F, INLA="load", season="testing", nickname="framework_75-90_newareas_issue120_MWSH", layout="landscape")
 
 Sys.time() -str
 
