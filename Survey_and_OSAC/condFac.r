@@ -17,6 +17,7 @@
 ## This function needs these functions to work (a.k.a. "support files")
 # 
 #    1:  shwt.lme.r
+#    2:  shwt.glmer.r
 #      
 ##
 ###############################################################################################################
@@ -209,62 +210,85 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
       CFtow <- NULL
       cond.pred <- NULL
       all.coef <- NULL
+      mwsh.curve <- NULL
       # Takes about 1 second per year
       for(i in 1:n.yrs)
       {
         mw.dat <- wgt.dat %>% dplyr::filter(year== yrs[i])
         s.dat <- pre.dat %>% dplyr::filter(year == yrs[i])
-        
+        ntows <- length(unique(mw.dat$tow))
         mod.r <- SpatHtWt.fit$mod.res[[as.character(yrs[i])]]
+        # make places for predictions to go:
+        temp <- NULL
+        CF<-NULL
         # Now try and do the predictions
         
         # First, by tow:
         # note that we are using live and dead rows for the prediction data, so the random.pred and fixed.pred values are 
         # NOT tow numbers - they are row numbers in the s.dat object (which is typically bank.dat if arriving here via Survey Summary code)
         #get IDs for the sampled tows. Use the random effects for those.
-        random.pred <- (1:nrow(s.dat))[is.element(s.dat$tow,unique(mw.dat$new_ID))]
-        
-        #get IDs for the unsampled tows. Use fixed effects for IDs that weren't sampled for meat weight shell height
-        fixed.pred <- (1:nrow(s.dat))[!is.element(s.dat$tow,unique(mw.dat$new_ID))]
-        
-        # make places for predictions to go:
-        temp <- NULL
-        CF<-NULL
-        #Predict using Random effects for IDs that were sampled for meat weight shell height
-        for(j in random.pred)
-        {
-          tempj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j], bin=paste0("h", seq(5,200,5))),
-                         pred=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=log.sh.cen,
-                                                                                depth.cen=rep(s.dat$depth.cen[j] ,40),
+        if(ntows>4){
+          #get IDs for the sampled tows. Use the random effects for those.
+          random.pred <- (1:nrow(s.dat))[is.element(s.dat$tow,unique(mw.dat$new_ID))]
+          #get IDs for the unsampled tows. Use fixed effects for IDs that weren't sampled for meat weight shell height
+          fixed.pred <- (1:nrow(s.dat))[!is.element(s.dat$tow,unique(mw.dat$new_ID))]
+          
+          for(j in random.pred)
+          {
+            tempj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j], bin=paste0("h", seq(5,200,5))),
+                           pred=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=log.sh.cen,
+                                                                                  depth.cen=rep(s.dat$depth.cen[j] ,40),
+                                                                                  new_ID=s.dat$tow[j]),
+                                                  re.form=NULL,type="response"))) %>%
+              tidyr::pivot_wider(values_from = "pred", names_from = "bin", id_cols = c("tow", "depth.cen"))
+            temp <- rbind(temp, tempj)
+            
+            CFj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j]),
+                         CF=as.vector(predict(object = mod.r,newdata=data.frame(log.sh.cen=0,
+                                                                                depth.cen=s.dat$depth.cen[j],
                                                                                 new_ID=s.dat$tow[j]),
-                                                re.form=~0,type="response"))) %>%
-            tidyr::pivot_wider(values_from = "pred", names_from = "bin", id_cols = c("tow", "depth.cen"))
-          temp <- rbind(temp, tempj)
+                                              re.form=NULL,type="response")))
+            CF <- rbind(CF, CFj)
+          } # end the random loop
           
-          CFj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j]),
-                       CF=as.vector(predict(object = mod.r,newdata=data.frame(log.sh.cen=0,
-                                                                              depth.cen=s.dat$depth.cen[j],
-                                                                              new_ID=s.dat$tow[j]),
-                                            re.form=NULL,type="response")))
-          CF <- rbind(CF, CFj)
-        } # end the random loop
+          #Predict using fixed effects for IDs that weren't sampled for meat weight shell height
+          for(j in fixed.pred)
+          {
+            tempj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j], bin=paste0("h", seq(5,200,5))),
+                           pred=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=log.sh.cen,
+                                                                                  depth.cen=rep(s.dat$depth.cen[j] ,40)),
+                                                  re.form=~0,type="response"))) %>%
+              tidyr::pivot_wider(values_from = "pred", names_from = "bin", id_cols = c("tow", "depth.cen"))
+            temp <- rbind(temp, tempj)
+            
+            CFj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j]),
+                         CF=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=0,
+                                                                              depth.cen=s.dat$depth.cen[j]),
+                                              re.form=~0,type="response")))
+            CF <- rbind(CF, CFj)
+          } # end the fixed loop
+          
+        }
+          
         
-        #Predict using fixed effects for IDs that weren't sampled for meat weight shell height
-        for(j in fixed.pred)
-        {
-          tempj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j], bin=paste0("h", seq(5,200,5))),
-                         pred=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=log.sh.cen,
-                                                                                depth.cen=rep(s.dat$depth.cen[j] ,40)),
-                                                re.form=~0,type="response"))) %>%
-            tidyr::pivot_wider(values_from = "pred", names_from = "bin", id_cols = c("tow", "depth.cen"))
-          temp <- rbind(temp, tempj)
+        if(ntows<5){
           
-          CFj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j]),
-                       CF=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=0,
-                                                                            depth.cen=s.dat$depth.cen[j]),
-                                            re.form=~0,type="response")))
-          CF <- rbind(CF, CFj)
-        } # end the fixed loop
+          for(j in 1:nrow(s.dat))
+          {
+            tempj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j], bin=paste0("h", seq(5,200,5))),
+                           pred=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=log.sh.cen,
+                                                                                  depth.cen=rep(s.dat$depth.cen[j] ,40)),
+                                                  type="response"))) %>%
+              tidyr::pivot_wider(values_from = "pred", names_from = "bin", id_cols = c("tow", "depth.cen"))
+            temp <- rbind(temp, tempj)
+            
+            CFj <- cbind(data.frame(tow=s.dat$tow[j], depth.cen=s.dat$depth.cen[j]),
+                         CF=as.vector(predict(object=mod.r,newdata=data.frame(log.sh.cen=0,
+                                                                              depth.cen=s.dat$depth.cen[j]),
+                                              type="response")))
+            CF <- rbind(CF, CFj)
+          } # end the glm loop
+        }
         
         # weight matrix for use in surv.by.tow
         mw.res.t[[i]] <- cbind(year=as.numeric(yrs[i]), dplyr::arrange(temp, tow))
@@ -287,14 +311,28 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
         dep.1 <- summary(mod.r)$coefficients[3,1]
         dep.1.se <- summary(mod.r)$coefficients[3,2]
         
-        # Now extract the random terms
-        rand.coef <- data.frame(rand.int = ranef(mod.r)$new_ID[[1]], rand.se = se.ranef(mod.r)$new_ID[[1]],
-                                tow = attr(se.ranef(mod.r)$new_ID,'dimnames')[[1]])
-        fix.coef <- data.frame(fix.int = inter, fix.int.se = inter.se, fix.slope = slope, fix.slope.se = slope.se,
-                               depth1 = dep.1, depth1.se = dep.1.se,
-                               tow = as.character(sort(unique(s.dat$tow))),year = yrs[i])
-        all.coef[[i]] <- left_join(fix.coef,rand.coef,by='tow')
+        #fixed effects or glm results
+        if(ntows<5) {
+          all.coef[[i]] <- data.frame(fix.int = inter, fix.int.se = inter.se, fix.slope = slope, fix.slope.se = slope.se,
+                                      depth1 = dep.1, depth1.se = dep.1.se,
+                                      tow = as.character(sort(unique(s.dat$tow))),year = yrs[i], rand.int=NA, rand.se=NA)
+        }
         
+        if(ntows>4) {
+          fix.coef <- data.frame(fix.int = inter, fix.int.se = inter.se, fix.slope = slope, fix.slope.se = slope.se,
+                                 depth1 = dep.1, depth1.se = dep.1.se,
+                                 tow = as.character(sort(unique(s.dat$tow))),year = yrs[i])
+          rand.coef <- data.frame(rand.int = ranef(mod.r)$new_ID[[1]], rand.se = se.ranef(mod.r)$new_ID[[1]],
+                                  tow = attr(se.ranef(mod.r)$new_ID,'dimnames')[[1]])
+          all.coef[[i]] <- left_join(fix.coef,rand.coef,by='tow')
+        } 
+        # this is the object with coefficients ^^^^
+        
+        # this object is for plotting annual MWSH curves, which may not be necessary here
+        # mwsh.curve[[i]] <- data.frame(sh = 65:200, year=yrs[i], pred = predict(object=mod.r, newdata=expand.grid(log.sh.cen=log(seq(0.65,2, 0.01)),
+        #                                                                                                          depth.cen=median(s.dat$depth.cen)),
+        #                                                                        re.form=~0,type="response"))           
+        # 
         # Object with condition prediction
         cond.pred[[i]] <- data.frame(cond = cond.est,year = yrs[i],intercept = inter,inter.se = inter.se)
         
