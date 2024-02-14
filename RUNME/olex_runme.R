@@ -64,6 +64,7 @@ for(i in unique(olex_tracks$Bank)){
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
 olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18GBatracks_final.gz", 
+
                          UTM=32619, type="load", correction_factor = 1.04, earliest="2023-08-01", latest="2023-09-01", 
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2023/Database loading/LE18/LE18trackorder.xlsx")
 
