@@ -151,7 +151,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
     # Bank depth, which should be our measure of condition
     #Going to say median depth of the survey tows between 2010 and 2022 see above
     # For BBn this is 75 meters, which makes loads of sense. So Center the depth at the bank mean
-    med.depth <- wgt.dat %>% dplyr::filter(year %in% 2010:2022) %>% dplyr::summarise(med = median(depth,na.rm=T)) %>% signif(digits=2)
+    med.depth <- pred.dat %>% dplyr::filter(year %in% 2010:2022) %>% dplyr::summarise(med = median(depth,na.rm=T)) %>% signif(digits=2)
     wgt.dat$depth.cen <- wgt.dat$depth - med.depth$med
     
     # # Also need to update the survey data. 
