@@ -1043,7 +1043,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
         }
         if(!fig %in% c("screen", "leaflet",'dashboard')) dev.off()
       } # end if(plot==T)
-      
+   
       # Now if you want to make these new fangled relief plots... source(paste(direct_fns,"Survey_design/Relief.plots.r",sep=""))
       if(relief.plots == T)  Relief.plots(Ger.tow.dat,fig = fig,digits=digits)
       
