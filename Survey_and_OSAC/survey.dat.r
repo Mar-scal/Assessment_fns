@@ -113,7 +113,6 @@ survey.dat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="GBa", areas,  mw
     tmp$year <- years
   } # end if(!is.null(user.bins))
   
-  
   # intialize objects for upcoming for loop.
   w.yst <- matrix(NA, length(years), 40)
   n.yst <- w.yst
