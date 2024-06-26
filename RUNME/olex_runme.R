@@ -64,7 +64,7 @@ for(i in unique(olex_tracks$Bank)){
 ##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
 ##### MUST RUN FOR EACH INDIVIDUAL BANK FOR NOW (unfortunately)
-olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/GBMontracksLE19.gz", 
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/MidSabBBnGBaGBbGertracksLE19.gz", 
 
                          UTM=32620, type="load", correction_factor = 1.04, earliest="2024-05-01", latest="2024-07-01", 
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/LE19trackorder.xlsx")
@@ -80,7 +80,7 @@ olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/
                          edited_csv="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/csv_to_edit - Copy.csv",
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/LE19trackorder.xlsx")
 
-#write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/Olex_distance_coefficients_SabMid_2024.csv")
+#write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/Olex_distance_coefficients_LE19_2024_FK.csv")
 
 ##### Optional (and incomplete!): 
 ### Check to see if they stayed in the right strata (don't use this for entering strata, use tow_file_strata.csv via scaloff_bank_check() instead)

@@ -11,7 +11,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   require(readxl) || stop("Make sure you have readxl package installed to run this")
   require(plyr) || stop("Make sure you have plyr package installed to run this")
   require(geosphere) || stop("Make sure you have geosphere package installed to run this")
-  require(rgeos) || stop("Make sure you have rgeos package installed to run this")
+  #require(rgeos) || stop("Make sure you have rgeos package installed to run this")
   require(ggplot2) || stop("Make sure you have rgeos package installed to run this")
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   
@@ -33,7 +33,7 @@ scaloff_cruise_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE,
   if(!missing(direct_fns)) source(paste(direct_fns,"Survey_and_OSAC/convert.dd.dddd.r",sep=""))
   
   if(season=="spring") {
-    banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB")
+    banks <- c("Sab", "Mid", "Ban", "Ger", "BBn", "BBs", "GB","GBMon")
   }
   
   if(season=="summer") {
