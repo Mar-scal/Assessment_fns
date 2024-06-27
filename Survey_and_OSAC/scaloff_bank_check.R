@@ -16,12 +16,12 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   ### packages
   require(readxl) || stop("Make sure you have readxl package installed to run this")
   require(plyr) || stop("Make sure you have plyr package installed to run this")
-  require(geosphere) || stop("Make sure you have geosphere package installed to run this")
-  require(rgeos) || stop("Make sure you have rgeos package installed to run this")
+  #require(geosphere) || stop("Make sure you have geosphere package installed to run this")
+  #require(rgeos) || stop("Make sure you have rgeos package installed to run this")
   require(ggplot2) || stop("Make sure you have rgeos package installed to run this")
   require(reshape2) || stop("Make sure you have reshape2 package installed to run this")
   require(lubridate) || stop("Make sure you have lubridate package installed to run this")
-  require(sp) || stop("Make sure you have sp package installed to run this")
+  #require(sp) || stop("Make sure you have sp package installed to run this")
   require(sf) || stop("Make sure you have sf package installed to run this")
   require(dplyr) || stop("Make sure you have dplyr package installed to run this")
   
@@ -31,7 +31,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r",
-              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/Github_spatial_import.R")
+              "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/github_spatial_import.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -201,7 +201,7 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       # Make sure that MGT_AREA_CD matches survey name
-      if(unique(tows$MGT_AREA_CD) %in% c("Sab", "Mid", "Ger", "Ban")) {
+      if(any(unique(tows$MGT_AREA_CD) %in% c("Sab", "Mid", "Ger", "Ban"))) {
         mgt_matches_survey <- grep(x=tolower(tows$SURVEY_NAME), pattern=unique(tolower(tows$MGT_AREA_CD)))
         if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
           message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
@@ -210,7 +210,7 @@ Check the MGT_AREA_CD values for the following tows:")
         }
       }
       
-      if(unique(tows$MGT_AREA_CD) %in% c("BBn", "BBs")) {
+      if(any(unique(tows$MGT_AREA_CD) %in% c("BBn", "BBs"))) {
         mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern="BB")
         if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
           message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
@@ -219,7 +219,7 @@ Check the MGT_AREA_CD values for the following tows:")
         }
       }
       
-      if(unique(tows$MGT_AREA_CD) %in% c("GBa", "GBb")) {
+      if(any(unique(tows$MGT_AREA_CD) %in% c("GBa", "GBb"))) {
         mgt_matches_survey <- grep(x=tows$SURVEY_NAME, pattern=paste0("GB", year))
         if(length(mgt_matches_survey) != length(tows$SURVEY_NAME)) {
           message("There are MGT_AREA_CDs in the tow file that do not match the SURVEY_NAME:")
@@ -337,116 +337,81 @@ Check the MGT_AREA_CD values for the following tows:")
       tows_con <- cbind(tows[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO","START_LAT","START_LON", "END_LAT", "END_LON")],
                         tows_con)
       
-      # calculating the distance of each tow
-      tows_con$dist.calc <- distGeo(matrix(c(tows_con$START_LON_DD, tows_con$START_LAT_DD), ncol=2), matrix(c(tows_con$END_LON_DD, tows_con$END_LAT_DD), ncol=2))
-      
-      # flag the tow if the distance is greater than 2 km
-      if(any(tows_con$dist.calc > 2000 | tows_con$dist.calc < 500)) {
-        message("\nThere are some tows longer than 2km or shorter than 500m. Check their coordinates:")
-        print(data.frame(tows_con[!is.na(tows_con$dist.calc) & (tows_con$dist.calc > 2000 | tows_con$dist.calc < 500),]))
-        
-      }
-      
       # grab the authoritative management area polygons file. 
-      area <- read.csv(paste0(direct, "Data/Maps/approved/Survey/survey_boundary_polygons.csv"))
-      area <- area[!(area$startyear==1900 & area$label=="Sab"),] 
-      area <- area[!(area$startyear==1900 & area$label=="Ban"),]
+      area <- github_spatial_import(subfolder = "survey_boundaries",zipname = "survey_boundaries.zip", quiet=T)
+      area$ID <- gsub(x = area$ID, pattern = ".shp", replacement="")
+      if(bank=="GB") area <- area[!area$ID %in% c("GBa", "GBb"),]
+      if(!bank=="GB") area <- area[!area$ID %in% c("GB"),]
       
+      area$AREA_ID <- as.numeric(as.factor(area$ID))
       
-      if(bank=="GB") area <- area[!area$label %in% c("GBa", "GBb"),]
-      if(!bank=="GB") area <- area[!area$label %in% c("GB"),]
-      
-      area$AREA_ID <- as.numeric(as.factor(area$label))
-      
-      # this creates strata labels
-      area_lab <- ddply(.data=area, .(AREA_ID, label),
-                        summarize,
-                        LONGITUDE = mean(X), 
-                        LATITUDE = mean(Y))
+      # # this creates bank labels
+      area_lab <- area %>% 
+        dplyr::group_by(ID) %>%
+        dplyr::summarize() %>%
+        st_cast("MULTIPOLYGON") %>%
+        st_centroid()
       
       if(spatialplot==TRUE){
         # based on start location first, then by end location. compare them to determine if they cross an area line.
-        area.test <- NULL
         
-        for(i in unique(area$AREA_ID)){
-          
-          points <- SpatialPoints(matrix(c(tows_con$START_LON_DD, tows_con$START_LAT_DD), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
-          
-          coord_list <- split(area[area$AREA_ID %in% i, c("X", "Y", "AREA_ID")], area[area$AREA_ID %in% i,]$SID)
-          coord_list <- lapply(coord_list, function(x) { x["AREA_ID"] <- NULL; x })
-          ps <- sapply(coord_list, Polygon)
-          p1 <- Polygons(ps, ID = 1) 
-          
-          # assuming offshore.csv polys are NAD83 but we really have no idea because RM didn't keep track...
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")) 
-          
-          # create SpatialPolygons object
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +datum=WGS84") ) 
-          
-          test <- data.frame(TOW_NO = tows_con$TOW_NO, gContains(my_spatial_polys, points, byid=TRUE), AREA_ID=i)
-          area.true <- subset(test, X1=="TRUE", select=c("TOW_NO", "AREA_ID"))
-          area.test <- rbind(area.test, area.true)
-        }
-        area.test <- join(tows_con, area.test, type="full", by="TOW_NO")
-        area.test <- join(area.test, unique(area[,c("label", "AREA_ID")]), type="left", by="AREA_ID")
+        starts <- st_as_sf(tows_con, coords=c("START_LON_DD", "START_LAT_DD"), crs=4326, remove = F)
+        starts <- st_join(starts, area)
+        starts$start_ID <- starts$AREA_ID
+        starts <- dplyr::select(starts, -AREA_ID)
+        st_geometry(starts) <- NULL
         
-        # by end location
-        area.test.end <- NULL
-        for(i in unique(area$AREA_ID)){
-          
-          points <- SpatialPoints(matrix(c(tows_con$END_LON_DD, tows_con$END_LAT_DD), ncol=2), proj4string=CRS("+proj=longlat +datum=WGS84"))
-          
-          coord_list <- split(area[area$AREA_ID %in% i, c("X", "Y", "AREA_ID")], area[area$AREA_ID %in% i,]$SID)
-          coord_list <- lapply(coord_list, function(x) { x["AREA_ID"] <- NULL; x })
-          ps <- sapply(coord_list, Polygon)
-          p1 <- Polygons(ps, ID = 1) 
-          
-          # assuming offshore.csv polys are NAD83 but we really have no idea because RM didn't keep track...
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +ellps=GRS80 +datum=NAD83 +no_defs")) 
-          
-          # create SpatialPolygons object
-          my_spatial_polys <- SpatialPolygons(list(p1), proj4string = CRS("+proj=longlat +datum=WGS84") ) 
-          
-          test <- data.frame(TOW_NO = tows_con$TOW_NO, gContains(my_spatial_polys, points, byid=TRUE), AREA_ID=i)
-          area.true <- subset(test, X1=="TRUE", select=c("TOW_NO", "AREA_ID"))
-          area.test.end <- rbind(area.test.end, area.true)
-        }
-        area.test.end <- join(tows_con, area.test.end, type="full", by="TOW_NO")
-        area.test.end <- join(area.test.end, unique(area[,c("label", "AREA_ID")]), type="left", by="AREA_ID")
+        ends <- st_as_sf(tows_con, coords=c("END_LON_DD", "END_LAT_DD"), crs=4326, remove = F)
+        ends <- st_join(ends, area)
+        ends$end_ID <- ends$AREA_ID
+        ends <- dplyr::select(ends, -AREA_ID)
+        st_geometry(ends) <- NULL
         
-        colnames(area.test)[which(names(area.test) == "label")] <- "bank.start"
-        colnames(area.test.end)[which(names(area.test.end) == "label")] <- "bank.end"
-        
-        area.test.both <- join(area.test[,-which(names(area.test) == "AREA_ID")], area.test.end[,-which(names(area.test.end) == "AREA_ID")], type="left", 
-                               by=c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NO", "START_LAT", "START_LON", "END_LAT", "END_LON", "dist.calc"))
-        area.test.both$bank.start <- as.character(area.test.both$bank.start)
-        area.test.both$bank.end <- as.character(area.test.both$bank.end)
-        area.test.both$bank.start[is.na(area.test.both$bank.start)] <- "FALSE"
-        area.test.both$bank.end[is.na(area.test.both$bank.end)] <- "FALSE"
-        
+        area.test <- dplyr::full_join(starts, ends) 
+    
+        area.test$flag <- NULL
         ## these ones cross a management area line or are outside the management area boundary
-        if(any(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE")) {
+        if(any(!area.test$start_ID == area.test$end_ID | is.na(area.test$start_ID) | is.na(area.test$end_ID))) {
           message("\nThe following tows are outside the management area boundary (or cross the line):")
-          print(area.test.both[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE",])
-          
+          print(area.test[!area.test$start_ID == area.test$end_ID | is.na(area.test$start_ID) | is.na(area.test$end_ID),])
+          area.test$flag[!area.test$start_ID == area.test$end_ID | is.na(area.test$start_ID) | is.na(area.test$end_ID)] <- "flag"
         }
         
-        area.test.both$flag[!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE"] <- "flag"
-        area.test.both$flag[!(!area.test.both$bank.end == area.test.both$bank.start | area.test.both$bank.end == "FALSE" | area.test.both$bank.start == "FALSE")] <- "ok"
-        colnames(area.test.both) <- make.unique(names(area.test.both))
+        area.test$flag[area.test$start_ID == area.test$end_ID & !is.na(area.test$start_ID) & !is.na(area.test$end_ID)] <- "ok"
+        
+        starts$type <- "start"
+        starts$AREA_ID <- starts$start_ID
+        starts <- dplyr::select(starts, -start_ID) %>% st_as_sf(coords=c("START_LON_DD", "START_LAT_DD"), crs=4326, remove = F)
+        
+        ends$type <- "end"
+        ends$AREA_ID <- ends$end_ID
+        ends <- dplyr::select(ends, -end_ID) %>% st_as_sf(coords=c("END_LON_DD", "END_LAT_DD"), crs=4326, remove = F)
+        
+        tows2 <- rbind(starts, ends) %>%
+          group_by(across(c(-type, -geometry, -AREA_ID, -ID))) %>%
+          summarize() %>%
+          st_cast("LINESTRING")
+        tows2 <- left_join(tows2, area.test)
+
+        # calculating the distance of each tow
+        tows2$dist.calc <- st_length(tows2)
+        
+        # flag the tow if the distance is greater than 2 km
+        if(any(as.numeric(tows2$dist.calc) > 2000 | as.numeric(tows2$dist.calc) < 500)) {
+          message("\nThere are some tows longer than 2km or shorter than 500m. Check their coordinates:")
+          print(data.frame(tows2[!is.na(tows2$dist.calc) & (as.numeric(tows2$dist.calc) > 2000 | as.numeric(tows2$dist.calc) < 500),]))
+          
+        }
         
         plot.list <- NULL
         ## plot tows to PDF
-        for(i in unique(area$AREA_ID)){
-          p <- ggplot() + geom_polygon(data=area[area$AREA_ID==i,], aes(X, Y, group=SID), fill=NA, colour="black", na.rm = T) +
-            geom_text(data=area_lab[area_lab$AREA_ID==i,], aes(LONGITUDE, LATITUDE, label=label), size=4, colour="blue", na.rm = T) +
-            coord_map() + 
+        for(i in unique(area$ID)){
+          p <- ggplot() + geom_sf(data=area[area$ID==i,], fill=NA, colour="black",na.rm=T) +
+            geom_sf_text(data=area_lab[area_lab$ID==i,], aes(label=ID), size=4, colour="blue",na.rm=T) +
             theme_bw() + theme(panel.grid=element_blank()) +
-            geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, colour=flag), lwd=1, na.rm = T) +
+            geom_sf(data=tows2[tows2$MGT_AREA_CD==i,], aes(colour=flag), lwd=1,na.rm=T) +
             #scale_colour_manual(values=c("black", "white")) +
-            geom_text(data=tows_con, aes(START_LON_DD, START_LAT_DD, label=TOW_NO), size=3, na.rm = T) +
-            xlim(min(area[area$AREA_ID %in% i,]$X), max(area[area$AREA_ID %in% i,]$X)) +
-            ylim(min(area[area$AREA_ID %in% i,]$Y)-0.05, max(area[area$AREA_ID %in% i,]$Y)+0.05)
+            geom_sf_text(data=tows2[tows2$MGT_AREA_CD==i,], aes(label=TOW_NO, colour=flag), lwd=1,na.rm=T)
           plot.list[[i]] <- p
         }
         
@@ -460,7 +425,7 @@ Check the MGT_AREA_CD values for the following tows:")
           print(plot.list)
           dev.off()
         }
-        
+      
         files <- list.files(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/"))
         files <- files[grep(x = files, pattern=bank)]
         files <- files[grep(x = files, pattern="Olex_distance_coefficients")]
@@ -476,11 +441,11 @@ Check the MGT_AREA_CD values for the following tows:")
           png(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/olex_compare_spatial.png"), width=11, height=8, units="in", res=600)
           print(ggplot() + 
             # geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, linetype="tow file"), lwd=3, na.rm = T) +
-            geom_segment(data=olex, aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
-            geom_text(data=area.test.both, aes(x=START_LON_DD, y=START_LAT_DD, colour="tow file (start point)", label=TOW_NO), na.rm = T, size=1) +
-            geom_text(data=olex, aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
+            geom_segment(data=olex[olex$Bank==bank,], aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
+            geom_text(data=area.test, aes(x=START_LON_DD, y=START_LAT_DD, colour="tow file (start point)", label=TOW_NO), na.rm = T, size=1) +
+            geom_text(data=olex[olex$Bank==bank,], aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
             scale_colour_manual(values=c("red", "blue")) + 
-            coord_map())
+            coord_sf())
           dev.off()
           
           olex_sf <- st_as_sf(olex, coords=c("startlon", "startlat"), crs=4326)
@@ -494,6 +459,7 @@ Check the MGT_AREA_CD values for the following tows:")
           compare <- st_intersection(tows_sf_buffer, olex_sf)
           
           if(nrow(compare) == nrow(tows_sf)) message("number of matched tows = number of tows expected - Good!")
+          if(!nrow(compare) == nrow(tows_sf)) message("number of matched tows = number of tows expected - Bad! Probably just means buffer is too big though. Use browser() to adjust it.")
           if(all(compare$bearing - compare$BEARING < 1)) message("bearings match between olex and tow file")  
           if(any(compare$bearing - compare$BEARING > 1)) {
             message("bearings mismatch between olex and tow file. review the following tows:")  
@@ -538,15 +504,17 @@ Check the MGT_AREA_CD values for the following tows:")
           
           if(all(abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata matches expected allocation") 
           if(any(!abs(assigned$Freq - round(assigned$allocation,0))==0)) message("Assigned strata does not match expected allocation")
-          if(nrow(tows_sf) == nrow(tows) & !any(is.na(tows_sf$Strt_ID))){
+          if((nrow(tows_sf) == nrow(tows) & !any(is.na(tows_sf$Strt_ID))) | (any(!is.na(tows_sf$Strt_ID)) & any(unique(tows$TOW_TYPE_ID) %in% c("2 - Exploratory tow", "5 - Exploratory repeat tow")))){
             message("Assigned strata successfully. See tow_file_strata.csv")
             write.csv(x = dplyr::arrange(tows_sf[tows_sf$TOW_TYPE_ID=="1 - Regular survey tow",], TOW_NO), paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/tow_file_strata.csv"))
           }
-          if(!nrow(tows_sf) == nrow(tows) | any(is.na(tows_sf$Strt_ID))){message("Strata assignment failed. You need to investigate this.")}
+          if(!nrow(tows_sf) == nrow(tows) | any(is.na(tows_sf$Strt_ID))){
+            message("Strata assignment failed for some tows. Check this to make sure it's ok (e.g. Sable extras).")
+            }
         }
         
       }
-      
+    
       if(bank %in% c("Sab", "BBn", "BBs") & all(is.na(tows$STRATA_ID)) & assign.strata==F) message("You need to assign the strata for this bank. Set spatialplot=T and assign.strata=T and re-run, then transfer Strt_ID column.")
       
       if(any(complete.cases(dplyr::select(tows, -STRATA_ID, -BOTTOM_TEMP, -BOTTOM_TYPE_ID, -PIC_NUM, -COMMENTS)) == FALSE)) {
@@ -632,16 +600,24 @@ Check the MGT_AREA_CD values for the following tows:")
       }
       
       ## Make sure the number of buckets corresponds between files.
-      if(any((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets)) & !is.na(comparehf$TOW_TYPE_ID))) {
+      if(any((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & 
+             (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & 
+             (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets)) & 
+             !is.na(comparehf$TOW_TYPE_ID))) {
         message("Too many buckets in HF file compared to Total Buckets in Tow file")
-        print(comparehf[which((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets))),])
+        print(comparehf[which((comparehf$LIVE_QTY_BUCKET > 0 | comparehf$DEAD_QTY_BUCKET > 0) & 
+                                (!is.na(comparehf$LIVE_QTY_BUCKET) | !is.na(comparehf$DEAD_QTY_BUCKET)) & 
+                                (comparehf$Total.Buckets==0 | is.na(comparehf$Total.Buckets))),])
       }
       
       ## Make sure the number of baskets corresponds between files.
-      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
-             (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & !is.na(comparehf$TOW_TYPE_ID))) {
+      if(any((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & 
+             (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+             (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets)) & 
+             !is.na(comparehf$TOW_TYPE_ID))) {
         message("Too many baskets in HF file compared to Total Baskets in Tow file")
-        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
+        print(comparehf[which((comparehf$LIVE_QTY_BASKET > 0 | comparehf$DEAD_QTY_BASKET > 0) & 
+                                (!is.na(comparehf$LIVE_QTY_BASKET) | !is.na(comparehf$DEAD_QTY_BASKET)) & 
                                 (comparehf$Total.Baskets==0 | is.na(comparehf$Total.Baskets) & !is.na(comparehf$TOW_TYPE_ID))),])
       }
       
@@ -653,12 +629,12 @@ Check the MGT_AREA_CD values for the following tows:")
                   DEAD_QTY_BASKET = sum(DEAD_QTY_BASKET),
                   LIVE_QTY_BUCKET = sum(LIVE_QTY_BUCKET),
                   DEAD_QTY_BUCKET = sum(DEAD_QTY_BUCKET))
-      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==0)) {
         message("Total buckets is greater than 0, but there is nothing in HF file. Review these tows")
         print(comparehf2[comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET==0,])
       }
       
-      if(any(comparehf2$Total.Buckets>0 & comparehf2$LIVE_QTY_BUCKET==0 & comparehf2$DEAD_QTY_BUCKET ==T)) {
+      if(any(comparehf2$Total.Baskets>0 & comparehf2$LIVE_QTY_BASKET==0 & comparehf2$DEAD_QTY_BASKET ==0)) {
         message("Total baskets is greater than 0, but there is nothing in HF file. Review these tows")
         print(comparehf2[comparehf2$Total.Baskets>0 & comparehf2$LIVE_QTY_BASKET==0 & comparehf2$DEAD_QTY_BASKET==0,])
       }

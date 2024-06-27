@@ -60,7 +60,7 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F, UTM=NULL, e
   
   plancheck <- st_intersection(inter, dplyr::select(planned_buff, plan_ID, Strata_ID, STRATA))
   
-  if(any(nchar(plancheck$Strt_ID) == 3)) plancheck$Strt_ID <- str_sub(plancheck$Strt_ID, start=3, end=3)
+  if(any(nchar(plancheck$Strt_ID) == 3) & any(nchar(plancheck$Strata_ID)<3)) plancheck$Strt_ID <- str_sub(plancheck$Strt_ID, start=3, end=3)
   browser()
   if(any(!plancheck$Strt_ID == plancheck$Strata_ID)) {
     message("The following planned tows ended up in a different strata:")
@@ -71,20 +71,22 @@ olex_check_strata <- function(towplan, towfile, bank, interactive=F, UTM=NULL, e
     print(inter[which(!inter$ID %in% plancheck$ID),])
   }
   
-  baseplot <- pecjector(area=bank, add_layer = list(survey=c("offshore", "detailed")))
-  
-  print(baseplot + 
-          geom_sf(data=inter, colour="blue") +
-          geom_sf(data=planned, colour="red")+
-          theme_bw() +
-          coord_sf(expand=F))
+  #baseplot <- pecjector(area=bank, add_layer = list(survey=c("offshore", "detailed")))
+  ggplot() + 
+    geom_sf(data=offshore.strata[offshore.strata$label==bank,], aes(fill=Strt_ID), alpha=0.5)+
+    scale_fill_viridis_d()+
+    geom_sf(data=inter, colour="blue") +
+    geom_sf(data=planned, colour="red")+
+    theme_bw()
   
   sf_use_s2(FALSE)
   
   if(interactive==T) {
     require(plotly)
     htmlwidgets::saveWidget(
-      ggplotly(baseplot + 
+      ggplotly(ggplot() + 
+                 geom_sf(data=offshore.strata[offshore.strata$label==bank,], aes(fill=Strt_ID), alpha=0.5)+
+                 scale_fill_viridis_d()+
                  geom_sf(data=inter, colour="blue")+
                  geom_sf(data=planned, colour="red")+
                  theme_bw() +

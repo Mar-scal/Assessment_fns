@@ -137,7 +137,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   if(!is.null(tow_number_key)) {
     tnk <- readxl::read_xlsx(tow_number_key)
-    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
+    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GBMon", "GBa", "GBb")
     banks <- as.data.frame(str_locate(pattern = look, string = filename))
     look <- look[which(!is.na(banks$start))]
     tnk <- tnk[tnk$Bank %in% look,]
@@ -145,7 +145,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     coords.track <- left_join(coords.track, tnk)
     names(coords.track)[which(names(coords.track) == "tow_track_order")] <- "official_tow_number"
   }
-  
   
   # export the start and end points if that's all you want!
   if(type=="startend") {
