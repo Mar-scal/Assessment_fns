@@ -97,7 +97,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
   
   # Calculate the meat weight shell height relationship, remember if b.par = 3 this assumes an allometric realtionship.
   # Notice that we use a different random effect here, it is ID not tow, this is done since we may have the same tow # in different years.
-  
+
   if(!model.type=="glmer") {
     
     SpatHtWt.fit<-shwt.lme(wgt.dat,random.effect='ID',b.par=b.par,verbose=F)
@@ -134,7 +134,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
       par(mfrow=c(2,2))
       plot(CF.fit,T,F,T)
     } # end if(plt == T && model.type!='glm')
-    
+    weight.matrix <- NULL
   }
   
   
@@ -352,7 +352,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
       
       # Get the actual random intercepts
       mw.sh.coef$ran.int.act <- mw.sh.coef$rand.int+ mw.sh.coef$fix.int
-      
+      browser()
       # predictions by tow at 100mm = CF by tow
       # use unique on CF.data because of live and dead
       pred.dat <- left_join(pre.dat, unique(CF.data)) 

@@ -18,11 +18,14 @@ shwt.plt2 <- function(mw.sh.coef, wgt.dat, yr, french=F,cx=1.2,lw=2,titl="",cex.
   rand.int <- mw.sh.coef[mw.sh.coef$year==yr & !is.na(mw.sh.coef$ran.int.act),] %>% dplyr::pull(ran.int.act,tow)
   
   rt <- NULL
-  for(i in 1:length(rand.int)) {
-    rt[[i]] <- data.frame(sh = 100*sh,mw = exp(rand.int)[i] * sh^slope,tow = names(rand.int)[i])
+  if(length(rand.int)>0){
+    for(i in 1:length(rand.int)) {
+      rt[[i]] <- data.frame(sh = 100*sh,mw = exp(rand.int)[i] * sh^slope,tow = names(rand.int)[i])
+    }
+    rts <- do.call("rbind",rt)
   }
-  rts <- do.call("rbind",rt)
   
+  if(length(rand.int)==0) rts <- NA
   r.tows <- data.frame(rts,year = yr)
   f.mws <- data.frame(sh = 100* sh, mw = exp(int) * sh^slope,year = yr)
   

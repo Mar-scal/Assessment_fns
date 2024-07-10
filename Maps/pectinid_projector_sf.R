@@ -182,7 +182,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(ggplot2) || stop("Install ggplot2 or else.")
   require(stars) || stop("Install stars or else.")
   require(tmaptools) || stop("Install this new tmaptools package, for working with sf objects")
-  require(maptools) || stop("Install this old maptools package, for the Polyset2SpatialLines function")
+  #require(maptools) || stop("Install this old maptools package, for the Polyset2SpatialLines function")
   if(is.null(add_layer$land)) add_layer$land <- "grey"
   if(add_layer$land == 'world')
   {
@@ -191,7 +191,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
   }
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
-  require(rgdal)|| stop("You need rgdal pal")
+  #require(rgdal)|| stop("You need rgdal pal")
   #require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
   require(pals) || stop("Pals package is needed, it is your one stop shop of colour pallettes in R, install it!")
   require(ggnewscale)  || stop ("Please install ggnewscale...If you want multiple colour ramps on one ggplot, you want ggnewscale :-)")
@@ -824,6 +824,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         if(grepl(".csv",add_custom$obj)) temp <- read.csv(add_custom$obj)
         if(grepl(".xls",add_custom$obj)) temp <- read_excel(add_custom$obj,sheet=1) # This will only pull in the first sheet, don't get fancy here
         temp <- as.PolySet(temp,projection = "LL") # I am assuming you provide Lat/Lon data and WGS84
+        browser()
         temp <- PolySet2SpatialLines(temp) # Spatial lines is a bit more general (don't need to have boxes closed)
         custom <- st_as_sf(temp)
       } else { custom <- combo.shp(add_custom$obj,make.sf=T, quiet=quiet)}# If it doesn't then we assume we have a shapefile, if anything else this won't work.

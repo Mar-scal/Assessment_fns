@@ -109,7 +109,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
   require(lubridate)
   require(BIOSurvey2)
   require(sp)
-  require(maptools)
+  #require(maptools)
   require(readxl)
   require(tidyverse)
   require(dplyr)
@@ -766,12 +766,12 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } # End if(bnk == "GBa")
       
       # Now we can set up our more detailed SHF bins as well
-      if(bins == "bank_default")
+      if(any(bins == "bank_default"))
       {
         bin <- c(50,70,RS[length(RS)],CS[length(CS)],120) 
       }# end if{bins == "bank_default"}
       # If you have specified the bins then do this...
-      if(bins != "bank_default") bin <- bins 
+      if(all(bins != "bank_default")) bin <- bins 
       
       # Remove years in which we don't have good data for specific banks, 1984 very problematic with clappers/live data.
       # One Browns South and North we also need to be particulatr with data # NOTE: May need to add Ban year cut-off here?
@@ -968,7 +968,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         # Due to the sparseness of the data for this bank the most complex model we can fit is a gam_d, 
         # data this is like far more complex still than the really allows for.
         # June 2016, I changed this to the glm model, the gam_d model seems to overestimate CF on the bank 
-        
+       
         #remove missing years from bank.dat
         yrs <- unique(mw.dat.all[[bnk]]$year)
         cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
@@ -1017,7 +1017,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-      
+browser()
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {
@@ -1026,8 +1026,9 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bnk=="GBb") mw.dat.all[[bnk]] <- mw.dat.all[[bnk]][!mw.dat.all[[bnk]]$ID=="LE14.601",]
         # Note that I was getting singular convergence issues for the below sub-area so I simplified the model...
         if(bnk == "GBa-Large_core")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glm',dirct=direct_fns)
-        if(!bnk %in% c("GBa-Large_core", "BBn", "Sab", "Ger", "BBs", "GBb"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
+        if(!bnk %in% c("GBa-Large_core", "BBn", "Sab", "Ger", "BBs", "GBb", "GB"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='gam_f',dirct=direct_fns)
         if(bnk %in% c("BBn", "Sab", "Ger", "BBs", "GBb"))  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]][bank.dat[[bnk]]$year %in% yrs,],model.type='glmer',dirct=direct_fns)
+        if(bnk == "GB")  cf.data[[bnk]] <- condFac(na.omit(mw.dat.all[[bnk]]),bank.dat[[bnk]],model.type='gam_f',dirct=direct_fns)
       }
       
       if(mwsh.test == T) {
@@ -1333,7 +1334,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         lined.survey.obj$model.dat$CS <- CS
         lined.survey.obj$model.dat$RS <- RS
       }# end if(bnk == "Ger")
-      
+
       # Get the survey estimates for the banks for which we have strata. 
       if(bank.4.spatial != "Ger" && bank.4.spatial != "Mid" && bank.4.spatial != "GB" && bank.4.spatial != "Ban"  && bank.4.spatial != "BanIce") 
       {

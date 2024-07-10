@@ -156,6 +156,21 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
 { 
   options(scipen = 999,stringsAsFactors = F)
   tmp.dir <- direct ; tmp.season <- season; tmp.yr <- yr # I need this so that the directory isn't overwritten when I load the below...
+  require(viridis) || stop("Install the viridis package for the color ramps")
+  require(INLA) || stop("Install the INLA package for the spatial plots")
+  require(maps)|| stop("Install the maps package for the spatial plots")
+  #require(maptools)|| stop("Install the maptools package for the spatial plots")
+  require(mapdata)|| stop("Install the mapdata package for the spatial plots")
+  #require(rgeos)|| stop("Install the rgeos package for the spatial plots")
+  require(splancs)|| stop("Install the splancs package for the spatial plots")
+  require(boot)|| stop("Install the boot package for the spatial plots")
+  require(fields)|| stop("Install the fields package for the spatial plots")
+  require(PBSmapping)|| stop("Install the PBSmapping package for the spatial plots")
+  require(ggplot2)|| stop("Install the ggplot2 package for the subarea plots")
+  require(plyr)|| stop("Install the plyr package for the subarea plots")
+  require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
+  require(sf) || stop("It's 2020. We have entered the world of sf. ")
+  require(dplyr) || stop("It's 2020. We have entered the world of dplyr. ")
   
   if(yr==2020) {
     message("Due to the pandemic, the 2020 survey was modified and lead by Industry. Only BBn, GBa, and GBb were surveyed.\n
@@ -177,7 +192,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   # Load the appropriate data.
   # If you used a plot shortcut, get the correct names for the plots you
   
-  if(plots == 'all') 
+  if(all(plots == 'all')) 
   {
     plots <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial","Survey","MW-SH",
                "abund-ts","biomass-ts","SHF","SHF-large","SHF-split",
@@ -185,13 +200,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")
   } # end if(plots == 'all')
   
-  if(plots == 'spatial') 
+  if(all(plots == 'spatial')) 
   {
     plots <- c("PR-spatial","Rec-spatial","FR-spatial","CF-spatial","MC-spatial","Clap-spatial",
                "MW-spatial","SH-spatial","MW.GP-spatial","SH.GP-spatial")
   } # end if(plots == 'spatial')
   
-  if(plots == 'simple')
+  if(all(plots == 'simple'))
   {
     plots <- c("MW-SH","abund-ts","biomass-ts","SHF","SHF-large","SHF-split",
                "clapper-abund-ts","clapper-per-ts","SH-MW-CF-ts","breakdown")
@@ -331,9 +346,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   }
   
   # Now get the banks to plot set up.
-  if(banks == "all") banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
+  if(all(banks == "all")) banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
-  if(banks == 'core') banks <- c("BBn" , "GBb", "GBa")
+  if(all(banks == 'core')) banks <- c("BBn" , "GBb", "GBa")
   #browser()
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
   if(is.null(bank.dat$BBs) && "BBs" %in% banks) banks <- banks[-which(grepl(x=banks, "BBs"))]
@@ -365,7 +380,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/shwt.plt2.R",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/Clap3.plt.R",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
-              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r")
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",
+              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pbs_2_sf.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
     for(fun in funs) 
     {
@@ -386,24 +402,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     source(paste(direct_fns,"Survey_and_OSAC/shwt.plt2.r",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/Clap3.plt.R",sep="")) 
     source(paste(direct_fns,"Survey_and_OSAC/gridPlot.r",sep="")) 
-    source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep="")) 
+    source(paste(direct_fns,"Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",sep=""))
+    source(paste(direct_fns,"Maps/pbs_2_sf.r",sep=""))
   } # end if(!missing(direct_fns))
-  
-  require(viridis) || stop("Install the viridis package for the color ramps")
-  require(INLA) || stop("Install the INLA package for the spatial plots")
-  require(maps)|| stop("Install the maps package for the spatial plots")
-  require(maptools)|| stop("Install the maptools package for the spatial plots")
-  require(mapdata)|| stop("Install the mapdata package for the spatial plots")
-  require(rgeos)|| stop("Install the rgeos package for the spatial plots")
-  require(splancs)|| stop("Install the splancs package for the spatial plots")
-  require(boot)|| stop("Install the boot package for the spatial plots")
-  require(fields)|| stop("Install the fields package for the spatial plots")
-  require(PBSmapping)|| stop("Install the PBSmapping package for the spatial plots")
-  require(ggplot2)|| stop("Install the ggplot2 package for the subarea plots")
-  require(plyr)|| stop("Install the plyr package for the subarea plots")
-  require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
-  require(sf) || stop("It's 2020. We have entered the world of sf. ")
-  require(dplyr) || stop("It's 2020. We have entered the world of dplyr. ")
+
   # Function used for any beta models to transform 0's and 1's to near 0 and near 1 (beta doesn't allow for 0's and 1's.)
   beta.transform <- function(dat,s=0.5)  (dat*(length(dat)-1) + s) / length(dat)
   
@@ -621,7 +623,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       spatial.maps <- plots[grep("spatial",plots)]
       
       # Some stuff I need for both the Survey and spatial figures...
-      if(length(spatial.maps)> 0 || grepl("Survey",plots))
+      if(length(spatial.maps)> 0 || any(grepl("Survey",plots)))
       {
         # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
         if(banks[i] == "Mid")  
@@ -664,8 +666,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv <- as.PolySet(g.tmp,projection="LL")
         } # end if(banks[i] == "Ger") 
         # Now convert this to an object for sp, this gets our bounding area for the survey.
-        
-        bound.poly.surv.sp <- PolySet2SpatialPolygons(bound.poly.surv)
+        # browser()
+        if(!"SID" %in% names(bound.poly.surv)) bound.poly.surv$SID <- 1
+        bound.poly.surv.sp <- pbs_2_sf(bound.poly.surv, lon="X", lat="Y")
         
         # Next we get the survey locations
         if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB"))
@@ -705,7 +708,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_transform(loc.cf,crs = 32620)
           loc.cf <- as(loc.cf,"Spatial")
           #bound.poly.surv.sp.buff <- spTransform(bound.poly.surv.sp.buff,CRS = st_crs(32620)[2]$proj4string)
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32620)[[2]])
+          #bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32620)[[2]])
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32620)
         }  
         
@@ -717,7 +720,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           loc.cf <- st_as_sf(loc.cf,coords = c('lon','lat'),crs = 4326)
           loc.cf <- st_transform(loc.cf,crs = 32619)
           loc.cf <- as(loc.cf,"Spatial")
-          bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
+          # bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
 
@@ -737,8 +740,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # plot(pts_to_add, add=T)
               # plot(poly_to_add, add=T)
               
-              bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
-              bound.poly.surv.sp <- as_Spatial(st_geometry(bound.poly.surv.sf))
+              bound.poly.surv.sf <- st_union(st_simplify(bound.poly.surv.sf), poly_to_add)
+              bound.poly.surv.sp <- bound.poly.surv.sf
             }
           }
         }
@@ -1435,7 +1438,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             {
               sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
               sbs <- as.PolySet(sb, projection = "LL")
-              sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
+              if(!"SID" %in% names(sbs)) sbs$SID <- 1
+              sb.sf <- pbs_2_sf(sbs, lon="X", lat="Y")
               sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
               p3 <- p3 + geom_sf(data= sb.sf,fill=NA,lwd=1) + coord_sf(expand=F)
             }
@@ -1595,12 +1599,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                 legend.key = element_rect(fill = NA)) + coord_sf(expand=F)
       
       } # end  if(banks[i] %in% c("BBn" ,"BBs","Sab", "GBb", "GBa"))
+      
       # Finally add seedboxes as appropriate
       if(length(sb[,1]) > 0) 
       {
         sb[,c("X", "Y")] <- apply(sb[,c("X", "Y")], 2, function(x) as.numeric(x))
         sbs <- as.PolySet(sb, projection = "LL")
-        sb.sf <- st_as_sf(PolySet2SpatialPolygons(sbs))
+        if(!"SID" %in% names(sbs)) sbs$SID <- 1
+        sb.sf <- pbs_2_sf(sbs, lon="X", lat="Y")
         sb.sf <- st_transform(sb.sf,crs = st_crs(loc.sf)$epsg)
         p2 <- p2 + geom_sf(data= sb.sf,fill=NA,lwd=1)+coord_sf(expand=F)
       }
@@ -1663,10 +1669,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(layout=="landscape") par(mfrow=c(1,2))
       
       if(banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
-      if(!banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt2(mw.sh.coef = cf.data[[bnk]]$CF.fit$mw.sh.coef,
-                                                          wgt.dat = cf.data[[bnk]]$HtWt.fit$resid,
+      if(!banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt2(mw.sh.coef = cf.data[[banks[i]]]$CF.fit$mw.sh.coef,
+                                                          wgt.dat = cf.data[[banks[i]]]$HtWt.fit$resid,
                                                           yr = yr)
-      
       # now the condition factor figure..
       # only show the median line if there are more than 3 CF values
       if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")

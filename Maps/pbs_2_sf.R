@@ -2,7 +2,7 @@
 pbs_2_sf <- function(pbs, lon, lat) {
   require(tidyverse) || stop("install tidyverse")
   require(sf) || stop("install sf package")
-  require(nngeo) || stop("install nngeo package")
+  #require(nngeo) || stop("install nngeo package")
 
   sf_use_s2(FALSE)
   pids <- NULL

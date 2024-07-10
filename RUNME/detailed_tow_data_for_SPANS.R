@@ -1,6 +1,6 @@
 # For Detailed Tow Data (for SPANS, usually right after Industry report)
-year<- 2022
-DR <- "DR2022_10"
+year<- 2024
+DR <- "DR2024_08_StdData"
 direct <- "Y:/Offshore/Assessment/"
 #load(paste0(direct, "/Data/Survey_data/", year, "/Survey_summary_output/testing_results_SCALOFF_LE10.Rdata"))
 

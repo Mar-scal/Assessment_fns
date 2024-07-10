@@ -17,9 +17,9 @@ direct <- "Y:/Offshore/Assessment/"
 ### Step 2: Run the function with the various arguments you need:
 scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", 
                    spatialplot = F, assign.strata=F, # NOTE: spatialplot must be T for assign.strata to work
-                   cruise = cruise, bank = "GBMon", survey_name = "GB2024.1", 
+                   cruise = cruise, bank = "BBn", survey_name = "BBn2024", 
                    tow=T, hf = T, mwsh = TRUE, un=un.ID, pwd.ID=pw, # if hf is T, tow must also be T
-                   nickname = ".GBMonLE19")
+                   nickname = ".BBnLE19")
 
 ### Step 3: Scroll through the output and read the error messages to look at issues. Be thorough!
 ### For GB monitoring survey (spring), warnings like "the condition has length > 1 and only the first element will be used" are ok

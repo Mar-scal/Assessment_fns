@@ -60,8 +60,9 @@ stdts.plt <- function(data, x=names(data[1]), y=names(data[2]), ylab=y, xlab=x, 
 	if(missing(xlim)) xlim=range(data[x],na.rm=T)
 	if(missing(ylim)) ylim=range(data[y],na.rm=T)
 	# Set margins and leave the plot window open
-  if(!nchar(titl) > 35) par(mar=c(3.6,6,2,2))
-	if(nchar(titl) > 35) par(mar=c(3.6,6,6,2))
+	
+  if(titl == "" | !nchar(titl)[2] > 35) par(mar=c(3.6,6,2,2))
+	if((!titl == "" & nchar(titl)[2] > 35)| (!titl == "" & nchar(titl)[1] > 35)) par(mar=c(3.6,6,6,2))
   par(...)
   # Make the plot, using the parameters specified in function call.  
 	base::plot(unlist(data[x[1]]),unlist(data[y[1]]), type="n", las=1, ylim=ylim, xlim=xlim, ylab="", xlab="", xaxt="n",,yaxt="n",

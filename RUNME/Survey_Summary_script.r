@@ -24,7 +24,7 @@
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2022
+yr <- 2024
 un.ID <- "ENTER UN HERE"
 pwd.ID <- "ENTER PW HERE"
 
@@ -56,20 +56,20 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
                    un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
-                   surveys = c("Banspring", 
+                   surveys = c(#"Banspring", 
                     # #"BanIcespring", 
                       "BBnspring",
-                      "BBsspring",
-                       "Gerspring",
+                      #"BBsspring",
+                     "Gerspring",
                       "Midspring",
                        "Sabspring",
-                       # "GBspring",
-                          "GBbsummer"#,
+                        "GBspring"#,
+                         # "GBbsummer"#,
                        #   "GBasummer"
                      ), 
-                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="framework_80-95RSCS_newMWSH_GBb", bins=c(50,65,95,110),
-                   size.cats="Size_categories_by_bank_80-95.csv")
+                   db.con="ptran",testing=T, season="spring", spatial=F, mwsh.test=F,
+                   commercialsampling=T, nickname="spring2024", bins=c(50,65,85,95,120),
+                   size.cats="Size_categories_by_bank_75-90.csv")
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -95,32 +95,32 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 # Did this work... NO :-/  It is related to the loading of the MW-SH data from the previsou year for the MW-SH plot... annoyingly!!
 
 str <- Sys.time()
-survey.figs(direct = direct, direct_fns=direct_fns, fig="screen",
-            yr=2022, 
+survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
+            yr=2024, 
             banks = c(
                   #"BBn",
-                    "Ger"#,
-                # "Mid",
+                  #  "Ger"#,
+                 "Mid"#,
                #"Sab"#,
               # "GBa",
               # "GBb",
-              # "GB"#,
+              #"GB"#,
               #"BBs"#,
               #"Ban",
               # "BanIce"
             ),
             s.res="high",
             plots = c(
-               # "Survey",
-               #  "abund-ts",
-                # "biomass-ts",
-                  "SHF",
+                "Survey",
+                "abund-ts",
+                 "biomass-ts",
+                   "SHF",
                #   "user.SH.bins",
-                 "MW-SH"#,
-              #   "clapper-abund-ts",
-              #   "clapper-per-ts",
-              #   "SH-MW-CF-ts",
-               #  "breakdown",
+                  "MW-SH",
+               "clapper-abund-ts",
+               "clapper-per-ts",
+                  "SH-MW-CF-ts",
+                 "breakdown"),#,
               #       "PR-spatial",
               #      "Rec-spatial",
               #      "FR-spatial",
@@ -132,9 +132,9 @@ survey.figs(direct = direct, direct_fns=direct_fns, fig="screen",
               #     "SH.GP-spatial",
               #   "SHF-large",
               # "seedboxes"
-              ), 
+              #), 
             bathy=c(10,'c'), 
-            sub.area=F, INLA="load", season="testing", nickname="framework_75-90_newareas_issue120_MWSH", layout="landscape")
+            sub.area=F, INLA="load", season="testing", nickname="spring2024", layout="landscape")
 
 Sys.time() -str
 
