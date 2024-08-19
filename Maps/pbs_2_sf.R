@@ -21,8 +21,8 @@ pbs_2_sf <- function(pbs, lon, lat) {
       
       sid <- sid %>%
         st_as_sf(coords=c(lon, lat), crs=4326) %>%
-        group_by(PID, SID, hole) %>%
-        summarize(do_union=F) %>%
+        dplyr::group_by(PID, SID, hole) %>%
+        dplyr::summarize(do_union=F) %>%
         st_cast("POLYGON")
       
       if(j==1) {sids <- rbind(sids, sid)}

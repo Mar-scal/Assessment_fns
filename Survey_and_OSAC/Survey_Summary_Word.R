@@ -439,8 +439,13 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
 
     # mwsh and cf
 
-    fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
-
+    if(banks[i] %in% c("GBa", "GBb", "GB")) fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
+    if(!banks[i] %in% c("GBa", "GBb", "GB")) {
+      slope <- cf.data[[banks[i]]]$CF.fit$mw.sh.coef %>% dplyr::filter(year == yr) %>% dplyr::pull(fix.slope); slope <- slope[1]
+      int <- cf.data[[banks[i]]]$CF.fit$mw.sh.coef %>% dplyr::filter(year == yr) %>% dplyr::pull(fix.int); int <- int[1]
+      fittedmw100mm <- exp(int) * 1^slope
+    }
+    
     if(!banks[i] =="Ger"){
       cfdat <- survey.obj[banks[i]][[1]]$model.dat[,c("year", "CF")]
     }

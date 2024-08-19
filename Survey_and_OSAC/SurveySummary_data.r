@@ -1017,7 +1017,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         
       } # end if(bnk == "Sab" | bnk == "Ger") 
       #		mw.dat.all[[bnk]] <- subset(mw.dat.all[[bnk]], year != 2015)
-browser()
+
       ## MODEL - This is the model used to esimate condition factor across the bank for all banks but Middle/Ban
       if(!bank.4.spatial %in% c("Mid", "Ban", "BanIce")) 
       {

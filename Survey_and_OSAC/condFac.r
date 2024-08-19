@@ -352,7 +352,7 @@ condFac<-function(wgt.dat,pred.dat=NULL,model.type='glm',y2=F,ADJ_depth=F,pred.l
       
       # Get the actual random intercepts
       mw.sh.coef$ran.int.act <- mw.sh.coef$rand.int+ mw.sh.coef$fix.int
-      browser()
+      
       # predictions by tow at 100mm = CF by tow
       # use unique on CF.data because of live and dead
       pred.dat <- left_join(pre.dat, unique(CF.data)) 

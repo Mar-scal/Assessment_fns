@@ -169,13 +169,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   require(ggplot2)|| stop("Install the ggplot2 package for the subarea plots")
   require(plyr)|| stop("Install the plyr package for the subarea plots")
   require(reshape2)|| stop("Install the reshape2 package for the subarea plots")
+  require(sp) || stop("still need sp package for inla plots...")
   require(sf) || stop("It's 2020. We have entered the world of sf. ")
   require(dplyr) || stop("It's 2020. We have entered the world of dplyr. ")
   
   if(yr==2020) {
     message("Due to the pandemic, the 2020 survey was modified and lead by Industry. Only BBn, GBa, and GBb were surveyed.\n
                        Survey design and sampling protocols were changed, so these figures cannot be created via the normal approach.")
-    browser()
+    
     source(paste0(direct_fns, "/Survey_and_OSAC/Industry2020_Survey_summary_figures_sf.r"))
     Ind2020.survey.figs(direct = direct, fig=fig,
                         yr=yr, 
@@ -257,8 +258,11 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     {                   
       if(is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
                                        "/Survey_summary_output/testing_results.Rdata",sep=""))
-      if(!is.null(nickname)) load(paste(direct,"Data/Survey_data/",yr,
-                                        "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+      if(!is.null(nickname)) {
+        
+        load(paste(direct,"Data/Survey_data/",yr,
+                   "/Survey_summary_output/testing_results_", nickname, ".Rdata",sep=""))
+      }
     } else stop("Please re-run Survey_Summary_script and set it so that the file 'testing_results.Rdata' gets created, Thanks eh!!") # end if/else file...
   } # end if(season == "testing") 
   nickname <- temp.nick
@@ -349,7 +353,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
   if(all(banks == "all")) banks <- c("BBn" ,"BBs", "Ger", "Mid", "Sab", "GBb", "GBa","GB")
   # This is useful for testing...
   if(all(banks == 'core')) banks <- c("BBn" , "GBb", "GBa")
-  #browser()
+  #
   # Since BBs is only surveyed occasionally we need to make sure it exists, if it doesn't toss it...
   if(is.null(bank.dat$BBs) && "BBs" %in% banks) banks <- banks[-which(grepl(x=banks, "BBs"))]
   # If we are plotting the sub-areas we wanna do this...
@@ -607,7 +611,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     }
     
     ################################# START MAKING FIGURES################################# START MAKING FIGURES################################# 
-    #browser()
+    #
     ################  The non-survey spatial plots ###########################
     ################  Next up are the rest of the spatial plots ###########################
     ################  Next up are the rest of the spatial plots ###########################
@@ -623,7 +627,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       spatial.maps <- plots[grep("spatial",plots)]
       
       # Some stuff I need for both the Survey and spatial figures...
-      if(length(spatial.maps)> 0 || any(grepl("Survey",plots)))
+      if(length(spatial.maps)> 0 || any(grepl("Survey",plots)) || any(grepl("user.SH.bins",plots)))
       {
         # For Middle bank Make a couple of boxes around the survey stations, these are entirely arbitrary...
         if(banks[i] == "Mid")  
@@ -666,8 +670,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           bound.poly.surv <- as.PolySet(g.tmp,projection="LL")
         } # end if(banks[i] == "Ger") 
         # Now convert this to an object for sp, this gets our bounding area for the survey.
-        # browser()
+        # 
         if(!"SID" %in% names(bound.poly.surv)) bound.poly.surv$SID <- 1
+        
         bound.poly.surv.sp <- pbs_2_sf(bound.poly.surv, lon="X", lat="Y")
         
         # Next we get the survey locations
@@ -741,12 +746,12 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # plot(poly_to_add, add=T)
               
               bound.poly.surv.sf <- st_union(st_simplify(bound.poly.surv.sf), poly_to_add)
-              bound.poly.surv.sp <- bound.poly.surv.sf
+              bound.poly.surv.sp <- as_Spatial(bound.poly.surv.sf)
             }
           }
         }
       } # end if(length(spatial.maps)> 0 || plots[grep("Survey",plots)])
-      #browser()
+      #
       # If we want spatial maps or seedboxes and/or have user SH.bins (for both of which we will produce all figures automatically.)
       if((length(spatial.maps > 0) || any(plots %in% "user.SH.bins"))) 
       {
@@ -756,7 +761,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         if(any(s.res == "high")) s.res <- c(250,250)
         if(any(s.res == "low")) s.res <- c(25,25)
         
-        #browser()
+        #
         # This section only needs run if we are running the INLA models
         if(length(grep("run",INLA)) > 0)
         {
@@ -764,15 +769,45 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # This is how the mesh and A matrix are constructed
           # Build the mesh, for our purposes I'm hopeful this should do the trick, should cover our entire survey area.
           cat("ALERT!  I'm building the mesh for",banks[i], "if this hangs here please try using a different offset for this bank.. \n")
-          #browser()
+          #
           # Guidelines for meshes from Zuur, I expect the range for the process in these areas to be around 5 km (i.e. size of a bed.)
           # Using 10 km makes a mesh that seems to lead to weird behaviour so be warned!!
           range <- 5 * 1000 ; max.edge <- range/5
           #if(banks[i] == "Ger") range <- 7.5 * 1000 ; max.edge <- range/5
           if(banks[i] == "Ban") range <- 15 * 1000 ; max.edge <- range/5
           
-          # Will this work for them all I wonder? Max edge should be around 1/5 of the range according to Zuur
-          mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge)
+          if(!banks[i] %in% c("GB","Ger", "Sab")) {
+            mesh2 <- sdmTMB::make_mesh(data = as.data.frame(st_coordinates(loc.sf)), 
+                                       xy_cols = c("X", "Y"), 
+                                       fmesher_func = fmesher::fm_mesh_2d_inla,
+                                       cutoff = 500, # minimum triangle edge length
+                                       max.edge = c(5000, 5000), # inner and outer max triangle lengths
+                                       offset = c(5000, 5000)) # inner and outer border widths)
+          }
+          
+          if(banks[i] %in% c("GB","Ger")) {
+            bound <- st_buffer(st_transform(bound.poly.surv.sf, 32619),dist = 1000)
+            mesh2 <- sdmTMB::make_mesh(data = as.data.frame(st_coordinates(loc.sf)), 
+                                     xy_cols = c("X", "Y"), 
+                                     fmesher_func = fmesher::fm_mesh_2d_inla,
+                                     boundary = inla.sp2segment(bound),
+                                     cutoff = 500, # minimum triangle edge length
+                                     max.edge = c(5000, 5000), # inner and outer max triangle lengths
+                                     offset = c(5000, 5000)) # inner and outer border widths)
+          }
+          if(banks[i] %in% c("Sab")) {
+            bound <- st_buffer(st_transform(bound.poly.surv.sf, 32620),dist = 1000)
+            mesh2 <- sdmTMB::make_mesh(data = as.data.frame(st_coordinates(loc.sf)), 
+                                       xy_cols = c("X", "Y"), 
+                                       fmesher_func = fmesher::fm_mesh_2d_inla,
+                                       boundary = inla.sp2segment(bound),
+                                       cutoff = 500, # minimum triangle edge length
+                                       max.edge = c(5000, 5000), # inner and outer max triangle lengths
+                                       offset = c(5000, 5000)) # inner and outer border widths)
+          }
+          mesh <- mesh2$mesh
+          # # Will this work for them all I wonder? Max edge should be around 1/5 of the range according to Zuur
+          # mesh <- inla.mesh.2d(loc, boundary= inla.sp2segment(bound.poly.surv.sp), max.edge=c(1,5)*max.edge, cutoff=max.edge)
           if(banks[i] %in% c("GBa","GBb","BBn","BBs","GB","Ger")) mesh$crs <- raster::crs(st_crs(32619)[[2]])
           if(banks[i] %in% c("Mid","Sab","Ban","BanIce","SPB")) mesh$crs <- raster::crs(st_crs(32620)[[2]])
           plot(mesh) # For testing I want to plot this to see it and ensure it isn't crazy for the moment...
@@ -783,10 +818,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           windows(11,11) ; plot(mesh) ;  plot(bound.poly.surv.sp,add=T,lwd=2)
           cat("Mesh successful, woot woot!!")
           # Now make the A matrix
-          #browser()
+          #
           A <- inla.spde.make.A(mesh, loc)
           A.cf <- inla.spde.make.A(mesh,loc.cf)
-          
           
           # We can just make the one spde object for all of these as well.
           spde <- inla.spde2.pcmatern(mesh,    
@@ -1001,13 +1035,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               
               if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]] <- inv.logit(mod$summary.random$s$mean + mod$summary.fixed$mean)*100
               
-              #browser()
+              #
               #       if(spatial.maps[k] == "Clap-spatial")  mod.res[[spatial.maps[k]]][mod.res[[spatial.maps[k]]] > 100] <- 100
             } # end for(k in 1:length(spatial.maps)) # End the loop for getting all the data needed for a bank for the spatial maps.
           } # end if(length(spatial.maps > 0))
         } # end the if(length(grep("run",INLA)) > 0)
         print("finished running normal models")
-        #browser()
+        # #mod.res[[spatial.maps[k]]]
         
         
         
@@ -1167,7 +1201,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           
          # Initialize a counter...
           count = 0
-          #browser()
+          #
           # Make the maps...
           for(m in 1:n.maps)
           {
@@ -1390,7 +1424,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                                                         leg.name=leg.title, 
                                                         alpha=0.75))) +
               geom_sf(data=bound.poly.surv.sf, colour="black", fill=NA) + coord_sf(expand=F)
-           
+        
            #plot(mesh)
            
             ################ ENd produce the figure################ ENd produce the figure################ ENd produce the figure
@@ -1449,6 +1483,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
        
             if(save.gg == T) save(p3,file = paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             if(fig != "screen") dev.off()
+            
           } # end for(m in 1:n.maps)  
         }# end if(length(spatial.maps) > 0) 
         
@@ -1942,7 +1977,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GBa" & sub.area==T) {
         # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
         # subarea_bars_facet_fix.R
-        #browser()
+        #
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/abundance_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=100,bg="transparent")
@@ -2062,7 +2097,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       if(banks[i] == "GBa" & sub.area==T){
         # TO RE-CREATE PREVIOUS YEAR WITH SAME Y AXIS USE:
         # subarea_bars_facet_fix.R
-        # browser()
+        # 
         if(fig == "screen") windows(8.5, 11)
         if(fig == "png")png(paste(plot.dir,"/biomass_bars.png",sep=""),units="in",
                             width = 8.5, height = 11,res=420,bg="transparent")
@@ -2583,6 +2618,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     if(any(plots== "breakdown"))
     {
+      
       # This only works for the banks we have thse data for...
       #if(banks[i] %in% c("BBn" , "GBb", "GBa","GB"))
       if(fig == "screen") windows(8.5,11)
@@ -2590,6 +2626,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
                            width = 8.5,height = 11,res=420,bg = "transparent")
       if(fig == "pdf") pdf(paste(plot.dir,"breakdown-",(yr),".pdf",sep=""),width = 8.5,height = 11)
       if(add.title ==T) title.txt <- paste("Biomass & Meat Count by Height (",banks[i],"-",yr,")",sep="")
+      
       if(banks[i] != "GB") mc <- subset(fish.reg, year == yr & Bank %in% gsub(x=banks[i], "Ice", ""))$MC_reg
       if(banks[i] %in% spat.name) mc <- subset(fish.reg, year == yr & Bank %in% unique(spat.names$bank[spat.names$label == banks[i]]))$MC_reg
       if(banks[i] == "GB") mc <- fish.reg$MC_reg[fish.reg$Bank == "GBa"]
