@@ -241,7 +241,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   trackpts <- st_transform(trackpts, UTM) %>%
     st_join(st_transform(offshore_sf, UTM)) %>%
-    dplyr::rename(bank=ID) %>%
+    dplyr::rename(shp=ID) %>%
     st_transform(4326)
   
   if(!is.null(tow_number_key)) {
@@ -262,9 +262,9 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   if(type=="tracks"){
     tracks <- unsmoothed[, c("tow", "Longitude", "Latitude", "datetime")]
-    tracks <- left_join(tracks, trackpts[, c("tow", "bank")])
+    tracks <- left_join(tracks, trackpts[, c("tow", "shp")])
     tracks <- dplyr::select(tracks, -geometry) %>%
-      dplyr::rename(Bank=bank,
+      dplyr::rename(Bank=shp,
                     Tow=tow,
                     Date_time = datetime) %>%
       dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
@@ -325,7 +325,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       trackpts$end_lat[i] <- coords$End_lat[coords$ID == trackpts$tow[i]]
     }
     
-    trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
+    trackpts <- dplyr::select(trackpts, tow, Bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
     st_geometry(trackpts) <- NULL
     

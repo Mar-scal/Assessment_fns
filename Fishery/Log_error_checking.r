@@ -92,12 +92,12 @@ log_checks <- function(direct, direct_fns, yrs = NULL , marfis=T, repo = "github
   } # end if(repo== 'local')
   
   # The necesary library
-  require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
+  #require(maptools)  || stop("Maptools, MAPtools, MAPTOOLS, install this package, please, now, HURRY!!!!")
   require(sp)  || stop("You shall not pass until you install the *sp* package... you've been warned...")
-  require(rgeos)  || stop("Without *rgeos* package installed you won't be able to do anything...")
+ # require(rgeos)  || stop("Without *rgeos* package installed you won't be able to do anything...")
   require(lubridate) || stop("You need the *lubridate* package installed or you won't even know what year it is...")
   require(openxlsx)|| stop(" You need the openxlsx package if you want to export the results bub...")
-  require(rgdal)|| stop("You shall not pass until you install the *rgdal* package... you've been warned...")
+  #require(rgdal)|| stop("You shall not pass until you install the *rgdal* package... you've been warned...")
   require(sf)|| stop("You shall not pass until you install the *sf* package... you've been warned...")
   options(stringsAsFactors = F)
   
