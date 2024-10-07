@@ -183,13 +183,14 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(stars) || stop("Install stars or else.")
   require(tmaptools) || stop("Install this new tmaptools package, for working with sf objects")
   require(maptools) || stop("Install this old maptools package, for the Polyset2SpatialLines function")
-  if(is.null(add_layer$land)) add_layer$land <- "grey"
-  if(add_layer$land == 'world')
+  if(!is.null(add_layer$land)) 
   {
-  require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
-  require(rnaturalearthdata)|| stop("Install rnaturalearthdata package, this replaces maps and mapdata packages")
-  require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
-  }
+    if(add_layer$land == 'world')
+    {
+    require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
+    require(rnaturalearthdata)|| stop("Install rnaturalearthdata package, this replaces maps and mapdata packages")
+    require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
+    }}
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   require(rgdal)|| stop("You need rgdal pal")
   #require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
