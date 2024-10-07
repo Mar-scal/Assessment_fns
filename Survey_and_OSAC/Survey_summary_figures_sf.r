@@ -1530,7 +1530,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       # That's all we need for the areas without survey strata, pretty easy! No fill on strata
       if(banks[i] %in% c("SPB","Ban", "BanIce","Ger", "Mid"))
       {
-        p2 <- p + geom_sf(data=shpf,fill =NA) + geom_sf(data=surv,aes(shape=`Tow type`, fill=`Tow type`), stroke=1.1) + 
+        p2 <- p + #geom_sf(data=shpf,fill =NA) + 
+          geom_sf(data=surv,aes(shape=`Tow type`, fill=`Tow type`), stroke=1.1) + 
           scale_shape_manual(values = shp) +
           scale_fill_manual(values = ptcol) +
           theme(legend.position = 'right',legend.direction = 'vertical',

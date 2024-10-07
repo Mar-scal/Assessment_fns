@@ -75,8 +75,6 @@ dpkm <- 0.008983346
 # This gets us the aspect ratio accounting for our location on the big ol' sphere
 aspr=1/cos(rad(mean(tows$Y)))
 
-tows <- tows[2,]
-
 # Run this loop for each tow.
 for(i in 1:nrow(tows))
 {
