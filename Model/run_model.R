@@ -484,6 +484,7 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
           for(k in bins)
           {
             count <- count+1 # used to ID the chain
+            browser()
             # Pick it up from here.
             dat <-DD.out[[bnk]]$sims.list[[param.names[i]]][k:(k+len/nchains-1)] 
             # And look for any signs of autocorrelation in the chains...
@@ -571,7 +572,6 @@ run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, 
         biomass.plt(DD.plt,years=yrs[[bnk]], graphic=fig,TAC=TACi[[bnk]]+proj.catch[[bnk]],path=plotsGo,refs = c("LRP","URP","zones"),pred=1,
                     URP =URP[[bnk]], LRP=LRP[[bnk]],avg.line=median,Bymax=bm.max, language=language)
       } # end if(bnk == "GBa")
-      
       # Only make these figures for GBa or BBn
       if(bnk %in% c("GBa","BBn"))
       {

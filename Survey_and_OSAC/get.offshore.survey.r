@@ -169,10 +169,11 @@ get.offshore.survey <- function(db.con ="ptran", un=un.ID , pw = pwd.ID,industry
   # Convert the depth from fathoms to meters.
   samp$depth<-samp$DEPTH_F*1.8288
   
-  # correct for time zone
-  SHF$TOW_DATE <- ymd_hms(SHF$TOW_DATE)
-  pos$TOW_DATE <- ymd_hms(pos$TOW_DATE)
-  samp$TOW_DATE <- ymd_hms(samp$TOW_DATE)
+  # if running between Nov and March (winter): ymd()
+  # if running between March and Nov (spring/summer): ymd_hms()
+  SHF$TOW_DATE <- ymd(SHF$TOW_DATE) #ymd_hms(SHF$TOW_DATE)
+  pos$TOW_DATE <- ymd(pos$TOW_DATE) #ymd_hms(pos$TOW_DATE)
+  samp$TOW_DATE <- ymd(samp$TOW_DATE) # ymd_hms(samp$TOW_DATE)
   
   if(tz(SHF$TOW_DATE) == "UTC"){
     SHF$TOW_DATE <- SHF$TOW_DATE + hours(4)

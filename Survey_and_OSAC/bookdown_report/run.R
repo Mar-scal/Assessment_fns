@@ -1,37 +1,38 @@
 library(xfun)
 library(rmarkdown)
 require(ggplot2)
-
+setwd("./GitHub/Assessment_fns/Survey_and_OSAC/bookdown_report")
 ######## prep input data if you haven't already
 reportyear <- 2023
 
-direct_fns <- "C:/Users/keyserf/Documents/GitHub/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/GitHub/Assessment_fns/"
 
 #################################################
 ### if you need to re-create the summary.RData
 
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
 
 source(paste0(direct_fns, "Survey_and_OSAC/Survey_Summary_Word.R"))
 
-Survey_Summary_Word(year=reportyear, reportseason="spring",
+Survey_Summary_Word(year=reportyear, reportseason="both",
                     #data=paste0("C:/Users/keyserf/Documents/temp_data/testing_results_summer2022_4.Rdata"),
-                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/testing_results_spring2023.Rdata"),
+                    data=paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"),
                     direct="Y:/Offshore/Assessment/",
                     direct_fns = direct_fns)
 
 summary_data <- list(sizes=sizes, ntows=ntows, highlights=highlights, spatial.sum.stats=spatial.sum.stats, dates=dates, yeartable=yeartable)
 
-save(summary_data, file = "summary.Rdata")
+save(summary_data, file = paste0(direct_fns,"Survey_and_OSAC/bookdown_report/summary_both_2023.Rdata"))
 #######################################################
 
 ######################################################
 #### build the book!
 # Modify render_markdowns.R based on the banks/survey you desire. Also make sure the Rdata file in parameterised_report.Rmd is right.
 source("R/render_markdowns.R")
+# source("R/render_markdowns_text.R")
 ########################################################
-
+# source("officedown/render_markdowns_word.R")
 
 ### feedback
 # Change "Return to links" to "Return to bank summary" (be really cool if you could make it "Return to Middle Bank Summary" but only if you could automate the naming for the bank)

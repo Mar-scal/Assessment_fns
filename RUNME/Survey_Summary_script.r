@@ -23,7 +23,7 @@
 #direct <- "C:/Users/keyserf/Documents/Version_control_pandemic/Offshore/Assessment/"
 direct <- "Y:/Offshore/Assessment/"
 #direct_fns <- "C:/Documents/Assessment_fns/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 yr <- 2023
 un.ID <- "ENTER UN HERE"
 pwd.ID <- "ENTER PW HERE"
@@ -55,20 +55,47 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 res <- survey.data(direct = direct,
                    direct_fns = direct_fns,
-                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=T, yr=yr,
-                   surveys = c(#"Banspring", 
-                    # #"BanIcespring", 
-                      "BBnspring",
-                      "BBsspring",
-                      "Gerspring",
-                      "Midspring",
-                      "Sabspring",
-                      "GBspring"#,
-                      #   "GBbsummer",
-                      #   "GBasummer"
+                   un.ID=un.ID, pwd.ID=pwd.ID, preprocessed=F, yr=yr,
+                   surveys = c(#"Banspring",
+                    #"BanIcespring",
+                    # "BBnspring",
+                    # "BBsspring",
+                    # "Gerspring",
+                    # "Midspring",
+                    # "Sabspring",
+                    # "GBspring",
+                        # "GBbsummer",
+                        "GBasummer"
                      ), 
-                   db.con="ptran",testing=T, season="both", spatial=F, mwsh.test=F,
-                   commercialsampling=T, nickname="spring2023")
+                   db.con="ptran",testing=T, season="both", spatial=T, mwsh.test=F,
+                   commercialsampling=T, nickname="survey_all_results_with_subs")
+#FOR MY TESTS, KEEP SPATIAL=F, SWITCH IT WHEN I WANT MORE DETAILS ONCE THE REST IS FIGURED OUT
+
+#Description of what comes out of this with spatial=F:
+#survey.obj splits into banks, and each has:
+  # model.dat, which seems to be the calculated stuff (so indices) for hte SS model
+  #shf.dat, which sounds like shell height frequency stuff but unclear cause multiple things
+    #n might be numbers, w is associated weights, and then stratified versions of each for each size bins
+  #Strata.obj has something to do with strata, has strata with # of sets and Wh (?), mean, se, RE(%) (?)
+  #bin.names self-explan
+  #user.bins I think if I specified diff ones
+  #bankpertow seems to be indices too? not sure what's diff
+#SHF.summary just has 2 banks and 40 columns, so like mean shell heights? total shell heights?
+#SS.summary seems to be the same data for the stock assessment model?
+#CF.current is the condition factor by tow + location with meat count, year, com n, and com.bm
+  #Only for the year of interest
+#so I think cf.data is all the other years avg, with the model fits for mw-sh and CF
+#clap.survey.obj seems to have the exact same things are survey.obj, but i assume its clappers instead of live ones
+#lined, merged, and seedbox all empty
+#pot.grow is individual scallops, Dave thing trying for potential growth, dont need to care
+#survey.strata.table seems to be a table of just the strata lines and areas, with startyear being
+
+#There's a lot of stuff in there, Freya's advice is if something goes wrong, go into a browser
+#in the figure function to find where it is taking it from
+
+#GO look at Survey_Summary_Word to make the pdf
+#go into the /ASsessment_fns/Survey_and_OSAC/bookdown_report
+#after survey data and figures
 
 #res <- survey.data(direct = direct,un.ID=un.ID,pwd.ID=pwd.ID,preprocessed=T,yr=2016,
 #                   surveys =  c("BBnspring"),
@@ -93,49 +120,58 @@ source(paste(direct_fns,"Survey_and_OSAC/Survey_summary_figures_sf.r",sep="")) #
 
 # Did this work... NO :-/  It is related to the loading of the MW-SH data from the previsou year for the MW-SH plot... annoyingly!!
 
+#If doesnt work, reinstall Matrix version 1.3.4
+
 str <- Sys.time()
 survey.figs(direct = direct, direct_fns=direct_fns, fig="png",
-            yr=2023, 
+            yr=yr, 
             banks = c(
-                  "BBn",
-                    #"Ger",
-                 #"Mid",
-                #"Sab",
-               #"GBa",
-               #"GBb",
-               #"GB",
-               "BBs"#,
-              #"Ban",
+                # "BBn",
+                # "Ger",
+                # "Mid",
+                # "Sab",
+               "GBa"#,
+               # "GBb",
+              # "GB",
+              # "BBs",
+              # "Ban"#,
               # "BanIce"
             ),
             s.res="high",
             plots = c(
-               # "Survey",
-                # "abund-ts",
-                 #"biomass-ts",
-                  #"SHF",
-                 "user.SH.bins",
-              #    "MW-SH",
-                #"clapper-abund-ts",
-                #"clapper-per-ts",
-              #    "SH-MW-CF-ts",
-                 # "breakdown"#,
-                     "PR-spatial",
-                    "Rec-spatial",
-                    "FR-spatial",
-                 "CF-spatial",
-                   "MC-spatial",
-                   "Clap-spatial",
-                    "MW-spatial", "SH-spatial",
-                 "MW.GP-spatial",
-                   "SH.GP-spatial"#,
-              #   "SHF-large",
+              # "Survey",
+               "abund-ts",
+                "biomass-ts",
+                 "SHF",
+              # "user.SH.bins",
+              "MW-SH",
+              # "clapper-abund-ts",
+              # "clapper-per-ts",
+              # "SH-MW-CF-ts",
+               "breakdown",
+              #     "PR-spatial",
+              # "Rec-spatial",
+              "FR-spatial"#,
+              # "CF-spatial",
+              #   "MC-spatial",
+              #   "Clap-spatial",
+              #    "MW-spatial", "SH-spatial",
+              # "MW.GP-spatial",
+              #   "SH.GP-spatial",
+              #   "SHF-large"#,
               # "seedboxes"
               ), 
             bathy=c(10,'c'), 
-            sub.area=F, INLA="run.full", season="testing", nickname="spring2023", layout="landscape")
+            sub.area=T, INLA="run", season="testing", nickname="survey_all_results_with_subs", layout="landscape")
 
 Sys.time() -str
+
+#FOR CHECKING FIGURES
+#For all tows, have to load the nicknamed rdata I made
+#Like right now its load(paste0(direct,"Data/Survey_data/", year, "/Survey_summary_output/testing_summer2023_first_try.Rdata"))
+#CF and meat weight stuff in res, either CF depending what I want
+#pot.grow in res also has the mean shell height and meat weight for each tows that is plotted
+#For bins
 
 #mean SH FR:
 survey.obj$GBa$model.dat$l.bar[survey.obj$GBa$model.dat$year==year]

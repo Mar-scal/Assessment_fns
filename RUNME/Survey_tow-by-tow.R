@@ -12,7 +12,7 @@
 # July 2018:  Minor updates to account for the possibility of having multiple strata for a bank, updated to use the most recent strata...
 yr = as.numeric(format(Sys.time(), "%Y"))  # 
 direct = "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "C:/Users/mcdonaldra/Documents/Github/Assessment_fns/"
 database = "ptran" # Set this to your database, needed for a few called to get the bathymetry from ScallopMap. You'll also
 # need to set your username/password to access the database, see the ScallopMap function calls.
 library(viridis) # for colors...
@@ -23,20 +23,20 @@ require(RColorBrewer)
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
-#load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
+# load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
+load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn",
-         "Ger","Sab","Mid",
-  "GB", #"BBs",#, "Ban", "BanIce"
-         "GBa", 
-  "GBb"
-  )
-#bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
+# bnk <- c("BBn",
+#          "Ger","Sab","Mid",
+#   "GB", #"BBs",#, "Ban", "BanIce"
+#          "GBa", 
+#   "GBb"
+#   )
+bnk <- c("GBa")#, "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"
 cf.lab <-    expression(paste("CF:",bgroup("(",frac(g,dm^3)   ,")")))
@@ -141,7 +141,7 @@ print("2")
 
 # Look at Condition factor from each tow, any stand out higher or low?
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-#windows(11,8.5)
+# windows(11,8.5)
 graphics::plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,bank.live$tow,cex=0.5)
 axis(1,at=seq(5,length(bank.live$CF),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$CF),by=5)]))
@@ -153,7 +153,7 @@ dev.off()
 
 # Look at Condition factor from each tow but label as depth, any stand out higher or low?
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_by_tow and_depth.png",sep=""),width=11,height=8.5, units="in", res=400)
-#windows(11,8.5)
+# windows(11,8.5)
 graphics::plot(1:length(bank.live$CF),bank.live$CF,xaxt="n",xlab="tow ID", ylab="CF",bty="L",pch=20,type="n")
 text(1:length(bank.live$CF),bank.live$CF,round(bank.live$depth),cex=0.5)
 axis(1,at=seq(5,length(bank.live$CF),by=5),labels = c(bank.live$tow[seq(5,length(bank.live$CF),by=5)]))
@@ -1138,6 +1138,7 @@ dev.off()
 
 print("10")
 ### spatials for seedboxes
+if (exists("boxes")){
 if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
   plots <- c("PRspatial", "Recspatial", "FRspatial")
   for(j in 1:length(plots)){
@@ -1221,6 +1222,7 @@ if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("G
     
     dev.off()
   }
+}
 }
 ############## End of seedbox spatial figures
 print("11")

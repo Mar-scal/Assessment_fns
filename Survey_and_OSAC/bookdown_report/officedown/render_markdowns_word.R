@@ -3,9 +3,9 @@ rmarkdown_file <- "officedown/parameterised_report_word.Rmd"
 print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
-           "Mid", "Sab", "Ger",
-       #   "BBs",
-         "BBn", "GB",
+       "Mid", "Sab", "Ger",
+         "BBs",
+       "BBn",# "GB",
   "GBa", "GBb"
            )
 banknum <- 1:length(banks)

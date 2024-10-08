@@ -19,9 +19,9 @@ require(tidyverse)
 options(tinytex.verbose = TRUE)
 
 
-year <- 2022
+year <- 2023
 
-load("summary.Rdata")
+load(paste0("Y:/Offshore/Assessment/Data/Survey_data/", reportyear, "/Survey_summary_output/Survey_all_results.Rdata"))
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))
 
 ntows <- summary_data$ntows

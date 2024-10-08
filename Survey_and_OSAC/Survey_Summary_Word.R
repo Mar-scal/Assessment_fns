@@ -56,7 +56,6 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     if(banks[i] == "Ger") years <- lined.survey.obj$model.dat$year[!is.na(lined.survey.obj$model.dat$n)]
     
     lastyear <- years[which(years==year)-1]
-    
     yeartable <- rbind(yeartable, 
                        data.frame(bank=banks[i], lastyear = lastyear, currentyear=year))
 

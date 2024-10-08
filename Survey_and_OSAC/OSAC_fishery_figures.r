@@ -67,7 +67,6 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
   source(paste(direct_fns,"/Fishery/fishery.dat.r",sep="")) #Source3 
   source(paste(direct_fns,"/Maps/ScallopMap.r",sep="")) #Source3 
   } # end if(!missing(direct_fns))
-  
   require(PBSmapping)
   require(RColorBrewer)
   # Also bring in the seedboxes for the spatial plots
@@ -163,7 +162,6 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
                            select = c('ID','lon','lat','pro.repwt'))
 
     names(bnk.fish.dat)[1:4]<-c("EID","X","Y","Z")
-    
     # Make sure we have data from the current year
     if(nrow(bnk.fish.dat) > 0)
     {
@@ -173,11 +171,13 @@ fishery_figures <- function(fish.dat, max.date = format(Sys.time(), "%Y-%m-%d"),
     message(paste("Heads up", bnk[i], "has NA's in it, check your data!! I will remove and continue calculations for now"))
     bnk.fish.dat <- na.omit(bnk.fish.dat)
       } # if(any(is.na(bnk.fish.dat)==T)) 
-   
       # If the current bank has a seedbox then grab it so we can plot it later
       if(nrow(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")))>0)
       {
         seedboxes[, c("X", "Y")] <- apply(seedboxes[, c("X", "Y")], 2, function(x) as.numeric(as.character(x)))
+        #Raph: Ran into issues with duplicated PIDs, where the as.Polyset crashes
+        #Fixed those in the CSV manually, but added a line here to throw out a warning
+        if (any(duplicated(seedboxes[,c("PID","POS")]))) warning(paste("Duplicated PIDS",unique(seedboxes[duplicated(seedboxes[,c("PID","POS")]),"PID"])))
         boxes <- as.PolySet(subset(seedboxes,Bank==bnk[i] & Open >= paste(yr,"-01-01",sep="")),projection = "LL")
       } # end if(bnk[i] == "BBn" || bnk[i] == "GBa")
       

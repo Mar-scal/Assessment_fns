@@ -224,7 +224,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022_2.Rdata",sep=""))  
+      warning("Verify that you are loading the correct spring survey file")
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -745,7 +746,9 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
         
         # This section only needs run if we are running the INLA models
         if(length(grep("run",INLA)) > 0)
-        {
+        { 
+          if(packageVersion("Matrix")!="1.3.4") stop("Reinstall Matrix version 1.3.4 \nor INLA won't work")
+          if(packageVersion("INLA")!="22.4.16") stop("Install INLA version 22.4.16 from zip file at\n https://inla.r-inla-download.org/R/stable/bin/windows/contrib/4.1/")
           
           # This is how the mesh and A matrix are constructed
           # Build the mesh, for our purposes I'm hopeful this should do the trick, should cover our entire survey area.
@@ -770,7 +773,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           windows(11,11) ; plot(mesh) ;  plot(bound.poly.surv.sp,add=T,lwd=2)
           cat("Mesh successful, woot woot!!")
           # Now make the A matrix
-          
           A <- inla.spde.make.A(mesh, loc)
           A.cf <- inla.spde.make.A(mesh,loc.cf)
           
@@ -807,7 +809,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           # The spatial model, simple model with a intercept (overall bank average) with the spde spatial component
           # basically the random deviations for each piece of the mesh.
           formula3 <- y ~ 0 + a0 + f(s, model=spde)
-          
           # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
           if(length(spatial.maps) > 0)
           {
@@ -861,7 +862,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               
               if(spatial.maps[k] == "FR-spatial") 
               {
-                
+                # browser()
                 # This is the stack for the INLA model
                 stk <- inla.stack(tag="est",data=list(y = round(tmp.dat$com,0), link=1L),
                                   effects=list(a0 = rep(1, nrow(tmp.dat)), s = 1:spde$n.spde),
@@ -1193,7 +1194,8 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               # Get the levels correct add extra levels to this to get a better resolution if we have levels > 18
               if(median(mod.res[[maps.to.make[m]]], na.rm=T) > 18) 
               {
-                byextra <- pretty(max(base.lvls[-length(base.lvls)]):round(max(mod.res[[maps.to.make[m]]], na.rm=T)), n = 3)
+                #Changed next line to ceiling instead of round, creates NAs if value is too high
+                byextra <- pretty(max(base.lvls[-length(base.lvls)]):ceiling(max(mod.res[[maps.to.make[m]]], na.rm=T)), n = 3)
                 extra.lvls <- byextra[-1]
                 # extra.lvls <- c(max(base.lvls[-length(base.lvls)]) + byextra, 
                 #                 max(base.lvls[-length(base.lvls)]) + byextra*2,  
@@ -1683,9 +1685,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
           {  
             survey.obj.last[["GB"]][[1]]$year <- as.numeric(levels(survey.obj.last[["GB"]][[1]]$year))[survey.obj.last[["GB"]][[1]]$year]
           }
-          lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
-          lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1), 
+          #I have modified this because I was having issues with running "both"
+          points(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj.last[["GB"]][[1]]$CF,col="red", lty=2,pch=22,type="o",bg="red")
+          lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1),
                 x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
+          # lines(survey.obj.last[["GB"]][[1]]$year-0.25,survey.obj[["GB"]][[1]]$CF,col="red", lty=2)
+          # lines(y=rep(median(survey.obj.last[["GB"]][[1]]$CF,na.rm=T), length(survey.obj.last[["GB"]][[1]]$year)-1),
+          #       x = survey.obj.last[["GB"]][[1]]$year[-length(survey.obj.last[["GB"]][[1]]$year)],col="red",lty=3)
         } # end if(season="both")
         legend('bottomleft',c("August","May"),lty=1:2,pch=c(16,22),bty='n',inset=0.02,col=c("blue","red"),pt.bg=c("blue","red"))		
       } # end if(banks[i] == "GBa")
@@ -2422,7 +2428,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series             
     ##### Shell height, Meat weight, condition factor times series ##### Shell height, Meat weight, condition factor times series
-    
     if(any(plots== "SH-MW-CF-ts"))
     {
       # This only works for the banks we have thse data for...
@@ -2455,7 +2460,6 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
     
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB
     ############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB############  Breakdown figures for BBn and GB  
-    
     if(any(plots== "breakdown"))
     {
       # This only works for the banks we have thse data for...
