@@ -12,7 +12,6 @@
 #     Also enabled saving figures as PDF's (the old contour scripts caused weird plotting artifacts on these)
 # June 2017:  An additional upgrade to allow for plotting of user specified Shell height bins, these bins are specified in the call to the
 #     SurveySummary_data.r function so all that needs to be done here is to recognize that we want to plot those results.
-# August 2017:  Building on the above revisions the INLA models were re-implemented to use a proper mesh so as to minimize
 #               any edge effects.  This is far slower than the previous method so several updates were required to the script
 #               1:  An option to save and load the INLA results was added.  This means the INLA portion of the script only needs to be run once.
 #               2:  An option to change the resolution of the prediction grid (not the mesh but the model results on an underlying grid) was added
@@ -237,11 +236,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       yr <- tmp.yr
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
         
-    
     if(any(plots %in% "MW-SH") && any(banks %in% "GBa"))
     {
       # This loads last years Survey object results.
-      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2022_2.Rdata",sep=""))  
+      load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2024.Rdata",sep=""))  
       if(dim(survey.obj$GB$model.dat[survey.obj$GB$model.dat$year==yr,])[1]==0) message("Edit line 199 to pull in the spring survey summary object for the GB MWSH plot.")
       survey.obj.last <- survey.obj
     } # end if(any(plots %in% "MW-SH") & any(banks %in% "GBa"))
@@ -387,12 +385,14 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pbs_2_sf.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(un in funs)
   } # end if(missing(direct_fns))
   
   # These are the functions used to within the heart of the code to make stuff happen
@@ -861,10 +861,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             # Get the data needed....
             if(banks[i] %in% c("GBb","GBa")) 
             {
-              tmp.dat <- rbind(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
-              tmp.cf <- rbind(CF.current[["GBa"]],CF.current[["GBb"]]) 
-              tmp.clap <- rbind(surv.Clap[["GBa"]][surv.Clap[["GBa"]]$year == yr,],surv.Clap[["GBb"]][surv.Clap[["GBb"]]$year == yr,])
-              tmp.gp <- rbind(pot.grow[["GBa"]][pot.grow[["GBa"]]$year == yr,],pot.grow[["GBb"]][pot.grow[["GBb"]]$year == yr,])
+              tmp.dat <- dplyr::full_join(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
+              tmp.cf <- dplyr::full_join(CF.current[["GBa"]],CF.current[["GBb"]]) 
+              tmp.clap <- dplyr::full_join(surv.Clap[["GBa"]][surv.Clap[["GBa"]]$year == yr,],surv.Clap[["GBb"]][surv.Clap[["GBb"]]$year == yr,])
+              tmp.gp <- dplyr::full_join(pot.grow[["GBa"]][pot.grow[["GBa"]]$year == yr,],pot.grow[["GBb"]][pot.grow[["GBb"]]$year == yr,])
             }  # end if(banks[i] %in% c("GBb","GBa")) 
             
             if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB")) 
@@ -1068,9 +1068,10 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
             user.bins <- spr.survey.obj$user.bins
           } # end if(banks[i]  == "Ger")
           # Get the data needed....
+          
           if(banks[i] %in% c("GBb","GBa"))
           {
-            tmp.dat <- rbind(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
+            tmp.dat <- dplyr::full_join(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
           }  # end if(banks[i] %in% c("GBb","GBa"))
           
           if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB"))
@@ -1684,7 +1685,7 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
       
       ############
-      
+
       #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
       if(layout=="portrait"){
         if(fig == "screen") windows(8,13)
@@ -1702,11 +1703,13 @@ survey.figs <- function(plots = 'all', banks = "all" , yr = as.numeric(format(Sy
       
       if(layout=="portrait") par(mfrow=c(2,1))
       if(layout=="landscape") par(mfrow=c(1,2))
-      
-      if(banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
-      if(!banks[i] %in% c("GBa", "GBb", "GB")) shwt.plt2(mw.sh.coef = cf.data[[banks[i]]]$CF.fit$mw.sh.coef,
+
+        if(banks[i] %in% c("GBa", "GB") | banks[i] %in% spat.name) shwt.plt1(SpatHtWt.fit[[banks[i]]],lw=3,ht=10,wd=12,cx=1.5,titl = MWSH.title,cex.mn = cap.size,las=1)
+        if(!banks[i] %in% c("GBa", "GB", spat.name)) shwt.plt2(mw.sh.coef = cf.data[[banks[i]]]$CF.fit$mw.sh.coef,
                                                           wgt.dat = cf.data[[banks[i]]]$HtWt.fit$resid,
-                                                          yr = yr)
+                                                          yr = yr,titl = MWSH.title,
+                                                          cex.mn=cap.size)
+      
       # now the condition factor figure..
       # only show the median line if there are more than 3 CF values
       if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")

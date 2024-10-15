@@ -146,12 +146,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/simple.surv.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/growth_potential.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(un in funs)
   } # end  if(missing(direct_fns))
   
   if(!missing(direct_fns))
@@ -429,12 +431,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
                 "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/simple.surv.r",
                 "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/growth_potential.r")
       # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-      for(fun in funs) 
-      {
-        download.file(fun,destfile = basename(fun))
-        source(paste0(getwd(),"/",basename(fun)))
-        file.remove(paste0(getwd(),"/",basename(fun)))
-      } # end for(un in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(un in funs)
     } # end  if(missing(direct_fns))
     
     if(!missing(direct_fns))
@@ -908,14 +912,14 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
         if(bank.4.spatial=="GBa")             mw[[bnk]] <- subset(MW.dat.new,bank %in% c("GBa") & month > 7)
         if(bank.4.spatial=="GBb")             mw[[bnk]] <- subset(MW.dat.new,bank %in% c("GBb") & month > 7)
         # now we need to remove all data outside our domain of interest and get the data in the same projection...
-        coordinates(mw[[bnk]])<- ~ lon+lat
-        proj4string(mw[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        spat.bound.sp <- PolySet2SpatialPolygons(spat.bound)
-        spat.bound.sp <- spTransform(spat.bound.sp,CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0"))
-        locs <- over(mw[[bnk]],spat.bound.sp)
-        mw[[bnk]] <- mw[[bnk]][which(locs == 1),]
+       
+        if(bnk %in% c("GBa-Core", "GBa-Large_core")) sf::sf_use_s2(FALSE)
+        if(!bnk %in% c("GBa-Core", "GBa-Large_core")) sf::sf_use_s2(TRUE)
+        mw_sf <- sf::st_as_sf(mw[[bnk]], coords = c(X="lon", Y="lat"), crs=4326, remove=F)
+        spat.bound.sp <- sf::st_as_sf(spat.bound, coords=c("X", "Y"), crs=4326) %>% sf::st_union() %>% sf::st_cast("POLYGON")
+        mw_sf <- sf::st_intersection(mw_sf, spat.bound.sp)
         # I really just want the data back out, not all the jazzy spatial info, later I might, but we're not there yet...
-        mw[[bnk]] <- cbind(mw[[bnk]]@data,mw[[bnk]]@coords)
+        mw[[bnk]] <- as.data.frame(dplyr::select(mw_sf, -geometry))
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       
       # For the most recent data
@@ -934,7 +938,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       # Tow 301 in the 2021 GBb survey is an extreme outlier and drastically skews the MWSH relationship and condition. We decided to remove it. 
       if(bnk=="GBb") mw.dm <- mw.dm[!(mw.dm$tow==301 & mw.dm$year==2021),]
   
-      if(bnk %in% c("GBa", "GB")) SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
+      if(bank.4.spatial %in% c("GBa", "GB")) SpatHtWt.fit[[bnk]] <- shwt.lme(mw.dm,random.effect='tow',b.par=3)
       print("shwt.lme done")
       
       print("NEED TO REVISE import.hyd.data yrs and tow number corrections everytime more historical data is added to database. We need to investigate potential duplication?!")
@@ -1141,33 +1145,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       {
         # now we need to remove all data outside our domain of interest and get the data in the same projection...
-        coordinates(surv.Clap[[bnk]])<- ~ slon+slat
-        proj4string(surv.Clap[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Live[[bnk]])<- ~ slon+slat
-        proj4string(surv.Live[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.Rand[[bnk]])<- ~ slon+slat
-        proj4string(surv.Rand[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        coordinates(surv.dat[[bnk]])<- ~ slon+slat
-        proj4string(surv.dat[[bnk]]) <- CRS("+proj=longlat +datum=WGS84 +ellps=WGS84 +towgs84=0,0,0")
-        
         # spat.bound.sp would have been created above...
-        locs.c <- over(surv.Clap[[bnk]],spat.bound.sp)
-        locs.l <- over(surv.Live[[bnk]],spat.bound.sp)
-        locs.r <- over(surv.Rand[[bnk]],spat.bound.sp)
-        locs.d <- over(surv.dat[[bnk]],spat.bound.sp)
-        
-        # No cut out the survey data for each...
-        surv.Clap[[bnk]] <- surv.Clap[[bnk]][which(locs.c == 1),]
-        surv.Live[[bnk]] <- surv.Live[[bnk]][which(locs.l == 1),]
-        surv.Rand[[bnk]] <- surv.Rand[[bnk]][which(locs.r == 1),]
-        # For some reason surv.dat isn't working...???
-        #tmp <- surv.dat[[bnk]][which(locs.d == 1),]
-        
-        # I really just want the data back out, not all the jazzy spatial info, later I might, but we're not there yet...
-        surv.Clap[[bnk]] <- cbind(surv.Clap[[bnk]]@data,surv.Clap[[bnk]]@coords)
-        surv.Live[[bnk]] <- cbind(surv.Live[[bnk]]@data,surv.Live[[bnk]]@coords)
-        surv.Rand[[bnk]] <- cbind(surv.Rand[[bnk]]@data,surv.Rand[[bnk]]@coords)
-        #surv.dat[[bnk]] <- cbind(tmp@data,tmp@coords)
+        surv.Clap[[bnk]] <- as.data.frame(sf::st_intersection(sf::st_as_sf(surv.Clap[[bnk]], coords=c("lon", "lat"), crs=4326, remove=F),spat.bound.sp)) %>% dplyr::select(-geometry)
+        surv.Live[[bnk]] <- as.data.frame(sf::st_intersection(sf::st_as_sf(surv.Live[[bnk]], coords=c("lon", "lat"), crs=4326, remove=F),spat.bound.sp)) %>% dplyr::select(-geometry)
+        surv.Rand[[bnk]] <- as.data.frame(sf::st_intersection(sf::st_as_sf(surv.Rand[[bnk]], coords=c("lon", "lat"), crs=4326, remove=F),spat.bound.sp)) %>% dplyr::select(-geometry)
+        surv.dat[[bnk]] <- as.data.frame(sf::st_intersection(sf::st_as_sf(surv.dat[[bnk]], coords=c("lon", "lat"), crs=4326, remove=F),spat.bound.sp)) %>% dplyr::select(-geometry)
       } # end  if(!is.null(spat.names) && surveys[i] %in% spat.names$label)  
       
       #Source15 source("fn/simple.surv.r") prepare survey index data obj
@@ -1436,6 +1418,7 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
                                                                           bank == bank.4.spatial & year==yr & month > 6,
                                                                           c('tow','lon','lat')),
                                                                    SpatHtWt.fit[[bnk]]$fit))
+      
       names(CF.current[[bnk]])[4]<-"CF"
       # For German we want all the tows here, both the random and the repeats.
       if(bank.4.spatial == "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
@@ -1479,11 +1462,11 @@ survey.data <- function(direct, direct_fns, yr.start = 1984, yr = as.numeric(for
       } #end if(length(boxes[,1]) > 0))
       
       # Now let's calculate the average size and growth potential by bank, use surv.Live b/c we want to look at this for all tows.
-      if(bnk %in% c("GBa", "GB")){
+      if(bank.4.spatial %in% c("GBa", "GB")){
         pot.grow[[bnk]] <- grow.pot(dat= surv.Live[[bnk]],mwsh.fit = SpatHtWt.fit[[bnk]],bank = bank.4.spatial)
       }
       
-      if(!bnk %in% c("GBa", "GB")) {
+      if(!bank.4.spatial %in% c("GBa", "GB")) {
         pot.grow[[bnk]] <- grow.pot(dat=surv.Live[[bnk]], mwsh.fit=cf.data[[bnk]]$CF.fit$mw.sh.coef, bank=bank.4.spatial)
       }
       

@@ -37,11 +37,11 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   funcs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/github_spatial_import.R")
-  dir <- getwd()
+  dir <- tempdir()
   for(fun in funcs) 
   {
     temp <- dir
-    download.file(fun,destfile = basename(fun))
+    download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
     source(paste0(dir,"/",basename(fun)))
     file.remove(paste0(dir,"/",basename(fun)))
   }
@@ -281,7 +281,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load") {
-    
     trackpts <- arrange(trackpts, tow)
     
     trackpts$length <- trackpts %>%
