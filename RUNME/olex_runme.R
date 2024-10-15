@@ -16,11 +16,11 @@
 # OR source from github:
 funcs <- c("https://raw.githubusercontent.com/freyakeyser/Assessment_fns/master/Survey_and_OSAC/olex_import.R",
            "https://raw.githubusercontent.com/freyakeyser/Assessment_fns/master/Survey_and_OSAC/olex_check_strata.R")
-dir <- getwd()
-for(fun in funcs) 
+dir <- tempdir()
+for(fun in funs) 
 {
   temp <- dir
-  download.file(fun,destfile = basename(fun))
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
   source(paste0(dir,"/",basename(fun)))
   file.remove(paste0(dir,"/",basename(fun)))
 }

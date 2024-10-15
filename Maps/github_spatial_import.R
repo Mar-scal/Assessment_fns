@@ -7,12 +7,14 @@ github_spatial_import <- function(subfolder, zipname, specific_shp=NULL, direct_
   {
     funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/combo_shp.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    }
+ dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+}
   } else {source(paste0(direct_fns, "/Maps/combo_shp.R"))}
   
   

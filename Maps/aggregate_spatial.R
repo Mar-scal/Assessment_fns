@@ -8,11 +8,13 @@
 funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
           "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/Convert_PBSmapping_into_GIS_shapefiles.R")
 # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+dir <- tempdir()
 for(fun in funs) 
 {
-  download.file(fun,destfile = basename(fun))
-  source(paste0(getwd(),"/",basename(fun)))
-  file.remove(paste0(getwd(),"/",basename(fun)))
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
 } # for(fun in funs)
 
 ##### Other packages
