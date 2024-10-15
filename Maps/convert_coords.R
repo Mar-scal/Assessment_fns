@@ -76,7 +76,7 @@ convert.coords <- function(plot.extent= list(y = c(40,46),x = c(-68,-55)),in.csy
     if(plot.extent%in% c('spa5','SPA5',"5"))	                                                     {y=c(44.56,44.78);x=c(-65.82,-65.51)}
   } # end if(!is.data.frame(plot.extent))
   # Now transform the data to the coordinate system you are using.
-  coords <- st_as_sf(data.frame(y=y,x=x),coords = c("x","y"),crs = in.csys)
+  coords <- st_as_sf(data.frame(Y=y, X=x),coords = c(X="X",Y="Y"),crs = unique(in.csys))
   # and now transform it to the projection you want
   coords <- st_transform(coords,out.csys)
   

@@ -21,7 +21,7 @@ options(tinytex.verbose = TRUE)
 knitr::opts_chunk$set(echo = TRUE, fig.cap = TRUE)
 library(officedown)
 
-year <- 2022
+year <- 2024
 
 load("summary4.Rdata")
 source(paste0(direct_fns, "/Other_functions/ScallopRound.R"))

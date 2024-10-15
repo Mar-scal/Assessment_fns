@@ -261,9 +261,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   # Now we need to get our ylim and xlim using the convert.coords function
   # Get our coordinates in the units we need them, need to do some stick handling if we've entered specific coords above
   # This the case in which we enter numbers as our coordinate system  
-
-  if(any(class(loc) == 'list')) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
-  if(any(class(loc)=="data.frame")) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = loc$crs,out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(any(class(loc) == 'list')) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = unique(loc$crs),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
+  if(any(class(loc)=="data.frame")) coords <- convert.coords(plot.extent = list(y=loc$y,x=loc$x),in.csys = unique(loc$crs),out.csys = c_sys,bbox.buf = buffer,make.sf=T)
   # This is the case when we put a name in and let convert.coords sort it out.
   if(any(class(loc) == 'character')) coords <- convert.coords(plot.extent = loc,out.csys = c_sys,bbox.buf = buffer, make.sf=T)
   if(any(class(loc) %in% c("sp"))) loc <- st_as_sf(loc) # Convert to sf cause I already have that ready to roll below

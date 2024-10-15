@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  9 AUG 2024 12:41
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (TeX Live 2021/W32TeX) (preloaded format=pdflatex 2022.2.8)  18 SEP 2024 14:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -612,12 +612,6 @@ LaTeX Warning: Label `fig:unnamed-chunk-16' multiply defined.
 LaTeX Warning: Label `fig:unnamed-chunk-17' multiply defined.
 
 
-LaTeX Warning: Label `tab:unnamed-chunk-18' multiply defined.
-
-
-LaTeX Warning: Label `fig:unnamed-chunk-19' multiply defined.
-
-
 LaTeX Warning: Label `fig:unnamed-chunk-20' multiply defined.
 
 )
@@ -754,933 +748,397 @@ File: mt-msb.cfg 2005/06/01 v1.0 microtype config. file: AMS symbols (b) (RS)
 LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 135.
 (c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-
-LaTeX Warning: Hyper reference `toc' on page 3 undefined on input line 168.
-
-[3]
-LaTeX Font Info:    Trying to load font information for T1+lmtt on input line 179.
-(c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/tex/latex/lm/t1lmtt.fd
-File: t1lmtt.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
-)
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 182--182
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 182--182
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png, id=52, 794.97pt x 614.295pt>
+) [3]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png, id=53, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png  used on input line 186.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png  used on input line 181.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
 [4 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/survey_strata.png>]
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <10> on input line 204.
+(Font)              <10> on input line 199.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <7> on input line 204.
+(Font)              <7> on input line 199.
 LaTeX Font Info:    External font `lmex10' loaded for size
-(Font)              <5> on input line 204.
+(Font)              <5> on input line 199.
 [5]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 236--236
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (28.99353pt too wide) in paragraph at lines 236--236
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png"[] 
- []
-
 <Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png, id=69, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png  used on input line 240.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png  used on input line 230.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[6 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png>] [7]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 253--253
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 253--253
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png, id=82, 614.295pt x 794.97pt>
+[6 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/abundance_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png, id=77, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png  used on input line 257.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png  used on input line 242.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[8 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png>] [9]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 274--274
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png, id=94, 614.295pt x 794.97pt>
+[7 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/biomass_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png, id=86, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png  used on input line 278.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png  used on input line 258.
 (pdftex.def)             Requested size: 399.29639pt x 516.73651pt.
-[10 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 295--295
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 295--295
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png, id=102, 614.295pt x 939.51pt>
+[8 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/SHF.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png, id=94, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png  used on input line 299.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png  used on input line 274.
 (pdftex.def)             Requested size: 297.689pt x 455.28908pt.
-[11 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png>] [12]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 333--333
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 333--333
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png, id=114, 794.97pt x 614.295pt>
+[9 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png, id=102, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png  used on input line 337.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png  used on input line 307.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[13 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png>] [14]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 350--350
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 350--350
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png, id=128, 794.97pt x 614.295pt>
+[10 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/PR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png, id=111, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png  used on input line 354.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png  used on input line 319.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[15 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 367--367
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 367--367
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png, id=136, 794.97pt x 614.295pt>
+[11 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png, id=119, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png  used on input line 371.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png  used on input line 331.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[16 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 402--402
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 402--402
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png, id=144, 794.97pt x 614.295pt>
+[12 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/FR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png, id=127, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png  used on input line 406.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png  used on input line 361.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[17 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 419--419
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 419--419
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png, id=153, 794.97pt x 614.295pt>
+[13 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/CF-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png, id=137, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png  used on input line 423.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png  used on input line 373.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[18 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 455--455
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 455--455
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png, id=162, 614.295pt x 794.97pt>
+[14 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/MC-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png, id=145, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png  used on input line 459.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png  used on input line 404.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[19] [20 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 476--476
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 476--476
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png, id=176, 614.295pt x 794.97pt>
+[15] [16 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png, id=159, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png  used on input line 480.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png  used on input line 420.
 (pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
-[21 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png>] [22]
-
-LaTeX Warning: Hyper reference `toc' on page 23 undefined on input line 530.
-
-[23]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 544--544
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 544--544
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png, id=206, 794.97pt x 614.295pt>
+[17 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Mid/breakdown-2024.png>] [18]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png, id=186, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png  used on input line 548.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png  used on input line 483.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[24 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png>] [25]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 598--598
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (28.99353pt too wide) in paragraph at lines 598--598
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png, id=222, 614.295pt x 794.97pt>
+[19 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/survey_strata.png>] [20]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png, id=202, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png  used on input line 602.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png  used on input line 532.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[26 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png>] [27]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 615--615
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 615--615
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png, id=234, 614.295pt x 794.97pt>
+[21 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/abundance_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png, id=210, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png  used on input line 619.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png  used on input line 544.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[28 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png>] [29]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 636--636
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png, id=246, 614.295pt x 794.97pt>
+[22 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/biomass_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png, id=218, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png  used on input line 640.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png  used on input line 560.
 (pdftex.def)             Requested size: 399.29639pt x 516.73651pt.
-[30 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 657--657
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 657--657
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png, id=254, 614.295pt x 939.51pt>
+[23 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/SHF.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png, id=226, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png  used on input line 661.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png  used on input line 576.
 (pdftex.def)             Requested size: 297.689pt x 455.28908pt.
-[31 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png>] [32]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 695--695
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 695--695
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png, id=267, 794.97pt x 614.295pt>
+[24 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png, id=234, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png  used on input line 699.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png  used on input line 609.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[33 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png>] [34]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 712--712
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 712--712
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png, id=280, 794.97pt x 614.295pt>
+[25 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/PR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png, id=244, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png  used on input line 716.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png  used on input line 621.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[35 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 729--729
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 729--729
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png, id=288, 794.97pt x 614.295pt>
+[26 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png, id=252, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png  used on input line 733.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png  used on input line 633.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[36 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 764--764
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 764--764
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png, id=296, 794.97pt x 614.295pt>
+[27 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/FR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png, id=260, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png  used on input line 768.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png  used on input line 663.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[37 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 781--781
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 781--781
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png, id=307, 794.97pt x 614.295pt>
+[28 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/CF-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png, id=269, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png  used on input line 785.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png  used on input line 675.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[38 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 817--817
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 817--817
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png, id=315, 614.295pt x 794.97pt>
+[29 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/MC-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png, id=277, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png  used on input line 821.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png  used on input line 706.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[39] [40 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 838--838
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 838--838
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png, id=328, 614.295pt x 794.97pt>
+[30] [31 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png, id=291, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png  used on input line 842.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png  used on input line 722.
 (pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
-[41 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png>] [42]
-
-LaTeX Warning: Hyper reference `toc' on page 43 undefined on input line 892.
-
-[43]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 906--906
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 906--906
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png, id=359, 794.97pt x 614.295pt>
+[32 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Sab/breakdown-2024.png>] [33]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png, id=319, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png  used on input line 910.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png  used on input line 785.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[44 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png>] [45]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 960--960
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (28.99353pt too wide) in paragraph at lines 960--960
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png, id=374, 614.295pt x 794.97pt>
+[34 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/survey_strata.png>] [35]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png, id=334, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png  used on input line 964.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png  used on input line 834.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[46 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png>] [47]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 977--977
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 977--977
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png, id=386, 614.295pt x 794.97pt>
+[36 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/abundance_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png, id=342, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png  used on input line 981.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png  used on input line 846.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[48 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png>] [49]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 998--998
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png, id=399, 614.295pt x 794.97pt>
+[37 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/biomass_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png, id=351, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png  used on input line 1002.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png  used on input line 862.
 (pdftex.def)             Requested size: 399.29639pt x 516.73651pt.
-[50 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1019--1019
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1019--1019
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png, id=407, 614.295pt x 939.51pt>
+[38 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/SHF.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png, id=359, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png  used on input line 1023.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png  used on input line 878.
 (pdftex.def)             Requested size: 297.689pt x 455.28908pt.
-[51 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png>] [52]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1057--1057
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1057--1057
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png, id=419, 794.97pt x 614.295pt>
+[39 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png, id=367, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png  used on input line 1061.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png  used on input line 911.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[53 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png>] [54]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1074--1074
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 1074--1074
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png, id=432, 794.97pt x 614.295pt>
+[40 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/PR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png, id=376, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png  used on input line 1078.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png  used on input line 923.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[55 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1091--1091
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1091--1091
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png, id=441, 794.97pt x 614.295pt>
+[41 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png, id=384, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png  used on input line 1095.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png  used on input line 935.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[56 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1126--1126
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1126--1126
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png, id=450, 794.97pt x 614.295pt>
+[42 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/FR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png, id=392, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png  used on input line 1130.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png  used on input line 965.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[57 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1143--1143
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1143--1143
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png, id=459, 794.97pt x 614.295pt>
+[43 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/CF-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png, id=402, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png  used on input line 1147.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png  used on input line 977.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[58 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1179--1179
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1179--1179
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png, id=467, 614.295pt x 794.97pt>
+[44 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/MC-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png, id=410, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png  used on input line 1183.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png  used on input line 1008.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[59] [60 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1200--1200
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1200--1200
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png, id=480, 614.295pt x 794.97pt>
+[45] [46 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png, id=423, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png  used on input line 1204.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png  used on input line 1024.
 (pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
-[61 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png>] [62]
-
-LaTeX Warning: Hyper reference `toc' on page 63 undefined on input line 1254.
-
-[63]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1268--1268
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 1268--1268
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png, id=511, 794.97pt x 614.295pt>
+[47 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/Ger/breakdown-2024.png>] [48]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png, id=451, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png  used on input line 1272.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png  used on input line 1087.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[64 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png>] [65]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1322--1322
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (28.99353pt too wide) in paragraph at lines 1322--1322
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png, id=526, 614.295pt x 794.97pt>
+[49 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/survey_strata.png>] [50]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png, id=467, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png  used on input line 1326.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png  used on input line 1136.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[66 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png>] [67]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1339--1339
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1339--1339
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png, id=539, 614.295pt x 794.97pt>
+[51 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/abundance_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png, id=475, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png  used on input line 1343.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png  used on input line 1148.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[68 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png>] [69]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1360--1360
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png, id=551, 614.295pt x 794.97pt>
+[52 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/biomass_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png, id=483, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png  used on input line 1364.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png  used on input line 1164.
 (pdftex.def)             Requested size: 399.29639pt x 516.73651pt.
-[70 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1381--1381
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1381--1381
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png, id=559, 614.295pt x 939.51pt>
+[53 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/SHF.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png, id=491, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png  used on input line 1385.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png  used on input line 1180.
 (pdftex.def)             Requested size: 297.689pt x 455.28908pt.
-[71 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png>] [72]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1419--1419
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1419--1419
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png, id=571, 794.97pt x 614.295pt>
+[54 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png, id=499, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png  used on input line 1423.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png  used on input line 1213.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[73 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png>] [74]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1436--1436
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 1436--1436
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png, id=585, 794.97pt x 614.295pt>
+[55 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/PR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png, id=509, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png  used on input line 1440.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png  used on input line 1225.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[75 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1453--1453
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1453--1453
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png, id=594, 794.97pt x 614.295pt>
+[56 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png, id=517, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png  used on input line 1457.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png  used on input line 1237.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[76 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1488--1488
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1488--1488
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png, id=602, 794.97pt x 614.295pt>
+[57 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/FR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png, id=525, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png  used on input line 1492.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png  used on input line 1267.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[77 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1505--1505
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1505--1505
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png, id=611, 794.97pt x 614.295pt>
+[58 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/CF-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png, id=534, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png  used on input line 1509.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png  used on input line 1279.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[78 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1541--1541
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1541--1541
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png, id=619, 614.295pt x 794.97pt>
+[59 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/MC-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png, id=542, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png  used on input line 1545.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png  used on input line 1310.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[79] [80 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1562--1562
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (39.4935pt too wide) in paragraph at lines 1562--1562
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png, id=633, 614.295pt x 794.97pt>
+[60] [61 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png, id=556, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png  used on input line 1566.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png  used on input line 1326.
 (pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
-[81 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png>] [82]
-
-LaTeX Warning: Hyper reference `toc' on page 83 undefined on input line 1616.
-
-[83]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1630--1630
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (28.99353pt too wide) in paragraph at lines 1630--1630
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png, id=663, 794.97pt x 614.295pt>
+[62 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/BBn/breakdown-2024.png>] [63]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png, id=583, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png  used on input line 1634.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png  used on input line 1389.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[84 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png>] [85]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1684--1684
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (23.74355pt too wide) in paragraph at lines 1684--1684
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png, id=679, 614.295pt x 794.97pt>
+[64 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/survey_strata.png>] [65]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png, id=599, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png  used on input line 1688.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png  used on input line 1438.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[86 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png>] [87]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1701--1701
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (13.24358pt too wide) in paragraph at lines 1701--1701
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png, id=691, 614.295pt x 794.97pt>
+[66 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/abundance_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png, id=607, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png  used on input line 1705.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png  used on input line 1450.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[88 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png>] [89]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1722--1722
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png, id=703, 614.295pt x 794.97pt>
+[67 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/biomass_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png, id=616, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png  used on input line 1726.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png  used on input line 1466.
 (pdftex.def)             Requested size: 399.29639pt x 516.73651pt.
-[90 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png>] [91]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1743--1743
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 1743--1743
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png, id=716, 614.295pt x 939.51pt>
+[68 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/SHF.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png, id=624, 614.295pt x 939.51pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png  used on input line 1747.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png  used on input line 1482.
 (pdftex.def)             Requested size: 297.689pt x 455.28908pt.
-[92 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png>] [93]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1781--1781
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (13.24358pt too wide) in paragraph at lines 1781--1781
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png, id=728, 794.97pt x 614.295pt>
+[69 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MWSH_and_CF_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png, id=632, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png  used on input line 1785.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png  used on input line 1515.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[94 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png>] [95]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1798--1798
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (18.49356pt too wide) in paragraph at lines 1798--1798
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png, id=742, 794.97pt x 614.295pt>
+[70 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/PR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png, id=641, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png  used on input line 1802.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png  used on input line 1527.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[96 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1815--1815
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (13.24358pt too wide) in paragraph at lines 1815--1815
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png, id=750, 794.97pt x 614.295pt>
+[71 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Rec-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png, id=649, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png  used on input line 1819.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png  used on input line 1539.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[97 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1850--1850
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (13.24358pt too wide) in paragraph at lines 1850--1850
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png, id=759, 794.97pt x 614.295pt>
+[72 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/FR-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png, id=657, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png  used on input line 1854.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png  used on input line 1569.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[98 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1867--1867
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (13.24358pt too wide) in paragraph at lines 1867--1867
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png, id=768, 794.97pt x 614.295pt>
+[73 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/CF-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png, id=667, 794.97pt x 614.295pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png  used on input line 1871.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png  used on input line 1581.
 (pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
-[99 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1903--1903
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 1903--1903
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png, id=776, 614.295pt x 794.97pt>
+[74 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/MC-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clap-spatial.png, id=675, 794.97pt x 614.295pt>
+File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clap-spatial.png Graphic file (type png)
+<use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clap-spatial.png>
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clap-spatial.png  used on input line 1597.
+(pdftex.def)             Requested size: 469.76819pt x 363.00267pt.
+[75 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clap-spatial.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png, id=683, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png  used on input line 1907.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png  used on input line 1628.
 (pdftex.def)             Requested size: 422.77669pt x 547.12279pt.
-[100] [101 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png>]
-Overfull \hbox (380.74251pt too wide) in paragraph at lines 1924--1924
-[]\T1/lmtt/m/n/10 ## Warning in knitr::include_graphics(paste0("Y:/Offshore/Assessment/", year, : It is highly recommended to use relative paths for images. You had absolute paths:[] 
- []
-
-
-Overfull \hbox (34.24352pt too wide) in paragraph at lines 1924--1924
-[]\T1/lmtt/m/n/10 ## "Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png"[] 
- []
-
-<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png, id=789, 614.295pt x 794.97pt>
+[76] [77 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/Clapper_per_ts.png>]
+<Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png, id=696, 614.295pt x 794.97pt>
 File: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png Graphic file (type png)
 <use Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png>
-Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png  used on input line 1928.
+Package pdftex.def Info: Y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png  used on input line 1644.
 (pdftex.def)             Requested size: 352.31703pt x 455.9397pt.
-[102 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png>] [103] (./output.aux)
-
-LaTeX Warning: There were undefined references.
-
+[78 <y:/Offshore/Assessment/2024/Presentations/Survey_summary/test_figures/GB/breakdown-2024.png>] (./output.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 15018 strings out of 480238
- 287053 string characters out of 5894108
- 574309 words of memory out of 5000000
- 32353 multiletter control sequences out of 15000+600000
- 524452 words of font info for 134 fonts, out of 8000000 for 9000
+ 14960 strings out of 480238
+ 287115 string characters out of 5894108
+ 574907 words of memory out of 5000000
+ 32323 multiletter control sequences out of 15000+600000
+ 524133 words of font info for 133 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  74i,11n,77p,1003b,342s stack positions out of 5000i,500n,10000p,200000b,80000s
-{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmtt10.pfb>
-Output written on output.pdf (103 pages, 18794380 bytes).
+{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-mathsy.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ts1.enc}{c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr12.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmro10.pfb><c:/Users/keyserf/AppData/Roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmsy10.pfb>
+Output written on output.pdf (78 pages, 19228562 bytes).
 PDF statistics:
- 915 PDF objects out of 1000 (max. 8388607)
- 666 compressed objects within 7 object streams
- 232 named destinations out of 1000 (max. 500000)
- 31069 words of extra memory for PDF output out of 35830 (max. 10000000)
+ 806 PDF objects out of 1000 (max. 8388607)
+ 583 compressed objects within 6 object streams
+ 208 named destinations out of 1000 (max. 500000)
+ 31074 words of extra memory for PDF output out of 35830 (max. 10000000)
 
