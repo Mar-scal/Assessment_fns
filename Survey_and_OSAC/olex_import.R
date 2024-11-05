@@ -158,6 +158,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(any(!track$start<track$end)) stop("check tow file, seems like there is a Garnstopp before a Garnstart")
   track$tow <- 1:nrow(track)
   
+  
   trackpts <- NULL
   for(i in 1:length(track$tow)){
     trackpts1 <- zz[track$start[i]:track$end[i],] %>%
@@ -166,14 +167,14 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
       mutate(tow=i,
-             datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
+             datetime=dmy("01-01-1970")+lubridate::seconds(Ferdig.forenklet_3)) %>%
       dplyr::select(-Ferdig.forenklet_3)
     
     trackpts <- rbind(trackpts, trackpts1)
   }
   
-  # olex is in UTC-4
-  trackpts$datetime <- trackpts$datetime + hours(4)
+  # olex is in UTC
+  #trackpts$datetime <- trackpts$datetime #+ hours(4)
   
   if(!is.null(earliest)) trackpts <- trackpts[trackpts$datetime>ymd(earliest),]
   if(!is.null(latest)) trackpts <- trackpts[trackpts$datetime<ymd(latest),]
@@ -249,6 +250,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
     banks <- as.data.frame(str_locate(pattern = look, string = filename))
     look <- look[which(!is.na(banks$start))]
+    if(any(look == "GB")) look <- c(look,"GBa","GBb")
     tnk <- tnk[tnk$Bank %in% look,]
     names(tnk)[which(names(tnk) == "olex_no")] <- "tow"
     trackpts <- left_join(trackpts, tnk)
@@ -259,7 +261,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(type=="sf"){
     return(trackpts)  
   }
-  
+ 
   if(type=="tracks"){
     tracks <- unsmoothed[, c("tow", "Longitude", "Latitude", "datetime")]
     tracks <- left_join(tracks, trackpts[, c("tow", "shp")])
