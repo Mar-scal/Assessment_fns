@@ -22,7 +22,8 @@
 #direct <- "d:/r/"
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-yr <- 2022
+direct_fns <- "D:/Github/Assessment_fns/"
+yr <- 2024
 
 # Load the function...
 source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
@@ -38,7 +39,7 @@ OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),
              save.fig = F,save.res=F,export=F, calc.mc = F, rdata.logs=F)
 
-SPB <- OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
+SPB <- OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2024,
              bank = c("SPB"#, "Mid","Sab","Ger","BBn","GBa","GBb","BBs"
                       ),
              save.fig = T,save.res=F,export=F, calc.mc=T, rdata.logs=F)
