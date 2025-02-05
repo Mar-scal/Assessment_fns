@@ -835,7 +835,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end if(class(add_custom$obj)[1] == "character")
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
-    #trim to bbox
+     #trim to bbox
     custom <- st_intersection(custom, b.box)
     
     # If we specify the size, fill or color to be a unique value we set these up here, if they are blank we go to some defaults.
