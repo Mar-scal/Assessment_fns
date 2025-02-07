@@ -94,8 +94,9 @@ alloc.poly <- function(strata,ntows,bank.plot=F,mindist=1,pool.size=4,
   # }
   
   #ger strata obj has diff format
-    if(round(strata$area)==1793) utm=32619
-    if(!round(strata$area)==1793){  
+    #browser()
+    if(round(sum(strata$area))==1793) utm=32619
+    if(!round(sum(strata$area))==1793){  
       if(unique(strata$label) %in% c("GBa", "GBb", "BBn", "Ger")) utm=32619
       if(!unique(strata$label) %in% c("GBa", "GBb", "BBn", "Ger")) utm=32620
     }
