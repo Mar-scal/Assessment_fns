@@ -228,13 +228,13 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
     {
       # Get the correct survey polygons
       surv.poly[[i]] <- subset(surv.polyset,label==bnk)
-      
+      #browser()
       shp_strata <- subset(surv.poly[[i]], startyr == max(surv.poly[[i]]$startyr)) %>%
         dplyr::rename(startyear = 'startyr') %>%
         dplyr::rename(Strata_ID = 'Strt_ID') %>%
         dplyr::rename(towable_area = 'towbl_r')
       
-      if(nchar(shp_strata$Strata_ID)==3) shp_strata$Strata_ID <- shp_strata$PID 
+      if(nchar(shp_strata$Strata_ID)[1]==3) shp_strata$Strata_ID <- shp_strata$PID 
       
       #attr(surv.poly[[i]],"projection")<-"LL"
       
@@ -672,6 +672,8 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
             cols <- c("transparent")
           }
           
+          if(bnk %in% c("Mid","GB")) tmp.sf$`Tow type` <- '3'
+          
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
@@ -681,10 +683,11 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
           
           # This does both, if it doesn't look pretty change the x.adj and y.adj options
+          #browser()
           if(point.style == "both" ) {
             bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
               geom_sf(data=tmp.sf, aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + 
-              scale_shape_manual(values=shapes) + scale_shape_fill(values=cols)
+              scale_shape_manual(values=shapes) + scale_fill_manual(values=cols)
           }
           
           if(cables==T)

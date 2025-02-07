@@ -14,15 +14,16 @@
 # 1: source(paste(direct,"Assessment_fns/Survey_design/Survey_design.r",sep=""))
 # 
 ###############################################################################################################
-yr <- 2024
+yr <- 2025
 #direct = "d:/r/"
 direct <- "Y:/Offshore/Assessment/"
 # set direct_fns if you don't want to use the marscal github version
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
+direct_fns <- "d:/Github/Assessment_fns/"
 source(paste(direct_fns,"Survey_design/Survey_design_sf.r",sep=""))
 
 # USE SF IN 2022!!!
-
+# If you have new r and don't have maptools (which is no longer CRAN supported) here's the link to download...
+#install.packages("maptools", repos = "https://packagemanager.posit.co/cran/2023-10-13")
 # Run the survey design, pick your year, bank(s) and other options to create the survey design for a given year.
 # use fig="leaflet" if you want an interactive figure. No strata yet though
 # set a seed, and then the loop will create 5 sets of stations for each bank. 
@@ -30,7 +31,7 @@ seed1 <- floor(runif(n = 1, min = 10000, max=99999))
 # 2022 seed1 = 14188
 # 2023 seed1 = 54880
 # 2024 
-seed1 = 10304
+seed1 = 26858
 t1 <- Sys.time()
 for(i in seed1:(seed1+4)){
   Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,
