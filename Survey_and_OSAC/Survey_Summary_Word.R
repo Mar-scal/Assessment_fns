@@ -260,19 +260,19 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     highlights <- rbind(highlights, bmPT)
 
     # shell height frequencies
-shcols <- paste0("h", 5:200)
+    shcols <- paste0("h", 5:200)
     shsummary <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==year, which(names(surv.Rand[banks[i]][[1]]) %in% shcols)], 2, mean)
     maxbin <- names(shsummary[shsummary==max(shsummary)])
     maxbin <- gsub(x=maxbin, "h", "")
     maxbin <- paste0(as.numeric(maxbin)-5, "-", maxbin)
     if(!banks[i] == "BBs"){
-      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, which(names(surv.Rand[banks[i]][[1]]) %in% shcols)], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
       }
     if(banks[i] == "BBs"){
-      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, 14:53], 2, mean)
+      shsummary_LY <- apply(surv.Rand[banks[i]][[1]][surv.Rand[banks[i]][[1]]$year==lastyear, which(names(surv.Rand[banks[i]][[1]]) %in% shcols)], 2, mean)
       maxbin_LY <- names(shsummary_LY[shsummary_LY==max(shsummary_LY)])
       maxbin_LY <- gsub(x=maxbin_LY, "h", "")
       maxbin_LY <- paste0(as.numeric(maxbin_LY)-5, "-", maxbin_LY)
@@ -439,8 +439,13 @@ if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$ye
 
     # mwsh and cf
 
-    fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
-
+    if(banks[i] %in% c("GBa", "GB")) fittedmw100mm <- 1^SpatHtWt.fit[banks[i]][[1]]$B * SpatHtWt.fit[banks[i]][[1]]$A
+    if(!banks[i] %in% c("GBa", "GB")) {
+      slope <- cf.data[[banks[i]]]$CF.fit$mw.sh.coef %>% dplyr::filter(year == yr) %>% dplyr::pull(fix.slope); slope <- slope[1]
+      int <- cf.data[[banks[i]]]$CF.fit$mw.sh.coef %>% dplyr::filter(year == yr) %>% dplyr::pull(fix.int); int <- int[1]
+      fittedmw100mm <- exp(int) * 1^slope
+    }
+    
     if(!banks[i] =="Ger"){
       cfdat <- survey.obj[banks[i]][[1]]$model.dat[,c("year", "CF")]
     }

@@ -8,6 +8,7 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
                                cruise, bank, survey_name, nickname=NULL,
                                spatialplot=TRUE,
                                assign.strata=TRUE,
+                               olex.csv = NULL,
                                un=NULL,
                                pwd.ID=NULL) {
   icetow <- NULL
@@ -33,12 +34,14 @@ scaloff_bank_check <- function(tow=TRUE, hf=TRUE, mwsh=TRUE, year, direct=direct
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Other_functions/ScallopQuery.r",
               "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/github_spatial_import.R")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(un in funs)
   } # end  if(missing(direct_fns))
   
   if(!missing(direct_fns)) {
@@ -301,7 +304,22 @@ Check the MGT_AREA_CD values for the following tows:")
       if(bank=="Sab" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 101)) message("Unexpected tow numbering series. Should be 1-100\n")
       if(bank=="GBa" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 201)) message("Unexpected tow numbering series. Should be 1-200\n")
       if(bank=="GBb" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO < 600 | tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 631)) message("Unexpected tow numbering series. Should be 601-630\n")
-
+      
+      #check olex tow numbering
+      if(!is.null(olex.csv)){
+        olex <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise , "/", olex.csv))
+        olex <- olex[olex$Bank==bank,]
+        olex$TOW_NO <- olex$official_tow_number
+        
+        numcheck <- left_join(tows, olex)
+        if(any(abs(numcheck$START_LON - numcheck$start_lon) > 0.01) | any(abs(numcheck$START_LAT - numcheck$start_lat) > 0.01)){
+          check <- numcheck[which(abs(numcheck$START_LON - numcheck$start_lon) > 0.01 |
+                                    abs(numcheck$START_LAT - numcheck$start_lat) > 0.01), 
+                            c("TOW_NO", "START_LON", "START_LAT", "start_lon", "start_lat")]
+          message("Possible issues in tow numbering with olex file. Compare coordinates in olex csv, to loader csv for the following tows:")
+          print(check)
+        }
+      }
       # check format of coordinates
       if(!is.numeric(tows$START_LAT) | !is.numeric(tows$START_LON) | !is.numeric(tows$END_LAT) | !is.numeric(tows$END_LON)) {
         message("\nThe following tows have non-numeric values in the coordinates columns:")
@@ -450,11 +468,13 @@ Check the MGT_AREA_CD values for the following tows:")
           
           olex_sf <- st_as_sf(olex, coords=c("startlon", "startlat"), crs=4326)
           
+          UTM <- ifelse(bank %in% c("GBa", "GBb", "Ger", "BBn"), 32619, 32620)
+          
           tows_sf <- tows
           tows_sf$START_LON_DD <- convert.dd.dddd(tows_sf$START_LON)
           tows_sf$START_LAT_DD <- convert.dd.dddd(tows_sf$START_LAT)
           tows_sf <- st_as_sf(tows_sf, coords=c("START_LON_DD", "START_LAT_DD"), crs=4326)
-          tows_sf_buffer <- st_buffer(tows_sf, dist = 500)
+          tows_sf_buffer <- st_transform(st_buffer(st_transform(tows_sf, UTM), dist = 500), 4326)
           
           compare <- st_intersection(tows_sf_buffer, olex_sf)
           
@@ -649,7 +669,7 @@ Check the MGT_AREA_CD values for the following tows:")
         print(unique(as.character(bins[bins$Freq<1 | bins$Freq>1,]$Var1)))
       }
       
-      longhfs <- melt(hfs,
+      longhfs <- reshape2::melt(hfs,
                       measure.vars = c("LIVE_QTY_BASKET", 
                                        "LIVE_QTY_BUCKET",
                                        "DEAD_QTY_BASKET",

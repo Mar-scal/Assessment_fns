@@ -3,10 +3,10 @@ rmarkdown_file <- "parameterised_report.Rmd"
 print(getwd())
 # the parameter we're going to pass to the report
 banks <- c(#"Ban", "BanIce",
-           "Mid", "Sab", "Ger",
+          # "Mid", "Sab", "Ger",
           # "BBs",
-         "BBn", "GB"#,
-  #"GBa", "GBb"
+         #"BBn"#, "GB"#,
+  "GBa", "GBb"
            )
 banknum <- 1:length(banks)
 
@@ -49,6 +49,12 @@ index_file <- xfun::with_ext(xfun::sans_ext(index_file), ".knit.md")
 
 # add the index file to the list of other markdowns
 markdowns <- append(index_file, markdowns)
+
+# # if you have a "special" bank-specific rmd, put it here.
+# extra_file <- "parameterised_report_GB.Rmd"
+# rmarkdown::render(extra_file, run_pandoc = FALSE)
+# extra_file <- xfun::with_ext(xfun::sans_ext(extra_file), ".knit.md")
+# markdowns <- append(markdowns, extra_file)
 
 # Stitch together markdowns ----------------------------------------------------
 

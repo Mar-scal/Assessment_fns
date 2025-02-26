@@ -15,11 +15,13 @@ funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps
           "https://raw.githubusercontent.com/freyakeyser/Assessment_fns/master/Maps/github_spatial_import.R",
           "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/combo_shp.R")
 # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+dir <- tempdir()
 for(fun in funs) 
 {
-  download.file(fun,destfile = basename(fun))
-  source(paste0(getwd(),"/",basename(fun)))
-  file.remove(paste0(getwd(),"/",basename(fun)))
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
 } # end for(un in funs)
 # This pulls in all the layers from the above location
 # offshore.strata <- combo.shp(temp2,make.sf=T,make.polys=F)

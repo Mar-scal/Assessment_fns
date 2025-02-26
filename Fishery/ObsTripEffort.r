@@ -44,12 +44,14 @@ ObsTripEffort <- function(ves.ID, land.date,un=un.ID,pw=pw.ID,db.con="ptran")
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(fun in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(fun in funs)
   }  else {source(paste(direct_fns,"Fishery/logs_and_fishery_data.r",sep=""),local=T)} # End the sourcing functions bit
   
   
