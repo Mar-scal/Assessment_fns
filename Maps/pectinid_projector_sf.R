@@ -33,7 +33,9 @@
 #8: legend    If you added a custom or INLA layer you can print the legend if you like.  Default = F which doesn't plot legend.
 #9: txt.size  If you want to change the size of the text in the figure (legend and axis).  Default txt.size = 18.
 #9a:axes      If you want to show the axis labels as either Degree Minutes or Degree Minutes Seconds instead of default (NULL). NULL = decimal degress or UTM, axes = "DM" will show Degree minutes, 
-#                  axes = "DMS" will show Degree minute seconds.  
+#                  axes = "DMS" will show Degree minute seconds. 
+#9c: language: For the Axis we need to have the label as an "O" instead of a "W". language = "french' is the only thing works for this, anything else does the
+#                   it in english.
 #################################### LAYER OPTIONS#################################### LAYER OPTIONS#################################### LAYER OPTIONS
 
 #10: add_layer   Do you have a layer you'd like to add to the plot.  default = and empty list which will just return a map of the area with land on it.  To add layers
@@ -164,7 +166,7 @@
 #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 
-pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,
+pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,language = "english",
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, axes = NULL, quiet=F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
@@ -183,13 +185,14 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
   require(stars) || stop("Install stars or else.")
   require(tmaptools) || stop("Install this new tmaptools package, for working with sf objects")
   #require(maptools) || stop("Install this old maptools package, for the Polyset2SpatialLines function")
-  if(is.null(add_layer$land)) add_layer$land <- "grey"
-  if(add_layer$land == 'world')
+  if(!is.null(add_layer$land)) 
   {
-  require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
-  require(rnaturalearthdata)|| stop("Install rnaturalearthdata package, this replaces maps and mapdata packages")
-  require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
-  }
+    if(add_layer$land == 'world')
+    {
+    require(rnaturalearth) || stop("Install rnaturalearth package, this replaces maps and mapdata packages")
+    require(rnaturalearthdata)|| stop("Install rnaturalearthdata package, this replaces maps and mapdata packages")
+    require(rnaturalearthhires) || stop("You need rnaturalearthhires run this to install devtools::install_github('ropensci/rnaturalearthhires') ")
+    }}
   require(raster)|| stop("You need raster, well you might not, depends really what you are doing... ")
   #require(rgdal)|| stop("You need rgdal pal")
   #require(RStoolbox) || stop ("You need RStoolbox to rasterize and reproject your bathymetry")
@@ -818,6 +821,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(class(add_custom$obj)[1] == "character")
     {
       # If it is an xls or a csv we assume we have a PBSmapping object
+      # FIX, I do not believe this will work anymore as PolySet2SpatialLines is a maptools function that isn't supported any longer
+      # We could easily grab the code for that function and make our own version of it if we need it.
       if(grepl(".xls",add_custom$obj) || grepl(".csv",add_custom$obj))
       {
         if(grepl(".csv",add_custom$obj)) temp <- read.csv(add_custom$obj)
@@ -830,7 +835,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     } # end if(class(add_custom$obj)[1] == "character")
     # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
     custom  <- st_transform(custom,c_sys)
-    #trim to bbox
+     #trim to bbox
     custom <- st_intersection(custom, b.box)
     
     # If we specify the size, fill or color to be a unique value we set these up here, if they are blank we go to some defaults.
@@ -1139,9 +1144,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         xlab(NULL) +
         ylab(NULL)
     }
-
+  
+    
   # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.
-    if(!is.null(axes))
+    if(!is.null(axes) | language == "french")
     {
       # Need to shrink it here so I get the boundaries right
       pect_plot <- pect_plot + coord_sf(expand=F)
@@ -1179,16 +1185,48 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       # Repeat
       #lat.loc <- c(43.416667,43.5,43.583333,43.6667,43.75)
       # Now make some labels based on the above, if you can figure out how to get a minute symbol in here you are better than me!
-      if(axes == "DMS")
+      
+      # This only happens if language = 'french'
+      if(is.null(axes))
       {
-        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*"), substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*W"))
-        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*"), substr(lat.tmp$Degree_Min_Sec$Degree_Minute_Seconds,7,8),expression("*{second}*N"))
+        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*N"))
+        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*O"))
       }
-      if(axes == "DM")
+      
+      if(!is.null(axes))
       {
-        lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*W"))
-        lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*N"))
-      }
+        if(axes == "DMS")
+        {
+          
+          lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), 
+                             substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*"), 
+                             substr(lat.tmp$Degree_Min_Sec$Degree_Minute_Seconds,7,8),expression("*{second}*N"))
+          if(language == "french")
+          {
+            lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), 
+                               substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*"), 
+                               substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*O"))
+          } else {
+            lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), 
+                               substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*"), 
+                               substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*W"))  
+          } # end else
+        }# End DMS
+        
+        if(axes == "DM")
+        {
+          lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), 
+                             substr(lat.tmp$Degree_Min$Degree_Minutes,4,5),expression("*{minute}*N"))
+          if(language == "french")
+          {
+          lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), 
+                             substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*O"))
+          } else {
+            lon.disp <- paste0(substr(lon.tmp$Degree_Min$Degree_Minutes,2,3),expression("*{degree}*"), 
+                               substr(lon.tmp$Degree_Min$Degree_Minutes,5,6),expression("*{minute}*W"))
+          }# end else
+        } # end DM
+      } # end !is.null(axes)
       # And then replot the figure
       pect_plot <- pect_plot + scale_x_continuous(breaks =lon.loc,labels=parse(text = lon.disp)) +
         scale_y_continuous(breaks = lat.loc,labels=parse(text = lat.disp)) 

@@ -30,7 +30,7 @@
 fork <- "FK"
 
 if(fork == "mar-scal") direct_fns <- "Y:/Offshore/Assessment/Assessment_fns/"
-if(!fork == "mar-scal") direct_fns <- paste0("C:/Users/keyserf/Documents/Github/Assessment_fns/") #, fork, "/")
+if(!fork == "mar-scal") direct_fns <- paste0("D:/Github/Assessment_fns/") #, fork, "/")
 
 direct <- "Y:/Offshore/Assessment/"
 
@@ -79,8 +79,8 @@ source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
 
 ### 2022: FK broke up the Update_function_JAGS.r code into 2 separate scripts, and the projections are run below!
 direct <- "Y:/Offshore/Assessment/"
-direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-direct_out <- "C:/Users/keyserf/Documents/"
+direct_fns <- "D:/GitHub/Assessment_fns/"
+direct_out <- "D:/test"
 source(paste0(direct_fns, "/Model/model_inputs.r"))
 source(paste0(direct_fns, "/Model/run_model.r"))
 source(paste(direct_fns,"Model/prediction_evaluation_function.r",sep="")) #The function to run the prediction evaluations
@@ -93,7 +93,7 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
               
 banks <- c(#"GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core",
   "GBa", "BBn")
-yr <- 2022
+yr <- 2024
 
 for(b in banks){
   for(it in imputetype){
@@ -101,7 +101,7 @@ for(b in banks){
     print(it)
     # uncomment this the first time!
     model_inputs(bank=b,
-                 yr=2022, # the survey year, not the current year if running in January-April
+                 yr=2024, # the survey year, not the current year if running in January-April
                  impute=it,
                  nickname=NULL,
                  direct,
@@ -110,18 +110,18 @@ for(b in banks){
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
-              yr=2022,
+              yr=2024,
               nickname=NULL,
               direct,
               direct_fns,
-              direct_out = "C:/Users/keyserf/Documents/",
+              direct_out = "d:/testing_folder/",
               run.model = T,
               parallel=T,
               model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
-              final.run=T,
+              final.run=F,
               # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
               # final.run=F,
-              nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
+              nchains = 8,niter = 175, nburn = 100, nthin = 20,
               export.tables=T,
               make.diag.figs = T,
               make.update.figs = T,
