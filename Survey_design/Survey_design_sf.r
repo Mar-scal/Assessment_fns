@@ -677,7 +677,7 @@ for(fun in funs)
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values=shapes) + scale_shape_fill(values=cols)
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values=shapes) + scale_fill_manual(values=cols)
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
@@ -686,7 +686,7 @@ for(fun in funs)
           if(point.style == "both" ) {
             bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),nudge_x = x.adj,nudge_y = y.adj,size=pt.txt.sz) + 
               geom_sf(data=tmp.sf, aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + 
-              scale_shape_manual(values=shapes) + scale_shape_fill(values=cols)
+              scale_shape_manual(values=shapes) + scale_fill_manual(values=cols)
           }
           
           if(cables==T)
