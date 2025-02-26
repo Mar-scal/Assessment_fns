@@ -160,9 +160,9 @@ for(fun in funs)
   if(repo =='github')
   {
     #surv.polyset <- read.csv(paste(direct,"Data/Maps/approved/Survey/survey_detail_polygons.csv",sep=""),stringsAsFactors = F) #Read1
-    surv.polyset <- github_spatial_import(subfolder="offshore_survey_strata", "offshore_survey_strata.zip", direct_fns=direct_fns, quiet=T)
+    surv.polyset <- github_spatial_import(subfolder="offshore_survey_strata", "offshore_survey_strata.zip", quiet=T)
     #areas <- read.csv(paste(direct,"Data/Maps/approved/Fishing_Area_Borders/Offshore.csv",sep=""),stringsAsFactors = F) #Read1
-    areas <- github_spatial_import(subfolder="offshore", "offshore.zip", direct_fns=direct_fns, quiet=T)
+    areas <- github_spatial_import(subfolder="offshore", "offshore.zip", quiet=T)
   }
   if(!repo =='github')
   {
