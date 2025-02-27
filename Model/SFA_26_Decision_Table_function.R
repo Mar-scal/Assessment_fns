@@ -35,9 +35,9 @@
 #                 don't want unless you are exploring a unique scenario. Setting to 'avg' will take the time series median
 
 #gR.adj           Do we want to reweight the recruit growth estimate. Note that setting this one to 0 sets growth to 1 (i.e. 0 growth). Otherwise this is a multiplier, just be
-#                 careful because here as a growth of 1 = no growth, thus a small multiplier will result in a value < 1 which means 'negative growth', which you
+#                 careful because here as a growth of 1 uses last years growth thus a small multiplier will result in a value < 1 which means 'negative growth', which you
 #                 don't want unless you are exploring a unique scenario. Setting to 'avg' will take the time series median
-dec.tab <- function(mod.select = "SEAM",data = NULL, catch.scenarios = seq(0,10000,by=50),n.sims = 1e6,TRP = NULL,USR = NULL,LRP = NULL, RR = NULL,RR.TRP = NULL,PSL = 0,
+dec.tab <- Vfunction(mod.select = "SEAM",data = NULL, catch.scenarios = seq(0,10000,by=50),n.sims = 1e6,TRP = NULL,USR = NULL,LRP = NULL, RR = NULL,RR.TRP = NULL,PSL = 0,
                     r.adj =1,m.adj=1,g.adj=1,gR.adj=1)
 {
 library(SEBDAM)
