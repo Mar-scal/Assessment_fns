@@ -29,7 +29,6 @@ direct.fns <- "D:/Github/"
 repo.loc <- "D:/Framework/SFA_25_26_2024/Model/"
 mod.select <- "SEAM"
 atow<-800*2.4384/10^6 # area of standard tow in km2
-years <- 1994:(assess.year-1)
 NY <- length(years)
 R.size <- "75"
 FR.size <- "90"
@@ -52,6 +51,9 @@ bbn.shape <- bbn.shape %>% st_transform(crs = 32619) # BBn is right on the 19/20
 # Bring in the survey data
 
 load(paste0(direct,"/Data/Survey_data/",(assess.year-1),"/Survey_summary_output/Survey_all_results.Rdata"))
+# Need to reset this
+years <- 1994:(assess.year-1)
+
 #surv.dat <- surv.dat$BBn
 #saveRDS(surv.dat,'D:/Github/BBn_model/Results/BBn_surv.dat.RDS')
 #surv.dat <- readRDS('D:/Framework/SFA_25_26_2024/Model/Data/BBn_surv.dat.RDS')
@@ -301,11 +303,6 @@ pred.grid<-setup_pred_grid(knots=bbn.mesh$knots,model_bound=bbn.mesh$utm_bound)
 catch.sf$Year <-  catch.sf$Year - (min(years)-1)
 catchy <- catch_spread(catch = catch.sf,knots = bbn.mesh$knots)
 catchy$sum_catches[,ncol(catchy$sum_catches)+1] <- 0
-# Catch for TLM
-catch.tlm <- catch.sf %>% group_by(Year,.drop=F) %>% dplyr::summarise(catch = sum(Catch,na.rm=T))
-catch.tlm[nrow(catch.tlm)+1,] <- catch.tlm[nrow(catch.tlm),]
-catch.tlm$Year[nrow(catch.tlm)] <- max(catch.tlm$Year) + 1
-catch.tlm$catch[nrow(catch.tlm)] <- 0
 
 # Setup the data for the  model run
 set_data<-data_setup(data=mod.input.sf,growths=data.frame(g = g$g,gR = g$gR),catch=as.data.frame(catchy$sum_catches),
@@ -554,12 +551,12 @@ LRP <- NULL # Insert number once available
 RR  <-   NULL # Insert number once available, in this case it is a % value (i.e., exploitation rate, not F) 
 n.sims <- 1e6
 
-# 0 growth model.
-bbn.dt <- dec.tab(mod.select = "SEAM",data = bbn.mod, catch.scenarios = catchs,PSL = bbn.psl.total,
-                  n.sims = n.sims,TRP = TRP,USR = USR,LRP = LRP, RR = RR,RR.TRP = NULL,g.adj=g.adj,gR.adj=gR.adj)
+# Decision Table, setting the g terms to 1 means it uses the most recent years growth estimate.
+bbn.dt <- dec.tab(mod.select = "SEAM",data = mod.fit, catch.scenarios = catchs,PSL = bbn.psl.total,
+                  n.sims = n.sims,TRP = TRP,USR = USR,LRP = LRP, RR = RR,RR.TRP = NULL,g.adj=1,gR.adj=1)
 
 
-saveRDS(bbn.dt,paste0(direct,"Results/BBn/R_75_FR_90/SEAM_",seam.select,"/Decision_Table/TRP_",TRP,"_USR_",USR,"_LRP_",LRP,"_RR_",RR,"_g_adj_",g.adj,"_gR_adj_",gR.adj,".Rds"))
+saveRDS(bbn.dt,paste0(direct,"/",assess.year,"Updates/BBn/decision_table.Rds"))
 write_csv(bbn.dt$table,paste0(direct,"/",assess.year,"Updates/BBn/Figures_and_tables/bbn_decision_table.csv"))
 
 # Turn the decision table into something nicely formated for Word 
