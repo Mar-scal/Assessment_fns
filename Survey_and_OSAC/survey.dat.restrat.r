@@ -94,7 +94,7 @@ survey.dat.restrat <- function(shf, htwt.fit, years, RS=80, CS=100, bk="Sab", ar
       domain.obj$strata.id <- paste0(domain.obj$strata.id, "_2.0")
       
       # and if you haven't already, you gotta do this in your actual tow data too. Everything has to match.
-      if(nchar(x = unique(shf$Strata_ID_new)) == nchar(x = unique(shf$Strata_ID_old))) shf$Strata_ID_new  <- paste0(shf$Strata_ID_new, "_2.0")
+      if(all(nchar(x = unique(shf$Strata_ID_new[!is.na(shf$Strata_ID_new)])) == nchar(x = unique(shf$Strata_ID_old[!is.na(shf$Strata_ID_old)])))) shf$Strata_ID_new  <- paste0(shf$Strata_ID_new, "_2.0")
     }
     
     # need to change the names of strata.obj and domain.obj

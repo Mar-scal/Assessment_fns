@@ -290,12 +290,14 @@ Ind2020.survey.figs <- function(plots = plots, banks = banks , yr = yr,
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/gridPlot.r",
               "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/meat_count_shell_height_breakdown_figure.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    } # end for(un in funs)
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+} # end for(un in funs)
   } # end if(missing(direct_fns))
   
   if(!missing(direct_fns))

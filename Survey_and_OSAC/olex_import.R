@@ -37,11 +37,11 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   funcs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/convert.dd.dddd.r",
              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Survey_and_OSAC/getdis.r",
              "https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/github_spatial_import.R")
-  dir <- getwd()
+  dir <- tempdir()
   for(fun in funcs) 
   {
     temp <- dir
-    download.file(fun,destfile = basename(fun))
+    download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
     source(paste0(dir,"/",basename(fun)))
     file.remove(paste0(dir,"/",basename(fun)))
   }
@@ -158,6 +158,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(any(!track$start<track$end)) stop("check tow file, seems like there is a Garnstopp before a Garnstart")
   track$tow <- 1:nrow(track)
   
+  
   trackpts <- NULL
   for(i in 1:length(track$tow)){
     trackpts1 <- zz[track$start[i]:track$end[i],] %>%
@@ -166,14 +167,14 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       mutate(Latitude = as.numeric(Ferdig.forenklet_1)/60) %>% 
       mutate(Longitude = as.numeric(Ferdig.forenklet_2)/60) %>%
       mutate(tow=i,
-             datetime=dmy("01-01-1970")+seconds(Ferdig.forenklet_3)) %>%
+             datetime=dmy("01-01-1970")+lubridate::seconds(Ferdig.forenklet_3)) %>%
       dplyr::select(-Ferdig.forenklet_3)
     
     trackpts <- rbind(trackpts, trackpts1)
   }
   
-  # olex is in UTC-4
-  trackpts$datetime <- trackpts$datetime + hours(4)
+  # olex is in UTC
+  #trackpts$datetime <- trackpts$datetime #+ hours(4)
   
   if(!is.null(earliest)) trackpts <- trackpts[trackpts$datetime>ymd(earliest),]
   if(!is.null(latest)) trackpts <- trackpts[trackpts$datetime<ymd(latest),]
@@ -241,7 +242,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   trackpts <- st_transform(trackpts, UTM) %>%
     st_join(st_transform(offshore_sf, UTM)) %>%
-    dplyr::rename(bank=ID) %>%
+    dplyr::rename(shp=ID) %>%
     st_transform(4326)
   
   if(!is.null(tow_number_key)) {
@@ -249,6 +250,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
     banks <- as.data.frame(str_locate(pattern = look, string = filename))
     look <- look[which(!is.na(banks$start))]
+    if(any(look == "GB")) look <- c(look,"GBa","GBb")
     tnk <- tnk[tnk$Bank %in% look,]
     names(tnk)[which(names(tnk) == "olex_no")] <- "tow"
     trackpts <- left_join(trackpts, tnk)
@@ -259,12 +261,12 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   if(type=="sf"){
     return(trackpts)  
   }
-  
+ 
   if(type=="tracks"){
     tracks <- unsmoothed[, c("tow", "Longitude", "Latitude", "datetime")]
-    tracks <- left_join(tracks, trackpts[, c("tow", "bank")])
+    tracks <- left_join(tracks, trackpts[, c("tow", "shp")])
     tracks <- dplyr::select(tracks, -geometry) %>%
-      dplyr::rename(Bank=bank,
+      dplyr::rename(Bank=shp,
                     Tow=tow,
                     Date_time = datetime) %>%
       dplyr::select(Bank, Tow, Longitude, Latitude, Date_time)
@@ -281,7 +283,6 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   # but if you are getting ready to load to SCALOFF you need this stuff too (welcome back from survey!) 
   if(type=="load") {
-    
     trackpts <- arrange(trackpts, tow)
     
     trackpts$length <- trackpts %>%
@@ -325,7 +326,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
       trackpts$end_lat[i] <- coords$End_lat[coords$ID == trackpts$tow[i]]
     }
     
-    trackpts <- dplyr::select(trackpts, tow, bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
+    trackpts <- dplyr::select(trackpts, tow, Bank, start_lat, start_lon, end_lat, end_lon, dis_coef, bearing)
     trackpts$bearing <- ifelse(trackpts$bearing < 0, trackpts$bearing+360, trackpts$bearing)
     st_geometry(trackpts) <- NULL
     

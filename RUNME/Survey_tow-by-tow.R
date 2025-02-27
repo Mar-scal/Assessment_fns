@@ -23,18 +23,18 @@ require(RColorBrewer)
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/testing_results_spring2023.Rdata",sep=""))
+load(paste("C:/Users/keyserf/Documents/Temp_data/Data/Survey_data/",yr,"/Survey_summary_output/testing_results_summer2024_Oct2.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c("BBn"),
-         "Ger","Sab","Mid",
-  "GB", "BBs"#,#, "Ban", "BanIce"
-         #"GBa", 
-  #"GBb"
+bnk <- c(#"BBn"),
+         #"Ger","Sab","Mid",
+ # "GB", "BBs"#,#, "Ban", "BanIce"
+         "GBa", 
+  "GBb"
   )
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
@@ -727,7 +727,7 @@ print("8")
 #
 baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -735,7 +735,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T) & !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -757,7 +757,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F & !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -780,7 +780,7 @@ dev.off()
 
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -788,7 +788,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -809,7 +809,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -831,7 +831,7 @@ dev.off()
 
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F& !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -839,7 +839,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited abundances",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -860,7 +860,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F& !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -881,7 +881,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 dev.off()
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CFspatial_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -889,7 +889,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Condition Factor",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==T & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -910,7 +910,7 @@ with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr,],text(lon,lat,round(CF,
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -931,7 +931,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
 dev.off()
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/MCspatial_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -939,7 +939,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Meat Count",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==T & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -960,7 +960,7 @@ with(CF.current[[bnk[i]]][CF.current[[bnk[i]]]$year==yr,],text(lon,lat,round(mea
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in% 
+if(is.null(bank.survey.info) ==F & !bnk[i] %in% 
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -984,7 +984,7 @@ print("9")
 ### spatial biomass by tow
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/PRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F& !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -992,7 +992,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Pre-recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1014,7 +1014,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -1036,7 +1036,7 @@ dev.off()
 
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/Recspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1044,7 +1044,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Recruit biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1065,7 +1065,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat, round(rec.bm, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -1087,7 +1087,7 @@ dev.off()
 
 
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/FRspatial_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1095,7 +1095,7 @@ if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
              nafo.bord = T,nafo="all",nafo.lab = F,title="Fully-recruited biomass",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T)& !bnk[i] %in%
+if(is.null(bank.survey.info) ==T & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
@@ -1116,7 +1116,7 @@ with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
 # if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0) addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
 # if(bnk[i]=="GB") addLines(boxes[boxes$Bank %in% c("GBa", "GBb") & boxes$Active=="Yes",],lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F& !bnk[i] %in%
+if(is.null(bank.survey.info) ==F & !bnk[i] %in%
    c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core"))
 {
   legend("bottomleft",legend=c(bank.survey.info$PName),
@@ -1138,90 +1138,90 @@ dev.off()
 
 print("10")
 ### spatials for seedboxes
-if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
-  plots <- c("PRspatial", "Recspatial", "FRspatial")
-  for(j in 1:length(plots)){
-    png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-    if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
-    {
-      ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-                 nafo.bord = T, nafo="all", nafo.lab = F, title=paste0(plots[j], " box abundances"), dec.deg=F, area="custom", 
-                 ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
-                 xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
-    } # end if(is.null(bank.survey.info) ==F)
-    
-    if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
-    {
-      ScallopMap(bnk[i], direct = direct,
-                 ylab="", xlab="", un=un.ID, pw=pwd.ID, db.con=database,
-                 plot.bathy=T, plot.boundries = T,bathy.source="quick", cex.mn=2,
-                 bathcol = baths,isobath = c(seq(50,150,by=50)),
-                 nafo.bord = T, nafo="all", nafo.lab = F, title=paste0(plots[j], " box abundances"), dec.deg=F,  area="custom", 
-                 ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
-                 xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
-    } # end if(is.null(bank.survey.info) ==T)
-    
-    if(plots[j]== "PRspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
-    }
-    
-    if(plots[j]== "Recspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(rec, 1),cex=0.5))
-    }
-    
-    if(plots[j]== "FRspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
-    }
-    
-    #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-    
-    dev.off()
-  }
-  
-  for(j in 1:length(plots)){
-    png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
-    if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
-    {
-      ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-                 nafo.bord = T,nafo="all",nafo.lab = F,title=paste0(plots[j], " box biomass"),dec.deg=F,  area="custom", 
-                 ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
-                 xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
-    } # end if(is.null(bank.survey.info) ==F)
-    
-    if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
-    {
-      ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
-                 plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
-                 nafo.bord = T,nafo="all",nafo.lab = F,title=paste0(plots[j], " box biomass"),dec.deg=F, area="custom", 
-                 ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
-                 xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
-    } # end if(is.null(bank.survey.info) ==T)
-    
-    if(plots[j]== "PRspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
-    }
-    
-    if(plots[j]== "Recspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(rec.bm, 1),cex=0.5))
-    }
-    
-    if(plots[j]== "FRspatial"){
-      with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
-      with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
-    }
-    
-    #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
-    
-    dev.off()
-  }
-}
+# if(dim(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",])[1]>0 &!bnk[i] %in% c("GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")) {
+#   plots <- c("PRspatial", "Recspatial", "FRspatial")
+#   for(j in 1:length(plots)){
+#     png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_numbers_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+#     if(is.null(bank.survey.info) ==F)
+#     {
+#       ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#                  plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#                  nafo.bord = T, nafo="all", nafo.lab = F, title=paste0(plots[j], " box abundances"), dec.deg=F, area="custom", 
+#                  ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
+#                  xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
+#     } # end if(is.null(bank.survey.info) ==F)
+#     
+#     if(is.null(bank.survey.info) ==T )
+#     {
+#       ScallopMap(bnk[i], direct = direct,
+#                  ylab="", xlab="", un=un.ID, pw=pwd.ID, db.con=database,
+#                  plot.bathy=T, plot.boundries = T,bathy.source="quick", cex.mn=2,
+#                  bathcol = baths,isobath = c(seq(50,150,by=50)),
+#                  nafo.bord = T, nafo="all", nafo.lab = F, title=paste0(plots[j], " box abundances"), dec.deg=F,  area="custom", 
+#                  ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
+#                  xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
+#     } # end if(is.null(bank.survey.info) ==T)
+#     
+#     if(plots[j]== "PRspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$pre==max(bank.live$pre[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre, 1),cex=0.5))
+#     }
+#     
+#     if(plots[j]== "Recspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$rec==max(bank.live$rec[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(rec, 1),cex=0.5))
+#     }
+#     
+#     if(plots[j]== "FRspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$com==max(bank.live$com[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(com, 1),cex=0.5))
+#     }
+#     
+#     #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+#     
+#     dev.off()
+#   }
+#   
+#   for(j in 1:length(plots)){
+#     png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/", plots[j], "_box_biomass_by_tow.png",sep=""),width=11,height=8.5, units="in", res=400)
+#     if(is.null(bank.survey.info) ==F )
+#     {
+#       ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#                  plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#                  nafo.bord = T,nafo="all",nafo.lab = F,title=paste0(plots[j], " box biomass"),dec.deg=F,  area="custom", 
+#                  ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
+#                  xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
+#     } # end if(is.null(bank.survey.info) ==F)
+#     
+#     if(is.null(bank.survey.info) ==T )
+#     {
+#       ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
+#                  plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
+#                  nafo.bord = T,nafo="all",nafo.lab = F,title=paste0(plots[j], " box biomass"),dec.deg=F, area="custom", 
+#                  ylim = c(min(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$Y[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05),
+#                  xlim = c(min(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) -0.05, max(boxes$X[boxes$Bank==bnk[i] & boxes$Active=="Yes"]) + 0.05))
+#     } # end if(is.null(bank.survey.info) ==T)
+#     
+#     if(plots[j]== "PRspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$pre.bm==max(bank.live$pre.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(pre.bm, 1),cex=0.5))
+#     }
+#     
+#     if(plots[j]== "Recspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$rec.bm==max(bank.live$rec.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(rec.bm, 1),cex=0.5))
+#     }
+#     
+#     if(plots[j]== "FRspatial"){
+#       with(bank.live[bank.live$year==yr & bank.live$com.bm==max(bank.live$com.bm[bank.live$year==yr]),],points(lon,lat,cex=1,lwd=2,col="black"))
+#       with(bank.live[bank.live$year==yr,],text(lon,lat,round(com.bm, 1),cex=0.5))
+#     }
+#     
+#     #addLines(boxes[boxes$Bank==bnk[i] & boxes$Active=="Yes",],lty=2,lwd=2)
+#     
+#     dev.off()
+#   }
+# }
 ############## End of seedbox spatial figures
 print("11")
 
@@ -1421,14 +1421,14 @@ baths <- rev(viridis::viridis(length(seq(40,140,by=10)),option="plasma"))
 # Nice plot of the GBa tow locations with accompanying survey data.
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/tow_locations.png",sep=""),width=11,height=8.5, units="in", res=400)
 #windows(11,8.5)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F)
 {
 ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
            plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
            nafo.bord = T,nafo="all",nafo.lab = F,title="Tow locations",dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
+if(is.null(bank.survey.info) ==T )
 {
 ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
            plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
@@ -1439,7 +1439,7 @@ with(bank.live,text(lon,lat,tow,cex=0.5))
 #addPolys(GBa.boxes,lty=2,lwd=2)
 #addPolys(BBboxes,lty=2,lwd=2)
 
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F)
 {
 legend("bottomleft",legend=c(bank.survey.info$PName),
        fill=c(bank.survey.info$col),border=c(rep('black',length(bank.survey.info$PName))),
@@ -1532,14 +1532,14 @@ dev.off()
 #### Plot the locations of the CF prediction
 png(file=paste(direct,yr,"/Presentations/Survey_summary/Exploratory_figures/",bnk[i],"/CF_prediction_location.png",sep=""),
     width=11,height=8.5, units="in", res=400)
-if(is.null(bank.survey.info) ==F & is.na(bank.survey.info) ==F)
+if(is.null(bank.survey.info) ==F )
 {
   ScallopMap(bnk[i],poly.lst=list(bank.survey.poly,bank.survey.info),direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),
              nafo.bord = T,nafo="all",nafo.lab = F,title=paste0("CF prediction location (black), max CF (red)"),dec.deg=F)
 } # end if(is.null(bank.survey.info) ==F)
 
-if((is.null(bank.survey.info) ==T | is.na(bank.survey.info) ==T))
+if(is.null(bank.survey.info) ==T )
 {
   ScallopMap(bnk[i],direct = direct,ylab="",xlab="",un=un.ID,pw=pwd.ID,db.con=database,
              plot.bathy=T,plot.boundries = T,bathy.source="quick", cex.mn=2,bathcol = baths , isobath = c(seq(50,150,by=50)),

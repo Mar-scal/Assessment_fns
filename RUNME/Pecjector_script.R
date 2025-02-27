@@ -8,11 +8,13 @@
 # Pull in pecjector from Github
   funs <- c("https://raw.githubusercontent.com/Mar-scal/Assessment_fns/master/Maps/pectinid_projector_sf.R")
   # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
+dir <- tempdir()
 for(fun in funs) 
 {
-  download.file(fun,destfile = basename(fun))
-  source(paste0(getwd(),"/",basename(fun)))
-  file.remove(paste0(getwd(),"/",basename(fun)))
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
 } # end for(un in funs)
 
 # Alternatively go find your local version....

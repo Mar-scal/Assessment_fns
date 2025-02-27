@@ -65,12 +65,14 @@ pred.eval <- function(input, priors, parameters, pe.years= NULL,model = "Assessm
   {
     funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Model/projections.r")
     # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
-    for(fun in funs) 
-    {
-      download.file(fun,destfile = basename(fun))
-      source(paste0(getwd(),"/",basename(fun)))
-      file.remove(paste0(getwd(),"/",basename(fun)))
-    }
+dir <- tempdir()
+for(fun in funs) 
+{
+  temp <- dir
+  download.file(fun,destfile = paste0(dir, "\\", basename(fun)))
+  source(paste0(dir,"/",basename(fun)))
+  file.remove(paste0(dir,"/",basename(fun)))
+}
    } else { source(paste0(direct_fns, "Model/projections.r")) } #end else statement
   
 library(R2jags)
