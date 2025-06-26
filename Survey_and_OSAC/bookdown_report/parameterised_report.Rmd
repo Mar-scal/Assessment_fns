@@ -3,6 +3,9 @@ output:
   pdf_document:
     fig_caption: yes
     extra_dependencies: ["float"]
+    keep_tex: true
+    includes:
+      in_header: columns.tex
 linkcolor: blue
 params:
   bank: NA

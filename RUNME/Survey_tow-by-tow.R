@@ -23,19 +23,20 @@ require(RColorBrewer)
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_spring_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 # Alternatively you might need to load one of these instead.
-load(paste("C:/Users/keyserf/Documents/Temp_data/Data/Survey_data/",yr,"/Survey_summary_output/testing_results_summer2024_Oct2.Rdata",sep=""))
+load(paste("C:/Users/keyserf/Documents/Temp_data/Data/Survey_data/",yr,"/Survey_summary_output/Survey_all_results.Rdata",sep=""))
 #load(paste(direct,"Data/Survey_data/",yr,"/Survey_summary_output/Survey_summer_results.Rdata",sep=""))
 source(paste(direct_fns,"Maps/ScallopMap.r",sep=""))
 source(paste(direct_fns,"Maps/pectinid_projector_sf.r",sep=""))
 # You may need to reload your R profile if you use it...
 #source("d:/r/.Rprofile")
 # bnk <- c("GBa","GBb")# Once we have spring 2016 survey completed we should be able to add "Sab","BBs","Mid".
-bnk <- c(#"BBn"),
-         #"Ger","Sab","Mid",
+bnk <- c(#"BBn",
+         #"Ger",
+         "Sab","Mid")#,
  # "GB", "BBs"#,#, "Ban", "BanIce"
-         "GBa", 
-  "GBb"
-  )
+      #   "GBa", 
+ # "GBb"
+#  )
 #bnk <- c("GBa", "GBb", "GBa-North", "GBa-South", "GBa-Central", "GBa-West", "GBa-East", "GBa-Core", "GBa-Large_core")
 # bnk <- "GB"
 # bnk <- "Ger"

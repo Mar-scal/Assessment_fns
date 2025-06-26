@@ -59,10 +59,13 @@ meat.count.table <- function(filenames, path)
     # Add the bank the the type of vessel.
     txtfile[[i]]$bank <- bank
     if(grepl(fnames[i], pattern="Fzn")) txtfile[[i]]$fleet <- "FT"
+    if(grepl(fnames[i], pattern="Frozen")) txtfile[[i]]$fleet <- "FT"
     if(grepl(fnames[i], pattern="Fsh")) txtfile[[i]]$fleet <- "WF"
+    if(grepl(fnames[i], pattern="Fresh")) txtfile[[i]]$fleet <- "WF"
     print(dim(txtfile[[i]])) # Print the progress
   } # end for(i in 1:num.files) 
   # Unwrap the list into a dataframe
+
   txtfiles <- do.call(rbind, txtfile)
   # Make sure the meat counts are numbers and the bank names are in the same case
   txtfiles$mc <- as.numeric(txtfiles$mc)

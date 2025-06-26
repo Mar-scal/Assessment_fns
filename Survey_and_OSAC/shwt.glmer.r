@@ -23,9 +23,9 @@ shwt.glmer <- function(wt.dat, yrs)
     # ONLY RUN RANDOM EFFECTS IF AT LEAST 5 TOWS
     if(n.tows>4)  {
       mod.res[[as.character(yrs[i])]] <- glmer(wmw ~ log.sh.cen + depth.cen + (1| new_ID),data = dat.tmp,family=Gamma(link=log))
-      
       if(any(grepl("failed to converge",  mod.res[[as.character(yrs[i])]]@optinfo$conv$lme4$messages))|
          any(grepl("unidentifiable",  mod.res[[as.character(yrs[i])]]@optinfo$conv$lme4$messages))){
+        #if(yrs[i] == max(yrs)) browser()# this browser is here so that you actually realize it didn't converge!
         warning <- data.frame(year = yrs[i], warn = as.character(mod.res[[as.character(yrs[i])]]@optinfo$conv$lme4$messages))
         warningsdf <- rbind(warningsdf, warning)
       }

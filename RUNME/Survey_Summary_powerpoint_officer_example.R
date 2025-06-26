@@ -39,7 +39,7 @@ table$perc[table$word=="decreased"] <-
 table$perclab <- ScallopRound(table$perc, 2)
 
 table$perclab[table$perc>0 & table$perc < 0.01] <- "<0.01"
-table$perclab[table$perc>99] <- ">99"
+# table$perclab[table$perc>99] <- ">99"
 
 table$state <- paste0(table$word, " by ", table$perclab, "% since")
 
