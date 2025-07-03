@@ -61,13 +61,18 @@ for(i in unique(olex_tracks$Bank)){
   write.csv(write, paste0("Y:/Offshore/Assessment/Data/Survey_data/2023/Industry Reports/", unique(write$Bank), "_olex_tracks_", year, ".csv"))
 }
 
-##### Import olex data from gz or txt file, and calculate distance coefficient and bearing/
+##### REQUIRED FOR DATABASE LOADING: Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
 ##### MUST RUN FOR EACH INDIVIDUAL BANK FOR NOW (unfortunately)
 olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE20/GBaGBbtracks_LE20Aug18.gz", 
                          UTM=32619, type="load", correction_factor = 1.04, earliest="2024-08-01", latest="2024-09-01", 
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE20/LE20trackorder.xlsx")
 
+# UTM 32619 for GBa, GBb, BBn, Ger
+# UTM 32620 for BBs, Sab, Mid
+# UTM 32621 for Ban
+
+####### OPTIONAL IF YOU NEED TO MAKE MANUAL EDITS
 # to create an editable CSV file
 # you might want to adjust your working directory first:
 #setwd("Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19")
@@ -78,7 +83,11 @@ olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/
                          UTM=32620, type="load", correction_factor = 1.04, earliest="2024-05-01", latest="2024-07-01",
                          edited_csv="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/csv_to_edit - Copy.csv",
                          tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE19/LE19trackorder.xlsx")
+###############################
 
+
+
+# SAVE OUTPUT FOR SURVEY LOADING CHECKS:
 #write.csv(x=olex_load, file="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE20/Olex_distance_coefficients_LE20_2024_FK.csv")
 
 ##### Optional (and incomplete!): 

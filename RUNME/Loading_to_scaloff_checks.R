@@ -1,5 +1,5 @@
 #### PRE-LOADING OFFSHORE SCALLOP SURVEY DATA CHECKS
-
+#### Help is here: Y:\Offshore\Assessment\Non-Github archive and documentation\Help and Documentation/loading_to_scaloff_checks.pptx
 #### set up directory, year, cruise info...
 
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
@@ -17,10 +17,10 @@ direct <- "Y:/Offshore/Assessment/"
 
 ### Step 2: Run the function with the various arguments you need:
 scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", 
-                   spatialplot = F, assign.strata=F, # NOTE: spatialplot must be T for assign.strata to work
+                   spatialplot = T, assign.strata=T, # NOTE: spatialplot must be T for assign.strata to work
                    cruise = cruise, bank = "GBMon", survey_name = "GB2025.1", 
-                  # olex.csv = "Olex_distance_coefficientsSab2025.csv",
-                   tow=F, hf = F, mwsh = T, un=un.ID, pwd.ID=pw, # if hf is T, tow must also be T
+                    olex.csv = "Olex_distance_coefficientsGBMon2025.csv",
+                   tow=T, hf = T, mwsh = T, un=un.ID, pwd.ID=pw, # if hf is T, tow must also be T
                    nickname = ".GBMonLE21")
 
 ### Step 3: Scroll through the output and read the error messages to look at issues. Be thorough!
