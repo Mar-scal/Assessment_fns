@@ -305,10 +305,11 @@ Check the MGT_AREA_CD values for the following tows:")
       if(bank=="GBa" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 201)) message("Unexpected tow numbering series. Should be 1-200\n")
       if(bank=="GBb" && any(tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO < 600 | tows[tows$TOW_TYPE_ID == "1 - Regular survey tow",]$TOW_NO > 631)) message("Unexpected tow numbering series. Should be 601-630\n")
       
-      #check olex tow numbering
+      #check olex tow numbering  
       if(!is.null(olex.csv)){
         olex <- read.csv(paste0(direct, "Data/Survey_data/", year, "/Database loading/", cruise , "/", olex.csv))
-        olex <- olex[olex$Bank==bank,]
+        if(!bank == "GBMon") olex <- olex[olex$Bank==bank,]
+        if(bank == "GBMon") olex <- olex[olex$Bank %in% c("GBa", "GBb", "GBMon", "GB"),]
         olex$TOW_NO <- olex$official_tow_number
         
         numcheck <- left_join(tows, olex)
@@ -444,13 +445,11 @@ Check the MGT_AREA_CD values for the following tows:")
           dev.off()
         }
       
-        files <- list.files(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/"))
-        files <- files[grep(x = files, pattern=bank)]
-        files <- files[grep(x = files, pattern="Olex_distance_coefficients")]
+        files <- paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", olex.csv)
+        if(nrow(read.csv(files))==0) stop("I couldn't find the file assigned to olex.csv.")
         
         if(length(files)>0) {
-          if(length(files)>1) stop("I don't know which olex file to use. Use browser() to do this manually, then turn off spatialplots when you want to skip this step.")
-          olex <- read.csv(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", files))
+          olex <- read.csv(files)
           olex$startlon <- convert.dd.dddd(olex$start_lon)
           olex$startlat <- convert.dd.dddd(olex$start_lat)
           olex$endlon <- convert.dd.dddd(olex$end_lon)
@@ -772,9 +771,16 @@ Check the MGT_AREA_CD values for the following tows:")
         message("Data missing from SAMPLER_ID column")
       }
       
-      if(any(complete.cases(mwshs) == FALSE)) {
+      if(any(complete.cases(mwshs[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NUM", "SPECIES_ID", "SAMPLER_ID", "SCALLOP_NUM", "WET_MEAT_WGT",
+                                      "SHELL_HEIGHT", "MEAT_COLOUR_ID", "MYCO_INFECTED")]) == FALSE)) {
         message("missing data in the following MWSH file rows:")
-        print(mwshs[which(complete.cases(mwshs)==FALSE),])
+        print(mwshs[which(complete.cases(mwshs[, c("CRUISE", "SURVEY_NAME", "MGT_AREA_CD", "TOW_DATE", "TOW_NUM", "SPECIES_ID", "SAMPLER_ID", "SCALLOP_NUM", "WET_MEAT_WGT",
+                                                   "SHELL_HEIGHT", "MEAT_COLOUR_ID", "MYCO_INFECTED")])==FALSE),])
+      }
+
+      if(all(is.na(mwshs[, c("SEX_ID", "MATURITY_ID", "WET_GONAD_WGT", "WET_SOFT_PARTS_WGT")]))==FALSE) {
+        message("The following MWSH file rows should be entirely NA in the SEX_ID, MATURITY_ID, WET_GONAD_WGT and WET_SOFT_PARTS_WGT columns")
+        print(mwshs[which(any(!is.na(mwshs[, c("SEX_ID", "MATURITY_ID", "WET_GONAD_WGT", "WET_SOFT_PARTS_WGT")]))),])
       }
       
       if(!is.null(un) & !is.null(pwd.ID)){
