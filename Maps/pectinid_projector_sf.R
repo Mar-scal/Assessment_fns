@@ -166,7 +166,7 @@
 #           scale= list(scale = 'discrete', palette = viridis::viridis(100), breaks = seq(0,1, by = 0.05), limits = c(0,1), alpha = 0.8,leg.name = "Ted"))
 
 
-pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 18,language = "english",
+pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),x = c(-68,-55),crs = 4326), plot = T, txt.size = 16,language = "english",
                      gis.repo = "github",c_sys = "ll",  buffer = 0, repo = "github", legend = F, axes = NULL, quiet=F,
                      # Controls what layers to add to the figure (land,eez, nafo, sfa's, labels, )
                      add_layer = list(land = 'grey'),
@@ -607,14 +607,18 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         # Figure out where your tempfiles are stored
         temp <- tempfile()
         # Download this to the temp directory you created above
-        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp, quiet=quiet)
+        download.file("https://raw.githubusercontent.com/Mar-scal/GIS_layers/master/offshore/offshore.zip", temp, quiet=F)
         # Figure out what this file was saved as
         temp2 <- tempfile()
         # Unzip it
         unzip(zipfile=temp, exdir=temp2)
         
         # This pulls in all the layers from the above location
-        offshore.spa <- combo.shp(temp2,make.sf=T, quiet=quiet)
+        offshore.spa <- combo.shp(temp2,make.sf=T, quiet=F)
+        # Remove NL since we don't manage those
+        offshore.spa <- offshore.spa %>%
+          filter(!ID %in% c("NL.shp", "SFA10.shp", "SFA11.shp", "SFA12.shp", "SPB.shp", "Gulf.shp"))
+          #filter(!ID %in% c("NL.shp", "SFA10.shp", "SFA11.shp", "SFA12.shp"))
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         # Because of issues with the polygons immediately needed to turn it into a multilinestring to avoid bad polygons, works a charm after that...
         if(any(st_is_empty(offshore.spa))) message(paste0("removed ", offshore.spa[st_is_empty(offshore.spa),]$ID, " because they were empty"))
@@ -654,6 +658,9 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         loc <- paste0(gis.repo,"/offshore")
         # This pulls in all the layers from the above location
         offshore.spa <- combo.shp(loc,make.sf=T, quiet=quiet)
+        # Remove NL since we don't manage those
+        offshore.spa <- offshore.spa %>%
+          filter(!ID %in% c("NL.shp", "SFA10.shp", "SFA11.shp", "SFA12.shp", "SPB.shp", "Gulf.shp"))
         # Now transform all the layers in the object to the correct coordinate system, need to loop through each layer
         # Because of issues with the polygons immediately needed to turn it into a multilinestring to avoid bad polygons, works a charm after that...
         offshore.spa <- st_cast(offshore.spa,to= "MULTILINESTRING")
@@ -910,7 +917,27 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       temp2 <- tempfile()
       # Unzip it
       unzip(zipfile=temp, exdir=temp2)
-      s.labels <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=T)
+      
+      #s.labels <- combo.shp(temp2,make.sf=T,make.polys=F, quiet=T) # combo.shp depricated with outdated purrr package
+      #new workaround:
+      s.labels <- st_read(temp2, quiet = TRUE)
+      s.labels <- st_transform(s.labels, c_sys)
+      # remove Newfoundland entires since outside of Maritimes Region scope, and unnecessary labels
+      s.labels <- s.labels %>%
+        filter(!lab_short %in% c("St. Pierre Bank", "Includes SFA 10-12", "SFA 10", "SFA 11", "SFA 12", "Georges Bank a", "Georges Bank b", "Includes Middle and Sable Banks"))
+      # add A/B/C labels to SFA 26 (Browns/German)
+      s.labels <- s.labels %>%
+        mutate(
+          lab_short = case_when(
+            lab_short == "SFA 26 (German Bank)" ~ "SFA 26C",
+            lab_short == "SFA 26 (Browns Bank north)" ~ "SFA 26A",
+            lab_short == "SFA26 (Browns Bank south)" ~ "SFA 26B",
+            lab_short == "SFA25 (Eastern Scotian Shelf)" ~ "SFA 25A",
+            lab_short == "SFA25-BAN (Banquereau)" ~ "SFA 25B",
+            TRUE ~ lab_short  # keep all other labels unchanged
+          )
+        )
+      #continue as normal
       s.labels <- st_transform(s.labels,c_sys)
    
       if(add_layer$s.labels == "offshore") s.labels <- s.labels %>% dplyr::filter(region == 'offshore')
@@ -918,7 +945,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
-      if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
+      #if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
+      if(add_layer$s.labels == "offshore_detailed") {
+        s.labels <- s.labels[s.labels$region %in% c("offshore_detailed", "offshore"), ]
+      }
       s.labels <- st_intersection(s.labels, b.box)
       #Needed to be a little funky for offshore detailed because we may have to plot some of the offshore ones on an angle...
       # if(any(grepl("angle",s.labels$region)))
@@ -938,7 +968,10 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       if(add_layer$s.labels == "ID") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed')
       if(add_layer$s.labels == "IDS") s.labels <- s.labels %>% dplyr::filter(region == 'inshore_detailed_survey')
       if(add_layer$s.labels == "all") s.labels <- s.labels %>% dplyr::filter(region %in% c('offshore','inshore'))
-      if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
+      #if(add_layer$s.labels == "offshore_detailed") s.labels <- s.labels[grepl('offshore_detailed',s.labels$region),]
+      if(add_layer$s.labels == "offshore_detailed") {
+        s.labels <- s.labels[s.labels$region %in% c("offshore_detailed", "offshore"), ]
+      }
       #if(add_layer$s.labels == "offshore_detailed_angle") s.labels <- s.labels[grepl('offshore_detailed_angle',s.labels$region),]
       
       s.labels <- st_intersection(s.labels, b.box)
@@ -1091,7 +1124,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       
     }
     if(exists("bathy.gg") & !exists("bathy.smooth")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), colour="lightblue", breaks=bathy.breaks)  
-    if(exists("bathy.gg") & exists("bathy.smooth")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), breaks=bathy.breaks)  
+    if(exists("bathy.gg") & exists("bathy.smooth")) pect_plot <- pect_plot + geom_contour(data=bathy.gg, aes(x=x, y=y, z=layer), colour="azure2", alpha=0.35, breaks=bathy.breaks)  
     if(exists("bathy.scallopmap")) pect_plot <- pect_plot + geom_sf(data=bathy.scallopmap, colour="lightblue")  
     if(exists("sfc")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=layer), colour = NA) + sfc 
     if(exists("sfd")) pect_plot <- pect_plot + new_scale("fill") + geom_sf(data=spd, aes(fill=brk), colour = NA)  + sfd  
@@ -1106,13 +1139,15 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
     if(exists("inshore.spa")) pect_plot <- pect_plot + geom_sf(data=inshore.spa, fill=NA)
     if(exists("offshore.spa")) pect_plot <- pect_plot + geom_sf(data=offshore.spa, fill=NA)
-    
-    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.25)
+    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.5, linetype = "dashed")
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
       if(any(s.labels$region == 'offshore')) pect_plot <- pect_plot + geom_sf_text(data=s.labels[grepl('offshore',s.labels$region),], aes(label = lab_short),size=3)   
       if(any(s.labels$region =='offshore_detailed')) pect_plot <- pect_plot + geom_sf_text(data=s.labels[s.labels$region=='offshore_detailed',], aes(label = lab_short),size=3)   
+      #if (any(s.labels$region == "offshore_detailed")) {pect_plot <- pect_plot +
+      #    geom_sf_text(data = s.labels[s.labels$region == "offshore_detailed", ],aes(label = lab_short),size = 3) + 
+      #    geom_sf_text(data = s.labels[s.labels$region == "offshore", ],aes(label = lab_long),size = 3)}
       if(any(s.labels$region =='offshore_detailed_angle')) pect_plot <- pect_plot + geom_sf_text(data = s.labels[s.labels$region=='offshore_detailed_angle',], aes(label = lab_short),size = 3,angle =-45)
       if(any(grepl('inshore',s.labels$region))) pect_plot <- pect_plot + geom_sf_text(data=s.labels[grepl('inshore',s.labels$region),], aes(label = lab_short),angle=35,size=3) # rotate it@!
       

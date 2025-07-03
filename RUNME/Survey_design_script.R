@@ -31,14 +31,14 @@ seed1 <- floor(runif(n = 1, min = 10000, max=99999))
 # 2022 seed1 = 14188
 # 2023 seed1 = 54880
 # 2024 
-seed1 = 26858
+seed1 = 26858 # i <- 26862
 seed1 <- 38790 # For 2025 I ran 5 more for browns because the first batch sucked!!
 t1 <- Sys.time()
 for(i in seed1:(seed1+4)){
   Survey.design(yr = yr,banks = "Ger",direct = direct,export=T,relief.plots = F,
-                fig="png",seed=i, repo=direct_fns, point.style = "stn_num", 
+                fig="png",seed=i, repo=direct_fns, point.style = "points", 
                 pt.txt.sz=3, x.adj=0.04, y.adj=0.001, ger.new = 80, ger.rep=20, 
-                add.extras=F)#, 
+                add.extras=T)#, 
                 #load_stations="Y:/Offshore/Assessment/Data/Survey_data/2023/Spring/Ger/Preliminary_Survey_design_Tow_locations_Ger54880_tpd.csv")
   
   Survey.design(yr = yr,banks = "BBn",direct = direct,export=T,

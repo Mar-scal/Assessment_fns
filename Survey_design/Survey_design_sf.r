@@ -656,7 +656,7 @@ for(fun in funs)
           if(nrow(extras) > 0) 
           {
             extras$STRATA <- "extra"
-            tmp <- full_join(tmp, extras)
+            tmp <- full_join(data.frame(tmp), data.frame(extras)) # DK added the data.frame on Feb 27, 2025, not tested here...
           }
           
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
@@ -907,7 +907,7 @@ for(fun in funs)
           if(nrow(extras) > 0) 
           {
             extras$STRATA <- "extra"
-            tmp <- full_join(tmp, extras)
+            tmp <- full_join(data.frame(tmp), data.frame(extras))
           }
           
           tmp.sf <- st_as_sf(tmp,crs= 4326,coords = c("X","Y"))
