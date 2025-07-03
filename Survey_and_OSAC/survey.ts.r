@@ -214,8 +214,8 @@ survey.ts <- function(shf, years=1981:2008, Bank='GBa', type = "N",pdf=F, plots=
     {
       #browser()
       if(i == 1) plot.names[[i]] <- substitute(paste(phantom(0),"<", a," mm",sep=""),list(a = user.bins[i]))
-      if(i > 1 && i < length(mn.tmp)) plot.names[[i]] <- substitute(paste(a ,"-", b, " mm",sep=""),list(a = user.bins[i-1],b=user.bins[i]-1))
-      if(i == length(mn.tmp)) plot.names[[i]] <- substitute(paste(phantom(0)>= a, " mm",sep=""),list(a = user.bins[i-1])) #phantom needed to make a leading math symbol...
+      if(i > 1 && i < length(mn.tmp)) plot.names[[i]] <- substitute(paste(a ,"-", b, " mm",sep=""),list(a = user.bins[i]-1,b=user.bins[i]-1))
+      if(i == length(mn.tmp)) plot.names[[i]] <- substitute(paste(phantom(0)>= a, " mm",sep=""),list(a = user.bins[i]-1)) #phantom needed to make a leading math symbol...
       
     } # end if(!is.null(user.bins))
     if(is.null(user.bins))

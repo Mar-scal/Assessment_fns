@@ -20,9 +20,10 @@
 
 # Load your directory and the survey year
 #direct <- "d:/r/"
-direct <- "Y:/Offshore/Assessment/"
+# direct <- "Y:/Offshore/Assessment/"
+direct <- "C:/Users/keyserf/Documents/temp_data/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-direct_fns <- "D:/Github/Assessment_fns/"
+
 yr <- 2024
 
 # Load the function...
@@ -31,9 +32,9 @@ source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 # This will take more than 10 minutes when using GBa as it takes a while to do the jackknife for the CPUE on GBa.
 # Note that this will lead to an error if there was no fishing on a bank in a given year so make sure you remove any
 # banks that don't have fishery data for the current year!
-OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2022,
+OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2024,
              bank ="all",
-             save.fig = T,save.res=T,export=T, calc.mc = F, rdata.logs=T)
+             save.fig = F,save.res=F,export=F, calc.mc = T, rdata.logs=F)
 
 OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),
@@ -49,7 +50,7 @@ rm("fleet_data","new.log.dat","old.log.dat","slip.dat")
 fish.res
 meat.count
 
-load(paste(direct,"Data/Fishery_data/Summary/2022/OSAC_summary.RData",sep = ""))
+load(paste(direct,"Data/Fishery_data/Summary/2024/OSAC_summary.RData",sep = ""))
 # object names in OSAC_summary.RData and in OSAC_res (if it's immediately after running): fish.res,surv.res,sum.stat,fish.cells,extreme.catch,high.catch, cpue.ts,mctable
 names(OSAC_res)
 
@@ -68,8 +69,8 @@ length(which(OSAC_res$fish.cells$catch >=1))
 
 # inspect this for weirdness. open the word doc for any weird rows, and make sure it's clean. then re-run until mctable$meatcounts is flawless.
 summary(meat.count$meatcounts) # there should be no NA's here anywhere.
-meat.count$meatcounts$month <- month(ymd(meat.count$meatcounts$land))
-max(ymd(meat.count$meatcounts$land), na.rm=T) # includes everything up to end of July
+meat.count$meatcounts$month <- month(ymd(meat.count$meatcounts$end))
+max(ymd(meat.count$meatcounts$end), na.rm=T) # includes everything up to end of July
 
 # if above is clean, then put the following into the ppt. But please pay attention to any really odd values.
 meat.count$summarytable

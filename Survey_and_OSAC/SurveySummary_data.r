@@ -1401,7 +1401,7 @@ for(fun in funs)
                                                                                           bank == bnk & year==yr,
                                                                                           c('tow','lon','lat')),
                                                                                    SpatHtWt.fit[[bnk]]$fit))
-      if(!bank.4.spatial %in% c("Ban", "BanIce", "GBa", "GB")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
+      if(!bank.4.spatial %in% c("Ban", "BanIce", "GBa", "GB")) CF.current[[bnk]]<-unique(subset(surv.Live[[bnk]],
                                         bank == bnk & year==yr,
                                         c('tow','lon','lat', 'CF')))
       if(bank.4.spatial %in% c("Ban")) CF.current[[bnk]]<-unique(subset(surv.dat[[bnk]],
@@ -1420,10 +1420,13 @@ for(fun in funs)
                                                                    SpatHtWt.fit[[bnk]]$fit))
       
       names(CF.current[[bnk]])[4]<-"CF"
-      # For German we want all the tows here, both the random and the repeats.
-      if(bank.4.spatial == "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
-      # If not German we only want the 'random' tows
-      if(bank.4.spatial != "Ger") CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+      
+      # For 2024 framework banks we want ALL the tows here.
+      if(!bank.4.spatial %in% "GBa") {
+        CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Live[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
+      }
+      # GBa we only want the 'random' tows
+      if(bank.4.spatial %in% c("GBa")) CF.current[[bnk]]<-merge(CF.current[[bnk]],subset(surv.Rand[[bnk]],year==yr,c('year','tow','lon','lat',"com","com.bm")))
       
       # Meat count per 500g
       CF.current[[bnk]]$meat.count <- 0.5/(CF.current[[bnk]]$com.bm/CF.current[[bnk]]$com)

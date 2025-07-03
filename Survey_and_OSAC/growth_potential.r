@@ -73,11 +73,13 @@ grow.pot <- function(dat= NULL, mwsh.fit=NULL, von.b = NULL, year=NULL,bank = NU
 	# If you didn't provide the von.b object then we go and get the values from the one place we have them stored at the moment.
 	if(is.null(von.b)) 
 	{
-	  Von.B <- read.csv(paste(direct,"Data/Ageing/Von_B_growth_parameters.csv",sep=""))
+	  Von.B <- read.csv(paste(direct,"Data/Ageing/Von_B_growth_parameters_framework.csv",sep=""))
 	  # If you want the GBa data then we grab it, if you specify any other bank then you get BBn growth parameters b/c that's all we got right now for offshore
 	  # This could easily be expanded to work for inshore if we want...
 	  if(bank == "GBa") Von.B <- Von.B[Von.B$Bank == "GBa",c("Linf","K","to")]
-	  if(bank != "GBa") Von.B <- Von.B[Von.B$Bank == "BBn",c("Linf","K","to")]
+	  if(bank == "BBn") Von.B <- Von.B[Von.B$Bank == "BBn",c("Linf","K","to")]
+	  if(bank == "Sab") Von.B <- Von.B[Von.B$Bank == "Sab",c("Linf","K","to")]
+	  if(!bank %in% c("GBa", "BBn", "Sab")) Von.B <- Von.B[Von.B$Bank == "BBn",c("Linf","K","to")]
 	} # if(is.null(von.b)) 
 	
 	# Now we get the average size for each tow. it's a weighted sum of the size of each bin.

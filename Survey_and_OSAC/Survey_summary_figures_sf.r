@@ -676,7 +676,7 @@ for(fun in funs)
         bound.poly.surv.sp <- pbs_2_sf(bound.poly.surv, lon="X", lat="Y")
         
         # Next we get the survey locations
-        if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB"))
+        if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB", "GBb"))
         {   
           loc <- data.frame(lon = surv.Live[[banks[i]]]$lon[surv.Live[[banks[i]]]$year == yr],
                             lat=surv.Live[[banks[i]]]$lat[surv.Live[[banks[i]]]$year == yr])
@@ -689,11 +689,12 @@ for(fun in funs)
                                lat=pot.grow[[banks[i]]]$lat[pot.grow[[banks[i]]]$year == yr])
         }# end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","SPB","GB"))
         # I want 1 mesh for all of Georges bank summer survey.
-        if(banks[i] %in% c("GBa","GBb")) 
+        if(banks[i] %in% c("GBa", "GBb")) 
         {
           loc <- data.frame(lon = c(surv.Live[["GBa"]]$lon[surv.Live[["GBa"]]$year == yr],surv.Live[["GBb"]]$lon[surv.Live[["GBb"]]$year == yr]),
                             lat=c(surv.Live[["GBa"]]$lat[surv.Live[["GBa"]]$year == yr],surv.Live[["GBb"]]$lat[surv.Live[["GBb"]]$year == yr]))
-          
+        }
+        if(banks[i] %in% c("GBa")){
           # The condition and meat count data.
           loc.cf <- data.frame(lon = c(CF.current[["GBa"]]$lon[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lon[CF.current[["GBb"]]$year == yr]),
                                lat=c(CF.current[["GBa"]]$lat[CF.current[["GBa"]]$year == yr],CF.current[["GBb"]]$lat[CF.current[["GBb"]]$year == yr]))
@@ -820,7 +821,8 @@ for(fun in funs)
           # Now make the A matrix
           #
           A <- inla.spde.make.A(mesh, loc)
-          A.cf <- inla.spde.make.A(mesh,loc.cf)
+          if(banks[i] %in% c("GBa", "GBb")) A.cf <- inla.spde.make.A(mesh,loc.cf)
+          if(!banks[i] %in% c("GBa", "GBb")) A.cf <- A
           
           # We can just make the one spde object for all of these as well.
           spde <- inla.spde2.pcmatern(mesh,    
@@ -858,22 +860,28 @@ for(fun in funs)
           # if we have maps to be made and we aren't simply loading in the INLA results we need to run this bit.
           if(length(spatial.maps) > 0)
           {
+            
             # Get the data needed....
             if(banks[i] %in% c("GBb","GBa")) 
             {
               tmp.dat <- dplyr::full_join(surv.Live[["GBa"]][surv.Live[["GBa"]]$year == yr,],surv.Live[["GBb"]][surv.Live[["GBb"]]$year == yr,])
-              tmp.cf <- dplyr::full_join(CF.current[["GBa"]],CF.current[["GBb"]]) 
               tmp.clap <- dplyr::full_join(surv.Clap[["GBa"]][surv.Clap[["GBa"]]$year == yr,],surv.Clap[["GBb"]][surv.Clap[["GBb"]]$year == yr,])
-              tmp.gp <- dplyr::full_join(pot.grow[["GBa"]][pot.grow[["GBa"]]$year == yr,],pot.grow[["GBb"]][pot.grow[["GBb"]]$year == yr,])
             }  # end if(banks[i] %in% c("GBb","GBa")) 
             
-            if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB")) 
+            if(banks[i] %in% c("GBa")) 
+            {
+              tmp.cf <- CF.current[[banks[i]]][CF.current[[banks[i]]]$year == yr,]
+              tmp.gp <- pot.grow[[banks[i]]][pot.grow[[banks[i]]]$year == yr,]
+            } 
+            
+            if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB", "GBb")) 
             {  
-              tmp.dat <- surv.Live[[banks[i]]][surv.Live[[banks[i]]]$year == yr,]
-              tmp.cf <- CF.current[[banks[i]]]
-              tmp.clap <- surv.Clap[[banks[i]]][surv.Clap[[banks[i]]]$year == yr,]
+              if(!banks[i] %in% "GBb") tmp.dat <- surv.Live[[banks[i]]][surv.Live[[banks[i]]]$year == yr,]
+              tmp.cf <-  CF.current[[banks[i]]][CF.current[[banks[i]]]$year == yr,]
+              if(!banks[i] %in% "GBb") tmp.clap <- surv.Clap[[banks[i]]][surv.Clap[[banks[i]]]$year == yr,]
               if(!banks[i] == "BanIce") tmp.gp <- pot.grow[[banks[i]]][pot.grow[[banks[i]]]$year == yr,]
             } # end if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB")) 
+            
             # Now loop through each spatial map we want to make.
             fitted <- NULL
             for(k in 1:length(spatial.maps))
@@ -969,7 +977,7 @@ for(fun in funs)
                 # This is the stack for estimation from the INLA model
                 stk <- inla.stack(tag="est",data=list(y = tmp.gp$cur.mw, link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
-                                  A = list(1, A))
+                                  A = list(1, A.cf))
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
@@ -983,7 +991,7 @@ for(fun in funs)
                 # This is the stack for estimation from the INLA model
                 stk <- inla.stack(tag="est",data=list(y = tmp.gp$cur.sh, link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
-                                  A = list(1, A))
+                                  A = list(1, A.cf))
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
@@ -997,7 +1005,7 @@ for(fun in funs)
                 # This is the stack for estimation from the INLA model
                 stk <- inla.stack(tag="est",data=list(y = tmp.gp$gp.mw, link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
-                                  A = list(1, A))
+                                  A = list(1, A.cf))
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
@@ -1011,7 +1019,7 @@ for(fun in funs)
                 # This is the stack for estimation from the INLA model
                 stk <- inla.stack(tag="est",data=list(y = tmp.gp$gp.sh, link=1L),
                                   effects=list(data.frame(a0=rep(1, nrow(tmp.gp))), s = 1:spde$n.spde),
-                                  A = list(1, A))
+                                  A = list(1, A.cf))
                 # This is the INLA model itself
                 mod <- inla(formula3, family=family.gp, data = inla.stack.data(stk),
                             control.predictor=list(A=inla.stack.A(stk),link=1L, compute=T))
@@ -1267,7 +1275,8 @@ for(fun in funs)
             # Now for the meat count
             if(maps.to.make[m]  %in% c("MC-spatial"))
             {
-              # The color ramps for MC
+             
+               # The color ramps for MC
               base.lvls <- c(seq(0,50,5),60,80,100,200)
               cols <- viridis::viridis(length(base.lvls)-1,alpha=0.7,begin=0,end=1)
               # Get the levels correct            
@@ -1397,7 +1406,8 @@ for(fun in funs)
                 bound.poly.surv.sf <- st_difference(bound.poly.surv.sf, poly_to_add)
               }
               
-              if(!maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial")){
+              if((banks[i] == "GBa" & !maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))|
+                 !banks[i]=="GBa"){
                 if(!st_geometry(bound.poly.surv.sf) == st_geometry(st_union(bound.poly.surv.sf, poly_to_add))){
                   bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
                 }
@@ -1459,10 +1469,27 @@ for(fun in funs)
       
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
-              surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
-              surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
-              surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
-              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F) +
+              if(banks[i]=="GBa") {
+                surv <- st_as_sf(CF.current[[banks[i]]],coords = c('lon','lat'),crs = 4326)
+                surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
+                surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
+                surv$shp<-21
+              }
+              if(!banks[i]=="GBa"){
+                surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
+                  dplyr::filter(year == yr & state == 'live')
+                surv <- st_transform(surv,crs = st_crs(mesh$crs)$epsg)
+                surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
+                if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
+                if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
+                if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
+                # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
+                if(length(unique(surv$`Tow type`)) ==1) shp <- 21
+                if(length(unique(surv$`Tow type`)) ==2) shp <- c(17,21)
+                if(length(unique(surv$`Tow type`)) ==3) shp <- c(17,21,15)
+                if(banks[i] == "Ger" & length(shp) == 2) shp <- c(21,15)
+              }
+              p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = shp) + coord_sf(expand=F) +
                 theme(legend.key = element_rect(fill=NA))
             }
             
@@ -1683,7 +1710,7 @@ for(fun in funs)
       
       # Because name of BanIce is longer than other banks I added this so the figure title doesn't go off screen.
       cap.size <- ifelse(banks[i] == "BanIce",1.9,2)
-      
+  
       ############
 
       #Source12 Meat Height Shell weight plot on Slide 13  source("fn/shwt.plt1.r") 
@@ -1715,7 +1742,7 @@ for(fun in funs)
       if(banks[i] != "Ger" && banks[i] != "GBa" && banks[i] != "GB")
       {
         if(length(which(!is.na(survey.obj[[banks[i]]][[1]]$CF))) > 3){
-          stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,ylab=cf.lab,las=1,col=c("blue"),
+          stdts.plt(survey.obj[[banks[i]]][[1]],x=c('year'),y=c('CF'),pch=16,height = 10, width=12, ylab=cf.lab,las=1,col=c("blue"),
                     median.line=T,graphic='none',xlab='Year',ylim=c(4,25),titl=CF.ts.title,cex.mn=cap.size)
         }
         if(length(which(!is.na(survey.obj[[banks[i]]][[1]]$CF))) < 4){
