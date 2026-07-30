@@ -53,18 +53,19 @@ library(tidyverse)
 library(TMB)
 library(viridis)
 library(showtext)
+require(ggrepel)
 showtext_auto()
 # Note: with lots of packages, tools sometimes get masked. If something isn't working the way you expect, try explicitly referencing the package (ex: dplyr::[...]) - this happened a lot with dplyr and may occur with other packages. 
 
 # Set up
-language = 'english'
-#language = 'french'
+#language = 'english'
+language = 'french'
 bank <- "GBa"
 banks <- c("GBa") # pick your banks for TACs/Landings table
 fleets <- c("FT", "WF") # pick your fleets for TACs/Landings table
 alpha<-0.05
-year <- 2025 # current year
-yr <- 2024 # fishery year
+year <- 2026 # current year
+yr <- 2025 # fishery year
 years<-1986:yr
 years.ribbon <- years
 years.ribbon[length(years.ribbon)] <- years.ribbon[length(years.ribbon)]+0.2
@@ -75,7 +76,8 @@ funs <- c("https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps
           "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/convert_inla_mesh_to_sf.R",
           "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/French_west_labeller.R",
           "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/CPUE_monthly_or_observer.R",
-          "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r"
+          "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Fishery/logs_and_fishery_data.r",
+          "https://raw.githubusercontent.com/Mar-Scal/Assessment_fns/master/Maps/github_spatial_import.R"
 )
 # Now run through a quick loop to load each one, just be sure that your working directory is read/write!
 for(fun in funs) 
@@ -86,20 +88,20 @@ for(fun in funs)
 }
 
 # Sources
-direct <- "Y:/Offshore/Assessment/"
-direct_out <- "D:/testing_folder/CSAS_Claire_2025/"
-repo <- "D:/Github/"
+direct <- "C:/Users/keyserf/Documents/"
+direct_out <- "C:/Users/keyserf/Documents/"
+repo <- "C:/Users/keyserf/Documents/Github/"
 
 
 load(paste0(direct_out,"Data/Model/",year,"/GBa/Results/Model_testing_results.RData"))
 load(paste0(direct_out,"Data/Model/",year,"/GBa/Results/Model_results_and_diagnostics.RData"))
-D.tab<-read.csv(paste0(direct,"2025/Updates/GBa/Figures_and_tables/Decision_GBa.csv"))
+D.tab<-read.csv(paste0(direct,"/", year, "/Updates/GBa/Figures_and_tables/Decision_GBa.csv"))
 TACs <- read.csv(paste0(direct, "Data/Model/Ref_pts_and_tac.csv"))
 # TACs[TACs$bank==bank & TACs$year==year,4]<-20
 
 # Ref pts
-URP<-round(URP[[bank]],-1)
-LRP<-round(LRP[[bank]],-1)
+URP<-round(URP[[bank]],0) # these were rounded to -1... I don't know why!
+LRP<-round(LRP[[bank]],0) # these were rounded to -1... I don't know why!
 RR<-0.25
 interim.tac <- TACs$TAC[TACs$bank==bank & TACs$year == year]
 # load(paste(direct,"Data/Model/", year, "/BBn/Results/Model_testing_results_mixed.RData",sep=""))
@@ -109,26 +111,158 @@ interim.tac <- TACs$TAC[TACs$bank==bank & TACs$year == year]
 # load(paste0(direct,"Framework/SFA_25_26_2024/Model/Results/Sab_SS_model/R_75_FR_90/Sable_SSmodel_results.RData"))
 
 ## tac/landing data; 1986 is year model starts, but technically this database goes back to 1984
-logs_and_fish(loc="offshore",year = 1986:2024,un=un,pw=pw,db.con=db.con,direct=direct)
+logs_and_fish(loc="offshore",year = 1986:yr,get.local = T, get.marfis = F, direct=direct)
 fish.dat<-merge(new.log.dat,old.log.dat,all=T)
 fish.dat$ID<-1:nrow(fish.dat)
 gba.fish.dat <- fish.dat |> collapse::fsubset(bank=="GBa") |> collapse::fgroup_by(year) |> collapse::fsummarise(C = sum(pro.repwt,na.rm=T)/1000)
 
 options(scipen=999)
 
+### MAP
+#############  AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
+# Also make the overall plot of the banks...
+# set up the labels first
+
+labels <- github_spatial_import(subfolder = "other_boundaries/labels", zipname = "labels.zip")
+offshore <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip")
+
+labels <- labels[grepl('offshore_detailed',labels$region),]
+
+sfa.labels <- labels[grep(x=labels$lab_short, "SFA"),]
+
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="A ", replacement="A", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=" (", replacement="\n", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=")", replacement="", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=" Bank", replacement="", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="-BAN", replacement="", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="north", replacement="North", fixed=T)
+sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="south", replacement="South", fixed=T)
+sfa.labels$lab_short[sfa.labels$lab_short=="SFA27A"] <- "SFA27A\nGeorges 'a'"
+sfa.labels$lab_short[sfa.labels$lab_short=="SFA27B"] <- "SFA27B\nGeorges 'b'"
+sfa.labels <- sfa.labels[-grep(pattern = "Includes", x=sfa.labels$lab_short),]
+sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nG", replacement="26C\nG", fixed=T)
+sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nBrowns North", replacement="26A\nBrowns North", fixed=T)
+sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nBrowns South", replacement="26B\nBrowns South", fixed=T)
+sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="25\nBa", replacement="25B\nBa", fixed=T)
+sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="25\nEa", replacement="25A\nEa", fixed=T)
+
+sfa.labels <- sfa.labels %>%
+  tidyr::separate(lab_short, into=c("SFA", "bank"), sep="\n", remove=F)
+sfa.labels <- sfa.labels[!is.na(sfa.labels$bank),]
+
+sf_use_s2(FALSE)
+joined <- st_join(offshore, sfa.labels)
+
+joined <- joined[!(joined$bank=="Banquereau" & joined$ID.x=="SFA25A"),]
+joined <- joined[!is.na(joined$EID),]
+joined$fr <- joined$lab_short
+joined$fr <- gsub(x=joined$fr, pattern="Browns South", replacement ="Sud de Brown")
+joined$fr <- gsub(x=joined$fr, pattern="Browns North", replacement ="Nord de Brown")
+joined$fr <- gsub(x=joined$fr, pattern="Georges 'a'", replacement ="Georges \u00ABa\u00BB")
+joined$fr <- gsub(x=joined$fr, pattern="Georges 'b'", replacement ="Georges \u00ABb\u00BB")
+joined$fr <- gsub(x=joined$fr, pattern="Eastern Scotian Shelf", replacement ="Est du plateau n\u00E9o-\u00E9cossais")
+joined$fr <- gsub(x=joined$fr, pattern="SFA", replacement ="ZPP")
+
+nonGB <- joined[!joined$SFA %in% c("SFA27A", "SFA27B", "SFA10", "SFA11", "SFA12"),]
+GBalab <- joined[joined$SFA %in% c("SFA27A"),]
+GBblab <- joined[joined$SFA %in% c("SFA27B"),]
+
+showtext_auto(FALSE)
+
+p <-  pecjector(area = list(y = c(40,48),x = c(-68,-54),crs = 4326), add_layer = list(land = 'grey',
+                                                                                      eez = 'eez',
+                                                                                      sfa='offshore',
+                                                                                      bathy=c(100, 'c', 200),  scale.bar = c('br',0.4,-1.35,-1.35)),
+                language = language,
+                c_sys = 4326, quiet=T, plot=F)
+
+if(language=="english") {
+  png(paste0(direct_out, year,"/Updates/", bank, 
+             "/Figures_and_tables/Offshore_banks.png",sep=""),width=11,height=8,res=920,units="in")
+  p <-  p + geom_sf_text(data = nonGB[!(nonGB$SFA%in% c("SFA11", "SFA26B")),], 
+                         aes(label = lab_short), 
+                         fun.geometry = sf::st_centroid) +
+    geom_sf_text(data = nonGB[nonGB$SFA=="SFA11",], 
+                 aes(label = lab_short), 
+                 fun.geometry = sf::st_centroid, 
+                 nudge_x=-0.5, nudge_y=-0.5) +
+    geom_sf_text(data = nonGB[nonGB$SFA=="SFA26B",], 
+                 aes(label = lab_short), 
+                 fun.geometry = sf::st_centroid, 
+                 nudge_y=0.5) +
+    geom_text_repel(data = GBalab, 
+                    aes(x=as.data.frame(st_coordinates(st_centroid(GBalab)))$X,
+                        y=as.data.frame(st_coordinates(st_centroid(GBalab)))$Y,
+                        label = lab_short), 
+                    nudge_x=-1, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
+    geom_text_repel(data = GBblab, 
+                    aes(x=as.data.frame(st_coordinates(st_centroid(GBblab)))$X,
+                        y=as.data.frame(st_coordinates(st_centroid(GBblab)))$Y,
+                        label = lab_short), 
+                    nudge_x=1.25, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
+    coord_sf(crs = 4326, default_crs = 4326, xlim = c(-68,-54), ylim = c(40,48), clip = "on", expand = FALSE) +
+    #scale_x_continuous(limits=c(-68, -54)) +
+    #scale_y_continuous(limits=c(40, 48)) + 
+    theme_bw() +
+    xlab(NULL) + ylab(NULL)
+  print(p)
+  dev.off()
+}
+
+if(!language=="english") {
+  png(paste0(direct_out, year,"/Updates/", bank, 
+             "/Figures_and_tables/Offshore_banks_french.png",sep=""),width=11,height=8,res=920,units="in")
+  p <- p + geom_sf_text(data = nonGB[!(nonGB$SFA%in% c("SFA11", "SFA26B")),], 
+                        aes(label = fr), 
+                        fun.geometry = sf::st_centroid) +
+    geom_sf_text(data = nonGB[nonGB$SFA=="SFA11",], 
+                 aes(label = fr), 
+                 fun.geometry = sf::st_centroid, 
+                 nudge_x=-0.5, nudge_y=-0.5) +
+    geom_sf_text(data = nonGB[nonGB$SFA=="SFA26B",], 
+                 aes(label = fr), 
+                 fun.geometry = sf::st_centroid, 
+                 nudge_y=0.5) +
+    geom_text_repel(data = GBalab, 
+                    aes(x=as.data.frame(st_coordinates(st_centroid(GBalab)))$X,
+                        y=as.data.frame(st_coordinates(st_centroid(GBalab)))$Y,
+                        label = fr), 
+                    nudge_x=-1, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
+    geom_text_repel(data = GBblab, 
+                    aes(x=as.data.frame(st_coordinates(st_centroid(GBblab)))$X,
+                        y=as.data.frame(st_coordinates(st_centroid(GBblab)))$Y,
+                        label = fr), 
+                    nudge_x=1.25, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
+    coord_sf(crs = 4326, default_crs = 4326, xlim = c(-68,-54), ylim = c(40,48), clip = "on", expand = FALSE) +
+    #scale_x_continuous(limits=c(-68, -54)) +
+    #scale_y_continuous(limits=c(40, 48)) + 
+    theme_bw() +
+    xlab(NULL) + ylab(NULL)
+  print(p)
+  dev.off()
+}
+
+showtext_auto(TRUE)
+
 ### Panel plots
 
 ###### ADDED EXTRA THEME CONDITIONS TO ALL PLOTS SO COWPOT::PLOT_GRID DOESN'T MISALIGN FIGURES
 
-if(language == "english") y.lab <- "Landings (meat, kt)"
-if(language != "english") y.lab <- "Débarquements (chair, kt)"
+if(language == "english") {
+  y.lab <- "Landings (meat, kt)"
+  tac.lab <- "TAC"
+}
+if(language != "english") {
+  y.lab <- "Débarquements (chair, kt)"
+  tac.lab <- "TAC" 
+}
 ###### (A) Tac Landings Plots
 theme_set(theme_few(base_size = 22)) # DK changed from 14 to 22 for French figures
 # decades <- seq(1990, max(DD.out$GBa$data$year, na.rm = TRUE), by = 10)
 tac_land_plot <- ggplot() +
   geom_bar(aes(x = gba.fish.dat$year, y = gba.fish.dat$C/1000),stat = "identity", fill="grey50", alpha = 0.6, width = 0.75) + 
   geom_line(data = TACs[TACs$bank == bank & TACs$year %in% DD.out$GBa$data$year,],
-            aes(x = as.numeric(year), y = as.numeric(TAC/1000), col = "TAC"), 
+            aes(x = as.numeric(year), y = as.numeric(TAC/1000), col = tac.lab), 
             linewidth = 0.5, linetype = "solid") + 
   scale_color_manual(name = "", values = "black") +
   ylab(y.lab) +
@@ -172,12 +306,9 @@ if(language != "english")
   usr.lab <- "PRS"
   lrp.lab <- "PRL"
 }
+
 # Get CI's for projection boxplot
-# 80%
-
-
-pB<-DD.out$GBa$sims.list$B.p[,3]
-#pB.box<-pB[pB>quantile(pB,alpha*2)&pB<quantile(pB,1-alpha*2)]
+pB<-DD.out$GBa$sims.list$B.p[,which(DD.out$GBa$data$C.p==(interim.tac)+proj.catch$GBa)]
 pB.box <- as.data.frame(t(quantile(pB, probs = c(0.10, 0.25, 0.50, 0.75, 0.90))))
 names(pB.box) <- c("ymin", "lower", "middle", "upper", "ymax")
 pB.box$year <- year
@@ -202,8 +333,8 @@ bm.ts.plot <- ggplot() +
               alpha=0.2,fill="grey20") +
   geom_line(data=B.dat, aes(years,median),color='black', linewidth = 0.4) + 
   geom_point(data=B.dat, aes(years,median), size=1) + 
-  geom_boxplot(data = pB.box[1:5]/1000, stat = "identity",
-               aes(x = year,ymin = ymin,lower = lower,middle = middle,upper = upper,ymax = ymax),
+  geom_boxplot(data = pB.box, stat = "identity",
+               aes(x = year,ymin = ymin/1000,lower = lower/1000,middle = middle/1000,upper = upper/1000,ymax = ymax/1000),
                outlier.shape=NA) +
   geom_point(aes(year,pB.box$middle/1000))+
   scale_color_manual(name="",values=c("firebrick","goldenrod1"))+
@@ -287,9 +418,15 @@ showtext_auto(TRUE)
 ###### (D) Recruit B
 ######### (C) Estimated proportional exploitation rate / natural mortality plot
 # Annual Exploit ######### NOT A PLOT
-if(language == "english")  y.lab <- "Exploitation (proportional rate)"
+if(language == "english")  {
+  y.lab <- "Exploitation (proportional rate)"
+  rr.lab <- "RR"
+}
 
-if(language != "english") y.lab <- "Exploitation (taux proportionnel)"
+if(language != "english") {
+  y.lab <- "Exploitation (taux proportionnel)"
+  rr.lab <- "ER"
+}
 
 mu.dat <- data.frame(
   year = years,
@@ -301,7 +438,7 @@ exploit.latest <- round(mu.dat$median[mu.dat$year==yr],2)
 # plot
 e.m.plot <- ggplot(data=mu.dat) + 
   geom_ribbon(aes(ymin=lower.ci,ymax=upper.ci,x=years.ribbon),alpha=0.2,fill="grey10") +
-  geom_hline(aes(yintercept=RR,col="RR"), lty="dotted", alpha=0.7, linewidth=0.8)+
+  geom_hline(aes(yintercept=RR,col=rr.lab), lty="dotted", alpha=0.7, linewidth=0.8)+
   geom_line(aes(x=year,y=median),col="black" , linewidth = 0.4) + 
   geom_point(aes(x=year,y=median),col="black" , size=1) +
   scale_color_manual(name="",values=c("grey20"))+
@@ -390,12 +527,12 @@ theme_set(theme_few(base_size = 12))
 
 if(language == "english") 
 {
-  y.lab <- "Natural mortality (proportional rate)"
+  y.lab <- "Natural mortality\n(proportional rate, recruit)"
   ltm.lab <- "LTM"
 }
 if(language != "english") 
 {
-  y.lab <-"Mortalité naturelle (taux proportionnel)"
+  y.lab <-"Mortalité naturelle\n(taux proportionnel, recrues)"
   ltm.lab <- "MLT"
 }
 
@@ -449,12 +586,12 @@ showtext_auto(TRUE)
 
 if(language == "english") 
 {
-  y.lab <- "Natural mortality (proportional rate)"
+  y.lab <- "Natural mortality\n(proportional rate, fully-recruited)"
   ltm.lab <- "LTM"
 }
 if(language != "english") 
 {
-  y.lab <-"Mortalité naturelle (taux proportionnel)"
+  y.lab <-"Mortalité naturelle\n(taux proportionnel, pleinement recrutés)"
   ltm.lab <- "MLT"
 }
 
@@ -515,24 +652,24 @@ showtext_auto(TRUE)
 ###################### PANEL 3 - Condition #########################################################
 if(language == "english") 
 {
-  y.lab <- "Relative condition (prop. of maximum)"
+  y.lab <- expression(paste("Condition factor (", NULL, frac(g,dm^3) ,")"))
   ltm.lab <- "LTM"
 }
 if(language != "english") 
 {
-  y.lab <-"État relatif (prop. du maximum)"
+  y.lab <- expression(paste("Coefficient de condition (", NULL, frac(g,dm^3) ,")"))
   ltm.lab <- "MLT"
 }
 
 cf.max <- max(mod.dat$GBa$CF, na.rm=T)
-cf.ltm <- round(median(mod.dat$GBa$CF[-length(mod.dat$GBa$CF)]/cf.max),3)
+cf.ltm <- round(median(mod.dat$GBa$CF[-length(mod.dat$GBa$CF)]),3)
 cf.plot <- ggplot() + 
   geom_hline(aes(yintercept=cf.ltm,col=ltm.lab),lty="dashed", alpha=0.9) +
-  geom_line(aes(x=mod.dat$GBa$year[-1:-2],y=mod.dat$GBa$CF[-1:-2]/cf.max),col="black", linewidth = 0.4) + 
-  geom_point(aes(x=mod.dat$GBa$year[-1:-2],y=mod.dat$GBa$CF[-1:-2]/cf.max),col="black", size=1) + 
+  geom_line(aes(x=mod.dat$GBa$year[-1:-2],y=mod.dat$GBa$CF[-1:-2]),col="black", linewidth = 0.4) + 
+  geom_point(aes(x=mod.dat$GBa$year[-1:-2],y=mod.dat$GBa$CF[-1:-2]),col="black", size=1) + 
   xlab("") + ylab(y.lab) + 
   scale_color_manual(name="",values=c("grey20"))+
-  coord_cartesian(xlim=c(min(years)-1,max(years)+2),ylim=c(0,1.06))+
+  coord_cartesian(xlim=c(min(years)-1,max(years)+2))+
   scale_x_continuous(breaks=seq(1985,max(years)+2,5),
                      # (hello future modelers!) Need to adjust labels once we get to 2035. In 2030 add [, ""]. In 2035 add: [,2035].
                      labels = c(1985, "", 1995, "", 2005, "", 2015, "", 2025),
@@ -549,11 +686,17 @@ cf.plot
 panel_2 <- cowplot::plot_grid(R.nat.mort.plot, FR.nat.mort.plot, cf.plot, align="v",ncol=2,axis="lr")
 showtext_auto(FALSE)
 # panel with natural mortality and condition
-if(language == "english")  ggsave(filename=paste0(direct_out, year,"/Updates/", bank, "/Figures_and_tables/FSAR_panel2_FmortCondition.png"), panel_2, dpi = 600, width = 9, height = 7)
+if(language == "english")  ggsave(filename=paste0(direct_out, year,"/Updates/", bank, 
+                                                  "/Figures_and_tables/FSAR_panel2_FmortCondition.png"), panel_2, dpi = 600, width = 9, height = 7)
+# panel with natural mortality and condition
+if(language == "english")  ggsave(filename=paste0(direct_out, year,"/Updates/", bank, 
+                                                  "/Figures_and_tables/FSAR_panel2_FmortCondition.png"), panel_2, dpi = 600, width = 9, height = 7)
 # figure for presentations (larger scale)
-if(language == "english") ggsave(filename=paste0(direct_out, year,"/Updates/", bank, "/Figures_and_tables/FSAR_condition.png"), cf.plot, dpi = 600, width = 6.5, height =5)
+if(language == "english") ggsave(filename=paste0(direct_out, year,"/Updates/", bank, 
+                                                 "/Figures_and_tables/FSAR_condition.png"), cf.plot, dpi = 600, width = 6.5, height =5)
 # figure for FSAR document
-if(language == "english") ggsave(filename=paste0(direct_out, year,"/Updates/", bank, "/Figures_and_tables/FSAR_panel3_condition.png"), cf.plot, dpi = 600, width = 4.5, height = 3.5)
+if(language == "english") ggsave(filename=paste0(direct_out, year,"/Updates/", bank, 
+                                                 "/Figures_and_tables/FSAR_panel3_condition.png"), cf.plot, dpi = 600, width = 4.5, height = 3.5)
 # Frenched
 
 if(language != "english")  ggsave(filename=paste0(direct_out, year,"/Updates/", bank, 
@@ -569,3 +712,4 @@ if(language != "english") ggsave(filename=paste0(direct_out, year,"/Updates/", b
                                  cf.plot, dpi = 600, width = 4.5, height = 3.5)
 
 showtext_auto(TRUE)
+

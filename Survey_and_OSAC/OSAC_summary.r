@@ -436,7 +436,7 @@ browser()
           # Geometric rolling mean
           ma.three.mean.26c <- exp(na.omit(c(rollmean(log(na.omit(surv.26c$I)),3,'center'))))
           max.three.26c <- max(ma.three.mean.26c,na.rm=T)
-          # Current 3 year geometric mean biomass
+          # Current 3 year geometric mean biomass #note: do not use the code above for retrospective stock status indicators
           bm.last.3.26c <- round(ma.three.mean.26c[length(ma.three.mean.26c)],digits=0)
           ratio.26c <- gmean.26c/max.three.26c
           LRP.26c <- 890
@@ -446,7 +446,7 @@ browser()
           # Now german
           plt.dat.26c <- data.frame(year=max(surv.26c$year), cur.bm = bm.last.3.26c,
                                     lrp = LRP.26c, usr = USR.26c)
-          browser()
+          
           plt.26c.bmi.ts <- 
             ggplot() + 
             geom_ribbon(data=surv.26c, aes(x=year,ymin=I-(I*I.cv),ymax=I+(I*I.cv)), fill="grey") +
@@ -485,7 +485,7 @@ browser()
           max.27b <- max(surv.27b$I,na.rm=T)
           ma.three.mean.27b <- exp(c(na.omit(rollmean(log(na.omit(surv.27b$I)),3,'center'))))
           max.three.27b <- max(ma.three.mean.27b,na.rm=T)
-          # Current 3 year geometric mean biomass
+          # Current 3 year geometric mean biomass #note: do not use the code above for retrospective stock status indicators
           bm.last.3.27b <- round(ma.three.mean.27b[length(ma.three.mean.27b)],digits=0)
           ratio.27b <- gmean.27b/max.three.27b
           LRP.27b <- 628

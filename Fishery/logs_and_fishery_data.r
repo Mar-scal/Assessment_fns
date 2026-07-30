@@ -324,7 +324,9 @@ for(fun in funs)
                                          gear.ft = GEAR_SIZE_FEET, numshuck = NUM_OF_CREW_SHUCKING, numcrew = NUM_OF_CREW, 
                                          weight = SLIP_WEIGHT_LBS, grade = FISH_GRADE,stringsAsFactors = F,
                                          licence = LICENCE_ID,
-                                         company=EA_COMPANY))
+                                         company=EA_COMPANY,
+                                         captain=CAPTAIN_NAME,
+                                         mate=MATES_NAME))
           
           # This removes columns/variables we do not need.
           log <- with(log1, data.frame(mdid = MON_DOC_ID, ves = VESSEL_NAME,vrnum = VR_NUMBER, tripnum = TRIP_ID, 
@@ -336,8 +338,6 @@ for(fun in funs)
                                        licence = LICENCE_ID)) 
       } # End if max(yr > 2008)
     
-    
-
     # Grab the data from 2008 onwards, these are flat files which are SQL data fixed.
     if(max(log.year) > 2008 )
       {
@@ -448,6 +448,7 @@ for(fun in funs)
           last.year <- ifelse(year[1]=="ALL",current.year,max(year))
           if(last.year != current.year)
           {
+            browser()
             #Write16 These are somewhat more complex than necessary, the ifelse really isn't needed...
             write.table(new.log.dat, file = paste(direct.off,"Data/Fishery_data/Logs/Compiled/",
                                                   ifelse(year[1]=="ALL",2009,max(min(year),2009)),"-",
@@ -563,7 +564,8 @@ for(fun in funs)
         # Now if there is data from the pre-2009 logs and we want to export it lets do it here.
         if(export == T)
           {
-            #Write20
+          browser()  
+          #Write20
             write.table(old.log.dat, file = paste(direct.off,"Data/Fishery_data/Logs/Compiled/",ifelse(year[1]=="ALL",1955,max(min(year),1955)),
                                                "-",ifelse(year[1]=="ALL",2008,min(max(year),2008)),"log.csv",sep=""),
                                                sep=",",row.names=F,col.names=T)

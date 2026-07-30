@@ -137,10 +137,12 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   if(!is.null(tow_number_key)) {
     tnk <- readxl::read_xlsx(tow_number_key)
-    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GBMon", "GBa", "GBb")
-    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- tolower(c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb"))
+    banks <- as.data.frame(str_locate(pattern = look, string = tolower(filename)))
     look <- look[which(!is.na(banks$start))]
-    tnk <- tnk[tnk$Bank %in% look,]
+    if(any(look == "gb")) look <- c(look,"gba","gbb")
+    tnk_all <- tnk
+    tnk <- tnk[tolower(tnk$Bank) %in% look,]
     names(tnk)[which(names(tnk) == "olex_no")] <- "ID"
     coords.track <- left_join(coords.track, tnk)
     names(coords.track)[which(names(coords.track) == "tow_track_order")] <- "official_tow_number"
@@ -207,14 +209,15 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     }
     trackpts <- unsmoothed
   }
-  
   starttime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstart", c("tow", "datetime")])
   starttime$start <- ymd_hms(starttime$datetime)
   starttime <- dplyr::select(starttime, -datetime)
+  starttime <- starttime[!is.na(starttime$tow),]
   
   endtime <- unique(trackpts[trackpts$Ferdig.forenklet_4=="Garnstopp", c("tow", "datetime")])
   endtime$end <- ymd_hms(endtime$datetime)
   endtime <- dplyr::select(endtime, -datetime)
+  endtime <- endtime[!is.na(endtime$tow),]
   
   time <- left_join(starttime, endtime)
   
@@ -227,7 +230,7 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
     print(paste0(getwd(), "/csv_to_edit.csv"))
   }
   
-  trackpts <- trackpts %>%
+  trackpts <- trackpts[!is.na(trackpts$datetime),] %>%
     st_as_sf(coords=c("Longitude", "Latitude"), crs=4326) %>%
     st_transform(UTM) %>%
     group_by(tow) %>%
@@ -247,12 +250,12 @@ olex_import <- function(filename, ntows=NULL, type, length="sf", correction_fact
   
   if(!is.null(tow_number_key)) {
     tnk <- readxl::read_xlsx(tow_number_key)
-    look <- c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb")
-    banks <- as.data.frame(str_locate(pattern = look, string = filename))
+    look <- tolower(c("Mid", "Sab", "Ban", "Ger", "BBn", "BBs", "GB", "GBa", "GBb"))
+    banks <- as.data.frame(str_locate(pattern = look, string = tolower(filename)))
     look <- look[which(!is.na(banks$start))]
-    if(any(look == "GB")) look <- c(look,"GBa","GBb")
+    if(any(look == "gb")) look <- c(look,"gba","gbb")
     tnk_all <- tnk
-    tnk <- tnk[tnk$Bank %in% look,]
+    tnk <- tnk[tolower(tnk$Bank) %in% look,]
     names(tnk)[which(names(tnk) == "olex_no")] <- "tow"
     trackpts <- left_join(trackpts, tnk)
     names(trackpts)[which(names(trackpts) == "tow_track_order")] <- "official_tow_number"

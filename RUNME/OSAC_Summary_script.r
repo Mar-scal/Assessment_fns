@@ -33,8 +33,8 @@ source(paste(direct_fns,"Survey_and_OSAC/OSAC_summary.r",sep = ""))
 # Note that this will lead to an error if there was no fishing on a bank in a given year so make sure you remove any
 # banks that don't have fishery data for the current year!
 OSAC_summary(direct = direct,direct_fns=direct_fns,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2025,
-             bank = "all",
-             save.fig = T,save.res=F,export=F, calc.mc = F, rdata.logs=F)
+             bank = "Ger",
+             save.fig = F,save.res=F,export=F, calc.mc = F, rdata.logs=F)
 
 OSAC_summary(direct = direct,un=un.ID,pw=pwd.ID,db.con="ptran",yr=2019,
              bank = c("Sab", "Ban"),

@@ -27,6 +27,8 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
 
   fish.reg <- read.csv(paste(direct,"Data/Fishery_regulations_by_bank.csv",sep=""))
 
+  if(!year %in% fish.reg$year) stop("Add data for current year to Fishery_regulations_by_bank.csv")
+  
   possiblebanks <- data.frame(banks=c("BBn", "BBs", "Ger", "Mid", "Sab", "GB", "Ban", "BanIce", "GBa", "GBb"),
                                 season=c(rep("spring", 8), rep("summer", 2)))
   bankcheck <- data.frame(banks, year=year)
@@ -402,7 +404,7 @@ Survey_Summary_Word <- function(year=2017, reportseason="spring", subarea=F, dat
     # breakdown plot biomass size ranges
     # size range quartiles. This outputs a range that includes 75% of the scallops
     # total number per tow caught this year
-
+    
 if(!banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank==banks[i] & fish.reg$year==y]
 if(banks[i] == "GB") mcreg <- fish.reg$MC_reg[fish.reg$Bank=="GBa" & fish.reg$year==y]
 

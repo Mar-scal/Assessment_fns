@@ -41,10 +41,11 @@ olex_sf <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/Da
 
 ### OPTIONAL: Extract the tow tracks for sharing in txt file or CSV file. Use last bank of survey, and run multiple times if 
 ### multiple UTMs in the survey (e.g. spring, run twice, and delete inappropriate files)
-olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2025/Database loading/LE21/GertracksLE21.gz", 
-                           UTM = 32620, earliest="2025-05-01", latest="2025-07-01", type="tracks",
+### run this using the last bank's GZ file so that all tracks are in one gz file (or run twice if there are multiple UTMs) 
+olex_tracks <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2026/Database loading/LE23/LE23GERtracks_final.gz", 
+                           UTM = 32619, earliest="2026-05-01", latest="2026-07-01", type="tracks",
                            #edited_csv="C:/users/keyserf/Desktop/csv_to_edit - Copy.csv",
-                           tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2025/Database loading/LE21/LE21trackorder.xlsx")
+                           tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2026/Database loading/LE23/LE23trackorder.xlsx")
 
 # for industryreport
 for(i in unique(olex_tracks$Bank)){
@@ -52,22 +53,23 @@ for(i in unique(olex_tracks$Bank)){
   year <- unique(lubridate::year(write$Date_time))
   write$Year <- year
   write <- dplyr::select(write, -Date_time)
-  if(i == "SFA25A.shp") write$Bank <- "SabMid"
-  if(i == "SFA25B.shp") write$Bank <- "Ban"
+  #if(i == "SFA25A.shp") write$Bank <- "SabMid"
+  #if(i == "SFA25B.shp") write$Bank <- "Ban"
   if(i == "SFA26A.shp") write$Bank <- "BBn"
-  if(i == "SFA26B.shp") write$Bank <- "BBs"
+  #if(i == "SFA26B.shp") write$Bank <- "BBs"
   if(i == "SFA26C.shp") write$Bank <- "Ger"
   if(i == "SFA27A.shp") write$Bank <- "GBa"
   if(i == "SFA27B.shp") write$Bank <- "GBb"
-  write.csv(write, paste0("Y:/Offshore/Assessment/Data/Survey_data/2025/Industry Reports/", unique(write$Bank), "_olex_tracks_", year, ".csv"))
+  print(summary(write))
+  #write.csv(write, paste0("Y:/Offshore/Assessment/Data/Survey_data/2026/Industry Reports/", unique(write$Bank), "_olex_tracks_", year, ".csv"))
 }
 
 ##### REQUIRED FOR DATABASE LOADING: Import olex data from gz or txt file, and calculate distance coefficient and bearing/
 ##### w setting was determined based on testing results in Supporting_task_code/2022/olex_vs_ov_2022.Rmd
 ##### MUST RUN FOR EACH INDIVIDUAL BANK FOR NOW (unfortunately)
-olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE20/GBaGBbtracks_LE20Aug18.gz", 
-                         UTM=32619, type="load", correction_factor = 1.04, earliest="2024-08-01", latest="2024-09-01", 
-                         tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2024/Database loading/LE20/LE20trackorder.xlsx")
+olex_load <- olex_import(filename="Y:/Offshore/Assessment/Data/Survey_data/2026/Database loading/LE23/LE23GERtracks_final.gz", 
+                         UTM=32619, type="load", correction_factor = 1.04, earliest="2026-05-01", latest="2026-07-01", 
+                         tow_number_key = "Y:/Offshore/Assessment/Data/Survey_data/2026/Database loading/LE23/LE23trackorder.xlsx")
 
 # UTM 32619 for GBa, GBb, BBn, Ger
 # UTM 32620 for BBs, Sab, Mid

@@ -5,8 +5,8 @@
 
 direct <- "Y:/Offshore/Assessment/"
 direct_fns <- "C:/Users/keyserf/Documents/Github/Assessment_fns/"
-year <- 2025
-cruise <- "LE22"
+year <- 2026
+cruise <- "LE23"
 
 #### First, check the data file-by-file (by bank) using scaloff_bank_check.R
 ### Step 1: Load the scaloff_bank_check function 
@@ -26,10 +26,10 @@ file.remove(paste0(dir,"/",basename(fun)))
 ### Step 2: Run the function with the various arguments you need:
 scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = "csv", 
                    spatialplot = T, assign.strata=T, # NOTE: spatialplot must be T for assign.strata to work
-                   cruise = cruise, bank = "GBa", survey_name = "GB2025.2", 
-                    olex.csv = "Olex_distance_coefficientsGBa2025.csv",
-                   tow=T, hf = T, mwsh = T, un=un.ID, pwd.ID=pw, # if hf is T, tow must also be T
-                   nickname = ".GBaLE22")
+                   cruise = cruise, bank = "Ger", survey_name = "Ger2026", 
+                    olex.csv = "Olex_distance_coefficients_LE23_Ger.csv",
+                   tow=T, hf =T, mwsh = T, un=un.ID, pwd.ID=pw, # if hf is T, tow must also be T
+                   nickname = ".GerLE23")
 
 ### Step 3: Scroll through the output and read the error messages to look at issues. Be thorough!
 ### For GB monitoring survey (spring), warnings like "the condition has length > 1 and only the first element will be used" are ok
@@ -51,8 +51,8 @@ scaloff_bank_check(direct = direct,  direct_fns=direct_fns, year = year, type = 
 
 ### Step 7: Once you've checked/fixed the files for each individual bank, use scaloff_cruise_check function to check data BETWEEN banks.
 ### Start by setting up some variables and loading in the function
-year <- 2025
-cruise <- "LE22"
+year <- 2026
+cruise <- "LE23"
 direct <- "Y:/Offshore/Assessment/"
 
 #source from Local:
@@ -69,7 +69,7 @@ file.remove(paste0(dir,"/",basename(fun)))
 ### Step 8: Run the function with the various arguments you need:
 scaloff_cruise_check(year=year, direct=direct, direct_fns=direct_fns,
                      type="csv", 
-                     cruise=c("LE22"), season="summer")
+                     cruise=c("LE23"), season="spring")
 
 ### Step 9: Scroll through the output and make sure it's all logical. 
 ### The last line should read: Successfully passed duplicate tow check without any issues. Yay!

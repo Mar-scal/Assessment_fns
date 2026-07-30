@@ -410,19 +410,21 @@ Check the MGT_AREA_CD values for the following tows:")
         
         tows2 <- rbind(starts, ends) %>%
           group_by(across(c(-type, -geometry, -AREA_ID, -ID))) %>%
-          summarize() %>%
+          dplyr::summarize() %>%
           st_cast("LINESTRING")
         tows2 <- left_join(tows2, area.test)
 
         # calculating the distance of each tow
         tows2$dist.calc <- st_length(tows2)
-        
+      
         # flag the tow if the distance is greater than 2 km
         if(any(as.numeric(tows2$dist.calc) > 2000 | as.numeric(tows2$dist.calc) < 500)) {
           message("\nThere are some tows longer than 2km or shorter than 500m. Check their coordinates:")
           print(data.frame(tows2[!is.na(tows2$dist.calc) & (as.numeric(tows2$dist.calc) > 2000 | as.numeric(tows2$dist.calc) < 500),]))
           
         }
+        
+        area$ID[area$ID=="0"] <- "Ger"
         
         plot.list <- NULL
         ## plot tows to PDF
@@ -457,12 +459,15 @@ Check the MGT_AREA_CD values for the following tows:")
           olex$endlon <- convert.dd.dddd(olex$end_lon)
           olex$endlat <- convert.dd.dddd(olex$end_lat)
           
+          if(bank=="GBMon") olexplot <- olex[olex$Bank %in% c("GBa", "GBb"),]
+          if(!bank=="GBMon") olexplot <- olex[olex$Bank == bank,]
+          
           png(paste0(direct, "/Data/Survey_data/", year, "/Database loading/", cruise, "/", bank, "/olex_compare_spatial.png"), width=11, height=8, units="in", res=600)
           print(ggplot() + 
             # geom_segment(data=area.test.both, aes(x=START_LON_DD, xend=END_LON_DD, y=START_LAT_DD, yend=END_LAT_DD, linetype="tow file"), lwd=3, na.rm = T) +
-            geom_segment(data=olex[olex$Bank==bank,], aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
+            geom_segment(data=olexplot, aes(x=startlon, xend=endlon, y=startlat, yend=endlat, linetype="olex"), na.rm = T) +
             geom_text(data=area.test, aes(x=START_LON_DD, y=START_LAT_DD, colour="tow file (start point)", label=TOW_NO), na.rm = T, size=1) +
-            geom_text(data=olex[olex$Bank==bank,], aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
+            geom_text(data=olexplot, aes(x=endlon, y=endlat, colour="olex (end point)", label=tow), na.rm = T, size=1) +
             scale_colour_manual(values=c("red", "blue")) + 
             coord_sf())
           dev.off()

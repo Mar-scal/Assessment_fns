@@ -35,7 +35,7 @@ if(!fork == "mar-scal") direct_fns <- paste0("C:/Users/keyserf/Documents/Github/
 direct <- "Y:/Offshore/Assessment/"
 
 # All that is left to do is get the arguements for the final 3 model functions update and everything should be gold.
-source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
+#source(paste(direct_fns, "Model/Update_function_JAGS.r",sep=""))
 #source(paste(direct,"Assessment_fns/Model/diag.plt.R",sep=""))
 
 # # Just because of how I have set this up to save objects, if running a bunch of sub-areas it is quicker to run
@@ -93,7 +93,7 @@ imputetype<-c("mixed")#, # 2022 conclusion is to use "mixed" for 2020 imputation
   #"LTM")#, "previous_year", "midpoint"
               
 banks <- c(#"GBa-West","GBa-Central","GBa-East","GBa-SC","GBa-DS","GBa-North","GBa-South","GBa-Core","GBa-Large_core",
-  "GBa", "BBn")
+  "GBa")
 yr <- 2025
 
 for(b in banks){
@@ -111,22 +111,23 @@ for(b in banks){
     
     # runs the model IF run.model=T, and creates all figures
     run_model(banks=b,
-              yr=2025,
+              yr=yr,
               nickname=NULL,
               direct,
               direct_fns,
               direct_out,
               run.model = T,
               parallel=T,
-              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Final_model_results.RData",sep=""),
+              model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results.RData",sep=""),
               final.run=F,
               jags.model = "Github/Assessment_fns/Model/DDwSE3_jags.bug",
               # model.dat = paste0(direct_out, "Data/Model/",(yr+1),"/",b,"/Results/Model_testing_results_", it, ".RData",sep=""),
               # final.run=F,
-              nchains = 8,niter = 175, nburn = 100, nthin = 20,
+              #nchains = 8,niter = 175000, nburn = 100000, nthin = 20,
               export.tables=T,
-              make.diag.figs = F,
+              make.diag.figs = T,
               make.update.figs = T,
+              decision.seq=seq(0,2000,100),# set to NULL for default!
               language="en",
               fig="png")
     
@@ -145,24 +146,24 @@ for(b in banks){
       # modelled:
       # Up to 2016
       #direct<- "Y:/Offshore/Assessment/"
-      load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
-      out.tmp <- out; rm(out)
-      #2017
-      load(paste(direct,"Data/Model/",2018,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
-      out.tmp[["2017"]] <- out[["2017"]]
-      #2018-2019
-      for(y in 2019:2020){
-        load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
-        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
-      }
-      #2020
-      out.tmp[["2020"]] <- NULL
-      #2021+
-      for(y in 2022:(yr+1)){
-        load(paste(direct_out,"Data/Model/",y,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
-        out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
-      }
-      out.modelled <- out.tmp[order(names(out.tmp))]
+      # load(paste(direct,"Data/Model/",2017,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
+      # out.tmp <- out; rm(out)
+      # #2017
+      # load(paste(direct,"Data/Model/",2018,"/",b,"/Results/Projection_evaluation_results_mod_growth.RData",sep=''))
+      # out.tmp[["2017"]] <- out[["2017"]]
+      # #2018-2019
+      # for(y in 2019:2020){
+      #   load(paste(direct,"Data/Model/",y,"/",b,"/Results/Projection_evaluation_modelled_growth.RData",sep=''))
+      #   out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      # }
+      # #2020
+      # out.tmp[["2020"]] <- NULL
+      # #2021+
+      # for(y in 2022:(yr+1)){
+      #   load(paste(direct_out,"Data/Model/",y,"/",b,"/Results/", it, "/Projection_evaluation_modelled_growth.RData",sep=''))
+      #   out.tmp[[as.character(y-1)]] <- out[[as.character(y-1)]]
+      # }
+      # out.modelled <- out.tmp[order(names(out.tmp))]
 
       #saveRDS(out.modelled, paste0(direct, "Data/Model/out_modelled_GBa_2025-11-18.RDS"))
       out.modelled <- readRDS(paste0(direct, "Data/Model/out_modelled_GBa_2025-11-18.RDS"))
@@ -228,21 +229,21 @@ for(b in banks){
 
 
 # Here are a quick summary of the interesting model results which we report in the model update for BBn and GBa.
-load(paste(direct_out,"Data/Model/2023/GBa/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
-load(paste(direct_out,"Data/Model/2023/GBa/Results/Model_testing_results_mixed.RData",sep=""))
+load(paste(direct_out,"Data/Model/2026/GBa/Results/Model_results_and_diagnostics.RData",sep=""))
+load(paste(direct_out,"Data/Model/2026/GBa/Results/Model_testing_results.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/GBa/Results/Model_results_and_diagnostics.RData",sep=""))
-load(paste(direct_out,"/Data/Model/2023/BBn/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
+#load(paste(direct_out,"/Data/Model/2026/BBn/Results/Model_results_and_diagnostics_mixed.RData",sep=""))
 #load(paste(direct,"/Data/Model/2019/BBn/Results/Model_results_and_diagnostics.RData",sep=""))
 
 mod.dat
 # reference points for GBa (should be...):
 refyears <- which(DD.out$GBa$dat$year %in% 1986:2009)
 
-# mean(DD.out$GBa$mean$B[refyears]) * 0.3 #4 807 # 4752
-# mean(DD.out$GBa$mean$B[refyears]) * 0.8 #12 820 # 12671
+# mean(DD.out$GBa$mean$B[refyears]) * 0.3 #4 807 # 4752 #4725
+# mean(DD.out$GBa$mean$B[refyears]) * 0.8 #12 820 # 12671 #12601
 
-mean(DD.out$GBa$median$B[refyears]) * 0.3 #4 724 # 4673 # 4680
-mean(DD.out$GBa$median$B[refyears]) * 0.8 #12 597 # 12461 # 12480
+mean(DD.out$GBa$median$B[refyears]) * 0.3 #4 724 # 4673 # 4680 #4648
+mean(DD.out$GBa$median$B[refyears]) * 0.8 #12 597 # 12461 # 12480 #12397
 
 
 # The fully recruited biomass for the previous year and current year
@@ -257,6 +258,9 @@ FR.bm
 # [1] 26781.13 18117.58
 # $GBa 2023
 # [1] 18489.06 22966.65
+
+# $GBa 2025
+# [1] 13459.458  7956.496
 
 
 # $BBn 2018
@@ -275,6 +279,8 @@ proj.dat[[1]]$catch[proj.dat[[1]]$year==yr]
 #BBn 2022 - 245.5611
 #GBa 2023 - 617.4805
 
+#GBa 2025 - 363.3202
+
 # Long term median fully recruited biomass (not including the most recent year)
 FR.ltm
 # GBa 2018
@@ -287,6 +293,9 @@ FR.ltm
 # [1] 18487.7
 # $GBa 2023
 # [1] 18515.1
+
+# $GBa 2025
+# [1] 18621.08
 
 # BBn 2018?
 # 5550.483 
@@ -305,13 +314,16 @@ rec.bm
 # [1] 3327.189 3173.423
 # $GBa 2023
 # [1] 3206.003 3154.261
+#
+# $GBa 2025
+# [1] 1382.6854  732.0007
 
 # $BBn
 # [1] 724.7716 193.6675 ok
 # $BBn 2022
 # [1] 209.7853 212.2573
 
-# (3206.003-3154.261)/3206.003 # percent decline
+# (1382.6854-732.0007)/1382.6854 # percent decline
 # (724.8-193.7)/724.8 # percent decline
 ##### ISSUE: NOT ABLE TO PULL INFO FROM FINAL RESULTS
 
@@ -323,6 +335,8 @@ rec.ltm
 # [1] 3511.671
 # $GBa 2023
 # [1] 3434.434
+# $GBa 2025
+# [1] 3334.351
 
 # BBn 
 # 648.1341 ok
@@ -337,6 +351,8 @@ neff
 # [1]   340 30000
 # $GBa 2023
 # [1]   460 30000
+# $GBa
+# [1]  840 30000
 
 # $BBn
 # [1]  1500 50000 ok
@@ -352,7 +368,9 @@ rhat
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
 # 1.001   1.001   1.001   1.002   1.001   1.011 
 # 
-
+# $GBa 2025
+# Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+#  1.001   1.001   1.001   1.001   1.001   1.006 
 
 # $BBn
 # Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
@@ -366,6 +384,9 @@ BM.proj.1yr
 # [1] 18001.77
 # $GBa 2023
 # [1] 22470.77
+#
+# $GBa 2025
+# [1] 5052.048
 
 # BBn 
 # 2621.141 ***
@@ -381,6 +402,9 @@ mort
 # [1] 0.1375507
 # $GBa 2023
 # [1] 0.1591694
+#
+# $GBa 2025
+# [1] 0.4651475
 
 
 # BBn 
@@ -392,6 +416,7 @@ mort
 # GBa
 DD.out$GBa$median$mu
 # 0.1577278 (2022)
+# 0.1972666 (2025)
 
 # BBn
 DD.out$BBn$median$mu
@@ -405,13 +430,15 @@ prob.below.USR
 # "2%"
 # $GBa 2023
 # [1] "0%"
-
+# $GBa
+# [1] "100%"
 NULL
 
 # The condition this year.
 DD.dat$CF[nrow(DD.dat)]
 # GBa [1] 18.43368 2022
 # [1] 17.12339 2023
+# [1] 16.38926 2025
 
 # BBn [1] 11.70429
 
@@ -422,6 +449,7 @@ DD.dat$CF[nrow(DD.dat)]
 #      GBa 
 # -0.6392381 ***
 # [1] -2.159137 2023
+# [1] -36.50411 2025
 
 #     BBn 
 # 2.663624 ***

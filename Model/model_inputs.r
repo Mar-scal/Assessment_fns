@@ -4,7 +4,7 @@
 model_inputs <- function(bank, yr, impute="mixed", nickname, direct, direct_fns, survey.obj=NULL){
   
   require(PBSmapping)
-  require(maptools)
+  #require(maptools)
   
   if(missing(direct_fns))
   {
@@ -107,7 +107,7 @@ for(fun in funs)
   
   if(!bank %in% names(survey.obj)) {
     message("The bank you want is not in the survey.obj. Specify a different path to a survey.obj Rdata file or re-run survey summary to include the bank (or subarea) you requested")
-    #browser()
+    browser()
     load(paste0(direct, "Data/Survey_data/", yr, "/Survey_summary_output/testing_results_SCALOFF_LE10.RData"))
     if(!bank %in% names(survey.obj)) {
       stop("Still not there... try again.")
@@ -119,6 +119,7 @@ for(fun in funs)
   direct_fns <- direct_fns1
   
   # Now bring in the latest fishery data
+  print(paste0("running logs_and_fish, directory is ", direct))
   if(!missing(direct_fns)) logs_and_fish(loc="offshore",year = 1981:yr,direct=direct, direct_fns=direct_fns)
   if(missing(direct_fns)) logs_and_fish(loc="offshore",year = 1981:yr,direct=direct)
   # If you get any NA's related warnings it may be something is being treated as a Factor in one of the two files.  

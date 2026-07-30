@@ -687,6 +687,10 @@ for(fun in funs)
         
         bound.poly.surv.sp <- pbs_2_sf(bound.poly.surv, lon="X", lat="Y")
         
+        if(banks[i]=="Ger") {
+          
+        }
+        
         # Next we get the survey locations
         if(banks[i] %in% c("Mid","Sab","Ger","BBn","BBs","Ban","BanIce","SPB","GB", "GBb"))
         {   
@@ -741,7 +745,7 @@ for(fun in funs)
           # bound.poly.surv.sp <- spTransform(bound.poly.surv.sp, CRSobj = st_crs(32619)[[2]])
           bound.poly.surv.sf <- st_transform(st_as_sf(bound.poly.surv.sp),crs = 32619)
         }
-
+        
         if(!banks[i] %in% c("GBa", "GBb")) {
           if(exists("bound.poly.surv.sf") & length(unique(surv.Live[[banks[i]]]$random[surv.Live[[banks[i]]]$year==yr]))>1) {
             out <- loc.sf %>% mutate(
@@ -796,14 +800,22 @@ for(fun in funs)
                                        max.edge = c(5, 5), # inner and outer max triangle lengths
                                        offset = c(5, 5)) # inner and outer border widths)
           }
-          
           if(banks[i] %in% c("Ger")) {
-            bound <- st_buffer(st_transform(bound.poly.surv.sf, 32619),dist = 1000)
-            st_geometry(bound) <- st_geometry(bound)/1000
+            shpf_map <- st_read(paste0(gis.repo, "/Offshore/SFA26C.shp")) %>%
+              st_transform(32619)
+            xmin_ger <- data.frame(x=rep(as.numeric(st_bbox(bound.poly.surv.sf)$xmin),2), 
+                                   y=c(as.numeric(st_bbox(shpf_map)$ymin), as.numeric(st_bbox(shpf_map)$ymax)))
+            xmin_ger <- st_as_sf(xmin_ger, coords=c("x", "y"), crs=32619) %>% group_by(1) %>% dplyr::summarize(do_union=F) %>% st_cast("MULTILINESTRING")
+            shpf_map <- lwgeom::st_split(shpf_map, xmin_ger) %>% 
+              st_collection_extract("POLYGON") %>%
+              mutate(ID = 1:length(ID)) %>%
+              filter(ID==1)
+            bound.poly.surv.sf <- shpf_map
+            st_geometry(shpf_map) <- st_geometry(shpf_map)/1000
             mesh <- sdmTMB::make_mesh(data = as.data.frame(st_coordinates(loc.sf))/1000, 
                                      xy_cols = c("X", "Y"), 
                                      fmesher_func = fmesher::fm_mesh_2d_inla,
-                                     boundary = inla.sp2segment(bound),
+                                     boundary = inla.sp2segment(shpf_map),
                                      cutoff = 0.5, # minimum triangle edge length
                                      max.edge = c(5, 5), # inner and outer max triangle lengths
                                      offset = c(5, 5)) # inner and outer border widths)
@@ -1227,7 +1239,6 @@ for(fun in funs)
             for(k in 1:num.bins)
             {
               print(bin.names[k])
-              
               # In the next bunch of if statements we run the INLA model and we get the figure titles sorted out.
               # This is the stack for the INLA model
               pick <- which(names(tmp.dat) %in% c(bin.names[k], "lon", "lat"))
@@ -1237,16 +1248,30 @@ for(fun in funs)
               tmp.bin <- cbind(as.data.frame(tmp.bin), st_coordinates(tmp.bin)/1000)
               names(tmp.bin)[1] <- "out"
               
-              fitted[[bin.names[k]]] <- sdmTMB(
+              x <- tryCatch(print(eval(parse(text = 'sdmTMB(
                 out ~ 1, 
                 data = tmp.bin,
                 family = nbinom1(link="log"),
                 mesh = mesh,
-                spatial = "on")
+                spatial = "on")'))), 
+                            error = function(e) e)
               
-              sane <- sanity(fitted[[bin.names[k]]])
+              if("error" %in% class(x)) {
+                fitted[[bin.names[k]]]  <- NULL
+                mod.res[[bin.names[k]]] <- NULL
+              } 
+              if(!"error" %in% class(x)) {
+                fitted[[bin.names[k]]] <- sdmTMB(
+                  out ~ 1, 
+                  data = tmp.bin,
+                  family = nbinom1(link="log"),
+                  mesh = mesh,
+                  spatial = "on")
+                
+                sane <- sanity(fitted[[bin.names[k]]])
+              }
               
-              if(sum(unlist(sane))<7 & (sane$hessian_ok ==F | sane$eigen_values_ok==F)) {
+              if(is.null(fitted[[bin.names[k]]]) | sum(unlist(sane))<7 & (sane$hessian_ok ==F | sane$eigen_values_ok==F)) {
                 fitted[[bin.names[k]]] <- sdmTMB(
                   out ~ 1, 
                   data = tmp.bin,
@@ -1257,7 +1282,7 @@ for(fun in funs)
                 sane <- sanity( fitted[[bin.names[k]]])
                 
                 if(sum(unlist(sane))<7 & (sane$hessian_ok ==F | sane$eigen_values_ok==F)) {
-                 x <- tryCatch(print(eval(parse(text = 'sdmTMB(
+                  x <- tryCatch(print(eval(parse(text = 'sdmTMB(
                     out ~ 1, 
                     data = tmp.bin,
                     family = tweedie(link="log"),
@@ -1317,7 +1342,6 @@ for(fun in funs)
           save(mod.res,mesh,fitted,
                file = paste(direct,"Data/Survey_data/", yr, "/Survey_summary_output/",banks[i],"/", banks[i],"_figures_res_",s.res[1],"-",s.res[2], ".RData",sep=""))
         } # end if(save.INLA ==T) 
-        
         
         #######################  FIGURES#######################  FIGURES#######################  FIGURES#######################  FIGURES ##################
         #######################  FIGURES#######################  FIGURES#######################  FIGURES#######################  FIGURES ##################
@@ -1598,8 +1622,6 @@ for(fun in funs)
               if(length(grep("bm",maps.to.make[m])) >0) leg.title <- B.tow.lab # If it is biomass then the legend needs the biomass title.
             } #end if(maps.to.make[m]  %in% bin.names) 
             
-            
-            
             # Don't add the titles?
             if(add.title == T)  p <- p + ggtitle(fig.title) + theme(plot.title = element_text(face = "bold",size=20, hjust=0.5))
             
@@ -1612,13 +1634,13 @@ for(fun in funs)
 
             if(exists("poly_to_add")){
               if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial")){
-                bound.poly.surv.sf <- st_difference(bound.poly.surv.sf, poly_to_add)
+                if(!banks[i] == "Ger") bound.poly.surv.sf <- st_difference(bound.poly.surv.sf, poly_to_add)
               }
               
               if((banks[i] == "GBa" & !maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))|
                  !banks[i]=="GBa"){
                 if(!st_geometry(bound.poly.surv.sf) == st_geometry(st_union(bound.poly.surv.sf, poly_to_add))){
-                  bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
+                  if(!banks[i] == "Ger") bound.poly.surv.sf <- st_union(bound.poly.surv.sf, poly_to_add)
                 }
               }
               rm(poly_to_add)
@@ -1628,7 +1650,7 @@ for(fun in funs)
             #   load(paste0(direct,"Data/Survey_data/",yr,"/Survey_summary_output/",banks[i],"/",maps.to.make[m],".Rdata"))
             # }
             #
-            #browser()
+            browser()
             # Here we add our layer to the object above.  This is going to become a list so we can save it and modify it outside Figures.
             if(!is.null(mod.res[[maps.to.make[m]]])){
               if(banks[i] %in% c("GBa", "GBb")) {
@@ -1693,13 +1715,17 @@ for(fun in funs)
      
             if(maps.to.make[m] %in% c("PR-spatial", "Rec-spatial", "FR-spatial",bin.names, "SH-spatial", "SH.GP-spatial","Clap-spatial", "Clap-abund-spatial"))
             {
-             surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
+             surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('lon','lat'),crs = 4326,remove=F) %>% 
                 dplyr::filter(year == yr & state == 'live')
               surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
               surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
               if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
               if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
               if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
+              if(banks[i] == 'GB') {
+                surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
+                surv$`Tow type`[surv$random == 2] <- paste0('exploratory (n = ',length(surv$random[surv$random==2]),")")
+              }
               # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
               if(length(unique(surv$`Tow type`)) ==1) shp <- 21
               if(length(unique(surv$`Tow type`)) ==2) shp <- c(17,21)
@@ -1713,8 +1739,8 @@ for(fun in funs)
             
             if(maps.to.make[m] %in% c("MW.GP-spatial","MW-spatial","CF-spatial","MC-spatial"))
             {
-              detailed_tows <- unique(mw[[banks[i]]][mw[[banks[i]]]$year==yr,]$tow)
-              surv <- st_as_sf(CF.current[[banks[i]]][CF.current[[banks[i]]]$tow %in% detailed_tows,],coords = c('lon','lat'),crs = 4326)
+              #detailed_tows <- unique(mw[[banks[i]]][mw[[banks[i]]]$year==yr,]$tow)
+              surv <- st_as_sf(unique(mw[[banks[i]]][mw[[banks[i]]]$year==yr,c("lon", "lat")]),coords = c('lon','lat'),crs = 4326)
               surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
               surv$`Tow type` <- paste0('detailed (n = ',nrow(surv),")")
               p3 <- p2 + geom_sf(data=surv,aes(shape=`Tow type`),size=2) + scale_shape_manual(values = 21) + coord_sf(expand=F) +
@@ -1801,17 +1827,32 @@ for(fun in funs)
 
       # Use the cut out I make for the INLA models, it looks o.k.
       if(banks[i] %in% c("Mid","Ger")) shpf <- st_as_sf(bound.poly.surv.sp)
+      if(banks[i] %in% c("Ger")) {
+        shpf_map <- st_read(paste0(gis.repo, "/Offshore/SFA26C.shp")) %>%
+          st_transform(32619)
+        xmin_ger <- data.frame(x=rep(as.numeric(st_bbox(shpf)$xmin),2), 
+                               y=c(as.numeric(st_bbox(shpf_map)$ymin), as.numeric(st_bbox(shpf_map)$ymax)))
+        xmin_ger <- st_as_sf(xmin_ger, coords=c("x", "y"), crs=32619) %>% group_by(1) %>% dplyr::summarize(do_union=F) %>% st_cast("MULTILINESTRING")
+        shpf_map <- lwgeom::st_split(shpf_map, xmin_ger) %>% 
+           st_collection_extract("POLYGON") %>%
+           mutate(ID = 1:length(ID)) %>%
+           filter(ID==1)
+      }
+
       if(!banks[i] == "GB") shpf <- st_transform(shpf,crs = st_crs(loc.sf)$epsg)
       
-      surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('slon','slat'),crs = 4326,remove=F) %>% 
+      surv <- st_as_sf(surv.Live[[banks[i]]],coords = c('lon','lat'),crs = 4326,remove=F) %>% 
         dplyr::filter(year == yr & state == 'live')
       surv <- st_transform(surv,crs = st_crs(loc.sf)$epsg)
       surv$`Tow type` <- paste0('regular (n = ',length(surv$random[surv$random==1]),")")
-     
+      
       if(banks[i] != 'Ger') surv$`Tow type`[surv$random != 1] <- paste0('exploratory (n = ',length(surv$random[surv$random!=1]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[!surv$random %in% c(1,3)] <- paste0('exploratory (n = ',length(surv$random[!surv$random %in% c(1,3)]),")")
       if(banks[i] == 'Ger') surv$`Tow type`[surv$random == 3] <- paste0('repeated (n = ',length(surv$random[surv$random==3]),")")
-      if(banks[i] == 'GB') surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
+      if(banks[i] == 'GB') {
+        surv$`Tow type`[surv$random == 3] <- paste0('regular (n = ',length(surv$random[surv$random==3]),")")
+        surv$`Tow type`[surv$random == 2] <- paste0('exploratory (n = ',length(surv$random[surv$random==2]),")")
+      }
       # Get the shapes for symbols we want, this should do what we want for all cases we've ever experienced...
       if(length(unique(surv$`Tow type`)) ==1) shp <- 16; ptcol <- c("black")
       if(!banks[i] == "Ger" & length(unique(surv$`Tow type`)) ==2) shp <- c(24,16); ptcol <- c("transparent", "black")

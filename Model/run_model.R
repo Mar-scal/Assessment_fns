@@ -3,7 +3,7 @@
 
 run_model <- function(banks, yr, export.tables, direct, direct_fns, direct_out, nickname, run.model = T, model.dat = NULL,
                       strt.mod.yr=1986, nchains = 8,niter = 175000, nburn = 100000, nthin = 20,final.run = F,parallel = T,
-                      make.diag.figs=T, make.update.figs=T, fig="screen", language="en",
+                      make.diag.figs=T, make.update.figs=T, decision.seq=NULL, fig="screen", language="en",
                       jags.model = "Assessment_fns/Model/DDwSE3_jags.bug",seed = 123,parameters = NULL){
   
   require(R2jags) || stop("You need the R2jags package installed or this ain't gonna work")
@@ -253,6 +253,7 @@ for(fun in funs)
       # The catch since the survey for the most recent year is this, if there was no catch set this to 0.
       proj.catch[[bnk]] <- max(proj.dat[[bnk]]$catch[proj.dat[[bnk]]$year == max(DD.dat$year)],0)
       # Get the low and upper boundaries for the decision table (this might be a silly way to do this...)
+      
       if(bnk %in% c("GBa","BBn"))
       {
         D_low[[bnk]] <- subset(manage.dat,year==(max(DD.dat$year)+1) & bank == bnk)$D_tab_low
@@ -261,7 +262,7 @@ for(fun in funs)
       # If we are looking at one of the sub-areas we will go for 1/3 of the mean biomass estimate for the current year...
       if(!bnk %in% c("GBa","BBn")) {D_low[[bnk]] <- 0; D_high[[bnk]] <- out$BUGSoutput$mean$B[length(out$BUGSoutput$mean$B)]/3}
       # The increment size for the decision table.  500 for GBa and 50 for BBn
-      step <- ifelse(bnk == "GBa", 500,50)
+      step <- ifelse(bnk == "GBa", 500,50) 
       
       # The interim TAC is known for GBa and BBn,
       if(bnk %in% c("GBa","BBn")) TACi[[bnk]] <- subset(manage.dat,year== (max(DD.dat$year)+1) & bank == bnk)$TAC
@@ -272,7 +273,7 @@ for(fun in funs)
         if(bnk=="GBa") step <- 100
         if(bnk=="BBn") step <- 10
       }
-      
+
       # The URP and LRP for the bank, for the moment only GBa has been accepted so it's the only one used.
       # For more info on GBa reference points: see Y:\Offshore\Assessment\Non-Github archive and documentation\Help and Documentation\GBa Reference Points Literature Review.docx 
       if(bnk %in% c("GBa","BBn"))
@@ -286,7 +287,8 @@ for(fun in funs)
       if(!bnk %in% c("GBa","BBn")) {URP[[bnk]] <- NA; LRP[[bnk]]<- NA}
       
       # Get the projection scenarios of interest
-      if(length(proj.catch[[bnk]]) > 0) proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
+      if(length(proj.catch[[bnk]]) > 0 & is.null(decision.seq)) proj[[bnk]] <- seq(D_low[[bnk]],D_high[[bnk]],step) + proj.catch[[bnk]]
+      if(length(proj.catch[[bnk]]) > 0 & !is.null(decision.seq)) proj[[bnk]] <- decision.seq + proj.catch[[bnk]]
       # If we don't have projected catch data yet (i.e. I'm running the model before the logs have data in them..)
       if(length(proj.catch[[bnk]]) == 0) 
       {
@@ -656,125 +658,6 @@ for(fun in funs)
         # Turn off the plot device if making a pdf.
         if(fig!="screen") dev.off()
         
-        #############  FINALLY I WANT TO MAKE AN OVERALL PLOT OF THE BANKS AND THAT WILL BE THAT...
-        # Also make the overall plot of the banks...
-        # set up the labels first
-        
-        labels <- github_spatial_import(subfolder = "other_boundaries/labels", zipname = "labels.zip")
-        offshore <- github_spatial_import(subfolder = "offshore", zipname = "offshore.zip")
-        
-        labels <- labels[grepl('offshore_detailed',labels$region),]
-        
-        sfa.labels <- labels[grep(x=labels$lab_short, "SFA"),]
-        
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="A ", replacement="A", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=" (", replacement="\n", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=")", replacement="", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern=" Bank", replacement="", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="-BAN", replacement="", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="north", replacement="North", fixed=T)
-        sfa.labels$lab_short <- gsub(x = sfa.labels$lab_short, pattern="south", replacement="South", fixed=T)
-        sfa.labels$lab_short[sfa.labels$lab_short=="SFA27A"] <- "SFA27A\nGeorges 'a'"
-        sfa.labels$lab_short[sfa.labels$lab_short=="SFA27B"] <- "SFA27B\nGeorges 'b'"
-        sfa.labels <- sfa.labels[-grep(pattern = "Includes", x=sfa.labels$lab_short),]
-        sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nG", replacement="26C\nG", fixed=T)
-        sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nBrowns North", replacement="26A\nBrowns North", fixed=T)
-        sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="26\nBrowns South", replacement="26B\nBrowns South", fixed=T)
-        sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="25\nBa", replacement="25B\nBa", fixed=T)
-        sfa.labels$lab_short <- gsub(x=sfa.labels$lab_short, pattern="25\nEa", replacement="25A\nEa", fixed=T)
-        
-        sfa.labels <- sfa.labels %>%
-          tidyr::separate(lab_short, into=c("SFA", "bank"), sep="\n", remove=F)
-        
-        sf_use_s2(FALSE)
-        joined <- st_join(offshore, sfa.labels)
-        
-        joined <- joined[!(joined$bank=="Banquereau" & joined$ID.x=="SFA25A"),]
-        joined$fr <- joined$lab_short
-        joined$fr <- gsub(x=joined$fr, pattern="Browns South", replacement ="Sud de Brown")
-        joined$fr <- gsub(x=joined$fr, pattern="Browns North", replacement ="Nord de Brown")
-        joined$fr <- gsub(x=joined$fr, pattern="Georges 'a'", replacement ="Georges \u00ABa\u00BB")
-        joined$fr <- gsub(x=joined$fr, pattern="Georges 'b'", replacement ="Georges \u00ABb\u00BB")
-        joined$fr <- gsub(x=joined$fr, pattern="Eastern Scotian Shelf", replacement ="Est du plateau n\u00E9o-\u00E9cossais")
-        joined$fr <- gsub(x=joined$fr, pattern="SFA", replacement ="ZPP")
-        
-        
-        
-        nonGB <- joined[!joined$SFA %in% c("SFA27A", "SFA27B"),]
-        GBalab <- joined[joined$SFA %in% c("SFA27A"),]
-        GBblab <- joined[joined$SFA %in% c("SFA27B"),]
-   
-        p <-  pecjector(area = "NL", add_layer = list(land = 'grey',
-                                                      eez = 'eez',
-                                                      sfa='offshore',
-                                                      bathy=c(100, 'c', 200)),
-                        c_sys = 4326, quiet=T)
-
-        if(fig== "screen") windows(11,8.5)
-        if(fig == "pdf") pdf(paste(plotsGo,"Offshore_banks.pdf",sep=""),width=13,height=11)
-        if(fig == "png") png(paste(plotsGo,"Offshore_banks.png",sep=""),width=11,height=8,res=920,units="in")
-
-        if(language=="en") {
-          p <-  p + geom_sf_text(data = nonGB[!(nonGB$SFA%in% c("SFA11", "SFA26B")),], 
-                                 aes(label = lab_short), 
-                                 fun.geometry = sf::st_centroid) +
-            geom_sf_text(data = nonGB[nonGB$SFA=="SFA11",], 
-                         aes(label = lab_short), 
-                         fun.geometry = sf::st_centroid, 
-                         nudge_x=-0.5, nudge_y=-0.5) +
-            geom_sf_text(data = nonGB[nonGB$SFA=="SFA26B",], 
-                         aes(label = lab_short), 
-                         fun.geometry = sf::st_centroid, 
-                         nudge_y=0.5) +
-            geom_text_repel(data = GBalab, 
-                            aes(x=as.data.frame(st_coordinates(st_centroid(GBalab)))$X,
-                                y=as.data.frame(st_coordinates(st_centroid(GBalab)))$Y,
-                                label = lab_short), 
-                            nudge_x=-1, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
-            geom_text_repel(data = GBblab, 
-                            aes(x=as.data.frame(st_coordinates(st_centroid(GBblab)))$X,
-                                y=as.data.frame(st_coordinates(st_centroid(GBblab)))$Y,
-                                label = lab_short), 
-                            nudge_x=1.25, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
-            coord_sf(expand=F) +
-            scale_x_continuous(limits=c(-68, -54)) +
-            #scale_y_continuous(limits=c(40, 48)) + 
-            theme_bw() +
-            xlab(NULL) + ylab(NULL)
-        }
-                
-        if(language=="fr") {
-          p <- p + geom_sf_text(data = nonGB[!(nonGB$SFA%in% c("SFA11", "SFA26B")),], 
-                                aes(label = fr), 
-                                fun.geometry = sf::st_centroid) +
-            geom_sf_text(data = nonGB[nonGB$SFA=="SFA11",], 
-                         aes(label = fr), 
-                         fun.geometry = sf::st_centroid, 
-                         nudge_x=-0.5, nudge_y=-0.5) +
-            geom_sf_text(data = nonGB[nonGB$SFA=="SFA26B",], 
-                         aes(label = fr), 
-                         fun.geometry = sf::st_centroid, 
-                         nudge_y=0.5) +
-            geom_text_repel(data = GBalab, 
-                            aes(x=as.data.frame(st_coordinates(st_centroid(GBalab)))$X,
-                                y=as.data.frame(st_coordinates(st_centroid(GBalab)))$Y,
-                                label = fr), 
-                            nudge_x=-1, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
-            geom_text_repel(data = GBblab, 
-                            aes(x=as.data.frame(st_coordinates(st_centroid(GBblab)))$X,
-                                y=as.data.frame(st_coordinates(st_centroid(GBblab)))$Y,
-                                label = fr), 
-                            nudge_x=1.25, nudge_y=-0.5, direction = "x", min.segment.length=0, box.padding = 0) +
-            coord_sf(expand=F) +
-            scale_x_continuous(limits=c(-68, -54)) +
-            #scale_y_continuous(limits=c(40, 48)) + 
-            theme_bw() +
-            xlab(NULL) + ylab(NULL)
-        }
-        
-        print(p)
-        # Turn off the plot device if making a pdf.
-        if(fig != "screen") dev.off()
       } # end if(bnk %in% c("GBa","BBn"))
       print("done making document figures")
     }

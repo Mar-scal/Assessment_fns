@@ -1173,7 +1173,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
     if(exists("nafo.sub")) pect_plot <- pect_plot + geom_sf(data=nafo.sub, fill=NA)
     if(exists("inshore.spa")) pect_plot <- pect_plot + geom_sf(data=inshore.spa, fill=NA)
     if(exists("offshore.spa")) pect_plot <- pect_plot + geom_sf(data=offshore.spa, fill=NA)
-    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1.5, linetype = "dashed")
+    if(exists("eez")) pect_plot <- pect_plot + geom_sf(data=eez, colour="firebrick",size=1, linetype = "dashed")
     if(exists("land.sf")) pect_plot <- pect_plot + geom_sf(data=land.sf, fill=land.col)   
     if(exists("s.labels")) 
     {
@@ -1213,7 +1213,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
         xlab(NULL) +
         ylab(NULL)
     }
-  
+    #browser()
   # Now add in option to show axis labels in Deg-Min and Deg-Min-Sec if you want.
     if(!is.null(axes) | language == "french")
     {
@@ -1226,8 +1226,8 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
       locs <- st_as_sf(data.frame(X = xlim,Y = ylim),coords = c("X","Y"),crs = c_sys,remove =F)
       locs <- st_transform(locs,crs=4326)
       
-      tmp <- locs %>%  mutate(lon = unlist(map(locs$geometry,1)),
-                              lat = unlist(map(locs$geometry,2)))
+      tmp <- locs %>%  dplyr::mutate(lon = unlist(purrr::map(locs$geometry,1)),
+                              lat = unlist(purrr::map(locs$geometry,2)))
       
       # Pretty doesn't work because we want these to be the same length
       lat.loc <- pretty(tmp$lat,n=5)
@@ -1280,7 +1280,7 @@ pecjector = function(gg.obj = NULL,plot_as = "ggplot" ,area = list(y = c(40,46),
                                substr(lon.tmp$Degree_Min_Sec$Degree_Minute_Seconds,8,9),expression("*{second}*W"))  
           } # end else
         }# End DMS
-        
+   
         if(axes == "DM")
         {
           lat.disp <- paste0(substr(lat.tmp$Degree_Min$Degree_Minutes,1,2),expression("*{degree}*"), 

@@ -107,7 +107,7 @@ Survey.design <- function(yr = as.numeric(format(Sys.time(), "%Y")) ,direct, exp
   require(RCurl)|| stop("Install the RCurl Package please")
   require(sf) || stop("Install the sf package before you get lost")
   require(tidyverse) || stop("Install the tidyverse package so you can do everything")
-  require(maptools)|| stop("Install maptools you fools")
+ # require(maptools)|| stop("Install maptools you fools")
   require(dplyr) || stop("Install dplyr, it's the best")
   if(fig == "leaflet") require(leaflet) || stop("Please install the leaflet package")
   # load in the functions we need to do the survey design
@@ -197,6 +197,7 @@ for(fun in funs)
   {
     # Grab the bank
     bnk <- banks[i]
+    
     # Grab any extra tows selected for that bank and make them a PBS mapping object
     if(add.extras ==F) extras <- data.frame(bill = NULL) # Did it this way to minimize the amount of code I need to change...
     if(add.extras == T) 
@@ -220,8 +221,8 @@ for(fun in funs)
     
     if(nrow(sb > 0 ))
     {
-      sb.sp <- PolySet2SpatialPolygons(as.PolySet(sb, projection = "LL"))
-      sb <- st_as_sf(sb.sp, coords = c("X","Y"),crs=4326)
+      #sb.sp <- PolySet2SpatialPolygons(as.PolySet(sb, projection = "LL"))
+      sb <- st_as_sf(sb, coords = c("X","Y"),crs=4326)
       
     }
     
@@ -332,7 +333,7 @@ for(fun in funs)
         writetows[,c("X", "Y")] <- st_coordinates(towlst[[i]]$Tows)
         st_geometry(writetows) <- NULL
         if(add.extras==T) {
-          extras$Poly.ID <- "extra"
+          extras$Poly.ID <- 0
           writetows <- full_join(writetows, extras[,c("EID", "X", "Y", "Poly.ID")])
           if(!nrow(writetows) == (nrow(towlst[[i]]$Tows) + nrow(extras))) stop("extras were not added properly")
         }
@@ -596,7 +597,7 @@ for(fun in funs)
     
     if(bnk %in% c("Mid","GB","Ban")) 
     {
-      
+      browser()
       if(load_stations==F){#Read5
         towlst[[i]] <-  subset(read.csv(paste(direct,"Data/Survey_data/fixed_station_banks_towlst.csv",sep="")),Bank == bnk)
         
@@ -622,9 +623,14 @@ for(fun in funs)
       } # end (if(load_stations==F))
       
       if(load_stations==T){
-        load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/", seedlab, "/towlst.RData"))
+        load(paste0(direct, "Data/Survey_Data/", yr, "/Spring/",bnk,"/towlst.RData"))
         towlst[[i]] <- savetowlst
       }
+      
+      if(!load_stations %in% c(T, F)) {
+        readtows <- read.csv(load_stations)
+        towlst[[i]] <- st_as_sf(readtows, coords=c("X", "Y"), remove=F, crs=4326)
+        }
       
       # attr(towlst[[i]],"projection") <- "LL"
       if(plot == T)
@@ -652,6 +658,8 @@ for(fun in funs)
         {
           # Now to get the points and the colors all tidy here...
           tmp <- towlst[[i]]
+          extras <- tmp[tmp$Tow.type=="exploratory",]
+          tmp <- tmp[tmp$Tow.type=="fixed",]
           
           if(nrow(extras) > 0) 
           {
@@ -666,8 +674,8 @@ for(fun in funs)
           if(bnk=="Mid") bp <- pecjector(area = bnk,repo = 'github',c_sys = 4326, add_layer = list(bathy = c(50,'c'), sfa = 'offshore'),plot=F, quiet=T)# + 
           
           if(nrow(extras)>0) {
-            shapes <- c(24,21)
-            cols <- c("darkorange", "transparent", "transparent")
+            shapes <- c(21,24)
+            cols <- c("transparent","darkorange")
           }
           if(nrow(extras)==0) {
             shapes <- c(21)
@@ -675,11 +683,16 @@ for(fun in funs)
           }
           
           if(bnk %in% c("Mid","GB")) tmp.sf$`Tow type` <- '3'
+          if(bnk %in% c("Ban")) {
+            tmp.sf$`Tow type` <- tmp.sf$STRATA
+            tmp.sf$`Tow type`[is.na(tmp.sf$`Tow type`)] <- '3'
+            tmp.sf$`Tow type`[tmp.sf$`Tow type`=="extra"] <- '5'
+          }
           
           # So what do we want to do with the points, first plots the station numbers
           if(point.style == "stn_num") bp2 <- bp + geom_sf_text(data=tmp.sf,aes(label = EID),size=pt.txt.sz) #text(towlst[[i]]$Tows$X,towlst[[i]]$Tows$Y,label=towlst[[i]]$Tows$EID,col='black', cex=0.6)
           # This just plots the points
-          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2) + scale_shape_manual(values=shapes) + scale_fill_manual(values=cols)
+          if(point.style == "points")  bp2 <- bp + geom_sf(data=tmp.sf,aes(shape=`Tow type`, fill=`Tow type`),size=pt.txt.sz/2, colour="black") + scale_shape_manual(values=shapes) + scale_fill_manual(values=cols)
           # Note regarding point colours. Sometimes points fall on the border between strata so it appears that they are mis-coloured. To check this,
           # run above line WITHOUT bg part to look at where the points fell and to make sure thay they are coloured correctly. It's not 
           # a coding issue, but if it looks like it will be impossible for the tow to occur within a tiny piece of strata, re-run the plots with a diff seed.
@@ -701,16 +714,17 @@ for(fun in funs)
               xlim(ggplot_build(bp)$layout$panel_scales_x[[1]]$range$range) +
               ylim(ggplot_build(bp)$layout$panel_scales_y[[1]]$range$range)
           }
-          # # And if there are any seedboxes
-          
+        
           # And if there are any seedboxes
           if(nrow(sb) > 0) bp2 <- bp2 + geom_sf(data=sb,fill=NA)                                                                                                                  
           cap <- paste("Survey stations (n = ",length(tmp.sf$EID),")")
           if(bnk != "Ban") cap <- paste("Fixed stations (n = ",length(tmp.sf$EID),")",sep="")
+          if(bnk == "Ban") cap <- paste("Fixed stations (n = ",length(tmp.sf$Tow)-nrow(extras),")",sep="")
           if(nrow(extras >0 )) cap <- paste(cap," \n Extra stations (n = ",
                                             nrow(extras),")",sep="",collapse =" ")
-          sub.title <- paste("Note: The random seed was set to ",seed,sep="")
-          if(bnk != "Ban") sub.title <- ''
+          #sub.title <- paste("Note: The random seed was set to ",seed,sep="")
+          #if(bnk != "Ban") 
+            sub.title <- ''
           pf <- bp2 + labs(title= paste("Survey (",bnk,"-",yr,")",sep=""),
                            subtitle = sub.title,
                            caption = cap)  + coord_sf(expand=F)
